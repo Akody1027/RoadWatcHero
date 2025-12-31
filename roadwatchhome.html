@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RoadWatcHero</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- Google Maps with Geometry -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5GbyoapPOyLYJLNo9y85cyorIczEI-WU&libraries=geometry"></script>
+
+<style>
+:root {
+  --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
+  --accent: #EE611C; --danger: #EE611C; --success: #22c55e; --warning: #f59e0b;
+  --shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; color: var(--text); background: white; overflow: hidden; }
+
+.view { display: none; width: 100vw; height: 100vh; position: fixed; inset: 0; z-index: 10; background: white; overflow-y: auto; }
+.view-active { display: flex; flex-direction: column; }
+
+#landingPage { align-items: center; justify-content: center; padding: 30px; text-align: center; z-index: 100; background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%); }
+#landingPage img { width: 240px; margin-bottom: 10px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1)); }
+.mode-btn { width: 100%; max-width: 320px; padding: 20px; border-radius: 18px; font-size: 18px; font-weight: 700; border: none; cursor: pointer; margin-bottom: 16px; box-shadow: var(--shadow); }
+.mode-btn:active { transform: scale(0.98); }
+.btn-req { background: var(--danger); color: white; }
+.btn-hero { background: var(--text); color: white; }
+
+#seekerUI { background: var(--bg); padding: 20px; align-items: center; }
+.status-card { background: white; width: 100%; max-width: 450px; padding: 25px; border-radius: 28px; box-shadow: var(--shadow); text-align: center; margin-top: 10px; border: 1px solid rgba(226, 232, 240, 0.8); }
+#seekerMap { width: 100%; height: 220px; border-radius: 20px; margin: 15px 0; background: #eee; border: 1px solid #e2e8f0; }
+
+.search-pulse { width: 80px; height: 80px; background: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: white; margin: 0 auto 20px; position: relative; }
+.search-pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--danger); opacity: 0.4; animation: pulse 2s infinite; }
+@keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
+
+#map { width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 1; }
+#statusIndicator { position: fixed; left: 5px; bottom: 50px; z-index: 150; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 28px; cursor: pointer; box-shadow: var(--shadow); border: 3px solid white; transition: 0.3s; }
+
+#heroPanel { width:100%; max-width: 400px; position: fixed; bottom: 85px; left: 0; z-index: 100; display: flex; flex-direction: column; padding: 0 15px; pointer-events: none; }
+#heroPanel > * { pointer-events: auto; }
+
+.task-card { background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); padding: 20px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-left: 6px solid var(--accent); display: none; transform: translateX(-110%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); max-height: 400px; overflow-y: auto; }
+.task-card.expanded { display: block; transform: translateX(0); }
+
+.sos-list-item { padding: 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+.sos-list-item:active { background: #f8fafc; }
+
+.modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
+.modal-content { background: white; width: 100%; max-width: 500px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 95vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); }
+@keyframes slideUp { to { transform: translateY(0); } }
+
+#chatBox { height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 20px; margin-bottom: 12px; border: 1px solid #e2e8f0; }
+.msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 14px; line-height: 1.4; }
+.msg-me { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+.msg-them { align-self: flex-start; background: white; color: var(--text); border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
+
+.vehicle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 15px 0; }
+.v-type { padding: 15px; border: 2px solid #f1f5f9; border-radius: 16px; text-align: center; cursor: pointer; font-weight: 700; }
+.v-type.active { border-color: #EE611C; background: #ee611c45; color: #EE611C; }
+.tip-btn { border: 2px solid #f1f5f9; border-radius: 12px; padding: 12px; flex: 1; text-align: center; cursor: pointer; font-weight: 800; background: white; }
+.tip-btn.active { border-color: var(--success); background: #f0fdf4; color: var(--success); }
+
+input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 12px; font-size: 15px; background: #f8fafc; }
+.submit-btn { width: 100%; padding: 18px; background: #EE611C; color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; }
+.cancel-link { display: block; text-align: center; padding: 15px; color: var(--muted); cursor: pointer; font-weight: 600; }
+
+.footer { position: fixed; bottom: 0; width: 100%;  background: rgba(238, 97, 28, 0.9); backdrop-filter: blur(10px); display: flex; justify-content:center; align-items: center; z-index: 200; border-top: 1px solid rgba(255,255,255,0.2); }
+.footer-icons { display:flex; gap:100px; padding:5px; }
+.icon-btn { cursor: pointer; width: 32px; height: 32px; filter: brightness(0) invert(1); }
+#notifBadge, #chatBadge, #chatBadgeHero { position: absolute; top: -5px; right: -5px; background: white; color: var(--danger); font-size: 10px; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: 900; }
+#chatBadge, #chatBadgeHero { background: var(--accent); color: white; }
+
+.center-btn { position: absolute; top: 20px; right: 20px; background: #EE611C; border: none; padding: 12px; border-radius: 12px; box-shadow: var(--shadow); cursor: pointer; z-index: 5; font-weight: 800; font-size: 11px; color:white; }
+</style>
+</head>
+<body>
+
+<!-- APP CONTENT -->
+<div id="landingPage" class="view view-active">
+    <img src="roadwatchlogo.png" onerror="this.src='https://via.placeholder.com/240x80?text=Roadside+Hero'" alt="Logo">
+    <h2 style="color: var(--muted); margin-bottom: 40px; font-weight: 500; font-size: 18px;">Help is just a click away.</h2>
+    <button class="mode-btn btn-req" onclick="window.openModal('requestModal')">Find a Hero!</button>
+    <button class="mode-btn btn-hero" onclick="window.enterHeroMode()">Become a Hero!</button>
+</div>
+
+<!-- SEEKER UI -->
+<div id="seekerUI" class="view">
+    <button id="cancelSosBtn" onclick="window.openModal('cancelConfirmModal')" style="align-self: flex-start; background: none; border: none; font-weight: 800; color: var(--danger); padding: 20px;">✕ CANCEL SOS</button>
+    
+    <div id="searchingState" class="status-card">
+        <div class="search-pulse">📡</div>
+        <h3>Broadcasting SOS...</h3>
+        <p>Your request is live. Waiting for a Hero to accept...</p>
+    </div>
+
+    <div id="matchedState" class="status-card" style="display:none; border-color: var(--success);">
+        <div id="seekerStatusPill" style="background: var(--success); color: white; padding: 6px 16px; border-radius: 20px; display: inline-block; font-size: 12px; font-weight: 800; margin-bottom: 15px;">HERO CONNECTED</div>
+        <div style="display: flex; align-items: center; gap: 15px; text-align: left;">
+            <img id="matchPic" src="" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid #f1f5f9;">
+            <div style="flex:1">
+                <h3 id="matchName" style="margin:0;">Hero Name</h3>
+                <p id="matchETA" style="margin:4px 0; color: var(--success); font-weight: 800; font-size: 14px;">Arriving in ...</p>
+            </div>
+            <button onclick="window.openChat()" style="background:var(--accent); color:white; border:none; padding:12px; border-radius:14px; font-weight:bold;">CHAT</button>
+        </div>
+        <div id="seekerMap"></div>
+        <p style="font-size:11px; color:var(--muted)">LIVE HERO TRACKING ENABLED</p>
+    </div>
+
+    <div id="completionConfirmState" class="status-card" style="display:none; border-color: var(--success);">
+        <div style="font-size: 40px; margin-bottom: 15px;">✅</div>
+        <h3>Job Completed!</h3>
+        <p>Your Hero has marked the job as finished.</p>
+        <button class="submit-btn" style="background: var(--success); margin-top: 15px;" onclick="window.finalSeekerConfirm()">CONFIRM & FINISH</button>
+    </div>
+
+    <div class="footer">
+        <div class="footer-icons">
+            <img src="thishomeicon.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1946/1946436.png'" class="icon-btn" onclick="location.reload()">
+            <div id="footerChatBtn" style="position:relative; display:none;">
+                <img src="https://cdn-icons-png.flaticon.com/512/589/589708.png" class="icon-btn" onclick="window.openChat()">
+                <span id="chatBadge">0</span>
+            </div>
+            <img src="usericon.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1077/1077063.png'" class="icon-btn" onclick="window.openProfile()">
+        </div>
+    </div>
+</div>
+
+<!-- HERO UI -->
+<div id="heroUI" class="view">
+    <button class="center-btn" onclick="window.centerOnMe()">RE-CENTER</button>
+    <div id="statusIndicator" style="background: #94a3b8;" onclick="window.toggleTaskCard()">!</div>
+    <div id="map"></div>
+    <div id="heroPanel">
+        <div id="activeTask" class="task-card">
+            <!-- DYNAMIC HERO CONTENT -->
+        </div>
+    </div>
+    <div class="footer">
+        <div class="footer-icons">
+            <div style="position:relative">
+                <img src="notificationicon.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3119/3119338.png'" class="icon-btn" onclick="window.openModal('notifModal')">
+                <span id="notifBadge">0</span>
+            </div>
+            <img src="thishomeicon.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1946/1946436.png'" class="icon-btn" onclick="location.reload()">
+            <div id="heroFooterChatBtn" style="position:relative; display:none;">
+                <img src="https://cdn-icons-png.flaticon.com/512/589/589708.png" class="icon-btn" onclick="window.openChat()">
+                <span id="chatBadgeHero">0</span>
+            </div>
+            <img src="usericon.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1077/1077063.png'" class="icon-btn" onclick="window.openProfile()">
+        </div>
+    </div>
+</div>
+
+<!-- MODALS -->
+<div id="detailsModal" class="modal">
+    <div class="modal-content">
+        <h3 id="detVehicle">Vehicle Request</h3>
+        <img id="detImg" style="width:100%; height:200px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
+        <p id="detIssue" style="font-weight:bold; margin-bottom:5px;"></p>
+        <p id="detTip" style="color:var(--success); font-weight: 900; font-size: 18px; margin: 10px 0;"></p>
+        <p id="detDist" style="color:var(--accent); font-size:14px; margin-bottom:20px; font-weight:600;"></p>
+        <label style="font-size:11px; font-weight:bold; color:var(--muted);">ETA TO ARRIVAL</label>
+        <select id="detETA">
+            <option value="5-10 mins">5-10 mins</option>
+            <option value="15-20 mins">15-20 mins</option>
+            <option value="30-45 mins">30-45 mins</option>
+            <option value="1 hour+">1 hour+</option>
+        </select>
+        <button id="detAcceptBtn" class="submit-btn">ACCEPT & HELP</button>
+        <span id="detInProgressText" style="display:none; color:var(--success); font-weight:bold; text-align:center;">JOB IN PROGRESS...</span>
+        <span class="cancel-link" onclick="window.closeModal('detailsModal')">Go Back</span>
+    </div>
+</div>
+
+<div id="chatModal" class="modal">
+    <div class="modal-content" style="height:85vh">
+        <h3 id="chatTitle">Messages</h3>
+        <div id="chatBox"></div>
+        <div style="display:flex; gap:10px;">
+            <button onclick="document.getElementById('chatImgInput').click()" style="padding:15px; background:#f1f5f9; border:none; border-radius:15px;">📷</button>
+            <input type="file" id="chatImgInput" accept="image/*" style="display:none" onchange="window.sendChatImg(this)">
+            <input id="chatInput" placeholder="Type message..." style="margin:0;">
+            <button onclick="window.sendTextMsg()" style="background:var(--accent); color:white; border:none; padding:0 20px; border-radius:15px; font-weight:bold;">SEND</button>
+        </div>
+        <span class="cancel-link" onclick="window.closeModal('chatModal')">Close</span>
+    </div>
+</div>
+
+<div id="requestModal" class="modal">
+    <div class="modal-content">
+        <h3>Request Hero</h3>
+        <div class="vehicle-grid">
+            <div class="v-type active" onclick="window.selectVehicle('Car', this)">🚗 Car</div>
+            <div class="v-type" onclick="window.selectVehicle('Truck', this)">🛻 Truck</div>
+            <div class="v-type" onclick="window.selectVehicle('RV', this)">🚐 RV</div>
+            <div class="v-type" onclick="window.selectVehicle('HeavyDuty', this)">🚛 Heavy Duty</div>
+        </div>
+        <label style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:8px; display:block;">TIP NOT REQUIRED, BUT APPRECIATED!</label>
+        <div style="display:flex; gap:10px; margin-bottom:12px;">
+            <div class="tip-btn" onclick="window.setTip(5, this)">$5</div>
+            <div class="tip-btn" onclick="window.setTip(10, this)">$10</div>
+            <div class="tip-btn" onclick="window.setTip(20, this)">$20</div>
+        </div>
+        <input type="number" id="customTip" placeholder="Other Tip Amount ($)" style="margin-bottom:15px;">
+        <img id="damagePreview" style="width:100%; height:150px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
+        <input type="file" id="damageInput" accept="image/*" style="display:none" onchange="window.handleImageUpload(this, 'damage')">
+        <button onclick="document.getElementById('damageInput').click()" style="width:100%; padding:15px; border-radius:16px; border:2px dashed #cbd5e1; background:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--muted);">📷 Add Damage Photo</button>
+        <textarea id="reqIssue" placeholder="What's the problem?" rows="2"></textarea>
+        <button class="submit-btn" onclick="window.submitSOS()">FIND HERO</button>
+        <p onclick="window.closeModal('requestModal')" class="cancel-link">Cancel</p>
+    </div>
+</div>
+
+<div id="cancelConfirmModal" class="modal">
+    <div class="modal-content"><h3>Cancel SOS?</h3><button class="submit-btn" style="background:var(--success); margin-bottom:10px;" onclick="window.submitCancellation('Issue Resolved')">Issue Resolved</button><button class="submit-btn" style="background:var(--accent); margin-bottom:10px;" onclick="window.submitCancellation('Found Other Helper')">Found Other Helper</button><button class="submit-btn" style="background:var(--muted); margin-bottom:10px;" onclick="window.submitCancellation('Changed Mind')">Don't Need Help</button><span class="cancel-link" onclick="window.closeModal('cancelConfirmModal')">Keep Request</span></div>
+</div>
+
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <h3>Hero Profile</h3>
+        <div style="text-align:center; margin-bottom:20px;">
+            <img id="profileDisplayPic" src="https://via.placeholder.com/100" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid #eff6ff;">
+            <input type="file" id="picInput" style="display:none" onchange="window.handleImageUpload(this, 'profile')">
+            <button onclick="document.getElementById('picInput').click()" style="display:block; margin:8px auto; border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer;">Update Photo</button>
+        </div>
+        <input id="profileName" placeholder="Hero Name">
+        <textarea id="profileBio" placeholder="Bio / Tools Available..." rows="2"></textarea>
+        <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
+            <label style="font-size:11px; font-weight:900; color:var(--muted);">SERVICE RADIUS: <span id="radiusVal" style="color:var(--accent);">25</span> miles</label>
+            <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="margin: 15px 0 0 0;" oninput="document.getElementById('radiusVal').innerText = this.value">
+        </div>
+        <button class="submit-btn" onclick="window.saveProfile()">Save Settings</button>
+        <span class="cancel-link" onclick="window.closeModal('profileModal')">Close</span>
+    </div>
+</div>
+
+<div id="notifModal" class="modal"><div class="modal-content"><h3>Activity History</h3><div id="notifHistory"></div><button class="submit-btn" style="background:#f1f5f9; color:var(--text); margin-top:20px;" onclick="window.closeModal('notifModal')">CLOSE</button></div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, push, onValue, set, get, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
+  authDomain: "roadsidehero-104ea.firebaseapp.com",
+  databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
+  projectId: "roadsidehero-104ea",
+  storageBucket: "roadsidehero-104ea.firebasestorage.app"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+if(!localStorage.getItem('heroUserId')) localStorage.setItem('heroUserId', 'u_' + Math.random().toString(36).substr(2, 9));
+const myId = localStorage.getItem('heroUserId');
+
+let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgData = null, myRadius = 25, heroMarker;
+let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUserMarker;
+let activeChatId = null, lastMsgCount = 0;
+
+const getMarkerIcon = (color) => ({
+    path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z",
+    fillColor: color, fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff", scale: 1.5, anchor: new google.maps.Point(12, 12)
+});
+
+window.onload = () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(p => {
+            const freshLoc = { lat: p.coords.latitude, lng: p.coords.longitude };
+            const isFirstLoad = !userLocation;
+            userLocation = freshLoc;
+            update(ref(db, `profiles/${myId}`), { ...userLocation, id: myId });
+            if (map) {
+                if (!heroMarker) {
+                    heroMarker = new google.maps.Marker({
+                        position: userLocation, map: map,
+                        icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }
+                    });
+                } else { heroMarker.setPosition(userLocation); }
+                if (isFirstLoad && document.getElementById('heroUI').classList.contains('view-active')) { map.setCenter(userLocation); }
+            }
+            syncUI();
+        }, (err) => console.error(err), { enableHighAccuracy: true });
+    }
+};
+
+window.toggleTaskCard = () => { document.getElementById('activeTask').classList.toggle('expanded'); };
+window.setTip = (amt, el) => { document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); document.getElementById('customTip').value = amt; };
+window.updateRadius = (val) => { myRadius = parseInt(val); document.getElementById('radiusVal').innerText = val; syncUI(); };
+window.centerOnMe = () => { if (map && userLocation) map.setCenter(userLocation); };
+window.openModal = (id) => document.getElementById(id).style.display = "flex";
+window.closeModal = (id) => document.getElementById(id).style.display = "none";
+window.switchView = (id) => {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('view-active'));
+    document.getElementById(id).classList.add('view-active');
+    if (id === 'heroUI' && map && userLocation) { google.maps.event.trigger(map, 'resize'); map.setCenter(userLocation); }
+};
+window.selectVehicle = (type, el) => { selectedVehicle = type; document.querySelectorAll(".v-type").forEach(b => b.classList.remove("active")); el.classList.add("active"); };
+
+window.handleImageUpload = (input, target) => {
+    const file = input.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas'); const MAX_WIDTH = 600; const scaleSize = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+            const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const compressedData = canvas.toDataURL('image/jpeg', 0.7);
+            if(target === 'damage') { damageImgData = compressedData; document.getElementById('damagePreview').src = compressedData; document.getElementById('damagePreview').style.display = 'block'; }
+            else if(target === 'profile') { document.getElementById('profileDisplayPic').src = compressedData; }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+};
+
+window.openChat = () => {
+    const activeReq = Object.entries(sosCache).find(([id, r]) => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
+    if(!activeReq) return;
+    activeChatId = activeReq[0];
+    window.openModal('chatModal');
+    onValue(ref(db, `chats/${activeChatId}`), (snap) => {
+        const box = document.getElementById('chatBox'); box.innerHTML = "";
+        const data = snap.val() || {};
+        const msgs = Object.values(data);
+        msgs.forEach(m => {
+            const side = m.sender === myId ? 'msg-me' : 'msg-them';
+            let content = m.text ? `<div>${m.text}</div>` : "";
+            if(m.img) content += `<img src="${m.img}" style="max-width:100%; border-radius:10px; margin-top:5px;">`;
+            box.innerHTML += `<div class="msg ${side}">${content}</div>`;
+        });
+        box.scrollTop = box.scrollHeight;
+        lastMsgCount = msgs.length;
+        updateChatBadges(0);
+    });
+};
+
+window.sendTextMsg = () => {
+    const input = document.getElementById('chatInput'); if(!input.value.trim() || !activeChatId) return;
+    push(ref(db, `chats/${activeChatId}`), { sender: myId, text: input.value, timestamp: Date.now() });
+    input.value = "";
+};
+
+window.sendChatImg = (input) => {
+    const file = input.files[0]; if(!file || !activeChatId) return;
+    const reader = new FileReader();
+    reader.onload = (e) => push(ref(db, `chats/${activeChatId}`), { sender: myId, img: e.target.result, timestamp: Date.now() });
+    reader.readAsDataURL(file);
+};
+
+function updateChatBadges(count) {
+    const sB = document.getElementById('chatBadge'); const hB = document.getElementById('chatBadgeHero');
+    if(count > 0) { 
+        if(sB){ sB.innerText = count; sB.style.display = 'flex'; } 
+        if(hB){ hB.innerText = count; hB.style.display = 'flex'; }
+    } else { if(sB) sB.style.display = 'none'; if(hB) hB.style.display = 'none'; }
+}
+
+window.viewRequest = (id) => {
+    const r = sosCache[id]; if(!r) return;
+    document.getElementById('detVehicle').innerText = r.vehicle + " Request";
+    document.getElementById('detIssue').innerText = r.issue;
+    document.getElementById('detTip').innerText = (r.tip && r.tip > 0) ? "💰 Offering $" + r.tip + " Tip" : "";
+    const dist = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1) : "?";
+    document.getElementById('detDist').innerText = "📍 " + dist + " miles from you";
+    const img = document.getElementById('detImg');
+    if(r.damagePic) { img.src = r.damagePic; img.style.display = "block"; } else { img.style.display = "none"; }
+    const acceptBtn = document.getElementById('detAcceptBtn');
+    const progressText = document.getElementById('detInProgressText');
+    const etaInput = document.getElementById('detETA');
+    if(r.status === 'accepted' || r.status === 'arrived') {
+        acceptBtn.style.display = "none"; progressText.style.display = "block"; etaInput.style.display = "none";
+    } else {
+        acceptBtn.style.display = "block"; progressText.style.display = "none"; etaInput.style.display = "block";
+        acceptBtn.onclick = () => window.confirmHelp(id);
+    }
+    window.openModal('detailsModal');
+};
+
+window.enterHeroMode = () => { window.switchView('heroUI'); if(!map) initMap(); };
+window.confirmHelp = (sosId) => {
+    const eta = document.getElementById('detETA').value;
+    update(ref(db, `sosRequests/${sosId}`), { status: 'accepted', helperId: myId, helperAcknowledged: false, eta: eta });
+    window.closeModal('detailsModal');
+    document.getElementById('activeTask').classList.add('expanded');
+};
+window.markArrived = () => { const active = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'accepted'); if(active) update(ref(db, `sosRequests/${active[0]}`), { status: 'arrived' }); };
+window.completeTask = () => { const active = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived'); if(active) update(ref(db, `sosRequests/${active[0]}`), { status: 'completed' }); };
+
+window.acknowledgeCancel = () => {
+    const canceledTask = Object.entries(sosCache).find(([id, r]) => 
+        r.helperId === myId && r.status === 'canceled' && r.helperAcknowledged !== true
+    );
+    if(canceledTask) {
+        update(ref(db, `sosRequests/${canceledTask[0]}`), { helperAcknowledged: true });
+        const tCard = document.getElementById('activeTask');
+        tCard.classList.remove('expanded');
+        setTimeout(() => { tCard.style.display = 'none'; }, 400);
+    }
+};
+
+window.submitSOS = () => {
+    const issue = document.getElementById('reqIssue').value; const tip = document.getElementById('customTip').value || 0;
+    
+    // SESSION PERSISTENCE: 1. Check if user already has an active help request before starting a new one
+    const existingReq = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
+    if (existingReq) {
+        window.switchView('seekerUI'); // Go to status screen
+        window.closeModal('requestModal');
+        return; // Don't submit a second request
+    }
+
+    if(!issue || !userLocation) return alert("Please describe the issue.");
+    push(ref(db, "sosRequests"), { ownerId: myId, userName: "Driver", issue, vehicle: selectedVehicle, damagePic: damageImgData, tip: tip, lat: userLocation.lat, lng: userLocation.lng, status: 'open', timestamp: Date.now() });
+    window.closeModal('requestModal'); window.switchView('seekerUI');
+};
+
+window.submitCancellation = (reason) => {
+    const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && (sosCache[k].status === 'open' || sosCache[k].status === 'accepted' || sosCache[k].status === 'arrived'));
+    if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'canceled', cancelReason: reason });
+    window.closeModal('cancelConfirmModal'); window.switchView('landingPage'); damageImgData = null;
+};
+
+window.finalSeekerConfirm = () => {
+    const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === 'completed');
+    if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'finalized' });
+    damageImgData = null;
+    window.switchView('landingPage');
+};
+
+function initMap() { map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true, styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] }); }
+
+function syncUI() {
+    const history = document.getElementById('notifHistory'); history.innerHTML = "";
+    let nearbySOS = [];
+    let currentTask = null; 
+    let myActiveSOS = null;
+    let jobActive = false;
+
+    Object.entries(sosCache).forEach(([id, r]) => {
+        const isMyJob = (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived'));
+        const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
+        
+        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
+            nearbySOS.push({id, ...r, dist: distMiles});
+            if(!markers[id] && map) { 
+                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#EE611C") }); 
+                marker.addListener('click', () => window.viewRequest(id)); 
+                markers[id] = marker; 
+            }
+        } else if (isMyJob) {
+            if(!markers[id] && map) {
+                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e") });
+                marker.addListener('click', () => window.viewRequest(id)); 
+                markers[id] = marker;
+            } else if (markers[id]) {
+                markers[id].setIcon(getMarkerIcon("#22c55e"));
+            }
+        } else if (markers[id]) {
+            markers[id].setMap(null); delete markers[id];
+        }
+
+        // Identify current hero task
+        if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) currentTask = r;
+        
+        // Identify active seeker request (Only latest non-finalized)
+        if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) {
+            if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = r;
+        }
+        
+        if((r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived')) {
+            jobActive = true; 
+        }
+        let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
+        history.innerHTML += `<div class="history-item" style="padding:15px; background:#f8fafc; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0;"><span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; float:right; background:${sCol};">${r.status}</span><b>${r.vehicle}</b><br><small>${r.issue}</small></div>`;
+    });
+
+    document.getElementById('footerChatBtn').style.display = jobActive ? 'block' : 'none';
+    document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
+
+    // HERO STATUS INDICATOR COLORS
+    const ind = document.getElementById('statusIndicator');
+    if(currentTask) { ind.style.background = "var(--success)"; } 
+    else if (nearbySOS.length > 0) { ind.style.background = "var(--danger)"; } 
+    else { ind.style.background = "#94a3b8"; }
+    
+    // HERO TASK PANEL
+    const tCard = document.getElementById('activeTask');
+    tCard.innerHTML = ""; 
+
+    if(currentTask) {
+        tCard.style.display = 'block';
+        if(currentTask.status === 'canceled') {
+            tCard.innerHTML = `<div style="text-align:center;"><b style="color:var(--danger)">SOS CANCELED</b><p style="font-size:13px; margin:10px 0;">Reason: ${currentTask.cancelReason || 'None'}</p><button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:10px; font-size:13px;">CLOSE</button></div>`;
+        } else {
+            tCard.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <b style="color:${currentTask.status === 'arrived' ? 'var(--warning)' : 'var(--accent)'};">${currentTask.status.toUpperCase()} JOB</b>
+                    <button onclick="window.openChat()" style="background:var(--accent); color:white; border:none; padding:10px 18px; border-radius:12px; font-weight:bold; font-size:12px;">CHAT</button>
+                </div>
+                <p style="margin:10px 0; font-weight:700; font-size:15px;">${currentTask.vehicle}: ${currentTask.issue}</p>
+                ${(currentTask.tip > 0) ? `<p style="margin: 0 0 10px 0; font-weight: 800; color: var(--success); font-size: 14px;">💰 Tip: $${currentTask.tip}</p>` : ''}
+                <div style="display:flex; gap:8px;">
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">MAPS</a>
+                    ${currentTask.status === 'accepted' ? `<button onclick="window.markArrived()" style="flex:1; background:var(--warning); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">HERE</button>` : `<button onclick="window.completeTask()" style="flex:1; background:var(--success); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">DONE</button>`}
+                </div>`;
+        }
+    } else if (nearbySOS.length > 0) {
+        tCard.style.display = 'block';
+        let listHtml = `<b style="color:var(--danger); display:block; margin-bottom:10px;">${nearbySOS.length} SOS NEARBY</b>`;
+        nearbySOS.forEach(s => {
+            listHtml += `<div class="sos-list-item" onclick="window.viewRequest('${s.id}')">
+                <div><b>${s.vehicle}</b><br><small>${s.dist.toFixed(1)} miles away</small></div>
+                <div style="color:var(--success); font-weight:bold;">${s.tip > 0 ? '$'+s.tip : 'HELP'}</div>
+            </div>`;
+        });
+        tCard.innerHTML = listHtml;
+    } else {
+        tCard.style.display = 'block';
+        tCard.innerHTML = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone nearby sends an SOS.</p></div>`;
+    }
+
+    if(myActiveSOS) {
+        // SESSION PERSISTENCE: 2. If an active SOS is detected, force the view to seekerUI if they refresh back to the landing page
+        if (document.getElementById('landingPage').classList.contains('view-active')) {
+            window.switchView('seekerUI');
+        }
+
+        const searching = document.getElementById('searchingState');
+        const matched = document.getElementById('matchedState');
+        const completed = document.getElementById('completionConfirmState');
+        const cancelBtn = document.getElementById('cancelSosBtn');
+
+        // STRICT STATE TRANSITIONS
+        if(myActiveSOS.status === 'open') {
+            searching.style.display = 'block'; 
+            matched.style.display = 'none'; 
+            completed.style.display = 'none'; 
+            cancelBtn.style.display = 'block';
+        } else if(myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') {
+            searching.style.display = 'none'; 
+            matched.style.display = 'block'; 
+            completed.style.display = 'none'; 
+            cancelBtn.style.display = 'block';
+            
+            const hero = profilesCache[myActiveSOS.helperId] || {};
+            document.getElementById('matchName').innerText = hero.name || "Roadside Hero";
+            document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
+            document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is at your location!" : `Arriving in ${myActiveSOS.eta || '...'}`;
+            updateSeekerMiniMap(myActiveSOS, hero);
+        } else if(myActiveSOS.status === 'completed') {
+            searching.style.display = 'none'; 
+            matched.style.display = 'none'; 
+            completed.style.display = 'block'; 
+            cancelBtn.style.display = 'none';
+        }
+    }
+    
+    const badge = document.getElementById('notifBadge'); badge.innerText = nearbySOS.length; badge.style.display = nearbySOS.length > 0 ? "flex" : "none";
+}
+
+function updateSeekerMiniMap(sos, hero) {
+    if(!seekerMiniMap) { seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }); seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/truck.png' }); }
+    const userPos = {lat: sos.lat, lng: sos.lng}; seekerUserMarker.setPosition(userPos);
+    if(hero.lat) { const heroPos = {lat: hero.lat, lng: hero.lng}; seekerHeroMarker.setPosition(heroPos); const bounds = new google.maps.LatLngBounds(); bounds.extend(userPos); bounds.extend(heroPos); seekerMiniMap.fitBounds(bounds); }
+    else { seekerMiniMap.setCenter(userPos); }
+}
+
+onValue(ref(db, "sosRequests"), (snap) => { 
+    sosCache = snap.val() || {}; 
+    syncUI(); 
+    
+    // SESSION PERSISTENCE: 3. Immediately switch the view if the database loads and sees you have an active session
+    const myActive = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
+    if (myActive && document.getElementById('landingPage').classList.contains('view-active')) {
+        window.switchView('seekerUI');
+    }
+});
+
+onValue(ref(db, "profiles"), (snap) => { profilesCache = snap.val() || {}; syncUI(); });
+
+window.saveProfile = () => {
+    myRadius = parseInt(document.getElementById("profileRadius").value);
+    update(ref(db, `profiles/${myId}`), { name: document.getElementById("profileName").value, bio: document.getElementById("profileBio").value, pic: document.getElementById("profileDisplayPic").src, radius: myRadius });
+    if(map && userLocation) { 
+        const radiusInMeters = myRadius * 1609.34; 
+        const circle = new google.maps.Circle({center: userLocation, radius: radiusInMeters}); 
+        map.setCenter(userLocation);
+        map.fitBounds(circle.getBounds()); 
+    }
+    window.closeModal("profileModal");
+};
+
+window.openProfile = async () => {
+    window.openModal("profileModal");
+    const snap = await get(ref(db, `profiles/${myId}`));
+    if(snap.exists()) {
+        const d = snap.val(); document.getElementById("profileName").value = d.name || ""; document.getElementById("profileBio").value = d.bio || ""; if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius; }
+    }
+};
+</script>
+</body>
+</html>
