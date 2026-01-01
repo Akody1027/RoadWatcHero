@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>My PWA App</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/logo.icon" type="image/x-icon">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#ffffff">
+    <style>
+        body { margin: 0; overflow: hidden; }
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <iframe src="home.html" id="appFrame"></iframe>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // Request Push Notification Permission
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log('Notification permission granted.');
+                        // You would typically subscribe the user to push notifications here
+                    } else {
+                        console.warn('Notification permission denied.');
+                    }
+                });
+            } else {
+                console.warn('Notifications not supported in this browser.');
+            }
+        }
+
+        // Request Geolocation Permission
+        function requestGeolocationPermission() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        console.log('Geolocation permission granted. Current position:', position.coords);
+                        // You can use position.coords.latitude, position.coords.longitude here
+                    },
+                    error => {
+                        console.error('Geolocation permission denied or error:', error);
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                console.error("User denied the request for Geolocation.");
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                console.error("Location information is unavailable.");
+                                break;
+                            case error.TIMEOUT:
+                                console.error("The request to get user location timed out.");
+                                break;
+                            case error.UNKNOWN_ERROR:
+                                console.error("An unknown error occurred.");
+                                break;
+                        }
+                    }
+                );
+            } else {
+                console.warn('Geolocation not supported in this browser.');
+            }
+        }
+
+        // You might want to trigger these requests based on user interaction,
+        // rather than immediately on page load, for a better user experience.
+        // For demonstration, they are called on load.
+        window.addEventListener('load', () => {
+            requestNotificationPermission();
+            requestGeolocationPermission();
+        });
+    </script>
+</body>
+</html>
