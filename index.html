@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>ROADWATCHERO</title>
+    <title>My PWA App</title>
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/roadwatch.ico" type="image/x-icon">
+    <link rel="icon" href="/logo.icon" type="image/x-icon">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#ffffff">
     <style>
-        body { margin: 0; overflow: hidden; }
+        body { margin: 0; overflow: hidden; font-family: sans-serif; }
         iframe {
             width: 100vw;
             height: 90vh;
@@ -26,22 +26,67 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #ffffff; /* Or any background color you prefer */
+            background-color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.5s ease-out; /* Fade-out duration */
+            transition: opacity 0.5s ease-out;
         }
 
         #preloader.hidden {
             opacity: 0;
-            pointer-events: none; /* Allows clicks through once hidden */
+            pointer-events: none;
         }
 
         #preloader img {
-            width: auto; /* Adjust size as needed */
-            height: 300px;
+            width: 100px;
+            height: 100px;
+        }
+
+        /* Install Button Styles */
+        #installButtonContainer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 10vh; /* Adjust height as needed */
+            background-color: #f8f8f8;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998; /* Below preloader, above appFrame */
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            /* Initially hidden */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+
+        #installButtonContainer.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #installButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            outline: none;
+        }
+
+        #installButton:hover {
+            background-color: #0056b3;
+        }
+
+        /* Adjust iframe height when install button is visible */
+        body.has-install-button iframe {
+            height: 80vh; /* 100vh - 10vh (button) - 10vh (top bar if any) */
         }
     </style>
 </head>
@@ -52,7 +97,17 @@
 
     <iframe src="home.html" id="appFrame"></iframe>
 
+    <div id="installButtonContainer">
+        <button id="installButton">Install App</button>
+    </div>
+
     <script>
+        let deferredPrompt; // To store the event for later use
+        const installButtonContainer = document.getElementById('installButtonContainer');
+        const installButton = document.getElementById('installButton');
+        const appFrame = document.getElementById('appFrame');
+        const body = document.body;
+
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -72,7 +127,6 @@
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
                         console.log('Notification permission granted.');
-                        // You would typically subscribe the user to push notifications here
                     } else {
                         console.warn('Notification permission denied.');
                     }
@@ -88,7 +142,6 @@
                 navigator.geolocation.getCurrentPosition(
                     position => {
                         console.log('Geolocation permission granted. Current position:', position.coords);
-                        // You can use position.coords.latitude, position.coords.longitude here
                     },
                     error => {
                         console.error('Geolocation permission denied or error:', error);
@@ -113,15 +166,12 @@
             }
         }
 
-        // Variable to track if the minimum loading time has passed
+        // Preloader logic
         let minLoadingTimePassed = false;
-        // Variable to track if the actual page content is loaded
         let pageContentLoaded = false;
 
-        // Set a timeout for the minimum display duration (3 seconds)
         setTimeout(() => {
             minLoadingTimePassed = true;
-            // If page content is already loaded, hide the preloader now
             if (pageContentLoaded) {
                 hidePreloader();
             }
@@ -130,20 +180,65 @@
         function hidePreloader() {
             const preloader = document.getElementById('preloader');
             if (preloader) {
-                preloader.classList.add('hidden'); // Start fade-out
-
-                // Optional: Remove the preloader from the DOM after the transition for accessibility
+                preloader.classList.add('hidden');
                 preloader.addEventListener('transitionend', () => {
                     preloader.remove();
                 });
             }
         }
 
+        // --- PWA Install Logic ---
+
+        // Listen for the beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            console.log('beforeinstallprompt fired.');
+            // Update UI to notify the user they can add to home screen
+            // Only show the button if the app is not already installed
+            if (!navigator.standalone && !window.matchMedia('(display-mode: standalone)').matches) {
+                installButtonContainer.classList.add('show');
+                // Adjust iframe height to accommodate the install button
+                body.classList.add('has-install-button');
+                appFrame.style.height = 'calc(100vh - 10vh)'; // Adjust based on button container height
+            }
+        });
+
+        // Handle the install button click
+        installButton.addEventListener('click', async () => {
+            // Hide the install button
+            installButtonContainer.classList.remove('show');
+            body.classList.remove('has-install-button');
+            appFrame.style.height = '90vh'; // Reset iframe height
+
+            // Show the install prompt
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                // Optionally, send analytics event with outcome of user choice
+                console.log(`User response to the A2HS prompt: ${outcome}`);
+                // We've used the prompt, and can't use it again, clear it.
+                deferredPrompt = null;
+            }
+        });
+
+        // Listen for the appinstalled event
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed!');
+            // Hide the install button if it was visible
+            installButtonContainer.classList.remove('show');
+            body.classList.remove('has-install-button');
+            appFrame.style.height = '90vh'; // Reset iframe height
+            // Clear the deferredPrompt since the app is now installed
+            deferredPrompt = null;
+        });
 
         // Hide preloader once the entire page (including iframe content) has loaded
         window.addEventListener('load', () => {
             pageContentLoaded = true;
-            // If the minimum loading time has passed, hide the preloader now
             if (minLoadingTimePassed) {
                 hidePreloader();
             }
@@ -154,11 +249,7 @@
 
         document.getElementById('appFrame').addEventListener('load', () => {
              console.log('Iframe content loaded.');
-             // This event fires when the iframe's content is loaded,
-             // which is already covered by the window.load event if it's the last asset.
-             // No direct action needed here for the preloader given the current logic.
         });
     </script>
 </body>
 </html>
-
