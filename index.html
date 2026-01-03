@@ -31,7 +31,7 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 5s ease-out; /* Smooth fade-out */
+            transition: opacity 0.5s ease-out; /* Fade-out duration */
         }
 
         #preloader.hidden {
@@ -113,32 +113,51 @@
             }
         }
 
+        // Variable to track if the minimum loading time has passed
+        let minLoadingTimePassed = false;
+        // Variable to track if the actual page content is loaded
+        let pageContentLoaded = false;
+
+        // Set a timeout for the minimum display duration (3 seconds)
+        setTimeout(() => {
+            minLoadingTimePassed = true;
+            // If page content is already loaded, hide the preloader now
+            if (pageContentLoaded) {
+                hidePreloader();
+            }
+        }, 3000); // 3000 milliseconds = 3 seconds
+
+        function hidePreloader() {
+            const preloader = document.getElementById('preloader');
+            if (preloader) {
+                preloader.classList.add('hidden'); // Start fade-out
+
+                // Optional: Remove the preloader from the DOM after the transition for accessibility
+                preloader.addEventListener('transitionend', () => {
+                    preloader.remove();
+                });
+            }
+        }
+
+
         // Hide preloader once the entire page (including iframe content) has loaded
         window.addEventListener('load', () => {
-            const preloader = document.getElementById('preloader');
-            preloader.classList.add('hidden'); // Start fade-out
-
-            // Optional: Remove the preloader from the DOM after the transition for accessibility
-            preloader.addEventListener('transitionend', () => {
-                preloader.remove();
-            });
+            pageContentLoaded = true;
+            // If the minimum loading time has passed, hide the preloader now
+            if (minLoadingTimePassed) {
+                hidePreloader();
+            }
 
             requestNotificationPermission();
             requestGeolocationPermission();
         });
 
-        // This ensures the iframe content is also considered for the 'load' event.
-        // If the iframe content loads significantly later, you might need a more
-        // sophisticated check within the iframe itself or via postMessage.
         document.getElementById('appFrame').addEventListener('load', () => {
              console.log('Iframe content loaded.');
-             // If you want the preloader to wait specifically for the iframe,
-             // you might trigger the preloader fade here instead of window.load
-             // or add a debounce. For simplicity, window.load is often sufficient.
+             // This event fires when the iframe's content is loaded,
+             // which is already covered by the window.load event if it's the last asset.
+             // No direct action needed here for the preloader given the current logic.
         });
     </script>
 </body>
 </html>
-
-
-
