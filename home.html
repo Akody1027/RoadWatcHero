@@ -281,7 +281,7 @@ let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUse
 let activeChatId = null, lastMsgCount = 0;
 let activityToDeleteId = null; // New variable to store the ID of the activity to delete
 let currentUnreadCount = 0; // New variable to track the overall unread count
-let lastPlayedMessageId = null; // To prevent multiple sound plays for the same message
+let lastPlayedMessageTimestamp = 0; // To prevent multiple sound plays for the same message on initial load
 
 
 const getMarkerIcon = (color) => ({
@@ -342,9 +342,15 @@ window.handleImageUpload = (input, target) => {
 };
 
 window.openChat = async () => {
-    const activeReq = Object.entries(sosCache).find(([id, r]) => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
-    if(!activeReq) return;
-    activeChatId = activeReq[0];
+    // Determine the truly active chat ID here based on the current active job.
+    const currentActiveSOS = Object.values(sosCache).find(
+        r => (r.ownerId === myId || r.helperId === myId) &&
+             (r.status === 'accepted' || r.status === 'arrived')
+    );
+    if (!currentActiveSOS) return;
+    
+    activeChatId = Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS); // Set activeChatId globally
+
     window.openModal('chatModal');
 
     // Mark messages as read when chat is opened
@@ -361,10 +367,11 @@ window.openChat = async () => {
             await update(ref(db), updates);
         }
     }
-    // The global listener will update the badge count after messages are marked as read
+    // The global listener will update the badge count after messages are marked as read.
     // For immediate visual, we can also manually call updateChatBadges(0)
     updateChatBadges(0); 
 
+    // This listener is specific to the currently opened chat modal
     onValue(ref(db, `chats/${activeChatId}`), (snap) => {
         const box = document.getElementById('chatBox'); box.innerHTML = "";
         const data = snap.val() || {};
@@ -377,8 +384,6 @@ window.openChat = async () => {
         });
         box.scrollTop = box.scrollHeight;
         lastMsgCount = msgs.length;
-        // The global unread listener handles the badge count now.
-        // updateChatBadges(0); // This line is less crucial now as global listener will cover it.
     });
 };
 
@@ -412,51 +417,57 @@ function updateChatBadges(count) {
 // Global listener for unread messages and notification sound
 onValue(ref(db, 'chats'), (snapshot) => {
     let unreadCount = 0;
-    let newUnreadMessageDetected = false;
-    let latestMessageId = null;
+    let latestMessageTimestampInActiveChat = 0;
+    
+    // Determine the active SOS request for *this user*
+    const myActiveSOSRequest = Object.entries(sosCache).find(
+        ([id, r]) => (r.ownerId === myId || r.helperId === myId) &&
+                     (r.status === 'accepted' || r.status === 'arrived')
+    );
 
-    // Check if chat modal is currently open
-    const chatModalOpen = document.getElementById('chatModal').style.display === 'flex';
+    let currentActiveChatIdForBadge = null;
+    if (myActiveSOSRequest) {
+        currentActiveChatIdForBadge = myActiveSOSRequest[0]; // The ID of the SOS request is also the chat ID
+    }
 
-    if (snapshot.exists()) {
-        const allChats = snapshot.val();
-        for (const chatId in allChats) {
-            // Find the active SOS request the user is involved in
-            const relevantSOS = Object.values(sosCache).find(
-                r => (r.ownerId === myId || r.helperId === myId) &&
-                     (r.status === 'accepted' || r.status === 'arrived') &&
-                     chatId === activeChatId // This ensures we only count for the current active chat
-            );
+    // Only proceed if there's an active chat relevant to the current user
+    if (currentActiveChatIdForBadge) {
+        const messages = snapshot.val() ? snapshot.val()[currentActiveChatIdForBadge] : null;
 
-            if (relevantSOS) {
-                const messages = allChats[chatId];
-                for (const msgId in messages) {
-                    const message = messages[msgId];
-                    if (message.sender !== myId && message.read === false) {
-                        unreadCount++;
-                        if (message.timestamp > (latestMessageId ? allChats[chatId][latestMessageId].timestamp : 0)) {
-                            latestMessageId = msgId;
-                        }
-                    }
+        if (messages) {
+            for (const msgId in messages) {
+                const message = messages[msgId];
+                if (message.sender !== myId && message.read === false) {
+                    unreadCount++;
+                }
+                // Keep track of the latest message timestamp in this active chat
+                if (message.timestamp && message.timestamp > latestMessageTimestampInActiveChat) {
+                    latestMessageTimestampInActiveChat = message.timestamp;
                 }
             }
         }
     }
 
-    // Play notification sound if there's a new unread message from the other party
-    if (unreadCount > currentUnreadCount && !chatModalOpen) {
-        // Only play if the latest unread message wasn't the last one we played a sound for
-        if (latestMessageId && latestMessageId !== lastPlayedMessageId) {
-            const sound = document.getElementById('notificationSound');
-            if (sound) {
-                sound.play().catch(e => console.error("Error playing sound:", e));
-                lastPlayedMessageId = latestMessageId;
-            }
+    // Check if chat modal is currently open
+    const chatModalOpen = document.getElementById('chatModal').style.display === 'flex';
+
+    // Play notification sound if new unread messages are detected AND chat is not open
+    // This logic handles app refresh/reopen and new messages while app is in background
+    if (unreadCount > 0 && latestMessageTimestampInActiveChat > lastPlayedMessageTimestamp && !chatModalOpen) {
+        const sound = document.getElementById('notificationSound');
+        if (sound) {
+            sound.play().catch(e => console.error("Error playing sound:", e));
         }
+    }
+    
+    // Update lastPlayedMessageTimestamp ONLY if there were messages to prevent sound on first load when no messages exist.
+    if (latestMessageTimestampInActiveChat > 0) {
+        lastPlayedMessageTimestamp = latestMessageTimestampInActiveChat;
     }
     
     currentUnreadCount = unreadCount; // Update the global unread count
     updateChatBadges(currentUnreadCount);
+
 }, (error) => {
     console.error("Error fetching chats for unread count:", error);
 });
