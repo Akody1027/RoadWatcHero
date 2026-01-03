@@ -4,7 +4,7 @@
   "description": "Roadwatchero",
    "start_url": "https://www.roadwatchero.com/index.html",
   "display": "standalone",
-  "background_color": "#EE611C",
+  "background_color": "white",
   "theme_color": "#EE611C",
   "icons": [
     {
@@ -24,6 +24,7 @@
     }
   ]
 }
+
 
 
 
