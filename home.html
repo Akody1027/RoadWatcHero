@@ -457,27 +457,48 @@ function syncUI() {
     let myActiveSOS = null;
     let jobActive = false;
 
+    // --- START OF MODIFIED SECTION ---
+    // First, iterate through all SOS requests to manage map markers for ALL open requests
     Object.entries(sosCache).forEach(([id, r]) => {
-        const isMyJob = (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived'));
-        const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
-        
-        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
-            nearbySOS.push({id, ...r, dist: distMiles});
-            if(!markers[id] && map) { 
-                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#EE611C") }); 
-                marker.addListener('click', () => window.viewRequest(id)); 
-                markers[id] = marker; 
+        // Handle all 'open' requests for map display (regardless of radius)
+        if (r.status === 'open' && r.ownerId !== myId) {
+            if (!markers[id] && map) {
+                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#EE611C") });
+                marker.addListener('click', () => window.viewRequest(id));
+                markers[id] = marker;
+            } else if (markers[id]) {
+                // Ensure marker icon is correct if status changed to open
+                markers[id].setIcon(getMarkerIcon("#EE611C"));
+                markers[id].setMap(map); // Make sure it's visible if it was hidden
             }
-        } else if (isMyJob) {
+        }
+        // Handle markers for accepted/arrived jobs
+        else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
             if(!markers[id] && map) {
                 const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e") });
-                marker.addListener('click', () => window.viewRequest(id)); 
+                marker.addListener('click', () => window.viewRequest(id));
                 markers[id] = marker;
             } else if (markers[id]) {
                 markers[id].setIcon(getMarkerIcon("#22c55e"));
+                markers[id].setMap(map); // Make sure it's visible if it was hidden
             }
-        } else if (markers[id]) {
-            markers[id].setMap(null); delete markers[id];
+        }
+        // Remove markers for finalized/canceled or other non-display statuses
+        else if (markers[id]) {
+            markers[id].setMap(null);
+            delete markers[id];
+        }
+    });
+    // --- END OF MODIFIED SECTION ---
+
+
+    // Now, iterate again (or continue the loop for other logic) to populate nearbySOS for the list and other UI
+    Object.entries(sosCache).forEach(([id, r]) => {
+        const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
+
+        // This section remains unchanged for filtering the nearbySOS list by radius
+        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
+            nearbySOS.push({id, ...r, dist: distMiles});
         }
 
         // Identify current hero task
@@ -653,12 +674,3 @@ window.confirmDeleteActivity = () => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
