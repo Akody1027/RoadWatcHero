@@ -2,7 +2,7 @@
   "name": "Roadwatchero",
   "short_name": "RoadWatcHero",
   "description": "Roadwatchero",
-   "start_url": "www.roadwatchero.com",
+   "start_url": "www.roadwatchero.com/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
@@ -24,5 +24,6 @@
     }
   ]
 }
+
 
 
