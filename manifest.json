@@ -1,8 +1,8 @@
 {
   "name": "Roadwatchero",
-  "short_name": "MyPWA",
-  "description": "A fantastic progressive web app!",
-  "start_url": "/index.html",
+  "short_name": "RWH",
+  "description": "Roadwatchero",
+   "start_url": "www.roadwatchero.com/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
@@ -24,3 +24,4 @@
     }
   ]
 }
+
