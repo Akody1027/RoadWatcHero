@@ -254,6 +254,10 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
+<!-- Hidden audio element for notifications -->
+<audio id="notificationSound" src="https://www.soundjay.com/buttons/beep-07.mp3" preload="auto" style="display:none;"></audio>
+
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, set, get, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
@@ -276,6 +280,9 @@ let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgData = n
 let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUserMarker;
 let activeChatId = null, lastMsgCount = 0;
 let activityToDeleteId = null; // New variable to store the ID of the activity to delete
+let currentUnreadCount = 0; // New variable to track the overall unread count
+let lastPlayedMessageId = null; // To prevent multiple sound plays for the same message
+
 
 const getMarkerIcon = (color) => ({
     path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z",
@@ -334,11 +341,30 @@ window.handleImageUpload = (input, target) => {
     reader.readAsDataURL(file);
 };
 
-window.openChat = () => {
+window.openChat = async () => {
     const activeReq = Object.entries(sosCache).find(([id, r]) => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
     if(!activeReq) return;
     activeChatId = activeReq[0];
     window.openModal('chatModal');
+
+    // Mark messages as read when chat is opened
+    const chatSnap = await get(ref(db, `chats/${activeChatId}`));
+    if (chatSnap.exists()) {
+        const messages = chatSnap.val();
+        const updates = {};
+        for (const msgId in messages) {
+            if (messages[msgId].sender !== myId && messages[msgId].read === false) {
+                updates[`chats/${activeChatId}/${msgId}/read`] = true;
+            }
+        }
+        if (Object.keys(updates).length > 0) {
+            await update(ref(db), updates);
+        }
+    }
+    // The global listener will update the badge count after messages are marked as read
+    // For immediate visual, we can also manually call updateChatBadges(0)
+    updateChatBadges(0); 
+
     onValue(ref(db, `chats/${activeChatId}`), (snap) => {
         const box = document.getElementById('chatBox'); box.innerHTML = "";
         const data = snap.val() || {};
@@ -351,30 +377,90 @@ window.openChat = () => {
         });
         box.scrollTop = box.scrollHeight;
         lastMsgCount = msgs.length;
-        updateChatBadges(0);
+        // The global unread listener handles the badge count now.
+        // updateChatBadges(0); // This line is less crucial now as global listener will cover it.
     });
 };
 
 window.sendTextMsg = () => {
     const input = document.getElementById('chatInput'); if(!input.value.trim() || !activeChatId) return;
-    push(ref(db, `chats/${activeChatId}`), { sender: myId, text: input.value, timestamp: Date.now() });
+    push(ref(db, `chats/${activeChatId}`), { sender: myId, text: input.value, timestamp: Date.now(), read: false }); // Added read: false
     input.value = "";
 };
 
 window.sendChatImg = (input) => {
     const file = input.files[0]; if(!file || !activeChatId) return;
     const reader = new FileReader();
-    reader.onload = (e) => push(ref(db, `chats/${activeChatId}`), { sender: myId, img: e.target.result, timestamp: Date.now() });
+    reader.onload = (e) => push(ref(db, `chats/${activeChatId}`), { sender: myId, img: e.target.result, timestamp: Date.now(), read: false }); // Added read: false
     reader.readAsDataURL(file);
 };
 
 function updateChatBadges(count) {
-    const sB = document.getElementById('chatBadge'); const hB = document.getElementById('chatBadgeHero');
-    if(count > 0) { 
-        if(sB){ sB.innerText = count; sB.style.display = 'flex'; } 
-        if(hB){ hB.innerText = count; hB.style.display = 'flex'; }
-    } else { if(sB) sB.style.display = 'none'; if(hB) hB.style.display = 'none'; }
+    const sB = document.getElementById('chatBadge');
+    const hB = document.getElementById('chatBadgeHero');
+
+    if(sB) {
+        if (count > 0) { sB.innerText = count; sB.style.display = 'flex'; }
+        else { sB.style.display = 'none'; }
+    }
+    if(hB) {
+        if (count > 0) { hB.innerText = count; hB.style.display = 'flex'; }
+        else { hB.style.display = 'none'; }
+    }
 }
+
+// Global listener for unread messages and notification sound
+onValue(ref(db, 'chats'), (snapshot) => {
+    let unreadCount = 0;
+    let newUnreadMessageDetected = false;
+    let latestMessageId = null;
+
+    // Check if chat modal is currently open
+    const chatModalOpen = document.getElementById('chatModal').style.display === 'flex';
+
+    if (snapshot.exists()) {
+        const allChats = snapshot.val();
+        for (const chatId in allChats) {
+            // Find the active SOS request the user is involved in
+            const relevantSOS = Object.values(sosCache).find(
+                r => (r.ownerId === myId || r.helperId === myId) &&
+                     (r.status === 'accepted' || r.status === 'arrived') &&
+                     chatId === activeChatId // This ensures we only count for the current active chat
+            );
+
+            if (relevantSOS) {
+                const messages = allChats[chatId];
+                for (const msgId in messages) {
+                    const message = messages[msgId];
+                    if (message.sender !== myId && message.read === false) {
+                        unreadCount++;
+                        if (message.timestamp > (latestMessageId ? allChats[chatId][latestMessageId].timestamp : 0)) {
+                            latestMessageId = msgId;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Play notification sound if there's a new unread message from the other party
+    if (unreadCount > currentUnreadCount && !chatModalOpen) {
+        // Only play if the latest unread message wasn't the last one we played a sound for
+        if (latestMessageId && latestMessageId !== lastPlayedMessageId) {
+            const sound = document.getElementById('notificationSound');
+            if (sound) {
+                sound.play().catch(e => console.error("Error playing sound:", e));
+                lastPlayedMessageId = latestMessageId;
+            }
+        }
+    }
+    
+    currentUnreadCount = unreadCount; // Update the global unread count
+    updateChatBadges(currentUnreadCount);
+}, (error) => {
+    console.error("Error fetching chats for unread count:", error);
+});
+
 
 window.viewRequest = (id) => {
     const r = sosCache[id]; if(!r) return;
@@ -457,7 +543,6 @@ function syncUI() {
     let myActiveSOS = null;
     let jobActive = false;
 
-    // --- START OF MODIFIED SECTION ---
     // First, iterate through all SOS requests to manage map markers for ALL open requests
     Object.entries(sosCache).forEach(([id, r]) => {
         // Handle all 'open' requests for map display (regardless of radius)
@@ -489,7 +574,6 @@ function syncUI() {
             delete markers[id];
         }
     });
-    // --- END OF MODIFIED SECTION ---
 
 
     // Now, iterate again (or continue the loop for other logic) to populate nearbySOS for the list and other UI
