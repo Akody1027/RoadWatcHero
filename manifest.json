@@ -5,7 +5,7 @@
    "start_url": "https://www.roadwatchero.com/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#007bff",
+  "theme_color": "#EE611C",
   "icons": [
     {
       "src": "icon-192x192.png",
@@ -24,6 +24,7 @@
     }
   ]
 }
+
 
 
 
