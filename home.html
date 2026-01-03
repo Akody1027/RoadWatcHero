@@ -281,7 +281,8 @@ let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUse
 let activeChatId = null, lastMsgCount = 0;
 let activityToDeleteId = null; // New variable to store the ID of the activity to delete
 let currentUnreadCount = 0; // New variable to track the overall unread count
-let lastPlayedMessageTimestamp = 0; // To prevent multiple sound plays for the same message on initial load
+let lastProcessedMessageTimestamp = 0; // Renamed for clarity: tracks the timestamp of the latest message processed
+let isInitialLoadForChatListener = true; // New flag for initial load handling
 
 
 const getMarkerIcon = (color) => ({
@@ -349,7 +350,8 @@ window.openChat = async () => {
     );
     if (!currentActiveSOS) return;
     
-    activeChatId = Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS); // Set activeChatId globally
+    // Set activeChatId globally from the identified active SOS
+    activeChatId = Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS); 
 
     window.openModal('chatModal');
 
@@ -368,7 +370,7 @@ window.openChat = async () => {
         }
     }
     // The global listener will update the badge count after messages are marked as read.
-    // For immediate visual, we can also manually call updateChatBadges(0)
+    // Explicitly set to 0 here for immediate visual feedback
     updateChatBadges(0); 
 
     // This listener is specific to the currently opened chat modal
@@ -453,20 +455,26 @@ onValue(ref(db, 'chats'), (snapshot) => {
 
     // Play notification sound if new unread messages are detected AND chat is not open
     // This logic handles app refresh/reopen and new messages while app is in background
-    if (unreadCount > 0 && latestMessageTimestampInActiveChat > lastPlayedMessageTimestamp && !chatModalOpen) {
+    if (!isInitialLoadForChatListener && unreadCount > 0 && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp && !chatModalOpen) {
         const sound = document.getElementById('notificationSound');
         if (sound) {
             sound.play().catch(e => console.error("Error playing sound:", e));
         }
     }
     
-    // Update lastPlayedMessageTimestamp ONLY if there were messages to prevent sound on first load when no messages exist.
-    if (latestMessageTimestampInActiveChat > 0) {
-        lastPlayedMessageTimestamp = latestMessageTimestampInActiveChat;
+    // Update lastProcessedMessageTimestamp
+    // On initial load, set the baseline. For subsequent updates, it tracks the latest message.
+    if (latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) {
+        lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
     }
     
     currentUnreadCount = unreadCount; // Update the global unread count
     updateChatBadges(currentUnreadCount);
+
+    // After the first full processing, set isInitialLoadForChatListener to false
+    if (isInitialLoadForChatListener) {
+        isInitialLoadForChatListener = false;
+    }
 
 }, (error) => {
     console.error("Error fetching chats for unread count:", error);
