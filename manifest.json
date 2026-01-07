@@ -2,7 +2,7 @@
   "name": "Roadwatchero",
   "short_name": "RoadWatcHero",
   "description": "Roadwatchero",
-   "start_url": "https://www.roadwatchero.com/index.html",
+  "start_url": "https://www.roadwatchero.com/index.html",
   "display": "standalone",
   "background_color": "white",
   "theme_color": "#EE611C",
@@ -12,28 +12,17 @@
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
-    }
+    },
     {
       "src": "icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-      
-    }
+    },
     {
       "src": "roadwatch.ico",
       "sizes": "128x128",
-      "type": "image/x-icon",
-      "purpose": "any maskable"
-      
+      "type": "image/x-icon"
     }
   ]
 }
-
-
-
-
-
-
-
-
