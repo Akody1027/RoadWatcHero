@@ -37,6 +37,11 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -app
 .search-pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--danger); opacity: 0.4; animation: pulse 2s infinite; }
 @keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
 
+/* Mini Yellow Pulse for Jobs */
+.mini-pulse-box { position: absolute; top: 10px; right: 10px; width: 15px; height: 15px; background: var(--job); border-radius: 50%; display:block; z-index:5; }
+.mini-pulse-box::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--job); opacity: 0.6; animation: pulse-yellow 1.5s infinite; }
+@keyframes pulse-yellow { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(3); opacity: 0; } }
+
 #map { width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 1; }
 #statusIndicator { position: fixed; left: 5px; bottom: 50px; z-index: 150; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 28px; cursor: pointer; box-shadow: var(--shadow); border: 3px solid white; transition: 0.3s; }
 
@@ -81,12 +86,17 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 .trash-icon { width: 20px; height: 20px; cursor: pointer; margin-left: 10px; }
 
 /* Job List Styles */
-.job-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 16px; margin-bottom: 12px; }
-.job-status { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; float: right; }
+.job-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 16px; margin-bottom: 12px; position: relative; }
+.job-status { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; float: right; margin-left: 10px; margin-top: 5px; }
 .status-open { background: var(--job); color: black; }
 .status-assigned { background: var(--accent); color: white; }
 .status-started { background: var(--success); color: white; }
 .bid-item { background: white; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+
+/* Toggle Switch Style for Filters */
+.switch-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: #f1f5f9; border-radius: 12px; }
+.switch-label { font-weight: bold; font-size: 14px; }
+.switch-input { width: 20px; height: 20px; accent-color: var(--accent); margin: 0; }
 </style>
 </head>
 <body>
@@ -346,6 +356,18 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
             <input type="file" id="picInput" style="display:none" onchange="window.handleImageUpload(this, 'profile')">
             <button onclick="document.getElementById('picInput').click()" style="display:block; margin:8px auto; border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer;">Update Photo</button>
         </div>
+        
+        <!-- MAP FILTERS SECTION -->
+        <label style="font-size:11px; font-weight:900; color:var(--muted); display:block; margin-bottom:10px;">MAP FILTERS</label>
+        <div class="switch-row">
+            <span class="switch-label">Show SOS Requests (Red)</span>
+            <input type="checkbox" id="filterSOS" class="switch-input" checked>
+        </div>
+        <div class="switch-row">
+            <span class="switch-label">Show Scheduled Jobs (Yellow)</span>
+            <input type="checkbox" id="filterJobs" class="switch-input" checked>
+        </div>
+
         <input id="profileName" placeholder="Hero Name">
         <textarea id="profileBio" placeholder="Bio / Tools Available..." rows="2"></textarea>
         <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
@@ -391,12 +413,12 @@ const myId = localStorage.getItem('heroUserId');
 
 let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgData = null, schedImgData = null, myRadius = 25, heroMarker;
 let sosCache = {}, scheduledJobsCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUserMarker;
-let activeChatId = null, lastMsgCount = 0;
+let activeChatId = null;
 let activityToDeleteId = null; 
 let currentUnreadCount = 0; 
 let lastProcessedMessageTimestamp = 0; 
 let isInitialLoadForChatListener = true; 
-let selectedJobId = null; // For bidding/viewing
+let selectedJobId = null; 
 
 const getMarkerIcon = (color) => ({
     path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z",
@@ -411,13 +433,7 @@ window.onload = () => {
             userLocation = freshLoc;
             update(ref(db, `profiles/${myId}`), { ...userLocation, id: myId });
             
-            // Sync Live Location to Active Jobs (SOS OR Started Scheduled Jobs)
-            // 1. SOS
-            const activeSOS = Object.entries(sosCache).find(([k,v]) => v.helperId === myId && v.status === 'accepted');
-            // 2. Scheduled Job (Started)
             const activeJob = Object.entries(scheduledJobsCache).find(([k,v]) => v.helperId === myId && v.status === 'started');
-            
-            // If Hero is tracking, update that specific job node with live location
             if(activeJob) { update(ref(db, `scheduledJobs/${activeJob[0]}`), { heroLat: freshLoc.lat, heroLng: freshLoc.lng }); }
 
             if (map) {
@@ -480,8 +496,13 @@ window.openSeekerJobs = () => {
         if(job.ownerId === myId) {
             const bidCount = job.bids ? Object.keys(job.bids).length : 0;
             const color = job.status === 'open' ? 'var(--job)' : (job.status === 'started' ? 'var(--success)' : 'var(--accent)');
+            
+            // Pulse logic for Open jobs
+            const pulseHtml = job.status === 'open' ? '<div class="mini-pulse-box"></div>' : '';
+
             list.innerHTML += `
                 <div class="job-card" onclick="window.viewJobDetails('${id}')">
+                    ${pulseHtml}
                     <span class="job-status" style="background:${color}">${job.status}</span>
                     <b>${job.vehicle}</b>
                     <p style="font-size:12px; margin:5px 0;">📅 ${job.date} ${job.time ? '@ '+job.time : ''}</p>
@@ -519,7 +540,6 @@ window.openHeroJobs = () => {
     });
     if(list.innerHTML === "") list.innerHTML = "<p style='text-align:center; color:gray;'>No upcoming jobs accepted.</p>";
     window.openModal('heroJobsModal');
-    // Clear badge
     document.getElementById('jobBadgeHero').style.display = 'none';
 };
 
@@ -546,12 +566,8 @@ window.submitScheduledJob = () => {
         status: 'open',
         timestamp: Date.now()
     });
-    
     window.closeModal('postJobModal');
-    // Switch to Map View to see the marker (or just alert)
     alert("Job Posted! You can view it in 'My Jobs'.");
-    // Optionally open the jobs list:
-    // window.openSeekerJobs();
 };
 
 window.viewJobDetails = (id) => {
@@ -588,7 +604,6 @@ window.viewJobDetails = (id) => {
         bidList.innerHTML = "";
         if(job.bids) {
             Object.entries(job.bids).forEach(([hId, bid]) => {
-                // Fetch hero name from profiles if avail, else 'Hero'
                 const hName = profilesCache[hId] ? profilesCache[hId].name : "Hero";
                 bidList.innerHTML += `
                     <div class="bid-item">
@@ -600,7 +615,6 @@ window.viewJobDetails = (id) => {
             bidList.innerHTML = "<p style='font-size:12px; color:gray;'>No bids yet.</p>";
         }
         
-        // Allow deleting if no hero assigned
         actionBtn.innerText = "DELETE JOB";
         actionBtn.style.display = "block";
         actionBtn.style.background = "var(--danger)";
@@ -611,7 +625,6 @@ window.viewJobDetails = (id) => {
              }
         };
     }
-
     window.openModal('jobDetailsModal');
 };
 
@@ -620,38 +633,25 @@ window.submitBid = () => {
     const note = document.getElementById('bidNote').value;
     if(!price || !selectedJobId) return;
 
-    update(ref(db, `scheduledJobs/${selectedJobId}/bids/${myId}`), {
-        price: price,
-        note: note || "",
-        timestamp: Date.now()
-    });
+    update(ref(db, `scheduledJobs/${selectedJobId}/bids/${myId}`), { price: price, note: note || "", timestamp: Date.now() });
     window.closeModal('bidModal');
     alert("Bid Sent!");
 };
 
 window.acceptBid = (jobId, heroId) => {
     if(confirm("Accept this bid? The Hero will be notified.")) {
-        update(ref(db, `scheduledJobs/${jobId}`), {
-            status: 'assigned',
-            helperId: heroId
-        });
+        update(ref(db, `scheduledJobs/${jobId}`), { status: 'assigned', helperId: heroId });
         window.closeModal('jobDetailsModal');
         window.closeModal('seekerJobsModal');
     }
 };
 
 window.startScheduledJob = (jobId) => {
-    // Check if hero already has an active SOS or Started Job
     const busySOS = Object.values(sosCache).some(r => r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived'));
     const busyJob = Object.values(scheduledJobsCache).some(j => j.helperId === myId && j.status === 'started');
-    
     if(busySOS || busyJob) return alert("You already have an active job in progress! Complete it first.");
 
-    update(ref(db, `scheduledJobs/${jobId}`), {
-        status: 'started',
-        heroLat: userLocation.lat,
-        heroLng: userLocation.lng
-    });
+    update(ref(db, `scheduledJobs/${jobId}`), { status: 'started', heroLat: userLocation.lat, heroLng: userLocation.lng });
     window.closeModal('heroJobsModal');
     alert("Job Started! Seeker can now track you.");
     syncUI();
@@ -661,31 +661,16 @@ window.startScheduledJob = (jobId) => {
 
 
 window.checkAndOpenRequest = () => {
-    const existingReq = Object.values(sosCache).find(r => 
-        r.ownerId === myId && 
-        ['open', 'accepted', 'arrived', 'completed'].includes(r.status)
-    );
-    if (existingReq) {
-        window.switchView('seekerUI'); 
-    } else {
-        window.openModal('requestModal');
-    }
+    const existingReq = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
+    if (existingReq) { window.switchView('seekerUI'); } else { window.openModal('requestModal'); }
 };
 
 window.openChat = async () => {
-    // 1. Check SOS Active
     let currentActive = Object.values(sosCache).find(r => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
-    
-    // 2. If no SOS, Check Scheduled Job Active
-    if (!currentActive) {
-        currentActive = Object.values(scheduledJobsCache).find(r => (r.ownerId === myId || r.helperId === myId) && (r.status === 'started' || r.status === 'arrived'));
-    }
-
+    if (!currentActive) { currentActive = Object.values(scheduledJobsCache).find(r => (r.ownerId === myId || r.helperId === myId) && (r.status === 'started' || r.status === 'arrived')); }
     if (!currentActive) return alert("No active job for chat.");
     
-    // Find key
     activeChatId = Object.keys(sosCache).find(key => sosCache[key] === currentActive) || Object.keys(scheduledJobsCache).find(key => scheduledJobsCache[key] === currentActive);
-
     window.openModal('chatModal');
     
     const chatSnap = await get(ref(db, `chats/${activeChatId}`));
@@ -693,9 +678,7 @@ window.openChat = async () => {
         const messages = chatSnap.val();
         const updates = {};
         for (const msgId in messages) {
-            if (messages[msgId].sender !== myId && messages[msgId].read === false) {
-                updates[`chats/${activeChatId}/${msgId}/read`] = true;
-            }
+            if (messages[msgId].sender !== myId && messages[msgId].read === false) { updates[`chats/${activeChatId}/${msgId}/read`] = true; }
         }
         if (Object.keys(updates).length > 0) await update(ref(db), updates);
     }
@@ -739,12 +722,8 @@ onValue(ref(db, 'chats'), (snapshot) => {
     let unreadCount = 0;
     let latestMessageTimestampInActiveChat = 0;
     
-    // Check SOS
     let myActiveRequest = Object.entries(sosCache).find(([id, r]) => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
-    // Check Scheduled
-    if (!myActiveRequest) {
-        myActiveRequest = Object.entries(scheduledJobsCache).find(([id, r]) => (r.ownerId === myId || r.helperId === myId) && (r.status === 'started' || r.status === 'arrived'));
-    }
+    if (!myActiveRequest) { myActiveRequest = Object.entries(scheduledJobsCache).find(([id, r]) => (r.ownerId === myId || r.helperId === myId) && (r.status === 'started' || r.status === 'arrived')); }
 
     if (myActiveRequest) {
         const chatId = myActiveRequest[0];
@@ -765,7 +744,6 @@ onValue(ref(db, 'chats'), (snapshot) => {
     }
     
     if (latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
-    
     currentUnreadCount = unreadCount; 
     updateChatBadges(currentUnreadCount);
     if (isInitialLoadForChatListener) isInitialLoadForChatListener = false;
@@ -779,37 +757,21 @@ window.confirmHelp = (sosId) => {
     document.getElementById('activeTask').classList.add('expanded');
 };
 
-// Unified Mark Arrived (works for SOS or Scheduled)
 window.markArrived = () => { 
-    // Check SOS
     let activeEntry = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'accepted');
     let dbNode = "sosRequests";
-    
-    if(!activeEntry) {
-        // Check Scheduled
-        activeEntry = Object.entries(scheduledJobsCache).find(([id, r]) => r.helperId === myId && r.status === 'started');
-        dbNode = "scheduledJobs";
-    }
-
+    if(!activeEntry) { activeEntry = Object.entries(scheduledJobsCache).find(([id, r]) => r.helperId === myId && r.status === 'started'); dbNode = "scheduledJobs"; }
     if(activeEntry) update(ref(db, `${dbNode}/${activeEntry[0]}`), { status: 'arrived' }); 
 };
 
 window.completeTask = () => { 
-    // Check SOS
     let activeEntry = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived');
     let dbNode = "sosRequests";
-    
-    if(!activeEntry) {
-        // Check Scheduled
-        activeEntry = Object.entries(scheduledJobsCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived');
-        dbNode = "scheduledJobs";
-    }
-    
+    if(!activeEntry) { activeEntry = Object.entries(scheduledJobsCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived'); dbNode = "scheduledJobs"; }
     if(activeEntry) update(ref(db, `${dbNode}/${activeEntry[0]}`), { status: 'completed' }); 
 };
 
 window.acknowledgeCancel = () => {
-    // Check SOS
     const canceledTask = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'canceled' && r.helperAcknowledged !== true);
     if(canceledTask) {
         update(ref(db, `sosRequests/${canceledTask[0]}`), { helperAcknowledged: true });
@@ -820,13 +782,8 @@ window.acknowledgeCancel = () => {
 
 window.submitSOS = () => {
     const issue = document.getElementById('reqIssue').value; const tip = document.getElementById('customTip').value || 0;
-    
     const existingReq = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
-    if (existingReq) {
-        window.switchView('seekerUI');
-        window.closeModal('requestModal');
-        return; 
-    }
+    if (existingReq) { window.switchView('seekerUI'); window.closeModal('requestModal'); return; }
 
     if(!issue || !userLocation) return alert("Please describe the issue.");
     push(ref(db, "sosRequests"), { ownerId: myId, userName: "Driver", issue, vehicle: selectedVehicle, damagePic: damageImgData, tip: tip, lat: userLocation.lat, lng: userLocation.lng, status: 'open', timestamp: Date.now() });
@@ -840,16 +797,9 @@ window.submitCancellation = (reason) => {
 };
 
 window.finalSeekerConfirm = () => {
-    // Check SOS
     let myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === 'completed');
     let dbNode = "sosRequests";
-
-    if(!myReqId) {
-        // Check Scheduled
-        myReqId = Object.keys(scheduledJobsCache).find(k => scheduledJobsCache[k].ownerId === myId && scheduledJobsCache[k].status === 'completed');
-        dbNode = "scheduledJobs";
-    }
-
+    if(!myReqId) { myReqId = Object.keys(scheduledJobsCache).find(k => scheduledJobsCache[k].ownerId === myId && scheduledJobsCache[k].status === 'completed'); dbNode = "scheduledJobs"; }
     if(myReqId) update(ref(db, `${dbNode}/${myReqId}`), { status: 'finalized' });
     damageImgData = null;
     window.switchView('landingPage');
@@ -863,16 +813,22 @@ function syncUI() {
     let currentTask = null; 
     let myActiveSOS = null;
     let jobActive = false;
+    
+    // Get Hero Filters (Default true if undefined)
+    const filters = profilesCache[myId] && profilesCache[myId].filters ? profilesCache[myId].filters : { sos: true, jobs: true };
 
     // --- MAP MARKERS LOGIC ---
-    // 1. SOS MARKERS (Red)
+    // 1. SOS MARKERS (Red) - Controlled by filterSOS
     Object.entries(sosCache).forEach(([id, r]) => {
         if (r.status === 'open' && r.ownerId !== myId) {
-            if (!markers[id] && map) {
-                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#EE611C") });
-                marker.addListener('click', () => window.viewRequest(id));
-                markers[id] = marker;
-            }
+            // Apply Filter
+            if (filters.sos) {
+                if (!markers[id] && map) {
+                    const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#EE611C") });
+                    marker.addListener('click', () => window.viewRequest(id));
+                    markers[id] = marker;
+                }
+            } else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
         }
         else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
              if(!markers[id] && map) {
@@ -883,38 +839,41 @@ function syncUI() {
         else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
     });
 
-    // 2. SCHEDULED JOB MARKERS (Yellow)
+    // 2. SCHEDULED JOB MARKERS (Yellow) - Controlled by filterJobs
     Object.entries(scheduledJobsCache).forEach(([id, job]) => {
-         // Show Open Jobs to all heroes, Show Started jobs to the assigned hero
-         if ((job.status === 'open' && job.ownerId !== myId) || (job.status === 'started' && job.helperId === myId)) {
+         // Show Open Jobs (Filtered), Show Started jobs (Always)
+         if (job.status === 'open' && job.ownerId !== myId) {
+             if(filters.jobs) {
+                 if(!markers[id] && map) {
+                     const marker = new google.maps.Marker({ position: {lat: job.lat, lng: job.lng}, map, icon: getMarkerIcon("#EAB308") });
+                     marker.addListener('click', () => window.viewJobDetails(id));
+                     markers[id] = marker;
+                 }
+             } else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
+         } 
+         else if (job.status === 'started' && job.helperId === myId) {
              if(!markers[id] && map) {
-                 const color = job.status === 'open' ? "#EAB308" : "#22c55e"; // Yellow or Green if started
-                 const marker = new google.maps.Marker({ position: {lat: job.lat, lng: job.lng}, map, icon: getMarkerIcon(color) });
-                 // If open, allow bid view. If started, it's the active job
-                 if(job.status === 'open') marker.addListener('click', () => window.viewJobDetails(id));
+                 const marker = new google.maps.Marker({ position: {lat: job.lat, lng: job.lng}, map, icon: getMarkerIcon("#22c55e") });
                  markers[id] = marker;
              }
-         } else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
+         }
+         else if (markers[id] && job.status !== 'open') { markers[id].setMap(null); delete markers[id]; }
     });
 
 
     // --- HERO UI LIST POPULATION ---
     Object.entries(sosCache).forEach(([id, r]) => {
         const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
-        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
+        // Filter list based on SOS toggle
+        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius && filters.sos) {
             nearbySOS.push({id, ...r, dist: distMiles});
         }
-        // Active SOS Task
         if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) currentTask = { ...r, type: 'sos' };
-        
-        // Active Seeker SOS
         if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) {
             if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = { ...r, type: 'sos', id: id };
         }
-        
         if((r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived')) jobActive = true; 
 
-        // History
         if (r.ownerId === myId || r.helperId === myId) {
              let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
              history.innerHTML += `<div class="history-item" style="padding:15px; border-bottom:1px solid #eee;">
@@ -927,49 +886,32 @@ function syncUI() {
     // --- CHECK FOR ACTIVE SCHEDULED JOBS (HERO & SEEKER) ---
     if(!currentTask) {
         const activeJob = Object.entries(scheduledJobsCache).find(([id, j]) => j.helperId === myId && (j.status === 'started' || j.status === 'arrived' || j.status === 'completed'));
-        if(activeJob) {
-            currentTask = { ...activeJob[1], id: activeJob[0], type: 'job', tip: 0 }; // Scheduled jobs have negotiated price, treating tip as 0 for card display
-        }
+        if(activeJob) { currentTask = { ...activeJob[1], id: activeJob[0], type: 'job', tip: 0 }; }
     }
     
     if(!myActiveSOS) {
         const activeSeekerJob = Object.entries(scheduledJobsCache).find(([id, j]) => j.ownerId === myId && (j.status === 'started' || j.status === 'arrived' || j.status === 'completed'));
-        if(activeSeekerJob) {
-            myActiveSOS = { ...activeSeekerJob[1], id: activeSeekerJob[0], type: 'job' };
-            jobActive = true;
-        }
+        if(activeSeekerJob) { myActiveSOS = { ...activeSeekerJob[1], id: activeSeekerJob[0], type: 'job' }; jobActive = true; }
     }
 
-    // JOB BADGES (New Feature)
     let pendingSeekerBids = 0;
-    Object.values(scheduledJobsCache).forEach(j => {
-        if(j.ownerId === myId && j.status === 'open' && j.bids) pendingSeekerBids += 1;
-    });
+    Object.values(scheduledJobsCache).forEach(j => { if(j.ownerId === myId && j.status === 'open' && j.bids) pendingSeekerBids += 1; });
     const jsBadge = document.getElementById('jobBadgeSeeker');
     const jsBadgeActive = document.getElementById('jobBadgeSeekerActive');
-    if(pendingSeekerBids > 0) {
-        jsBadge.innerText = "!"; jsBadge.style.display = "flex";
-        jsBadgeActive.innerText = "!"; jsBadgeActive.style.display = "flex";
-    } else { jsBadge.style.display = "none"; jsBadgeActive.style.display = "none"; }
+    if(pendingSeekerBids > 0) { jsBadge.innerText = "!"; jsBadge.style.display = "flex"; jsBadgeActive.innerText = "!"; jsBadgeActive.style.display = "flex"; } 
+    else { jsBadge.style.display = "none"; jsBadgeActive.style.display = "none"; }
 
     let assignedHeroJobs = 0;
-    Object.values(scheduledJobsCache).forEach(j => {
-        if(j.helperId === myId && j.status === 'assigned') assignedHeroJobs++;
-    });
+    Object.values(scheduledJobsCache).forEach(j => { if(j.helperId === myId && j.status === 'assigned') assignedHeroJobs++; });
     const jhBadge = document.getElementById('jobBadgeHero');
-    if(assignedHeroJobs > 0) { jhBadge.innerText = assignedHeroJobs; jhBadge.style.display = "flex"; }
-    else { jhBadge.style.display = "none"; }
-
+    if(assignedHeroJobs > 0) { jhBadge.innerText = assignedHeroJobs; jhBadge.style.display = "flex"; } else { jhBadge.style.display = "none"; }
 
     document.getElementById('footerChatBtn').style.display = jobActive ? 'block' : 'none';
     document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
 
     const ind = document.getElementById('statusIndicator');
-    if(currentTask) { ind.style.background = "var(--success)"; } 
-    else if (nearbySOS.length > 0) { ind.style.background = "var(--danger)"; } 
-    else { ind.style.background = "#94a3b8"; }
+    if(currentTask) { ind.style.background = "var(--success)"; } else if (nearbySOS.length > 0) { ind.style.background = "var(--danger)"; } else { ind.style.background = "#94a3b8"; }
     
-    // HERO TASK PANEL
     const tCard = document.getElementById('activeTask');
     tCard.innerHTML = ""; 
 
@@ -978,10 +920,8 @@ function syncUI() {
         if(currentTask.status === 'canceled') {
             tCard.innerHTML = `<div style="text-align:center;"><b style="color:var(--danger)">CANCELED</b><p>${currentTask.cancelReason || ''}</p><button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:10px;">CLOSE</button></div>`;
         } else {
-            // Distinguish Scheduled vs SOS in Card
             const title = currentTask.type === 'job' ? 'SCHEDULED REPAIR' : 'EMERGENCY SOS';
             const sub = currentTask.type === 'job' ? `📅 ${currentTask.date} ${currentTask.time ? '@ '+currentTask.time : ''}` : `${currentTask.vehicle}: ${currentTask.issue}`;
-            
             tCard.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <b style="color:${currentTask.status === 'arrived' ? 'var(--warning)' : 'var(--accent)'};">${title}</b>
@@ -1010,11 +950,7 @@ function syncUI() {
     }
 
     if(myActiveSOS) {
-        // Only force switch if it's an SOS. If it's a scheduled job, we can probably stay on landing, but for simplicity, we treat "Started" jobs as emergencies.
-        if (document.getElementById('landingPage').classList.contains('view-active')) {
-            window.switchView('seekerUI');
-        }
-
+        if (document.getElementById('landingPage').classList.contains('view-active')) { window.switchView('seekerUI'); }
         const searching = document.getElementById('searchingState');
         const matched = document.getElementById('matchedState');
         const completed = document.getElementById('completionConfirmState');
@@ -1024,21 +960,12 @@ function syncUI() {
             searching.style.display = 'block'; matched.style.display = 'none'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
         } else if(myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived' || myActiveSOS.status === 'started') {
             searching.style.display = 'none'; matched.style.display = 'block'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
-            
             const hero = profilesCache[myActiveSOS.helperId] || {};
-            // If it's a scheduled job, the hero lat/lng is in the job node, not profile
-            let heroLat = hero.lat; 
-            let heroLng = hero.lng;
-            
-            if(myActiveSOS.type === 'job') {
-                heroLat = myActiveSOS.heroLat || heroLat; // Prioritize live job location
-                heroLng = myActiveSOS.heroLng || heroLng;
-            }
-
+            let heroLat = hero.lat; let heroLng = hero.lng;
+            if(myActiveSOS.type === 'job') { heroLat = myActiveSOS.heroLat || heroLat; heroLng = myActiveSOS.heroLng || heroLng; }
             document.getElementById('matchName').innerText = hero.name || "Hero";
             document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
             document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is here!" : (myActiveSOS.type === 'job' ? "Repair in progress..." : "Hero En Route");
-            
             updateSeekerMiniMap(myActiveSOS, { lat: heroLat, lng: heroLng });
         } else if(myActiveSOS.status === 'completed') {
             searching.style.display = 'none'; matched.style.display = 'none'; completed.style.display = 'block'; cancelBtn.style.display = 'none';
@@ -1056,16 +983,13 @@ function updateSeekerMiniMap(sos, hero) {
 onValue(ref(db, "sosRequests"), (snap) => { 
     sosCache = snap.val() || {}; 
     syncUI(); 
-    // Session check
     const myActive = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
     if (myActive && document.getElementById('landingPage').classList.contains('view-active')) window.switchView('seekerUI');
 });
 
-// LISTEN FOR SCHEDULED JOBS
 onValue(ref(db, "scheduledJobs"), (snap) => {
     scheduledJobsCache = snap.val() || {};
     syncUI();
-    // Session check for Scheduled Jobs
     const myActiveJob = Object.values(scheduledJobsCache).find(j => j.ownerId === myId && (j.status === 'started' || j.status === 'arrived' || j.status === 'completed'));
     if(myActiveJob && document.getElementById('landingPage').classList.contains('view-active')) window.switchView('seekerUI');
 });
@@ -1074,7 +998,21 @@ onValue(ref(db, "profiles"), (snap) => { profilesCache = snap.val() || {}; syncU
 
 window.saveProfile = () => {
     myRadius = parseInt(document.getElementById("profileRadius").value);
-    update(ref(db, `profiles/${myId}`), { name: document.getElementById("profileName").value, bio: document.getElementById("profileBio").value, pic: document.getElementById("profileDisplayPic").src, radius: myRadius });
+    
+    // Save Filter Settings
+    const filters = {
+        sos: document.getElementById('filterSOS').checked,
+        jobs: document.getElementById('filterJobs').checked
+    };
+
+    update(ref(db, `profiles/${myId}`), { 
+        name: document.getElementById("profileName").value, 
+        bio: document.getElementById("profileBio").value, 
+        pic: document.getElementById("profileDisplayPic").src, 
+        radius: myRadius,
+        filters: filters 
+    });
+    
     if(map && userLocation) { 
         const radiusInMeters = myRadius * 1609.34; 
         const circle = new google.maps.Circle({center: userLocation, radius: radiusInMeters}); 
@@ -1088,7 +1026,16 @@ window.openProfile = async () => {
     window.openModal("profileModal");
     const snap = await get(ref(db, `profiles/${myId}`));
     if(snap.exists()) {
-        const d = snap.val(); document.getElementById("profileName").value = d.name || ""; document.getElementById("profileBio").value = d.bio || ""; if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius; }
+        const d = snap.val(); 
+        document.getElementById("profileName").value = d.name || ""; 
+        document.getElementById("profileBio").value = d.bio || ""; 
+        if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; 
+        if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius; }
+        
+        // Load Filters (Default True if not set)
+        const f = d.filters || { sos: true, jobs: true };
+        document.getElementById('filterSOS').checked = f.sos;
+        document.getElementById('filterJobs').checked = f.jobs;
     }
 };
 
