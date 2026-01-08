@@ -185,11 +185,10 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 
 <!-- MODALS -->
 
-<!-- SEEKER JOB LIST & CREATION MODAL -->
+<!-- SEEKER JOB LIST MODAL -->
 <div id="seekerJobsModal" class="modal">
     <div class="modal-content">
         <h3>My Scheduled Jobs</h3>
-        <button class="submit-btn" style="background:var(--job); margin-bottom:15px; color:black;" onclick="window.openModal('postJobModal'); window.closeModal('seekerJobsModal')">➕ Schedule New Repair</button>
         <div id="seekerJobList"></div>
         <span class="cancel-link" onclick="window.closeModal('seekerJobsModal')">Close</span>
     </div>
@@ -204,19 +203,38 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
-<!-- POST JOB FORM -->
+<!-- NEW SCHEDULE REPAIR MODAL -->
 <div id="postJobModal" class="modal">
     <div class="modal-content">
         <h3>Schedule Repair</h3>
-        <input type="date" id="jobDate">
-        <input type="time" id="jobTime">
-        <div class="vehicle-grid">
-            <div class="v-type active" onclick="window.selectVehicle('Car', this)">🚗 Car</div>
-            <div class="v-type" onclick="window.selectVehicle('Truck', this)">🛻 Truck</div>
+        
+        <label style="font-size:12px; font-weight:bold; color:var(--muted);">VEHICLE INFO</label>
+        <input type="text" id="schedVehicleInfo" placeholder="Year, Make, Model (e.g. 2018 Ford F-150)">
+        
+        <label style="font-size:12px; font-weight:bold; color:var(--muted); margin-top:10px; display:block;">WHEN?</label>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+            <input type="checkbox" id="schedASAP" onchange="window.toggleSchedTime(this)" style="width:20px; height:20px; margin:0; accent-color:var(--job);">
+            <span style="font-weight:600;">As soon as possible</span>
         </div>
-        <textarea id="jobIssue" placeholder="Describe the repair needed..." rows="2"></textarea>
-        <button class="submit-btn" style="background:var(--job); color:black;" onclick="window.submitScheduledJob()">POST JOB</button>
-        <p onclick="window.closeModal('postJobModal')" class="cancel-link">Cancel</p>
+        <div id="schedTimeContainer">
+            <div style="display:flex; gap:10px;">
+                <input type="date" id="jobDate">
+                <input type="time" id="jobTime">
+            </div>
+        </div>
+
+        <label style="font-size:12px; font-weight:bold; color:var(--muted);">TARGET BUDGET</label>
+        <input type="number" id="schedBudget" placeholder="$ Budget">
+
+        <!-- Photo Upload for Schedule -->
+        <img id="schedPreview" style="width:100%; height:150px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
+        <input type="file" id="schedImgInput" accept="image/*" style="display:none" onchange="window.handleImageUpload(this, 'schedule')">
+        <button onclick="document.getElementById('schedImgInput').click()" style="width:100%; padding:15px; border-radius:16px; border:2px dashed #cbd5e1; background:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--muted);">📷 Add Photo</button>
+
+        <textarea id="jobIssue" placeholder="Describe the issue or special requests..." rows="3"></textarea>
+        
+        <button class="submit-btn" style="background:var(--job); color:black;" onclick="window.submitScheduledJob()">FIND HERO</button>
+        <p onclick="window.closeModal('postJobModal'); window.openModal('requestModal');" class="cancel-link">Back</p>
     </div>
 </div>
 
@@ -238,6 +256,7 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 <div id="jobDetailsModal" class="modal">
     <div class="modal-content">
         <h3 id="jdTitle">Repair Job</h3>
+        <img id="jdImg" style="width:100%; height:200px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
         <p id="jdInfo" style="color:var(--muted); margin-bottom:15px;"></p>
         <div id="jdBidsSection" style="display:none;">
             <h4>Offers</h4>
@@ -283,9 +302,16 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
+<!-- MODIFIED REQUEST MODAL with Schedule Button -->
 <div id="requestModal" class="modal">
     <div class="modal-content">
         <h3>Request Hero</h3>
+        
+        <!-- Schedule Button -->
+        <button onclick="window.closeModal('requestModal'); window.openModal('postJobModal')" style="width:100%; padding:15px; background:var(--job); color:black; border:none; border-radius:16px; font-weight:700; margin-bottom:20px;">📅 SCHEDULE REPAIR</button>
+        
+        <div style="border-top:1px solid #e2e8f0; margin-bottom:20px; position:relative; text-align:center;"><span style="background:white; padding:0 10px; position:relative; top:-10px; color:var(--muted); font-size:12px;">OR EMERGENCY SOS</span></div>
+
         <div class="vehicle-grid">
             <div class="v-type active" onclick="window.selectVehicle('Car', this)">🚗 Car</div>
             <div class="v-type" onclick="window.selectVehicle('Truck', this)">🛻 Truck</div>
@@ -363,7 +389,7 @@ const db = getDatabase(app);
 if(!localStorage.getItem('heroUserId')) localStorage.setItem('heroUserId', 'u_' + Math.random().toString(36).substr(2, 9));
 const myId = localStorage.getItem('heroUserId');
 
-let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgData = null, myRadius = 25, heroMarker;
+let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgData = null, schedImgData = null, myRadius = 25, heroMarker;
 let sosCache = {}, scheduledJobsCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUserMarker;
 let activeChatId = null, lastMsgCount = 0;
 let activityToDeleteId = null; 
@@ -421,6 +447,12 @@ window.switchView = (id) => {
 };
 window.selectVehicle = (type, el) => { selectedVehicle = type; document.querySelectorAll(".v-type").forEach(b => b.classList.remove("active")); el.classList.add("active"); };
 
+window.toggleSchedTime = (checkbox) => {
+    const container = document.getElementById('schedTimeContainer');
+    if(checkbox.checked) { container.style.display = 'none'; }
+    else { container.style.display = 'block'; }
+};
+
 window.handleImageUpload = (input, target) => {
     const file = input.files[0]; if(!file) return;
     const reader = new FileReader();
@@ -432,6 +464,7 @@ window.handleImageUpload = (input, target) => {
             const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             const compressedData = canvas.toDataURL('image/jpeg', 0.7);
             if(target === 'damage') { damageImgData = compressedData; document.getElementById('damagePreview').src = compressedData; document.getElementById('damagePreview').style.display = 'block'; }
+            else if(target === 'schedule') { schedImgData = compressedData; document.getElementById('schedPreview').src = compressedData; document.getElementById('schedPreview').style.display = 'block'; }
             else if(target === 'profile') { document.getElementById('profileDisplayPic').src = compressedData; }
         };
         img.src = e.target.result;
@@ -450,8 +483,8 @@ window.openSeekerJobs = () => {
             list.innerHTML += `
                 <div class="job-card" onclick="window.viewJobDetails('${id}')">
                     <span class="job-status" style="background:${color}">${job.status}</span>
-                    <b>${job.vehicle} Repair</b>
-                    <p style="font-size:12px; margin:5px 0;">📅 ${job.date} @ ${job.time}</p>
+                    <b>${job.vehicle}</b>
+                    <p style="font-size:12px; margin:5px 0;">📅 ${job.date} ${job.time ? '@ '+job.time : ''}</p>
                     <p style="font-size:12px; color:var(--muted);">${job.issue}</p>
                     ${job.status === 'open' ? `<div style="margin-top:8px; font-weight:bold; color:var(--accent);">${bidCount} Bid(s) Received</div>` : ''}
                 </div>
@@ -474,7 +507,7 @@ window.openHeroJobs = () => {
                 <div class="job-card">
                     <span class="job-status" style="background:${color}">${job.status}</span>
                     <b>${job.vehicle}</b>
-                    <p style="font-size:12px; margin:5px 0;">📅 ${job.date} @ ${job.time}</p>
+                    <p style="font-size:12px; margin:5px 0;">📅 ${job.date} ${job.time ? '@ '+job.time : ''}</p>
                     <p style="font-size:13px;">${job.issue}</p>
                     <div style="display:flex; gap:10px; margin-top:10px;">
                         <button class="submit-btn" style="padding:10px; background:var(--muted); font-size:12px;" onclick="window.viewJobDetails('${id}')">DETAILS</button>
@@ -491,24 +524,34 @@ window.openHeroJobs = () => {
 };
 
 window.submitScheduledJob = () => {
-    const date = document.getElementById('jobDate').value;
-    const time = document.getElementById('jobTime').value;
+    const vehicle = document.getElementById('schedVehicleInfo').value;
+    const isASAP = document.getElementById('schedASAP').checked;
+    const date = isASAP ? "AS SOON AS POSSIBLE" : document.getElementById('jobDate').value;
+    const time = isASAP ? "" : document.getElementById('jobTime').value;
+    const budget = document.getElementById('schedBudget').value;
     const issue = document.getElementById('jobIssue').value;
-    if(!date || !time || !issue || !userLocation) return alert("Please fill all fields.");
+    
+    if(!vehicle || (!isASAP && !date) || !issue || !userLocation) return alert("Please fill details.");
 
     push(ref(db, "scheduledJobs"), {
         ownerId: myId,
-        vehicle: selectedVehicle,
+        vehicle: vehicle,
         date: date,
         time: time,
+        budget: budget,
         issue: issue,
+        img: schedImgData,
         lat: userLocation.lat,
         lng: userLocation.lng,
         status: 'open',
         timestamp: Date.now()
     });
+    
     window.closeModal('postJobModal');
-    alert("Job Posted! Heroes will submit bids soon.");
+    // Switch to Map View to see the marker (or just alert)
+    alert("Job Posted! You can view it in 'My Jobs'.");
+    // Optionally open the jobs list:
+    // window.openSeekerJobs();
 };
 
 window.viewJobDetails = (id) => {
@@ -516,8 +559,10 @@ window.viewJobDetails = (id) => {
     const job = scheduledJobsCache[id];
     if(!job) return;
 
-    document.getElementById('jdTitle').innerText = `${job.vehicle} - ${job.date} ${job.time}`;
-    document.getElementById('jdInfo').innerText = job.issue;
+    document.getElementById('jdTitle').innerText = `${job.vehicle} Repair`;
+    document.getElementById('jdInfo').innerText = `${job.date} ${job.time ? '@ '+job.time : ''}\nBudget: $${job.budget || '?'}\n\n${job.issue}`;
+    const img = document.getElementById('jdImg');
+    if(job.img) { img.src = job.img; img.style.display = "block"; } else { img.style.display = "none"; }
     
     const bidList = document.getElementById('jdBidList');
     const bidSection = document.getElementById('jdBidsSection');
@@ -533,7 +578,7 @@ window.viewJobDetails = (id) => {
         actionBtn.style.color = "black";
         actionBtn.onclick = () => {
             window.closeModal('jobDetailsModal');
-            document.getElementById('bidContext').innerText = `Bidding on: ${job.vehicle} Repair`;
+            document.getElementById('bidContext').innerText = `Bidding on: ${job.vehicle}`;
             window.openModal('bidModal');
         };
     }
@@ -935,7 +980,7 @@ function syncUI() {
         } else {
             // Distinguish Scheduled vs SOS in Card
             const title = currentTask.type === 'job' ? 'SCHEDULED REPAIR' : 'EMERGENCY SOS';
-            const sub = currentTask.type === 'job' ? `📅 ${currentTask.date} @ ${currentTask.time}` : `${currentTask.vehicle}: ${currentTask.issue}`;
+            const sub = currentTask.type === 'job' ? `📅 ${currentTask.date} ${currentTask.time ? '@ '+currentTask.time : ''}` : `${currentTask.vehicle}: ${currentTask.issue}`;
             
             tCard.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center;">
