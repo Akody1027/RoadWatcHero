@@ -37,7 +37,7 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -app
 .search-pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--danger); opacity: 0.4; animation: pulse 2s infinite; }
 @keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
 
-/* LARGE YELLOW RADAR FOR OPEN JOBS (Center Screen Style) */
+/* LARGE YELLOW RADAR FOR OPEN JOBS */
 .job-radar-large { 
     width: 80px; height: 80px; 
     background: var(--job); 
@@ -310,7 +310,9 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 <div id="requestModal" class="modal">
     <div class="modal-content">
         <h3>Request Hero</h3>
-        <button onclick="window.closeModal('requestModal'); window.openModal('postJobModal')" style="width:100%; padding:15px; background:var(--job); color:black; border:none; border-radius:16px; font-weight:700; margin-bottom:20px;">📅 SCHEDULE REPAIR</button>
+        <!-- UPDATED BUTTON WITH ID -->
+        <button id="btnScheduleRepair" onclick="window.closeModal('requestModal'); window.openModal('postJobModal')" style="width:100%; padding:15px; background:var(--job); color:black; border:none; border-radius:16px; font-weight:700; margin-bottom:20px;">📅 SCHEDULE REPAIR</button>
+        
         <div style="border-top:1px solid #e2e8f0; margin-bottom:20px; position:relative; text-align:center;"><span style="background:white; padding:0 10px; position:relative; top:-10px; color:var(--muted); font-size:12px;">OR EMERGENCY SOS</span></div>
         <div class="vehicle-grid">
             <div class="v-type active" onclick="window.selectVehicle('Car', this)">🚗 Car</div>
@@ -477,7 +479,7 @@ window.openSeekerJobs = () => {
             const bidCount = job.bids ? Object.keys(job.bids).length : 0;
             const color = job.status === 'open' ? 'var(--job)' : (job.status === 'started' ? 'var(--success)' : 'var(--accent)');
             
-            // New "Broadcasting" Style Card for Open Jobs
+            // "Broadcasting" Style Card for Open Jobs
             let contentHtml = "";
             if (job.status === 'open') {
                 contentHtml = `
@@ -485,7 +487,6 @@ window.openSeekerJobs = () => {
                     <div class="job-radar-large">📡</div>
                     <div style="font-size: 18px; font-weight: 700; margin-bottom: 5px;">Broadcasting Job...</div>
                     <p style="color:var(--muted); font-size:14px; margin-bottom:15px;">Your request is live. Waiting for a Hero to accept...</p>
-                    
                     <div style="border-top:1px solid #f1f5f9; padding-top:15px;">
                          <div style="font-weight:800; font-size:16px;">${job.vehicle}</div>
                          <div style="font-size:13px; margin:4px 0;">📅 ${job.date} ${job.time ? '@ '+job.time : ''}</div>
@@ -753,25 +754,23 @@ function syncUI() {
     Object.entries(sosCache).forEach(([id, r]) => {
         if (r.status === 'open' && r.ownerId !== myId) {
             if (filters.sos) {
-                if (!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#EE611C") }); marker.addListener('click', () => window.viewRequest(id)); markers[id] = marker; }
+                if (!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: parseFloat(r.lat), lng: parseFloat(r.lng)}, map, icon: getMarkerIcon("#EE611C") }); marker.addListener('click', () => window.viewRequest(id)); markers[id] = marker; }
             } else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
         }
         else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
-             if(!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e") }); markers[id] = marker; }
+             if(!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: parseFloat(r.lat), lng: parseFloat(r.lng)}, map, icon: getMarkerIcon("#22c55e") }); markers[id] = marker; }
         } else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
     });
 
     Object.entries(scheduledJobsCache).forEach(([id, job]) => {
-         // Show Markers if Open (and not mine), or if Started (and mine)
          if (job.status === 'open' && job.ownerId !== myId) {
              if(filters.jobs) {
-                 if(!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: job.lat, lng: job.lng}, map, icon: getMarkerIcon("#EAB308") }); marker.addListener('click', () => window.viewJobDetails(id)); markers[id] = marker; }
+                 if(!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: parseFloat(job.lat), lng: parseFloat(job.lng)}, map, icon: getMarkerIcon("#EAB308") }); marker.addListener('click', () => window.viewJobDetails(id)); markers[id] = marker; }
              } else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
          } 
          else if (job.status === 'started' && job.helperId === myId) {
-             if(!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: job.lat, lng: job.lng}, map, icon: getMarkerIcon("#22c55e") }); markers[id] = marker; }
+             if(!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: parseFloat(job.lat), lng: parseFloat(job.lng)}, map, icon: getMarkerIcon("#22c55e") }); markers[id] = marker; }
          } 
-         // Ensure we cleanup markers if status changed
          else if (markers[id] && job.status !== 'open') { markers[id].setMap(null); delete markers[id]; }
     });
 
@@ -835,6 +834,19 @@ function syncUI() {
             document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is here!" : (myActiveSOS.type === 'job' ? "Repair in progress..." : "Hero En Route");
             updateSeekerMiniMap(myActiveSOS, { lat: heroLat, lng: heroLng });
         } else if(myActiveSOS.status === 'completed') { searching.style.display = 'none'; matched.style.display = 'none'; completed.style.display = 'block'; cancelBtn.style.display = 'none'; }
+    }
+
+    // Toggle Seeker Schedule Button Logic
+    const schedBtn = document.getElementById('btnScheduleRepair');
+    const hasActiveJob = Object.values(scheduledJobsCache).some(j => j.ownerId === myId && ['open','assigned','started'].includes(j.status));
+    if(schedBtn) {
+        if(hasActiveJob) {
+             schedBtn.innerText = "📂 VIEW ACTIVE JOB"; schedBtn.style.background = "#cbd5e1";
+             schedBtn.onclick = () => { window.closeModal('requestModal'); window.openSeekerJobs(); };
+        } else {
+             schedBtn.innerText = "📅 SCHEDULE REPAIR"; schedBtn.style.background = "var(--job)";
+             schedBtn.onclick = () => { window.closeModal('requestModal'); window.openModal('postJobModal'); };
+        }
     }
 }
 
