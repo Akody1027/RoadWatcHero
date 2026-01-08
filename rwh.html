@@ -37,10 +37,21 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -app
 .search-pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--danger); opacity: 0.4; animation: pulse 2s infinite; }
 @keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
 
-/* Mini Yellow Pulse for Jobs */
-.mini-pulse-box { position: absolute; top: 10px; right: 10px; width: 15px; height: 15px; background: var(--job); border-radius: 50%; display:block; z-index:5; }
-.mini-pulse-box::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--job); opacity: 0.6; animation: pulse-yellow 1.5s infinite; }
-@keyframes pulse-yellow { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(3); opacity: 0; } }
+/* NEW YELLOW RADAR FOR JOBS */
+.job-radar-pulse { 
+    width: 45px; height: 45px; 
+    background: var(--job); 
+    border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; 
+    font-size: 20px; color: white; 
+    position: relative; 
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+.job-radar-pulse::after { 
+    content: ''; position: absolute; inset: 0; border-radius: 50%; 
+    background: var(--job); opacity: 0.6; animation: pulse 2s infinite; 
+}
 
 #map { width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 1; }
 #statusIndicator { position: fixed; left: 5px; bottom: 50px; z-index: 150; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 28px; cursor: pointer; box-shadow: var(--shadow); border: 3px solid white; transition: 0.3s; }
@@ -86,8 +97,8 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 .trash-icon { width: 20px; height: 20px; cursor: pointer; margin-left: 10px; }
 
 /* Job List Styles */
-.job-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 16px; margin-bottom: 12px; position: relative; }
-.job-status { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; float: right; margin-left: 10px; margin-top: 5px; }
+.job-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 16px; margin-bottom: 12px; }
+.job-status { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; margin-bottom: 5px; display:inline-block; }
 .status-open { background: var(--job); color: black; }
 .status-assigned { background: var(--accent); color: white; }
 .status-started { background: var(--success); color: white; }
@@ -105,11 +116,9 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 <div id="landingPage" class="view view-active">
     <img src="roadwatchlogo.png" alt="Logo">
     <h2 style="color: var(--muted); margin-bottom: 40px; font-weight: 500; font-size: 18px;">Help is just a click away.</h2>
-    <!-- Intercept Request with checkAndOpenRequest -->
     <button class="mode-btn btn-req" onclick="window.checkAndOpenRequest()">Find a Hero!</button>
     <button class="mode-btn btn-hero" onclick="window.enterHeroMode()">Become a Hero!</button>
     
-    <!-- Seeker Footer with Job Icon -->
     <div class="footer">
         <div class="footer-icons">
              <div style="position:relative">
@@ -155,10 +164,9 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
                 <img src="Chaticon.png" class="icon-btn" onclick="window.openChat()">
                 <span id="chatBadge">0</span>
             </div>
-             <!-- Seeker Jobs Icon in Active View too -->
              <div style="position:relative">
                 <img src="https://cdn-icons-png.flaticon.com/512/3203/3203875.png" class="icon-btn" onclick="window.openSeekerJobs()" title="My Jobs">
-                <span id="jobBadgeSeekerActive">0</span> <!-- Separate ID for simplicity -->
+                <span id="jobBadgeSeekerActive">0</span>
             </div>
         </div>
     </div>
@@ -170,9 +178,7 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     <div id="statusIndicator" style="background: #94a3b8;" onclick="window.toggleTaskCard()">!</div>
     <div id="map"></div>
     <div id="heroPanel">
-        <div id="activeTask" class="task-card">
-            <!-- DYNAMIC HERO CONTENT -->
-        </div>
+        <div id="activeTask" class="task-card"></div>
     </div>
     <div class="footer">
         <div class="footer-icons">
@@ -195,7 +201,6 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 
 <!-- MODALS -->
 
-<!-- SEEKER JOB LIST MODAL -->
 <div id="seekerJobsModal" class="modal">
     <div class="modal-content">
         <h3>My Scheduled Jobs</h3>
@@ -204,7 +209,6 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
-<!-- HERO JOB LIST MODAL -->
 <div id="heroJobsModal" class="modal">
     <div class="modal-content">
         <h3>My Schedule</h3>
@@ -213,14 +217,11 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
-<!-- NEW SCHEDULE REPAIR MODAL -->
 <div id="postJobModal" class="modal">
     <div class="modal-content">
         <h3>Schedule Repair</h3>
-        
         <label style="font-size:12px; font-weight:bold; color:var(--muted);">VEHICLE INFO</label>
         <input type="text" id="schedVehicleInfo" placeholder="Year, Make, Model (e.g. 2018 Ford F-150)">
-        
         <label style="font-size:12px; font-weight:bold; color:var(--muted); margin-top:10px; display:block;">WHEN?</label>
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
             <input type="checkbox" id="schedASAP" onchange="window.toggleSchedTime(this)" style="width:20px; height:20px; margin:0; accent-color:var(--job);">
@@ -232,23 +233,17 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
                 <input type="time" id="jobTime">
             </div>
         </div>
-
         <label style="font-size:12px; font-weight:bold; color:var(--muted);">TARGET BUDGET</label>
         <input type="number" id="schedBudget" placeholder="$ Budget">
-
-        <!-- Photo Upload for Schedule -->
         <img id="schedPreview" style="width:100%; height:150px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
         <input type="file" id="schedImgInput" accept="image/*" style="display:none" onchange="window.handleImageUpload(this, 'schedule')">
         <button onclick="document.getElementById('schedImgInput').click()" style="width:100%; padding:15px; border-radius:16px; border:2px dashed #cbd5e1; background:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--muted);">📷 Add Photo</button>
-
         <textarea id="jobIssue" placeholder="Describe the issue or special requests..." rows="3"></textarea>
-        
         <button class="submit-btn" style="background:var(--job); color:black;" onclick="window.submitScheduledJob()">FIND HERO</button>
         <p onclick="window.closeModal('postJobModal'); window.openModal('requestModal');" class="cancel-link">Back</p>
     </div>
 </div>
 
-<!-- BID MODAL (For Hero) -->
 <div id="bidModal" class="modal">
     <div class="modal-content">
         <h3>Submit Bid</h3>
@@ -262,7 +257,6 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
-<!-- JOB DETAILS MODAL (Shared) -->
 <div id="jobDetailsModal" class="modal">
     <div class="modal-content">
         <h3 id="jdTitle">Repair Job</h3>
@@ -277,7 +271,6 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
-<!-- Existing Modals (kept intact) -->
 <div id="detailsModal" class="modal">
     <div class="modal-content">
         <h3 id="detVehicle">Vehicle Request</h3>
@@ -312,16 +305,11 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
-<!-- MODIFIED REQUEST MODAL with Schedule Button -->
 <div id="requestModal" class="modal">
     <div class="modal-content">
         <h3>Request Hero</h3>
-        
-        <!-- Schedule Button -->
         <button onclick="window.closeModal('requestModal'); window.openModal('postJobModal')" style="width:100%; padding:15px; background:var(--job); color:black; border:none; border-radius:16px; font-weight:700; margin-bottom:20px;">📅 SCHEDULE REPAIR</button>
-        
         <div style="border-top:1px solid #e2e8f0; margin-bottom:20px; position:relative; text-align:center;"><span style="background:white; padding:0 10px; position:relative; top:-10px; color:var(--muted); font-size:12px;">OR EMERGENCY SOS</span></div>
-
         <div class="vehicle-grid">
             <div class="v-type active" onclick="window.selectVehicle('Car', this)">🚗 Car</div>
             <div class="v-type" onclick="window.selectVehicle('Truck', this)">🛻 Truck</div>
@@ -356,8 +344,6 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
             <input type="file" id="picInput" style="display:none" onchange="window.handleImageUpload(this, 'profile')">
             <button onclick="document.getElementById('picInput').click()" style="display:block; margin:8px auto; border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer;">Update Photo</button>
         </div>
-        
-        <!-- MAP FILTERS SECTION -->
         <label style="font-size:11px; font-weight:900; color:var(--muted); display:block; margin-bottom:10px;">MAP FILTERS</label>
         <div class="switch-row">
             <span class="switch-label">Show SOS Requests (Red)</span>
@@ -367,7 +353,6 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
             <span class="switch-label">Show Scheduled Jobs (Yellow)</span>
             <input type="checkbox" id="filterJobs" class="switch-input" checked>
         </div>
-
         <input id="profileName" placeholder="Hero Name">
         <textarea id="profileBio" placeholder="Bio / Tools Available..." rows="2"></textarea>
         <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
@@ -389,9 +374,7 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
-<!-- Hidden audio element for notifications -->
 <audio id="notificationSound" src="Roadwatchero.mp3" preload="auto" style="display:none;"></audio>
-
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -432,16 +415,11 @@ window.onload = () => {
             const isFirstLoad = !userLocation;
             userLocation = freshLoc;
             update(ref(db, `profiles/${myId}`), { ...userLocation, id: myId });
-            
             const activeJob = Object.entries(scheduledJobsCache).find(([k,v]) => v.helperId === myId && v.status === 'started');
             if(activeJob) { update(ref(db, `scheduledJobs/${activeJob[0]}`), { heroLat: freshLoc.lat, heroLng: freshLoc.lng }); }
-
             if (map) {
                 if (!heroMarker) {
-                    heroMarker = new google.maps.Marker({
-                        position: userLocation, map: map,
-                        icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }
-                    });
+                    heroMarker = new google.maps.Marker({ position: userLocation, map: map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 } });
                 } else { heroMarker.setPosition(userLocation); }
                 if (isFirstLoad && document.getElementById('heroUI').classList.contains('view-active')) { map.setCenter(userLocation); }
             }
@@ -497,36 +475,45 @@ window.openSeekerJobs = () => {
             const bidCount = job.bids ? Object.keys(job.bids).length : 0;
             const color = job.status === 'open' ? 'var(--job)' : (job.status === 'started' ? 'var(--success)' : 'var(--accent)');
             
-            // Pulse logic for Open jobs
-            const pulseHtml = job.status === 'open' ? '<div class="mini-pulse-box"></div>' : '';
-
-            list.innerHTML += `
-                <div class="job-card" onclick="window.viewJobDetails('${id}')">
-                    ${pulseHtml}
-                    <span class="job-status" style="background:${color}">${job.status}</span>
+            // New Radar Layout for Open Jobs
+            let contentHtml = "";
+            if (job.status === 'open') {
+                contentHtml = `
+                <div style="display:flex; align-items:center;">
+                    <div class="job-radar-pulse">📡</div>
+                    <div style="flex:1;">
+                         <span class="job-status" style="background:${color}">${job.status}</span>
+                         <div><b>${job.vehicle}</b></div>
+                         <div style="font-size:12px; margin:2px 0;">📅 ${job.date} ${job.time ? '@ '+job.time : ''}</div>
+                         <div style="font-size:12px; color:var(--muted);">${job.issue}</div>
+                         <div style="margin-top:5px; font-weight:bold; color:var(--accent);">${bidCount} Bid(s) Received</div>
+                    </div>
+                </div>`;
+            } else {
+                 contentHtml = `
+                    <span class="job-status" style="background:${color}; float:right;">${job.status}</span>
                     <b>${job.vehicle}</b>
                     <p style="font-size:12px; margin:5px 0;">📅 ${job.date} ${job.time ? '@ '+job.time : ''}</p>
                     <p style="font-size:12px; color:var(--muted);">${job.issue}</p>
-                    ${job.status === 'open' ? `<div style="margin-top:8px; font-weight:bold; color:var(--accent);">${bidCount} Bid(s) Received</div>` : ''}
-                </div>
-            `;
+                 `;
+            }
+
+            list.innerHTML += `<div class="job-card" onclick="window.viewJobDetails('${id}')">${contentHtml}</div>`;
         }
     });
     window.openModal('seekerJobsModal');
-    // Clear badge visually
     document.getElementById('jobBadgeSeeker').style.display = 'none';
     document.getElementById('jobBadgeSeekerActive').style.display = 'none';
 };
 
 window.openHeroJobs = () => {
     const list = document.getElementById('heroJobList'); list.innerHTML = "";
-    // Filter jobs assigned to me
     Object.entries(scheduledJobsCache).forEach(([id, job]) => {
         if(job.helperId === myId) {
             const color = job.status === 'started' ? 'var(--success)' : 'var(--accent)';
             list.innerHTML += `
                 <div class="job-card">
-                    <span class="job-status" style="background:${color}">${job.status}</span>
+                    <span class="job-status" style="background:${color}; float:right;">${job.status}</span>
                     <b>${job.vehicle}</b>
                     <p style="font-size:12px; margin:5px 0;">📅 ${job.date} ${job.time ? '@ '+job.time : ''}</p>
                     <p style="font-size:13px;">${job.issue}</p>
@@ -550,21 +537,12 @@ window.submitScheduledJob = () => {
     const time = isASAP ? "" : document.getElementById('jobTime').value;
     const budget = document.getElementById('schedBudget').value;
     const issue = document.getElementById('jobIssue').value;
-    
     if(!vehicle || (!isASAP && !date) || !issue || !userLocation) return alert("Please fill details.");
 
     push(ref(db, "scheduledJobs"), {
         ownerId: myId,
-        vehicle: vehicle,
-        date: date,
-        time: time,
-        budget: budget,
-        issue: issue,
-        img: schedImgData,
-        lat: userLocation.lat,
-        lng: userLocation.lng,
-        status: 'open',
-        timestamp: Date.now()
+        vehicle: vehicle, date: date, time: time, budget: budget, issue: issue, img: schedImgData,
+        lat: userLocation.lat, lng: userLocation.lng, status: 'open', timestamp: Date.now()
     });
     window.closeModal('postJobModal');
     alert("Job Posted! You can view it in 'My Jobs'.");
@@ -586,22 +564,13 @@ window.viewJobDetails = (id) => {
     bidSection.style.display = "none";
     actionBtn.style.display = "none";
 
-    // HERO VIEWING OPEN JOB (To Bid)
     if(job.ownerId !== myId && job.status === 'open') {
         actionBtn.innerText = "SUBMIT BID";
-        actionBtn.style.display = "block";
-        actionBtn.style.background = "var(--job)";
-        actionBtn.style.color = "black";
-        actionBtn.onclick = () => {
-            window.closeModal('jobDetailsModal');
-            document.getElementById('bidContext').innerText = `Bidding on: ${job.vehicle}`;
-            window.openModal('bidModal');
-        };
+        actionBtn.style.display = "block"; actionBtn.style.background = "var(--job)"; actionBtn.style.color = "black";
+        actionBtn.onclick = () => { window.closeModal('jobDetailsModal'); document.getElementById('bidContext').innerText = `Bidding on: ${job.vehicle}`; window.openModal('bidModal'); };
     }
-    // SEEKER VIEWING THEIR JOB (To Accept Bid)
     else if(job.ownerId === myId && job.status === 'open') {
-        bidSection.style.display = "block";
-        bidList.innerHTML = "";
+        bidSection.style.display = "block"; bidList.innerHTML = "";
         if(job.bids) {
             Object.entries(job.bids).forEach(([hId, bid]) => {
                 const hName = profilesCache[hId] ? profilesCache[hId].name : "Hero";
@@ -611,19 +580,10 @@ window.viewJobDetails = (id) => {
                         <button onclick="window.acceptBid('${id}', '${hId}')" style="background:var(--success); color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;">ACCEPT</button>
                     </div>`;
             });
-        } else {
-            bidList.innerHTML = "<p style='font-size:12px; color:gray;'>No bids yet.</p>";
-        }
+        } else { bidList.innerHTML = "<p style='font-size:12px; color:gray;'>No bids yet.</p>"; }
         
-        actionBtn.innerText = "DELETE JOB";
-        actionBtn.style.display = "block";
-        actionBtn.style.background = "var(--danger)";
-        actionBtn.onclick = () => {
-             if(confirm("Delete this job request?")) {
-                 remove(ref(db, `scheduledJobs/${id}`));
-                 window.closeModal('jobDetailsModal');
-             }
-        };
+        actionBtn.innerText = "DELETE JOB"; actionBtn.style.display = "block"; actionBtn.style.background = "var(--danger)";
+        actionBtn.onclick = () => { if(confirm("Delete this job request?")) { remove(ref(db, `scheduledJobs/${id}`)); window.closeModal('jobDetailsModal'); } };
     }
     window.openModal('jobDetailsModal');
 };
@@ -632,7 +592,6 @@ window.submitBid = () => {
     const price = document.getElementById('bidPrice').value;
     const note = document.getElementById('bidNote').value;
     if(!price || !selectedJobId) return;
-
     update(ref(db, `scheduledJobs/${selectedJobId}/bids/${myId}`), { price: price, note: note || "", timestamp: Date.now() });
     window.closeModal('bidModal');
     alert("Bid Sent!");
@@ -641,8 +600,7 @@ window.submitBid = () => {
 window.acceptBid = (jobId, heroId) => {
     if(confirm("Accept this bid? The Hero will be notified.")) {
         update(ref(db, `scheduledJobs/${jobId}`), { status: 'assigned', helperId: heroId });
-        window.closeModal('jobDetailsModal');
-        window.closeModal('seekerJobsModal');
+        window.closeModal('jobDetailsModal'); window.closeModal('seekerJobsModal');
     }
 };
 
@@ -650,15 +608,9 @@ window.startScheduledJob = (jobId) => {
     const busySOS = Object.values(sosCache).some(r => r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived'));
     const busyJob = Object.values(scheduledJobsCache).some(j => j.helperId === myId && j.status === 'started');
     if(busySOS || busyJob) return alert("You already have an active job in progress! Complete it first.");
-
     update(ref(db, `scheduledJobs/${jobId}`), { status: 'started', heroLat: userLocation.lat, heroLng: userLocation.lng });
-    window.closeModal('heroJobsModal');
-    alert("Job Started! Seeker can now track you.");
-    syncUI();
+    window.closeModal('heroJobsModal'); alert("Job Started! Seeker can now track you."); syncUI();
 };
-
-/* --- END SCHEDULED JOBS LOGIC --- */
-
 
 window.checkAndOpenRequest = () => {
     const existingReq = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
@@ -669,21 +621,16 @@ window.openChat = async () => {
     let currentActive = Object.values(sosCache).find(r => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
     if (!currentActive) { currentActive = Object.values(scheduledJobsCache).find(r => (r.ownerId === myId || r.helperId === myId) && (r.status === 'started' || r.status === 'arrived')); }
     if (!currentActive) return alert("No active job for chat.");
-    
     activeChatId = Object.keys(sosCache).find(key => sosCache[key] === currentActive) || Object.keys(scheduledJobsCache).find(key => scheduledJobsCache[key] === currentActive);
     window.openModal('chatModal');
-    
     const chatSnap = await get(ref(db, `chats/${activeChatId}`));
     if (chatSnap.exists()) {
         const messages = chatSnap.val();
         const updates = {};
-        for (const msgId in messages) {
-            if (messages[msgId].sender !== myId && messages[msgId].read === false) { updates[`chats/${activeChatId}/${msgId}/read`] = true; }
-        }
+        for (const msgId in messages) { if (messages[msgId].sender !== myId && messages[msgId].read === false) { updates[`chats/${activeChatId}/${msgId}/read`] = true; } }
         if (Object.keys(updates).length > 0) await update(ref(db), updates);
     }
     updateChatBadges(0); 
-
     onValue(ref(db, `chats/${activeChatId}`), (snap) => {
         const box = document.getElementById('chatBox'); box.innerHTML = "";
         const data = snap.val() || {};
@@ -700,8 +647,7 @@ window.openChat = async () => {
 
 window.sendTextMsg = () => {
     const input = document.getElementById('chatInput'); if(!input.value.trim() || !activeChatId) return;
-    push(ref(db, `chats/${activeChatId}`), { sender: myId, text: input.value, timestamp: Date.now(), read: false }); 
-    input.value = "";
+    push(ref(db, `chats/${activeChatId}`), { sender: myId, text: input.value, timestamp: Date.now(), read: false }); input.value = "";
 };
 
 window.sendChatImg = (input) => {
@@ -719,15 +665,11 @@ function updateChatBadges(count) {
 }
 
 onValue(ref(db, 'chats'), (snapshot) => {
-    let unreadCount = 0;
-    let latestMessageTimestampInActiveChat = 0;
-    
+    let unreadCount = 0; let latestMessageTimestampInActiveChat = 0;
     let myActiveRequest = Object.entries(sosCache).find(([id, r]) => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
     if (!myActiveRequest) { myActiveRequest = Object.entries(scheduledJobsCache).find(([id, r]) => (r.ownerId === myId || r.helperId === myId) && (r.status === 'started' || r.status === 'arrived')); }
-
     if (myActiveRequest) {
-        const chatId = myActiveRequest[0];
-        const messages = snapshot.val() ? snapshot.val()[chatId] : null;
+        const chatId = myActiveRequest[0]; const messages = snapshot.val() ? snapshot.val()[chatId] : null;
         if (messages) {
             for (const msgId in messages) {
                 const message = messages[msgId];
@@ -736,16 +678,12 @@ onValue(ref(db, 'chats'), (snapshot) => {
             }
         }
     }
-
     const chatModalOpen = document.getElementById('chatModal').style.display === 'flex';
     if (!isInitialLoadForChatListener && unreadCount > 0 && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp && !chatModalOpen) {
-        const sound = document.getElementById('notificationSound');
-        if (sound) sound.play().catch(e => console.error("Error playing sound:", e));
+        const sound = document.getElementById('notificationSound'); if (sound) sound.play().catch(e => console.error("Error playing sound:", e));
     }
-    
     if (latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
-    currentUnreadCount = unreadCount; 
-    updateChatBadges(currentUnreadCount);
+    currentUnreadCount = unreadCount; updateChatBadges(currentUnreadCount);
     if (isInitialLoadForChatListener) isInitialLoadForChatListener = false;
 });
 
@@ -753,20 +691,17 @@ window.enterHeroMode = () => { window.switchView('heroUI'); if(!map) initMap(); 
 window.confirmHelp = (sosId) => {
     const eta = document.getElementById('detETA').value;
     update(ref(db, `sosRequests/${sosId}`), { status: 'accepted', helperId: myId, helperAcknowledged: false, eta: eta });
-    window.closeModal('detailsModal');
-    document.getElementById('activeTask').classList.add('expanded');
+    window.closeModal('detailsModal'); document.getElementById('activeTask').classList.add('expanded');
 };
 
 window.markArrived = () => { 
-    let activeEntry = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'accepted');
-    let dbNode = "sosRequests";
+    let activeEntry = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'accepted'); let dbNode = "sosRequests";
     if(!activeEntry) { activeEntry = Object.entries(scheduledJobsCache).find(([id, r]) => r.helperId === myId && r.status === 'started'); dbNode = "scheduledJobs"; }
     if(activeEntry) update(ref(db, `${dbNode}/${activeEntry[0]}`), { status: 'arrived' }); 
 };
 
 window.completeTask = () => { 
-    let activeEntry = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived');
-    let dbNode = "sosRequests";
+    let activeEntry = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived'); let dbNode = "sosRequests";
     if(!activeEntry) { activeEntry = Object.entries(scheduledJobsCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived'); dbNode = "scheduledJobs"; }
     if(activeEntry) update(ref(db, `${dbNode}/${activeEntry[0]}`), { status: 'completed' }); 
 };
@@ -784,7 +719,6 @@ window.submitSOS = () => {
     const issue = document.getElementById('reqIssue').value; const tip = document.getElementById('customTip').value || 0;
     const existingReq = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
     if (existingReq) { window.switchView('seekerUI'); window.closeModal('requestModal'); return; }
-
     if(!issue || !userLocation) return alert("Please describe the issue.");
     push(ref(db, "sosRequests"), { ownerId: myId, userName: "Driver", issue, vehicle: selectedVehicle, damagePic: damageImgData, tip: tip, lat: userLocation.lat, lng: userLocation.lng, status: 'open', timestamp: Date.now() });
     window.closeModal('requestModal'); window.switchView('seekerUI');
@@ -797,124 +731,69 @@ window.submitCancellation = (reason) => {
 };
 
 window.finalSeekerConfirm = () => {
-    let myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === 'completed');
-    let dbNode = "sosRequests";
+    let myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === 'completed'); let dbNode = "sosRequests";
     if(!myReqId) { myReqId = Object.keys(scheduledJobsCache).find(k => scheduledJobsCache[k].ownerId === myId && scheduledJobsCache[k].status === 'completed'); dbNode = "scheduledJobs"; }
     if(myReqId) update(ref(db, `${dbNode}/${myReqId}`), { status: 'finalized' });
-    damageImgData = null;
-    window.switchView('landingPage');
+    damageImgData = null; window.switchView('landingPage');
 };
 
 function initMap() { map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true, styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] }); }
 
 function syncUI() {
     const history = document.getElementById('notifHistory'); history.innerHTML = "";
-    let nearbySOS = [];
-    let currentTask = null; 
-    let myActiveSOS = null;
-    let jobActive = false;
-    
-    // Get Hero Filters (Default true if undefined)
+    let nearbySOS = []; let currentTask = null; let myActiveSOS = null; let jobActive = false;
     const filters = profilesCache[myId] && profilesCache[myId].filters ? profilesCache[myId].filters : { sos: true, jobs: true };
 
-    // --- MAP MARKERS LOGIC ---
-    // 1. SOS MARKERS (Red) - Controlled by filterSOS
     Object.entries(sosCache).forEach(([id, r]) => {
         if (r.status === 'open' && r.ownerId !== myId) {
-            // Apply Filter
             if (filters.sos) {
-                if (!markers[id] && map) {
-                    const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#EE611C") });
-                    marker.addListener('click', () => window.viewRequest(id));
-                    markers[id] = marker;
-                }
+                if (!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#EE611C") }); marker.addListener('click', () => window.viewRequest(id)); markers[id] = marker; }
             } else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
         }
         else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
-             if(!markers[id] && map) {
-                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e") });
-                markers[id] = marker;
-            }
-        }
-        else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
+             if(!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e") }); markers[id] = marker; }
+        } else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
     });
 
-    // 2. SCHEDULED JOB MARKERS (Yellow) - Controlled by filterJobs
     Object.entries(scheduledJobsCache).forEach(([id, job]) => {
-         // Show Open Jobs (Filtered), Show Started jobs (Always)
          if (job.status === 'open' && job.ownerId !== myId) {
              if(filters.jobs) {
-                 if(!markers[id] && map) {
-                     const marker = new google.maps.Marker({ position: {lat: job.lat, lng: job.lng}, map, icon: getMarkerIcon("#EAB308") });
-                     marker.addListener('click', () => window.viewJobDetails(id));
-                     markers[id] = marker;
-                 }
+                 if(!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: job.lat, lng: job.lng}, map, icon: getMarkerIcon("#EAB308") }); marker.addListener('click', () => window.viewJobDetails(id)); markers[id] = marker; }
              } else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
          } 
          else if (job.status === 'started' && job.helperId === myId) {
-             if(!markers[id] && map) {
-                 const marker = new google.maps.Marker({ position: {lat: job.lat, lng: job.lng}, map, icon: getMarkerIcon("#22c55e") });
-                 markers[id] = marker;
-             }
-         }
-         else if (markers[id] && job.status !== 'open') { markers[id].setMap(null); delete markers[id]; }
+             if(!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: job.lat, lng: job.lng}, map, icon: getMarkerIcon("#22c55e") }); markers[id] = marker; }
+         } else if (markers[id] && job.status !== 'open') { markers[id].setMap(null); delete markers[id]; }
     });
 
-
-    // --- HERO UI LIST POPULATION ---
     Object.entries(sosCache).forEach(([id, r]) => {
         const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
-        // Filter list based on SOS toggle
-        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius && filters.sos) {
-            nearbySOS.push({id, ...r, dist: distMiles});
-        }
+        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius && filters.sos) { nearbySOS.push({id, ...r, dist: distMiles}); }
         if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) currentTask = { ...r, type: 'sos' };
-        if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) {
-            if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = { ...r, type: 'sos', id: id };
-        }
+        if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) { if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = { ...r, type: 'sos', id: id }; }
         if((r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived')) jobActive = true; 
-
         if (r.ownerId === myId || r.helperId === myId) {
              let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
-             history.innerHTML += `<div class="history-item" style="padding:15px; border-bottom:1px solid #eee;">
-                <span class="status-pill" style="font-size:10px; padding:2px 6px; background:${sCol}; color:white; border-radius:4px;">${r.status} SOS</span>
-                <b>${r.vehicle}</b><br><small>${new Date(r.timestamp).toLocaleDateString()}</small>
-            </div>`;
+             history.innerHTML += `<div class="history-item" style="padding:15px; border-bottom:1px solid #eee;"><span class="status-pill" style="font-size:10px; padding:2px 6px; background:${sCol}; color:white; border-radius:4px;">${r.status} SOS</span><b>${r.vehicle}</b><br><small>${new Date(r.timestamp).toLocaleDateString()}</small></div>`;
         }
     });
 
-    // --- CHECK FOR ACTIVE SCHEDULED JOBS (HERO & SEEKER) ---
-    if(!currentTask) {
-        const activeJob = Object.entries(scheduledJobsCache).find(([id, j]) => j.helperId === myId && (j.status === 'started' || j.status === 'arrived' || j.status === 'completed'));
-        if(activeJob) { currentTask = { ...activeJob[1], id: activeJob[0], type: 'job', tip: 0 }; }
-    }
-    
-    if(!myActiveSOS) {
-        const activeSeekerJob = Object.entries(scheduledJobsCache).find(([id, j]) => j.ownerId === myId && (j.status === 'started' || j.status === 'arrived' || j.status === 'completed'));
-        if(activeSeekerJob) { myActiveSOS = { ...activeSeekerJob[1], id: activeSeekerJob[0], type: 'job' }; jobActive = true; }
-    }
+    if(!currentTask) { const activeJob = Object.entries(scheduledJobsCache).find(([id, j]) => j.helperId === myId && (j.status === 'started' || j.status === 'arrived' || j.status === 'completed')); if(activeJob) { currentTask = { ...activeJob[1], id: activeJob[0], type: 'job', tip: 0 }; } }
+    if(!myActiveSOS) { const activeSeekerJob = Object.entries(scheduledJobsCache).find(([id, j]) => j.ownerId === myId && (j.status === 'started' || j.status === 'arrived' || j.status === 'completed')); if(activeSeekerJob) { myActiveSOS = { ...activeSeekerJob[1], id: activeSeekerJob[0], type: 'job' }; jobActive = true; } }
 
-    let pendingSeekerBids = 0;
-    Object.values(scheduledJobsCache).forEach(j => { if(j.ownerId === myId && j.status === 'open' && j.bids) pendingSeekerBids += 1; });
-    const jsBadge = document.getElementById('jobBadgeSeeker');
-    const jsBadgeActive = document.getElementById('jobBadgeSeekerActive');
-    if(pendingSeekerBids > 0) { jsBadge.innerText = "!"; jsBadge.style.display = "flex"; jsBadgeActive.innerText = "!"; jsBadgeActive.style.display = "flex"; } 
-    else { jsBadge.style.display = "none"; jsBadgeActive.style.display = "none"; }
+    let pendingSeekerBids = 0; Object.values(scheduledJobsCache).forEach(j => { if(j.ownerId === myId && j.status === 'open' && j.bids) pendingSeekerBids += 1; });
+    const jsBadge = document.getElementById('jobBadgeSeeker'); const jsBadgeActive = document.getElementById('jobBadgeSeekerActive');
+    if(pendingSeekerBids > 0) { jsBadge.innerText = "!"; jsBadge.style.display = "flex"; jsBadgeActive.innerText = "!"; jsBadgeActive.style.display = "flex"; } else { jsBadge.style.display = "none"; jsBadgeActive.style.display = "none"; }
 
-    let assignedHeroJobs = 0;
-    Object.values(scheduledJobsCache).forEach(j => { if(j.helperId === myId && j.status === 'assigned') assignedHeroJobs++; });
-    const jhBadge = document.getElementById('jobBadgeHero');
-    if(assignedHeroJobs > 0) { jhBadge.innerText = assignedHeroJobs; jhBadge.style.display = "flex"; } else { jhBadge.style.display = "none"; }
+    let assignedHeroJobs = 0; Object.values(scheduledJobsCache).forEach(j => { if(j.helperId === myId && j.status === 'assigned') assignedHeroJobs++; });
+    const jhBadge = document.getElementById('jobBadgeHero'); if(assignedHeroJobs > 0) { jhBadge.innerText = assignedHeroJobs; jhBadge.style.display = "flex"; } else { jhBadge.style.display = "none"; }
 
     document.getElementById('footerChatBtn').style.display = jobActive ? 'block' : 'none';
     document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
-
     const ind = document.getElementById('statusIndicator');
     if(currentTask) { ind.style.background = "var(--success)"; } else if (nearbySOS.length > 0) { ind.style.background = "var(--danger)"; } else { ind.style.background = "#94a3b8"; }
     
-    const tCard = document.getElementById('activeTask');
-    tCard.innerHTML = ""; 
-
+    const tCard = document.getElementById('activeTask'); tCard.innerHTML = ""; 
     if(currentTask) {
         tCard.style.display = 'block';
         if(currentTask.status === 'canceled') {
@@ -923,155 +802,71 @@ function syncUI() {
             const title = currentTask.type === 'job' ? 'SCHEDULED REPAIR' : 'EMERGENCY SOS';
             const sub = currentTask.type === 'job' ? `📅 ${currentTask.date} ${currentTask.time ? '@ '+currentTask.time : ''}` : `${currentTask.vehicle}: ${currentTask.issue}`;
             tCard.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <b style="color:${currentTask.status === 'arrived' ? 'var(--warning)' : 'var(--accent)'};">${title}</b>
-                    <button onclick="window.openChat()" style="background:var(--accent); color:white; border:none; padding:10px 18px; border-radius:12px; font-weight:bold; font-size:12px;">CHAT</button>
-                </div>
-                <p style="margin:10px 0; font-weight:700; font-size:15px;">${sub}</p>
-                ${(currentTask.tip > 0) ? `<p style="margin: 0 0 10px 0; font-weight: 800; color: var(--success); font-size: 14px;">💰 Tip: $${currentTask.tip}</p>` : ''}
-                <div style="display:flex; gap:8px;">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">MAPS</a>
-                    ${currentTask.status === 'accepted' || currentTask.status === 'started' ? `<button onclick="window.markArrived()" style="flex:1; background:var(--warning); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">HERE</button>` : `<button onclick="window.completeTask()" style="flex:1; background:var(--success); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">DONE</button>`}
-                </div>`;
+                <div style="display:flex; justify-content:space-between; align-items:center;"><b style="color:${currentTask.status === 'arrived' ? 'var(--warning)' : 'var(--accent)'};">${title}</b><button onclick="window.openChat()" style="background:var(--accent); color:white; border:none; padding:10px 18px; border-radius:12px; font-weight:bold; font-size:12px;">CHAT</button></div>
+                <p style="margin:10px 0; font-weight:700; font-size:15px;">${sub}</p>${(currentTask.tip > 0) ? `<p style="margin: 0 0 10px 0; font-weight: 800; color: var(--success); font-size: 14px;">💰 Tip: $${currentTask.tip}</p>` : ''}
+                <div style="display:flex; gap:8px;"><a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">MAPS</a>
+                ${currentTask.status === 'accepted' || currentTask.status === 'started' ? `<button onclick="window.markArrived()" style="flex:1; background:var(--warning); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">HERE</button>` : `<button onclick="window.completeTask()" style="flex:1; background:var(--success); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">DONE</button>`}</div>`;
         }
     } else if (nearbySOS.length > 0) {
-        tCard.style.display = 'block';
-        let listHtml = `<b style="color:var(--danger); display:block; margin-bottom:10px;">${nearbySOS.length} SOS NEARBY</b>`;
-        nearbySOS.forEach(s => {
-            listHtml += `<div class="sos-list-item" onclick="window.viewRequest('${s.id}')">
-                <div><b>${s.vehicle}</b><br><small>${s.dist.toFixed(1)} miles away</small></div>
-                <div style="color:var(--success); font-weight:bold;">${s.tip > 0 ? '$'+s.tip : 'HELP'}</div>
-            </div>`;
-        });
+        tCard.style.display = 'block'; let listHtml = `<b style="color:var(--danger); display:block; margin-bottom:10px;">${nearbySOS.length} SOS NEARBY</b>`;
+        nearbySOS.forEach(s => { listHtml += `<div class="sos-list-item" onclick="window.viewRequest('${s.id}')"><div><b>${s.vehicle}</b><br><small>${s.dist.toFixed(1)} miles away</small></div><div style="color:var(--success); font-weight:bold;">${s.tip > 0 ? '$'+s.tip : 'HELP'}</div></div>`; });
         tCard.innerHTML = listHtml;
-    } else {
-        tCard.style.display = 'block';
-        tCard.innerHTML = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">You will be alerted for SOS calls.</p></div>`;
-    }
+    } else { tCard.style.display = 'block'; tCard.innerHTML = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">You will be alerted for SOS calls.</p></div>`; }
 
     if(myActiveSOS) {
         if (document.getElementById('landingPage').classList.contains('view-active')) { window.switchView('seekerUI'); }
-        const searching = document.getElementById('searchingState');
-        const matched = document.getElementById('matchedState');
-        const completed = document.getElementById('completionConfirmState');
-        const cancelBtn = document.getElementById('cancelSosBtn');
-
-        if(myActiveSOS.status === 'open') {
-            searching.style.display = 'block'; matched.style.display = 'none'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
-        } else if(myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived' || myActiveSOS.status === 'started') {
+        const searching = document.getElementById('searchingState'); const matched = document.getElementById('matchedState');
+        const completed = document.getElementById('completionConfirmState'); const cancelBtn = document.getElementById('cancelSosBtn');
+        if(myActiveSOS.status === 'open') { searching.style.display = 'block'; matched.style.display = 'none'; completed.style.display = 'none'; cancelBtn.style.display = 'block'; } 
+        else if(myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived' || myActiveSOS.status === 'started') {
             searching.style.display = 'none'; matched.style.display = 'block'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
-            const hero = profilesCache[myActiveSOS.helperId] || {};
-            let heroLat = hero.lat; let heroLng = hero.lng;
+            const hero = profilesCache[myActiveSOS.helperId] || {}; let heroLat = hero.lat; let heroLng = hero.lng;
             if(myActiveSOS.type === 'job') { heroLat = myActiveSOS.heroLat || heroLat; heroLng = myActiveSOS.heroLng || heroLng; }
-            document.getElementById('matchName').innerText = hero.name || "Hero";
-            document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
+            document.getElementById('matchName').innerText = hero.name || "Hero"; document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
             document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is here!" : (myActiveSOS.type === 'job' ? "Repair in progress..." : "Hero En Route");
             updateSeekerMiniMap(myActiveSOS, { lat: heroLat, lng: heroLng });
-        } else if(myActiveSOS.status === 'completed') {
-            searching.style.display = 'none'; matched.style.display = 'none'; completed.style.display = 'block'; cancelBtn.style.display = 'none';
-        }
+        } else if(myActiveSOS.status === 'completed') { searching.style.display = 'none'; matched.style.display = 'none'; completed.style.display = 'block'; cancelBtn.style.display = 'none'; }
     }
 }
 
 function updateSeekerMiniMap(sos, hero) {
     if(!seekerMiniMap) { seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }); seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/truck.png' }); }
     const userPos = {lat: sos.lat, lng: sos.lng}; seekerUserMarker.setPosition(userPos);
-    if(hero.lat) { const heroPos = {lat: hero.lat, lng: hero.lng}; seekerHeroMarker.setPosition(heroPos); const bounds = new google.maps.LatLngBounds(); bounds.extend(userPos); bounds.extend(heroPos); seekerMiniMap.fitBounds(bounds); }
-    else { seekerMiniMap.setCenter(userPos); }
+    if(hero.lat) { const heroPos = {lat: hero.lat, lng: hero.lng}; seekerHeroMarker.setPosition(heroPos); const bounds = new google.maps.LatLngBounds(); bounds.extend(userPos); bounds.extend(heroPos); seekerMiniMap.fitBounds(bounds); } else { seekerMiniMap.setCenter(userPos); }
 }
 
-onValue(ref(db, "sosRequests"), (snap) => { 
-    sosCache = snap.val() || {}; 
-    syncUI(); 
-    const myActive = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
-    if (myActive && document.getElementById('landingPage').classList.contains('view-active')) window.switchView('seekerUI');
-});
-
-onValue(ref(db, "scheduledJobs"), (snap) => {
-    scheduledJobsCache = snap.val() || {};
-    syncUI();
-    const myActiveJob = Object.values(scheduledJobsCache).find(j => j.ownerId === myId && (j.status === 'started' || j.status === 'arrived' || j.status === 'completed'));
-    if(myActiveJob && document.getElementById('landingPage').classList.contains('view-active')) window.switchView('seekerUI');
-});
-
+onValue(ref(db, "sosRequests"), (snap) => { sosCache = snap.val() || {}; syncUI(); const myActive = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)); if (myActive && document.getElementById('landingPage').classList.contains('view-active')) window.switchView('seekerUI'); });
+onValue(ref(db, "scheduledJobs"), (snap) => { scheduledJobsCache = snap.val() || {}; syncUI(); const myActiveJob = Object.values(scheduledJobsCache).find(j => j.ownerId === myId && (j.status === 'started' || j.status === 'arrived' || j.status === 'completed')); if(myActiveJob && document.getElementById('landingPage').classList.contains('view-active')) window.switchView('seekerUI'); });
 onValue(ref(db, "profiles"), (snap) => { profilesCache = snap.val() || {}; syncUI(); });
 
 window.saveProfile = () => {
     myRadius = parseInt(document.getElementById("profileRadius").value);
-    
-    // Save Filter Settings
-    const filters = {
-        sos: document.getElementById('filterSOS').checked,
-        jobs: document.getElementById('filterJobs').checked
-    };
-
-    update(ref(db, `profiles/${myId}`), { 
-        name: document.getElementById("profileName").value, 
-        bio: document.getElementById("profileBio").value, 
-        pic: document.getElementById("profileDisplayPic").src, 
-        radius: myRadius,
-        filters: filters 
-    });
-    
-    if(map && userLocation) { 
-        const radiusInMeters = myRadius * 1609.34; 
-        const circle = new google.maps.Circle({center: userLocation, radius: radiusInMeters}); 
-        map.setCenter(userLocation);
-        map.fitBounds(circle.getBounds()); 
-    }
+    const filters = { sos: document.getElementById('filterSOS').checked, jobs: document.getElementById('filterJobs').checked };
+    update(ref(db, `profiles/${myId}`), { name: document.getElementById("profileName").value, bio: document.getElementById("profileBio").value, pic: document.getElementById("profileDisplayPic").src, radius: myRadius, filters: filters });
+    if(map && userLocation) { const radiusInMeters = myRadius * 1609.34; const circle = new google.maps.Circle({center: userLocation, radius: radiusInMeters}); map.setCenter(userLocation); map.fitBounds(circle.getBounds()); }
     window.closeModal("profileModal");
 };
 
 window.openProfile = async () => {
-    window.openModal("profileModal");
-    const snap = await get(ref(db, `profiles/${myId}`));
+    window.openModal("profileModal"); const snap = await get(ref(db, `profiles/${myId}`));
     if(snap.exists()) {
-        const d = snap.val(); 
-        document.getElementById("profileName").value = d.name || ""; 
-        document.getElementById("profileBio").value = d.bio || ""; 
-        if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; 
-        if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius; }
-        
-        // Load Filters (Default True if not set)
-        const f = d.filters || { sos: true, jobs: true };
-        document.getElementById('filterSOS').checked = f.sos;
-        document.getElementById('filterJobs').checked = f.jobs;
+        const d = snap.val(); document.getElementById("profileName").value = d.name || ""; document.getElementById("profileBio").value = d.bio || ""; if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius; }
+        const f = d.filters || { sos: true, jobs: true }; document.getElementById('filterSOS').checked = f.sos; document.getElementById('filterJobs').checked = f.jobs;
     }
 };
 
-window.confirmDeleteActivityPrompt = (id) => {
-    activityToDeleteId = id;
-    window.openModal('deleteConfirmModal');
-};
-
-window.confirmDeleteActivity = () => {
-    if (activityToDeleteId) {
-        remove(ref(db, `sosRequests/${activityToDeleteId}`))
-            .then(() => {
-                activityToDeleteId = null; 
-                window.closeModal('deleteConfirmModal');
-            });
-    }
-};
+window.confirmDeleteActivityPrompt = (id) => { activityToDeleteId = id; window.openModal('deleteConfirmModal'); };
+window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, `sosRequests/${activityToDeleteId}`)).then(() => { activityToDeleteId = null; window.closeModal('deleteConfirmModal'); }); } };
 
 window.viewRequest = (id) => {
     const r = sosCache[id]; if(!r) return;
-    document.getElementById('detVehicle').innerText = r.vehicle + " Request";
-    document.getElementById('detIssue').innerText = r.issue;
-    document.getElementById('detTip').innerText = (r.tip && r.tip > 0) ? "💰 Offering $" + r.tip + " Tip" : "";
+    document.getElementById('detVehicle').innerText = r.vehicle + " Request"; document.getElementById('detIssue').innerText = r.issue; document.getElementById('detTip').innerText = (r.tip && r.tip > 0) ? "💰 Offering $" + r.tip + " Tip" : "";
     const dist = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1) : "?";
     document.getElementById('detDist').innerText = "📍 " + dist + " miles from you";
-    const img = document.getElementById('detImg');
-    if(r.damagePic) { img.src = r.damagePic; img.style.display = "block"; } else { img.style.display = "none"; }
-    const acceptBtn = document.getElementById('detAcceptBtn');
-    const progressText = document.getElementById('detInProgressText');
-    const etaInput = document.getElementById('detETA');
-    if(r.status === 'accepted' || r.status === 'arrived') {
-        acceptBtn.style.display = "none"; progressText.style.display = "block"; etaInput.style.display = "none";
-    } else {
-        acceptBtn.style.display = "block"; progressText.style.display = "none"; etaInput.style.display = "block";
-        acceptBtn.onclick = () => window.confirmHelp(id);
-    }
+    const img = document.getElementById('detImg'); if(r.damagePic) { img.src = r.damagePic; img.style.display = "block"; } else { img.style.display = "none"; }
+    const acceptBtn = document.getElementById('detAcceptBtn'); const progressText = document.getElementById('detInProgressText'); const etaInput = document.getElementById('detETA');
+    if(r.status === 'accepted' || r.status === 'arrived') { acceptBtn.style.display = "none"; progressText.style.display = "block"; etaInput.style.display = "none"; } 
+    else { acceptBtn.style.display = "block"; progressText.style.display = "none"; etaInput.style.display = "block"; acceptBtn.onclick = () => window.confirmHelp(id); }
     window.openModal('detailsModal');
 };
 </script>
