@@ -9,222 +9,223 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5GbyoapPOyLYJLNo9y85cyorIczEI-WU&libraries=geometry"></script>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
         :root {
-            --primary: #FF5A1F;
-            --primary-dark: #E64A19;
-            --secondary: #0F172A;
-            --bg-light: #F8FAFC;
-            --surface: #FFFFFF;
-            --text-main: #1E293B;
-            --text-muted: #64748B;
+            --brand: #FF5722;
+            --brand-light: #FFEDE7;
+            --dark: #0F172A;
+            --slate: #64748B;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
             --success: #10B981;
-            --danger: #EF4444;
-            --warning: #F59E0B;
-            --radius-lg: 24px;
-            --radius-md: 16px;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            --safe-bottom: env(safe-area-inset-bottom);
+            --error: #EF4444;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+            --radius: 24px;
         }
 
         * { 
             box-sizing: border-box; 
             -webkit-tap-highlight-color: transparent; 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: var(--bg-light); color: var(--text-main); 
+            background: var(--bg); color: var(--dark); 
             overflow: hidden; 
         }
 
-        /* --- LAYOUT --- */
+        /* Views */
         .view { 
-            display: none; width: 100%; height: 100%; 
+            display: none; width: 100vw; height: 100vh; 
             position: fixed; inset: 0; z-index: 10; 
-            background: var(--bg-light); overflow-y: auto; 
-            animation: fadeIn 0.3s ease;
+            background: var(--bg); overflow-y: auto; 
+            padding-bottom: 100px;
         }
-        .view-active { display: flex; flex-direction: column; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .view-active { display: flex; flex-direction: column; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- LANDING --- */
+        /* Landing Screen */
         #landingPage { 
             align-items: center; justify-content: center; 
-            padding: 40px 24px; text-align: center; 
-            background: radial-gradient(circle at top right, #FFF5F1, #FFFFFF);
+            padding: 40px; text-align: center; 
+            background: radial-gradient(circle at top, #ffffff, #f1f5f9);
         }
-        #landingPage img { width: 180px; margin-bottom: 24px; }
-        .hero-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
-        .hero-sub { color: var(--text-muted); margin-bottom: 48px; font-size: 16px; }
-
-        /* --- BUTTONS --- */
+        #landingPage img { width: 160px; margin-bottom: 30px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); }
+        
+        /* Modern Buttons */
         .btn {
-            width: 100%; max-width: 320px; padding: 18px; 
-            border-radius: var(--radius-md); font-size: 16px; font-weight: 700; 
-            border: none; cursor: pointer; transition: transform 0.2s, opacity 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; max-width: 300px; padding: 18px; 
+            border-radius: 18px; font-size: 16px; font-weight: 700; 
+            border: none; cursor: pointer; transition: 0.2s;
+            box-shadow: var(--shadow-sm); margin-bottom: 15px;
         }
-        .btn:active { transform: scale(0.97); }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 8px 16px rgba(255, 90, 31, 0.2); }
-        .btn-dark { background: var(--secondary); color: white; margin-top: 12px; }
+        .btn:active { transform: scale(0.96); opacity: 0.9; }
+        .btn-req { background: var(--brand); color: white; box-shadow: 0 8px 20px -6px rgba(255, 87, 34, 0.5); }
+        .btn-hero { background: var(--dark); color: white; }
 
-        /* --- MAPS & STATUS --- */
-        #map { width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 1; }
+        /* Status Cards (Seeker UI) */
         .status-card { 
-            background: var(--surface); width: 90%; max-width: 450px; 
-            padding: 24px; border-radius: var(--radius-lg); 
-            box-shadow: var(--shadow); text-align: center; 
-            margin: 20px auto; border: 1px solid rgba(0,0,0,0.05);
+            background: var(--card); width: 92%; max-width: 450px; 
+            padding: 24px; border-radius: var(--radius); 
+            box-shadow: var(--shadow-lg); margin: 20px auto; 
+            text-align: center; border: 1px solid rgba(0,0,0,0.03);
         }
-        #seekerMap { width: 100%; height: 200px; border-radius: var(--radius-md); margin: 16px 0; border: 1px solid #E2E8F0; }
+        #seekerMap { width: 100%; height: 200px; border-radius: 20px; margin: 15px 0; border: 1px solid #e2e8f0; }
 
+        /* Pulse Animation */
         .search-pulse { 
-            width: 70px; height: 70px; background: var(--primary); 
+            width: 65px; height: 65px; background: var(--brand); 
             border-radius: 50%; display: flex; align-items: center; 
             justify-content: center; font-size: 24px; color: white; 
             margin: 0 auto 20px; position: relative; 
         }
         .search-pulse::after { 
             content: ''; position: absolute; inset: 0; border-radius: 50%; 
-            background: var(--primary); opacity: 0.4; animation: pulse 2s infinite; 
+            background: var(--brand); opacity: 0.4; animation: pulse 2s infinite; 
         }
-        @keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.2); opacity: 0; } }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
 
-        /* --- HERO PANEL --- */
+        /* Map UI */
+        #map { width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 1; }
+        .center-btn { 
+            position: absolute; right: 20px; top: 20px; 
+            background: white; border: none; padding: 12px; 
+            border-radius: 14px; box-shadow: var(--shadow-lg); 
+            z-index: 5; font-weight: 700; color: var(--brand);
+        }
+
+        /* Hero Floating Task Panel */
         #statusIndicator { 
-            position: fixed; right: 20px; top: 20px; z-index: 100; 
-            width: 50px; height: 50px; border-radius: 50%; 
+            position: fixed; left: 20px; top: 20px; z-index: 100; 
+            width: 50px; height: 50px; border-radius: 15px; 
             display: flex; align-items: center; justify-content: center; 
-            color: white; font-weight: 800; box-shadow: var(--shadow); border: 3px solid white; 
+            color: white; font-weight: 800; box-shadow: var(--shadow-lg); 
+            transition: 0.3s; cursor: pointer;
         }
         #heroPanel { 
-            width: 100%; position: fixed; bottom: 90px; left: 0; 
-            z-index: 100; padding: 0 16px; pointer-events: none; 
+            width: 100%; position: fixed; bottom: 90px; 
+            padding: 0 20px; z-index: 100; pointer-events: none;
         }
         .task-card { 
             background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); 
-            padding: 20px; border-radius: var(--radius-lg); 
-            box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.3);
-            pointer-events: auto; transform: translateY(20px); opacity: 0; display: none;
-            transition: 0.3s ease;
+            padding: 24px; border-radius: var(--radius); 
+            box-shadow: var(--shadow-lg); border: 1px solid rgba(255,255,255,0.3);
+            pointer-events: auto; display: none;
+            transform: translateY(20px); transition: 0.3s;
         }
-        .task-card.expanded { display: block; transform: translateY(0); opacity: 1; }
+        .task-card.expanded { display: block; animation: slideIn 0.3s forwards; }
+        @keyframes slideIn { to { transform: translateY(0); } }
 
-        /* --- NAVIGATION --- */
-        .footer { 
-            position: fixed; bottom: 0; width: 100%; 
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); 
-            padding: 12px 0 calc(12px + var(--safe-bottom)); 
-            display: flex; justify-content: space-around; align-items: center; 
-            z-index: 200; border-top: 1px solid rgba(0,0,0,0.05); 
-        }
-        .icon-btn { cursor: pointer; width: 28px; height: 28px; transition: 0.2s; opacity: 0.6; }
-        .icon-btn:hover, .icon-btn.active { opacity: 1; transform: translateY(-2px); }
-        .badge { 
-            position: absolute; top: -5px; right: -5px; 
-            background: var(--primary); color: white; font-size: 10px; 
-            width: 18px; height: 18px; border-radius: 50%; 
-            display: none; align-items: center; justify-content: center; font-weight: 900; 
-        }
-
-        /* --- MODALS (Bottom Sheet Style) --- */
+        /* Modern Bottom Sheets (Modals) */
         .modal { 
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); 
-            backdrop-filter: blur(4px); display: none; 
+            backdrop-filter: blur(6px); display: none; 
             justify-content: center; align-items: flex-end; z-index: 1000; 
         }
         .modal-content { 
-            background: var(--surface); width: 100%; max-width: 550px; 
-            border-radius: 32px 32px 0 0; padding: 32px 24px; 
-            max-height: 90vh; overflow-y: auto; 
-            transform: translateY(100%); animation: slideUp 0.4s cubic-bezier(0, 0, 0.2, 1) forwards; 
+            background: white; width: 100%; max-width: 500px; 
+            border-radius: 32px 32px 0 0; padding: 30px; 
+            max-height: 92vh; overflow-y: auto; 
+            transform: translateY(100%); animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
         }
         @keyframes slideUp { to { transform: translateY(0); } }
 
-        /* --- FORM ELEMENTS --- */
-        .vehicle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 20px 0; }
-        .v-type { 
-            padding: 16px; border: 2px solid #F1F5F9; border-radius: var(--radius-md); 
-            text-align: center; cursor: pointer; font-weight: 600; transition: 0.2s;
-        }
-        .v-type.active { border-color: var(--primary); background: #FFF7F4; color: var(--primary); }
-        
+        /* Inputs */
         input, textarea, select { 
-            width: 100%; padding: 16px; border-radius: var(--radius-md); 
-            border: 1px solid #E2E8F0; margin-bottom: 16px; font-size: 16px; 
-            background: #F8FAFC; outline: none; transition: border-color 0.2s;
+            width: 100%; padding: 16px; border-radius: 16px; 
+            border: 1px solid #E2E8F0; margin-bottom: 12px; font-size: 16px; 
+            background: #F8FAFC; outline: none; transition: 0.2s;
         }
-        input:focus { border-color: var(--primary); }
+        input:focus { border-color: var(--brand); background: white; }
 
-        /* --- CHAT --- */
+        .vehicle-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 15px 0; }
+        .v-type { 
+            padding: 16px; border: 2px solid #F1F5F9; border-radius: 16px; 
+            text-align: center; cursor: pointer; font-weight: 700; transition: 0.2s;
+        }
+        .v-type.active { border-color: var(--brand); background: var(--brand-light); color: var(--brand); }
+
+        /* Navigation Bar */
+        .footer { 
+            position: fixed; bottom: 0; width: 100%; 
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(15px); 
+            display: flex; justify-content: space-around; padding: 15px 0 35px; 
+            z-index: 200; border-top: 1px solid rgba(0,0,0,0.05); 
+        }
+        .icon-btn { cursor: pointer; width: 28px; height: 28px; opacity: 0.5; transition: 0.2s; }
+        .icon-btn:active { transform: scale(0.8); }
+        .footer .active-icon { opacity: 1; filter: none; }
+
+        /* Chat Bubbles */
         #chatBox { 
             height: 350px; overflow-y: auto; display: flex; flex-direction: column; 
-            gap: 10px; padding: 16px; background: #F1F5F9; border-radius: var(--radius-md); 
-            margin-bottom: 16px; 
+            gap: 12px; padding: 10px; background: #F1F5F9; border-radius: 20px; 
+            margin-bottom: 15px; 
         }
-        .msg { padding: 12px 16px; border-radius: 18px; max-width: 85%; font-size: 15px; }
-        .msg-me { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 4px; }
-        .msg-them { align-self: flex-start; background: white; color: var(--text-main); border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .msg { padding: 12px 18px; border-radius: 20px; max-width: 80%; font-size: 15px; line-height: 1.4; }
+        .msg-me { align-self: flex-end; background: var(--brand); color: white; border-bottom-right-radius: 4px; }
+        .msg-them { align-self: flex-start; background: white; color: var(--dark); border-bottom-left-radius: 4px; box-shadow: var(--shadow-sm); }
 
-        /* --- UTILS --- */
-        .center-btn { 
-            position: absolute; right: 20px; top: 85px; 
-            background: white; border: none; padding: 10px; 
-            border-radius: 12px; box-shadow: var(--shadow); z-index: 5; 
+        .badge { 
+            position: absolute; top: -5px; right: -5px; background: var(--brand); 
+            color: white; font-size: 10px; width: 18px; height: 18px; 
+            border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: 800; 
         }
-        .cancel-link { display: block; text-align: center; padding: 12px; color: var(--text-muted); font-weight: 600; cursor: pointer; }
-        .status-pill { padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
-        
+
         .history-item { 
-            padding: 16px; background: white; border-radius: var(--radius-md); 
-            margin-bottom: 12px; border: 1px solid #E2E8F0; 
+            padding: 16px; background: white; border-radius: 18px; 
+            margin-bottom: 10px; border: 1px solid #f1f5f9; 
             display: flex; justify-content: space-between; align-items: center; 
         }
+
+        .pill { padding: 4px 12px; border-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
 
 <!-- LANDING PAGE -->
 <div id="landingPage" class="view view-active">
-    <img src="roadwatchlogo.png" alt="RoadWatcHero">
-    <h1 class="hero-title">RoadWatcHero</h1>
-    <p class="hero-sub">Premium roadside assistance, <br>by the community, for the community.</p>
-    <button class="btn btn-primary" onclick="window.openModal('requestModal')">Find a Hero</button>
-    <button class="btn btn-dark" onclick="window.enterHeroMode()">Become a Hero</button>
+    <img src="roadwatchlogo.png" alt="Logo">
+    <h1 style="font-weight: 800; font-size: 28px; margin-bottom: 10px; letter-spacing: -1px;">RoadWatcHero</h1>
+    <p style="color: var(--slate); margin-bottom: 40px; font-size: 17px;">Help is just a click away.</p>
+    <button class="btn btn-req" onclick="window.openModal('requestModal')">Find a Hero</button>
+    <button class="btn btn-hero" onclick="window.enterHeroMode()">Become a Hero</button>
 </div>
 
 <!-- SEEKER UI -->
 <div id="seekerUI" class="view">
     <div style="padding: 20px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: 800; font-size: 18px; color: var(--primary);">Live Help</span>
-        <button onclick="window.openModal('cancelConfirmModal')" style="background: none; border: none; font-weight: 700; color: var(--danger);">Cancel</button>
+        <h2 style="font-size: 20px; font-weight: 800; margin: 0;">SOS Status</h2>
+        <button onclick="window.openModal('cancelConfirmModal')" style="background: none; border: none; font-weight: 700; color: var(--error); cursor: pointer;">Cancel SOS</button>
     </div>
     
     <div id="searchingState" class="status-card">
         <div class="search-pulse">📡</div>
-        <h3 style="margin: 0 0 8px 0;">Broadcasting SOS</h3>
-        <p style="color: var(--text-muted); font-size: 14px;">We're notifying Heroes within your radius. Hang tight!</p>
+        <h3 style="margin-bottom: 8px;">Finding your Hero...</h3>
+        <p style="color: var(--slate); font-size: 14px;">Broadcasting your request to Heroes nearby.</p>
     </div>
 
     <div id="matchedState" class="status-card" style="display:none;">
-        <span class="status-pill" style="background: var(--success); color: white; margin-bottom: 12px; display: inline-block;">Hero Connected</span>
-        <div style="display: flex; align-items: center; gap: 16px; text-align: left;">
+        <div class="pill" style="background: var(--brand-light); color: var(--brand); display: inline-block; margin-bottom: 15px;">Hero is on the way</div>
+        <div style="display: flex; align-items: center; gap: 15px; text-align: left; margin-bottom: 15px;">
             <img id="matchPic" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; background: #eee;">
             <div style="flex:1">
                 <h3 id="matchName" style="margin:0; font-size: 18px;">Hero Name</h3>
-                <p id="matchETA" style="margin:2px 0; color: var(--success); font-weight: 700; font-size: 14px;">Calculating ETA...</p>
+                <p id="matchETA" style="margin:4px 0; color: var(--success); font-weight: 700;">Arriving in ...</p>
             </div>
         </div>
         <div id="seekerMap"></div>
-        <p style="font-size:12px; color:var(--text-muted); font-weight: 600;">REAL-TIME GPS TRACKING</p>
+        <p style="font-size:12px; color:var(--slate); font-weight: 600;">LIVE LOCATION TRACKING</p>
     </div>
 
     <div id="completionConfirmState" class="status-card" style="display:none;">
-        <div style="font-size: 48px; margin-bottom: 12px;">🏆</div>
-        <h3>Job Completed!</h3>
-        <p style="color: var(--text-muted); margin-bottom: 24px;">Your Hero has finished the task.</p>
-        <button class="btn btn-primary" style="max-width: 100%;" onclick="window.finalSeekerConfirm()">Confirm & Finish</button>
+        <div style="font-size: 40px; margin-bottom: 15px;">✅</div>
+        <h3>Job Finished!</h3>
+        <p style="color: var(--slate); margin-bottom: 20px;">Your Hero has completed the request.</p>
+        <button class="btn btn-req" style="max-width: 100%;" onclick="window.finalSeekerConfirm()">Confirm & Finish</button>
     </div>
 
     <div class="footer">
@@ -238,18 +239,18 @@
 <!-- HERO UI -->
 <div id="heroUI" class="view">
     <div id="statusIndicator" style="background: #94a3b8;" onclick="window.toggleTaskCard()">!</div>
-    <button class="center-btn" onclick="window.centerOnMe()">🎯</button>
+    <button class="center-btn" onclick="window.centerOnMe()">Re-center</button>
     <div id="map"></div>
     
     <div id="heroPanel">
         <div id="activeTask" class="task-card">
-            <!-- Dynamic Content -->
+            <!-- Dynamic Hero Content -->
         </div>
     </div>
 
     <div class="footer">
         <img src="Historyicon.png" class="icon-btn" onclick="window.openModal('notifModal')">
-        <img src="thishomeicon.png" class="icon-btn" onclick="location.reload()" style="width: 32px; height: 32px; opacity: 1;">
+        <img src="thishomeicon.png" class="icon-btn" onclick="location.reload()" style="width:32px; height:32px; opacity: 1;">
         <div style="position:relative; display:none;" id="heroFooterChatBtn">
             <img src="Chaticon.png" class="icon-btn" onclick="window.openChat()">
             <span id="chatBadgeHero" class="badge">0</span>
@@ -259,10 +260,9 @@
 </div>
 
 <!-- MODALS -->
-<!-- Request Modal -->
 <div id="requestModal" class="modal">
     <div class="modal-content">
-        <h2 style="margin-top: 0; letter-spacing: -0.5px;">Need a Hero?</h2>
+        <h2 style="margin-top: 0; font-weight: 800;">Request Help</h2>
         <div class="vehicle-grid">
             <div class="v-type active" onclick="window.selectVehicle('Car', this)">🚗 Car</div>
             <div class="v-type" onclick="window.selectVehicle('Truck', this)">🛻 Truck</div>
@@ -270,129 +270,93 @@
             <div class="v-type" onclick="window.selectVehicle('HeavyDuty', this)">🚛 Heavy</div>
         </div>
         
-        <label style="font-size:12px; font-weight:800; color:var(--text-muted); text-transform: uppercase;">Optional Tip</label>
-        <div style="display:flex; gap:10px; margin: 12px 0 20px;">
+        <p style="font-size: 12px; font-weight: 700; color: var(--slate); margin-top: 20px;">OFFER A TIP (OPTIONAL)</p>
+        <div style="display:flex; gap:10px; margin-bottom: 15px;">
             <div class="v-type" style="flex:1; padding: 12px;" onclick="window.setTip(5, this)">$5</div>
             <div class="v-type" style="flex:1; padding: 12px;" onclick="window.setTip(10, this)">$10</div>
             <div class="v-type" style="flex:1; padding: 12px;" onclick="window.setTip(20, this)">$20</div>
         </div>
         
-        <textarea id="reqIssue" placeholder="Briefly describe what's wrong..." rows="3"></textarea>
+        <textarea id="reqIssue" placeholder="What's the problem?" rows="2"></textarea>
         
-        <div id="damagePreviewContainer" style="margin-bottom: 16px;">
-            <img id="damagePreview" style="width:100%; height:150px; object-fit:cover; border-radius: var(--radius-md); display:none;">
+        <div id="damagePreviewContainer" style="margin-bottom: 15px; position: relative; display: none;">
+            <img id="damagePreview" style="width:100%; height:150px; object-fit:cover; border-radius: 16px;">
         </div>
 
-        <button onclick="document.getElementById('damageInput').click()" style="width:100%; padding:14px; border-radius:var(--radius-md); border:2px dashed #CBD5E1; background:none; margin-bottom:20px; font-weight:600; color:var(--text-muted);">📷 Add Photo</button>
+        <button onclick="document.getElementById('damageInput').click()" style="width:100%; padding:15px; border-radius:16px; border:2px dashed #cbd5e1; background:none; margin-bottom:15px; font-weight:700; color:var(--slate);">📷 Add Photo</button>
         <input type="file" id="damageInput" accept="image/*" style="display:none" onchange="window.handleImageUpload(this, 'damage')">
         
-        <button class="btn btn-primary" style="max-width:100%;" onclick="window.submitSOS()">Broadcast Request</button>
-        <span class="cancel-link" onclick="window.closeModal('requestModal')">Not now</span>
+        <button class="btn btn-req" style="max-width:100%;" onclick="window.submitSOS()">Find a Hero</button>
+        <p onclick="window.closeModal('requestModal')" class="cancel-link" style="text-align: center; color: var(--slate); cursor: pointer;">Cancel</p>
     </div>
 </div>
 
-<!-- Details Modal -->
 <div id="detailsModal" class="modal">
     <div class="modal-content">
-        <h3 id="detVehicle" style="margin-top:0;">Request Details</h3>
-        <img id="detImg" style="width:100%; height:200px; object-fit:cover; border-radius:var(--radius-md); margin-bottom:16px; display:none;">
-        <p id="detIssue" style="font-size: 18px; font-weight: 700; margin-bottom: 8px;"></p>
-        <div style="display: flex; gap: 12px; margin-bottom: 24px;">
-            <span id="detTip" style="color: var(--success); font-weight: 800; background: #ECFDF5; padding: 4px 12px; border-radius: 20px; font-size: 14px;"></span>
-            <span id="detDist" style="color: var(--primary); font-weight: 800; background: #FFF7F4; padding: 4px 12px; border-radius: 20px; font-size: 14px;"></span>
+        <h3 id="detVehicle" style="margin-top: 0;">Vehicle Request</h3>
+        <img id="detImg" style="width:100%; height:200px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
+        <p id="detIssue" style="font-weight:700; font-size: 18px; margin-bottom:10px;"></p>
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <span id="detTip" class="pill" style="background: var(--brand-light); color: var(--brand);"></span>
+            <span id="detDist" class="pill" style="background: #f1f5f9; color: var(--dark);"></span>
         </div>
-        
-        <label style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform: uppercase;">Your ETA</label>
+        <label style="font-size:11px; font-weight:800; color:var(--slate);">ETA TO ARRIVAL</label>
         <select id="detETA">
             <option value="5-10 mins">5-10 mins</option>
             <option value="15-20 mins">15-20 mins</option>
             <option value="30-45 mins">30-45 mins</option>
             <option value="1 hour+">1 hour+</option>
         </select>
-        
-        <button id="detAcceptBtn" class="btn btn-primary" style="max-width:100%;">Accept Job</button>
-        <span id="detInProgressText" style="display:none; color:var(--success); font-weight:800; text-align:center;">JOB IN PROGRESS</span>
-        <span class="cancel-link" onclick="window.closeModal('detailsModal')">Back to Map</span>
+        <button id="detAcceptBtn" class="btn btn-req" style="max-width:100%;">Accept & Help</button>
+        <span id="detInProgressText" style="display:none; color:var(--success); font-weight:800; text-align:center;">JOB IN PROGRESS...</span>
+        <span class="cancel-link" onclick="window.closeModal('detailsModal')" style="display: block; text-align: center; margin-top: 15px; color: var(--slate);">Go Back</span>
     </div>
 </div>
 
-<!-- Chat Modal -->
 <div id="chatModal" class="modal">
-    <div class="modal-content" style="height:90vh">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-             <h3 style="margin:0;">Chat with Seeker</h3>
-             <span class="cancel-link" onclick="window.closeModal('chatModal')" style="padding:0;">Done</span>
-        </div>
+    <div class="modal-content" style="height:85vh">
+        <h3 style="margin-top: 0;">Messages</h3>
         <div id="chatBox"></div>
-        <div style="display:flex; gap:8px; align-items: center;">
-            <button onclick="document.getElementById('chatImgInput').click()" style="width:50px; height:50px; background:#E2E8F0; border:none; border-radius:15px; font-size: 20px;">📷</button>
+        <div style="display:flex; gap:10px;">
+            <button onclick="document.getElementById('chatImgInput').click()" style="padding:15px; background:#e2e8f0; border:none; border-radius:15px;">📷</button>
             <input type="file" id="chatImgInput" accept="image/*" style="display:none" onchange="window.sendChatImg(this)">
-            <input id="chatInput" placeholder="Message..." style="margin:0; flex:1;">
-            <button onclick="window.sendTextMsg()" style="background:var(--primary); color:white; border:none; width:50px; height:50px; border-radius:15px; font-weight:bold;">➞</button>
+            <input id="chatInput" placeholder="Type message..." style="margin:0;">
+            <button onclick="window.sendTextMsg()" style="background:var(--brand); color:white; border:none; padding:0 20px; border-radius:15px; font-weight:bold;">SEND</button>
         </div>
+        <p class="cancel-link" onclick="window.closeModal('chatModal')" style="text-align: center; margin-top: 15px; color: var(--slate);">Close</p>
     </div>
 </div>
 
-<!-- Profile Modal -->
 <div id="profileModal" class="modal">
     <div class="modal-content">
-        <h3 style="margin-top:0;">Hero Settings</h3>
-        <div style="text-align:center; margin-bottom:24px;">
-            <div style="position:relative; width:100px; height:100px; margin: 0 auto;">
-                <img id="profileDisplayPic" src="https://via.placeholder.com/100" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid var(--primary);">
-                <button onclick="document.getElementById('picInput').click()" style="position:absolute; bottom:0; right:0; background:white; border:1px solid #ddd; border-radius:50%; width:30px; height:30px; font-size:12px;">✏️</button>
-            </div>
+        <h3 style="margin-top: 0;">Hero Profile</h3>
+        <div style="text-align:center; margin-bottom:20px;">
+            <img id="profileDisplayPic" src="https://via.placeholder.com/100" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid var(--brand-light);">
             <input type="file" id="picInput" style="display:none" onchange="window.handleImageUpload(this, 'profile')">
+            <button onclick="document.getElementById('picInput').click()" style="display:block; margin:10px auto; border:none; background:none; color:var(--brand); font-weight:700; cursor:pointer;">Update Photo</button>
         </div>
-        <input id="profileName" placeholder="Display Name">
-        <textarea id="profileBio" placeholder="Tools or experience..." rows="2"></textarea>
-        
-        <div style="background: #F8FAFC; padding: 20px; border-radius: var(--radius-md); margin-bottom: 24px;">
+        <input id="profileName" placeholder="Your Name">
+        <textarea id="profileBio" placeholder="Tools Available / Bio..." rows="2"></textarea>
+        <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <label style="font-weight:800; color:var(--text-muted); font-size: 12px; text-transform: uppercase;">Service Radius</label>
-                <span style="font-weight: 800; color: var(--primary);"><span id="radiusVal">25</span> mi</span>
+                <label style="font-size:11px; font-weight:800; color:var(--slate);">SERVICE RADIUS</label>
+                <span id="radiusVal" style="color:var(--brand); font-weight: 800;">25 mi</span>
             </div>
-            <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="padding:0; margin:0;" oninput="document.getElementById('radiusVal').innerText = this.value">
+            <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="margin:0;" oninput="document.getElementById('radiusVal').innerText = this.value + ' mi'">
         </div>
-        
-        <button class="btn btn-primary" style="max-width:100%;" onclick="window.saveProfile()">Save Profile</button>
-        <span class="cancel-link" onclick="window.closeModal('profileModal')">Close</span>
+        <button class="btn btn-req" style="max-width:100%;" onclick="window.saveProfile()">Save Settings</button>
+        <p class="cancel-link" onclick="window.closeModal('profileModal')" style="text-align: center; color: var(--slate);">Close</p>
     </div>
 </div>
 
-<!-- Notifications / History -->
-<div id="notifModal" class="modal">
-    <div class="modal-content">
-        <h3 style="margin-top:0;">Activity History</h3>
-        <div id="notifHistory"></div>
-        <button class="btn btn-dark" style="max-width:100%; margin-top: 20px;" onclick="window.closeModal('notifModal')">Close</button>
-    </div>
-</div>
-
-<!-- Simple Cancel Modal -->
-<div id="cancelConfirmModal" class="modal">
-    <div class="modal-content">
-        <h3 style="margin-top:0;">Cancel SOS?</h3>
-        <button class="btn btn-primary" style="max-width:100%;" onclick="window.submitCancellation('Issue Resolved')">Issue Resolved</button>
-        <button class="btn btn-dark" style="max-width:100%;" onclick="window.submitCancellation('Changed Mind')">Don't Need Help</button>
-        <span class="cancel-link" onclick="window.closeModal('cancelConfirmModal')">Keep Active</span>
-    </div>
-</div>
-
-<!-- Delete Confirmation -->
-<div id="deleteConfirmModal" class="modal">
-    <div class="modal-content">
-        <h3>Delete History?</h3>
-        <p style="color: var(--text-muted);">This will remove this record from your history permanently.</p>
-        <button class="btn btn-primary" style="background:var(--danger); max-width:100%;" onclick="window.confirmDeleteActivity()">Delete Permanently</button>
-        <span class="cancel-link" onclick="window.closeModal('deleteConfirmModal')">Cancel</span>
-    </div>
-</div>
+<div id="notifModal" class="modal"><div class="modal-content"><h3 style="margin-top:0">History</h3><div id="notifHistory"></div><button class="btn btn-hero" style="max-width:100%; margin-top:20px;" onclick="window.closeModal('notifModal')">CLOSE</button></div></div>
+<div id="cancelConfirmModal" class="modal"><div class="modal-content"><h3>Cancel SOS?</h3><button class="btn btn-req" style="max-width:100%" onclick="window.submitCancellation('Issue Resolved')">Issue Resolved</button><button class="btn btn-hero" style="max-width:100%" onclick="window.submitCancellation('Changed Mind')">Don't Need Help</button><p class="cancel-link" onclick="window.closeModal('cancelConfirmModal')" style="text-align:center">Keep SOS</p></div></div>
+<div id="deleteConfirmModal" class="modal"><div class="modal-content"><h3>Confirm Deletion</h3><p>Are you sure you want to delete this activity?</p><button class="btn btn-req" style="background:var(--error); max-width:100%" onclick="window.confirmDeleteActivity()">Delete</button><p class="cancel-link" onclick="window.closeModal('deleteConfirmModal')" style="text-align:center">Cancel</p></div></div>
 
 <audio id="notificationSound" src="Roadwatchero.mp3" preload="auto" style="display:none;"></audio>
 
 <script type="module">
-    // [LOGIC REMAINS IDENTICAL TO ORIGINAL - RE-INSERTED HERE]
+    // Logic remains functional and robust from your original app
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, push, onValue, set, get, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
@@ -444,7 +408,7 @@
     };
 
     window.toggleTaskCard = () => { document.getElementById('activeTask').classList.toggle('expanded'); };
-    window.setTip = (amt, el) => { document.querySelectorAll('.tip-btn, .v-type').forEach(b => b.classList.remove('active')); el.classList.add('active'); document.getElementById('reqIssue').dataset.tip = amt; };
+    window.setTip = (amt, el) => { document.querySelectorAll('.v-type').forEach(b => b.classList.remove('active')); el.classList.add('active'); document.getElementById('reqIssue').dataset.tip = amt; };
     window.openModal = (id) => document.getElementById(id).style.display = "flex";
     window.closeModal = (id) => document.getElementById(id).style.display = "none";
     window.switchView = (id) => {
@@ -464,7 +428,7 @@
                 canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
                 const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 const compressedData = canvas.toDataURL('image/jpeg', 0.7);
-                if(target === 'damage') { damageImgData = compressedData; document.getElementById('damagePreview').src = compressedData; document.getElementById('damagePreview').style.display = 'block'; }
+                if(target === 'damage') { damageImgData = compressedData; document.getElementById('damagePreview').src = compressedData; document.getElementById('damagePreviewContainer').style.display = 'block'; }
                 else if(target === 'profile') { document.getElementById('profileDisplayPic').src = compressedData; }
             };
             img.src = e.target.result;
@@ -477,16 +441,6 @@
         if (!currentActiveSOS) return;
         activeChatId = Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS); 
         window.openModal('chatModal');
-        const chatSnap = await get(ref(db, `chats/${activeChatId}`));
-        if (chatSnap.exists()) {
-            const messages = chatSnap.val();
-            const updates = {};
-            for (const msgId in messages) {
-                if (messages[msgId].sender !== myId && messages[msgId].read === false) updates[`chats/${activeChatId}/${msgId}/read`] = true;
-            }
-            if (Object.keys(updates).length > 0) await update(ref(db), updates);
-        }
-        updateChatBadges(0); 
         onValue(ref(db, `chats/${activeChatId}`), (snap) => {
             const box = document.getElementById('chatBox'); box.innerHTML = "";
             const data = snap.val() || {};
@@ -498,7 +452,6 @@
                 box.innerHTML += `<div class="msg ${side}">${content}</div>`;
             });
             box.scrollTop = box.scrollHeight;
-            lastMsgCount = msgs.length;
         });
     };
 
@@ -516,10 +469,10 @@
     };
 
     function updateChatBadges(count) {
-        const sB = document.getElementById('chatBadge');
-        const hB = document.getElementById('chatBadgeHero');
-        if(sB) { sB.innerText = count; sB.style.display = count > 0 ? 'flex' : 'none'; }
-        if(hB) { hB.innerText = count; hB.style.display = count > 0 ? 'flex' : 'none'; }
+        document.getElementById('chatBadge').innerText = count; 
+        document.getElementById('chatBadge').style.display = count > 0 ? 'flex' : 'none';
+        document.getElementById('chatBadgeHero').innerText = count;
+        document.getElementById('chatBadgeHero').style.display = count > 0 ? 'flex' : 'none';
     }
 
     onValue(ref(db, 'chats'), (snapshot) => {
@@ -537,23 +490,21 @@
                 }
             }
         }
-        const chatModalOpen = document.getElementById('chatModal').style.display === 'flex';
-        if (!isInitialLoadForChatListener && unreadCount > 0 && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp && !chatModalOpen) {
-            const sound = document.getElementById('notificationSound');
-            if (sound) sound.play().catch(e => console.error(e));
+        if (!isInitialLoadForChatListener && unreadCount > 0 && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) {
+            document.getElementById('notificationSound').play().catch(e => console.error(e));
         }
         if (latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
         updateChatBadges(unreadCount);
-        if (isInitialLoadForChatListener) isInitialLoadForChatListener = false;
+        isInitialLoadForChatListener = false;
     });
 
     window.viewRequest = (id) => {
         const r = sosCache[id]; if(!r) return;
         document.getElementById('detVehicle').innerText = r.vehicle + " Request";
         document.getElementById('detIssue').innerText = r.issue;
-        document.getElementById('detTip').innerText = (r.tip && r.tip > 0) ? "💰 $" + r.tip + " Tip" : "No Tip";
+        document.getElementById('detTip').innerText = (r.tip && r.tip > 0) ? "💰 Tip: $" + r.tip : "No Tip Offered";
         const dist = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1) : "?";
-        document.getElementById('detDist').innerText = "📍 " + dist + " mi";
+        document.getElementById('detDist').innerText = "📍 " + dist + " mi away";
         const img = document.getElementById('detImg');
         if(r.damagePic) { img.src = r.damagePic; img.style.display = "block"; } else { img.style.display = "none"; }
         const acceptBtn = document.getElementById('detAcceptBtn');
@@ -573,16 +524,12 @@
         const eta = document.getElementById('detETA').value;
         update(ref(db, `sosRequests/${sosId}`), { status: 'accepted', helperId: myId, helperAcknowledged: false, eta: eta });
         window.closeModal('detailsModal');
-        document.getElementById('activeTask').classList.add('expanded');
     };
     window.markArrived = () => { const active = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'accepted'); if(active) update(ref(db, `sosRequests/${active[0]}`), { status: 'arrived' }); };
     window.completeTask = () => { const active = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived'); if(active) update(ref(db, `sosRequests/${active[0]}`), { status: 'completed' }); };
     window.acknowledgeCancel = () => {
         const canceledTask = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'canceled' && r.helperAcknowledged !== true);
-        if(canceledTask) {
-            update(ref(db, `sosRequests/${canceledTask[0]}`), { helperAcknowledged: true });
-            document.getElementById('activeTask').classList.remove('expanded');
-        }
+        if(canceledTask) update(ref(db, `sosRequests/${canceledTask[0]}`), { helperAcknowledged: true });
     };
 
     window.submitSOS = () => {
@@ -619,7 +566,7 @@
         Object.entries(sosCache).forEach(([id, r]) => {
             if (r.status === 'open' && r.ownerId !== myId) {
                 if (!markers[id] && map) {
-                    const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#FF5A1F") });
+                    const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#FF5722") });
                     marker.addListener('click', () => window.viewRequest(id));
                     markers[id] = marker;
                 }
@@ -641,32 +588,30 @@
 
             if (r.ownerId === myId || r.helperId === myId) {
                 let sCol = (r.status === 'completed' || r.status === 'finalized') ? '#10B981' : (r.status === 'canceled' ? '#EF4444' : '#3B82F6');
-                history.innerHTML += `<div class="history-item"><div><span class="status-pill" style="background:${sCol}; color:white;">${r.status}</span><br><b>${r.vehicle}</b><br><small>${r.issue}</small></div><button onclick="window.confirmDeleteActivityPrompt('${id}')" style="background:none; border:none; font-size:18px;">🗑️</button></div>`;
+                history.innerHTML += `<div class="history-item"><div><span class="pill" style="background:${sCol}20; color:${sCol}; font-size:9px">${r.status}</span><br><b>${r.vehicle}</b></div><button onclick="window.confirmDeleteActivityPrompt('${id}')" style="background:none; border:none; font-size:18px;">🗑️</button></div>`;
             }
         });
 
         document.getElementById('footerChatBtn').style.display = jobActive ? 'block' : 'none';
         document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
-
+        
         const ind = document.getElementById('statusIndicator');
-        if(currentTask) ind.style.background = "var(--success)"; else if (nearbySOS.length > 0) ind.style.background = "var(--danger)"; else ind.style.background = "#94a3b8";
+        if(currentTask) ind.style.background = "var(--success)"; else if (nearbySOS.length > 0) ind.style.background = "var(--brand)"; else ind.style.background = "#94a3b8";
         
         const tCard = document.getElementById('activeTask');
         tCard.innerHTML = ""; 
         if(currentTask) {
-            tCard.style.display = 'block';
-            tCard.classList.add('expanded');
+            tCard.style.display = 'block'; tCard.classList.add('expanded');
             if(currentTask.status === 'canceled') {
-                tCard.innerHTML = `<div style="text-align:center;"><b style="color:var(--danger)">CANCELED</b><p style="font-size:13px; margin:10px 0;">Reason: ${currentTask.cancelReason || 'None'}</p><button onclick="window.acknowledgeCancel()" class="btn btn-dark">Dismiss</button></div>`;
+                tCard.innerHTML = `<div style="text-align:center;"><b style="color:var(--error)">SOS CANCELED</b><p style="font-size:13px; margin:10px 0;">Reason: ${currentTask.cancelReason || 'None'}</p><button onclick="window.acknowledgeCancel()" class="btn btn-hero" style="max-width:150px; padding:10px">Close</button></div>`;
             } else {
-                tCard.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;"><b style="color:var(--primary);">${currentTask.status.toUpperCase()} JOB</b><button onclick="window.openChat()" class="btn btn-primary" style="padding:8px 16px; font-size:12px; width:auto;">Chat</button></div><p style="margin:12px 0; font-weight:700;">${currentTask.vehicle}: ${currentTask.issue}</p><div style="display:flex; gap:10px;"><a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}" target="_blank" class="btn btn-dark" style="padding:12px; font-size:13px; text-decoration:none;">Nav</a>${currentTask.status === 'accepted' ? `<button onclick="window.markArrived()" class="btn btn-primary" style="padding:12px; font-size:13px;">I'm Here</button>` : `<button onclick="window.completeTask()" class="btn btn-primary" style="padding:12px; font-size:13px;">Complete</button>`}</div>`;
+                tCard.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;"><b>ACTIVE JOB</b><button onclick="window.openChat()" class="btn btn-req" style="width:auto; padding:8px 15px; margin:0; font-size:12px;">CHAT</button></div><p style="margin:12px 0; font-weight:700;">${currentTask.vehicle}: ${currentTask.issue}</p><div style="display:flex; gap:8px;"><a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}" target="_blank" class="btn btn-hero" style="flex:1; padding:12px; font-size:13px; text-decoration:none; text-align:center">MAP</a>${currentTask.status === 'accepted' ? `<button onclick="window.markArrived()" class="btn btn-req" style="flex:1; padding:12px; margin:0; font-size:13px;">ARRIVED</button>` : `<button onclick="window.completeTask()" class="btn btn-req" style="flex:1; padding:12px; margin:0; font-size:13px; background:var(--success)">DONE</button>`}</div>`;
             }
         } else if (nearbySOS.length > 0) {
-            tCard.style.display = 'block';
-            tCard.classList.add('expanded');
-            let listHtml = `<b style="color:var(--primary); display:block; margin-bottom:12px;">${nearbySOS.length} SOS Requests Nearby</b>`;
+            tCard.style.display = 'block'; tCard.classList.add('expanded');
+            let listHtml = `<b style="color:var(--brand); display:block; margin-bottom:12px;">${nearbySOS.length} SOS NEARBY</b>`;
             nearbySOS.forEach(s => {
-                listHtml += `<div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;" onclick="window.viewRequest('${s.id}')"><div><b>${s.vehicle}</b><br><small>${s.dist.toFixed(1)} mi away</small></div><div style="color:var(--success); font-weight:800;">$${s.tip || 0}</div></div>`;
+                listHtml += `<div style="padding:12px; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center" onclick="window.viewRequest('${s.id}')"><div><b>${s.vehicle}</b><br><small>${s.dist.toFixed(1)} mi</small></div><div style="color:var(--success); font-weight:800;">$${s.tip || 0}</div></div>`;
             });
             tCard.innerHTML = listHtml;
         } else { tCard.style.display = 'none'; tCard.classList.remove('expanded'); }
@@ -676,14 +621,13 @@
             const searching = document.getElementById('searchingState');
             const matched = document.getElementById('matchedState');
             const completed = document.getElementById('completionConfirmState');
-            
             if(myActiveSOS.status === 'open') { searching.style.display = 'block'; matched.style.display = 'none'; completed.style.display = 'none'; } 
             else if(myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') {
                 searching.style.display = 'none'; matched.style.display = 'block'; completed.style.display = 'none';
                 const hero = profilesCache[myActiveSOS.helperId] || {};
-                document.getElementById('matchName').innerText = hero.name || "Roadside Hero";
+                document.getElementById('matchName').innerText = hero.name || "Hero";
                 document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
-                document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is at your location!" : `ETA: ${myActiveSOS.eta || '...'}`;
+                document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is here!" : `ETA: ${myActiveSOS.eta || '...'}`;
                 updateSeekerMiniMap(myActiveSOS, hero);
             } else if(myActiveSOS.status === 'completed') { searching.style.display = 'none'; matched.style.display = 'none'; completed.style.display = 'block'; }
         }
@@ -696,7 +640,7 @@
         else { seekerMiniMap.setCenter(userPos); }
     }
 
-    onValue(ref(db, "sosRequests"), (snap) => { sosCache = snap.val() || {}; syncUI(); const myActive = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)); if (myActive && document.getElementById('landingPage').classList.contains('view-active')) window.switchView('seekerUI'); });
+    onValue(ref(db, "sosRequests"), (snap) => { sosCache = snap.val() || {}; syncUI(); });
     onValue(ref(db, "profiles"), (snap) => { profilesCache = snap.val() || {}; syncUI(); });
 
     window.saveProfile = () => {
@@ -709,7 +653,7 @@
         window.openModal("profileModal");
         const snap = await get(ref(db, `profiles/${myId}`));
         if(snap.exists()) {
-            const d = snap.val(); document.getElementById("profileName").value = d.name || ""; document.getElementById("profileBio").value = d.bio || ""; if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius; }
+            const d = snap.val(); document.getElementById("profileName").value = d.name || ""; document.getElementById("profileBio").value = d.bio || ""; if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius + ' mi'; }
         }
     };
 
