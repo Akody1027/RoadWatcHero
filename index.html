@@ -45,21 +45,55 @@
         .logo { width: 180px; margin-bottom: 20px; }
         
         h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; color: var(--text); }
-        .description { color: var(--muted); line-height: 1.5; margin-bottom: 30px; font-size: 15px; }
+        .description { color: var(--muted); line-height: 1.5; margin-bottom: 20px; font-size: 15px; }
 
-        .legal-box {
-            background: #f8fafc;
+        /* --- COLLAPSIBLE DROPDOWN --- */
+        .legal-dropdown {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
             border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: left;
-            margin-bottom: 30px;
-            font-size: 13px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f8fafc;
         }
 
-        .legal-box h3 { margin-top: 0; color: var(--accent); font-size: 14px; text-transform: uppercase; }
+        .legal-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text);
+            user-select: none;
+        }
+
+        .legal-header:active { background: #f1f5f9; }
+
+        .legal-header .arrow {
+            transition: transform 0.3s;
+            color: var(--accent);
+            font-size: 12px;
+        }
+
+        .legal-content {
+            display: none; /* Hidden by default */
+            padding: 0 15px 15px 15px;
+            text-align: left;
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.4;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .legal-dropdown.open .legal-content { display: block; }
+        .legal-dropdown.open .arrow { transform: rotate(180deg); }
+
         .warning-text { color: #dc2626; font-weight: 700; }
 
+        /* --- TOS CHECK --- */
         .tos-check {
             display: flex;
             align-items: flex-start;
@@ -67,14 +101,17 @@
             margin-bottom: 30px;
             cursor: pointer;
             text-align: left;
+            max-width: 400px;
         }
 
-        .tos-check input { width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer; }
+        .tos-check input { width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+        .tos-check span { font-size: 14px; line-height: 1.3; }
 
-        /* --- INSTRUCTION BOXES --- */
+        /* --- INSTRUCTION CARDS --- */
         .instruction-card {
             display: none;
             width: 100%;
+            max-width: 400px;
             background: white;
             border: 2px solid #f1f5f9;
             border-radius: 20px;
@@ -98,13 +135,11 @@
         }
         .install-btn.ready { opacity: 1; pointer-events: auto; }
 
-        /* Loader Icon (for iOS users who can't use a button) */
         .waiting-msg { font-size: 12px; color: var(--muted); margin-top: 15px; font-style: italic; }
 
-        /* Desktop Warning */
         #desktopWarning { display: none; padding: 20px; color: var(--accent); font-weight: bold; }
 
-        /* When app is running in standalone mode */
+        /* Standalone mode check */
         body.standalone #coverPage { display: none; }
         body.standalone iframe { display: block; }
     </style>
@@ -112,21 +147,26 @@
 <body>
 
     <div id="coverPage">
-        <!-- Replace with your actual logo path -->
         <img src="roadwatchlogo.png" alt="RoadWatcHero Logo" class="logo">
         
-        <h1>Welcome to RoadWatcHero</h1>
-        <p class="description">Your real-time roadside assistance network. To ensure security and real-time tracking, this application must be installed on your device.</p>
+        <h1>Install RoadWatcHero</h1>
+        <p class="description">Your real-time assistance network. Please install the app to your home screen to begin.</p>
 
-        <div class="legal-box">
-            <h3>Safety & Privacy</h3>
-            <p><span class="warning-text">USE AT YOUR OWN RISK:</span> By using this app, you acknowledge that you are sharing your precise live location with other users (Heroes) on the network.</p>
-            <p><strong>PERSONAL DATA:</strong> We prioritize your privacy. This app does not save your personal identity, contact lists, or private files. Data is used strictly for active SOS sessions.</p>
+        <!-- DROPDOWN MENU -->
+        <div class="legal-dropdown" id="legalDropdown">
+            <div class="legal-header" onclick="toggleLegal()">
+                <span>Safety, Privacy & Risks</span>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="legal-content">
+                <p><span class="warning-text">USE AT YOUR OWN RISK:</span> By using this app, you acknowledge that you are sharing your precise live location with other users (Heroes) on the network.</p>
+                <p><strong>PERSONAL DATA:</strong> We prioritize your privacy. This app does not save your personal identity, contact lists, or private files. Data is used strictly for active SOS sessions.</p>
+            </div>
         </div>
 
         <label class="tos-check">
             <input type="checkbox" id="tosAgree" onclick="toggleInstallReady()">
-            <span>I understand the risks of location sharing and agree to the Terms of Service.</span>
+            <span>I acknowledge the location sharing risks and agree to the Terms of Service.</span>
         </label>
 
         <!-- ANDROID SECTION -->
@@ -138,14 +178,14 @@
         <!-- iOS SECTION -->
         <div id="iosInstructions" class="instruction-card">
             <div id="iosReady" style="display:none;">
-                <div class="step"><div class="step-num">1</div><span>Tap the <strong>Share</strong> icon ( <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png" width="15"> ) at the bottom of Safari.</span></div>
-                <div class="step"><div class="step-num">2</div><span>Scroll down and select <strong>'Add to Home Screen'</strong>.</span></div>
-                <div class="step"><div class="step-num">3</div><span>Open the app from your home screen icon.</span></div>
+                <div class="step"><div class="step-num">1</div><span>Tap the <strong>Share</strong> icon ( <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png" width="15"> ) in Safari.</span></div>
+                <div class="step"><div class="step-num">2</div><span>Select <strong>'Add to Home Screen'</strong> from the menu.</span></div>
+                <div class="step"><div class="step-num">3</div><span>Launch RoadWatcHero from your home screen icon.</span></div>
             </div>
-            <p id="iosLockText" style="color: var(--muted);">Please agree to the terms above to see installation steps.</p>
+            <p id="iosLockText" style="color: var(--muted); font-size: 13px;">Please agree to the terms above to view instructions.</p>
         </div>
 
-        <div id="desktopWarning">This app is optimized for mobile devices. Please open on your phone to install.</div>
+        <div id="desktopWarning">Please open this site on your mobile device to install the application.</div>
     </div>
 
     <iframe src="home.html" id="appFrame"></iframe>
@@ -157,7 +197,11 @@
         const androidInstructions = document.getElementById('androidInstructions');
         const desktopWarning = document.getElementById('desktopWarning');
 
-        // 1. DETECTION LOGIC
+        // Toggle the Collapsible Legal Menu
+        function toggleLegal() {
+            document.getElementById('legalDropdown').classList.toggle('open');
+        }
+
         function checkMode() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
             if (isStandalone) {
@@ -181,7 +225,6 @@
             }
         }
 
-        // 2. INTERACTION LOGIC
         function toggleInstallReady() {
             const agreed = document.getElementById('tosAgree').checked;
             const andBtn = document.getElementById('androidInstallBtn');
@@ -199,7 +242,6 @@
             }
         }
 
-        // 3. ANDROID INSTALL EVENT
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -213,24 +255,17 @@
                     deferredPrompt = null;
                 }
             } else {
-                alert("Installation prompt not ready. If you are in a 'private' tab, please use a normal tab.");
+                alert("If the install prompt didn't appear, please use the browser menu (⋮) and select 'Install App'.");
             }
         }
 
-        // 4. SERVICE WORKER REGISTRATION
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js');
             });
         }
 
-        // Run detection on load
         checkMode();
-
-        // Prevent standard browser refresh/pull-down if possible
-        window.addEventListener('appinstalled', () => {
-            console.log('App successfully installed.');
-        });
     </script>
 </body>
 </html>
