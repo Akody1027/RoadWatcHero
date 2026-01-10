@@ -30,14 +30,12 @@
             position: fixed; inset: 0; background: white; z-index: 99999;
             display: flex; flex-direction: column; align-items: center;
             padding: 60px 20px; overflow-y: auto; text-align: center;
-            transition: opacity 0.5s ease;
         }
 
         .logo { width: 220px; margin-bottom: 40px; }
 
         /* --- BROWSER VIEW (INSTALLATION FLOW) --- */
         #browserSection { width: 100%; max-width: 400px; display: block; }
-        body.is-installed #browserSection { display: none !important; }
 
         h1 { font-size: 26px; font-weight: 800; margin-bottom: 10px; }
         .description { color: var(--muted); line-height: 1.5; margin-bottom: 25px; font-size: 15px; }
@@ -58,23 +56,17 @@
         .browser-only-btn { opacity: 0.3; pointer-events: none; }
         .browser-only-btn.ready { opacity: 1; pointer-events: auto; }
 
-        /* --- THE SUCCESS PROMPT (POST-INSTALL CLICK) --- */
+        /* SUCCESS MESSAGE AFTER CLICKING INSTALL */
         #successPrompt { display: none; flex-direction: column; align-items: center; }
         #successPrompt h2 { color: var(--text); font-weight: 800; margin-bottom: 10px; }
-
-        /* --- STANDALONE VIEW (WHEN APP IS OPENED FROM ICON) --- */
-        #launchSection { display: none; width: 100%; max-width: 400px; flex-direction: column; align-items: center; }
-        body.is-installed #launchSection { display: flex; }
-
-        .step-num { background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body id="mainBody">
 
+    <!-- THIS ENTIRE PAGE WILL BE SKIPPED IF OPENED AS AN APP -->
     <div id="coverPage">
         <img src="roadwatchlogo.png" alt="Logo" class="logo">
         
-        <!-- THE CONTENT YOU CIRCLED (Will be hidden after install) -->
         <div id="browserSection">
             <div id="installUI">
                 <h1>RoadWatchHero</h1>
@@ -96,10 +88,12 @@
                     <span>2. I agree to proceed at my own risk.</span>
                 </label>
 
+                <!-- ANDROID INSTALL BUTTON -->
                 <div id="androidAction" style="display:none;">
                     <button id="androidInstallBtn" class="proceed-btn browser-only-btn">INSTALL APP</button>
                 </div>
 
+                <!-- iOS INSTRUCTIONS -->
                 <div id="iosAction" style="display:none;">
                     <p id="iosLockText" style="color: var(--muted); font-size: 13px;">Complete steps 1 and 2 to see instructions.</p>
                     <div id="iosInstructions" style="display:none; text-align: left; font-size: 14px; font-weight: 600;">
@@ -107,28 +101,28 @@
                         <p>2. Select <strong>'Add to Home Screen'</strong></p>
                     </div>
                 </div>
+
+                <!-- DESKTOP PROCEED -->
+                <div id="desktopAction" style="display:none;">
+                    <button class="proceed-btn browser-only-btn ready" onclick="enterApp()">Launch Web App</button>
+                </div>
             </div>
 
-            <!-- THE NEW PROMPT -->
+            <!-- SUCCESS MESSAGE (Shown only in the browser after clicking install) -->
             <div id="successPrompt">
                 <h2>Please open installed app.</h2>
                 <p style="color: var(--muted); font-size: 14px;">Find the RoadWatchHero icon on your home screen to begin.</p>
             </div>
         </div>
-
-        <!-- STANDALONE MODE (CLEAN SCREEN) -->
-        <div id="launchSection">
-            <h2 style="margin-bottom:30px;">Please open installed app.</h2>
-            <button class="proceed-btn" onclick="enterApp()" style="padding:25px;">LAUNCH APPLICATION</button>
-        </div>
     </div>
 
+    <!-- MAIN APP SCREEN -->
     <iframe src="home.html" id="appFrame"></iframe>
 
     <script>
         let deferredPrompt;
-        const body = document.getElementById('mainBody');
         const cover = document.getElementById('coverPage');
+        const appFrame = document.getElementById('appFrame');
         const dropdown = document.getElementById('legalDropdown');
 
         // Toggle dropdown and unlock checkbox
@@ -147,31 +141,39 @@
             if(iosLock) iosLock.style.display = isAgreed ? 'none' : 'block';
         });
 
+        // Function to skip the cover and show the app
         function enterApp() {
-            cover.style.opacity = '0';
-            setTimeout(() => cover.style.display = 'none', 500);
+            cover.style.display = 'none';
+            appFrame.style.display = 'block';
         }
 
-        // Show the prompt you requested and hide the hurdles
+        // Show "Open Installed App" text inside browser after installation
         function showSuccessPrompt() {
             document.getElementById('installUI').style.display = 'none';
             document.getElementById('successPrompt').style.display = 'flex';
         }
 
         function runSystemCheck() {
+            // DETECT IF OPENED AS AN INSTALLED APP
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            
             if (isStandalone) {
-                body.classList.add('is-installed');
+                // BYPASS COVER PAGE IMMEDIATELY
+                enterApp();
             } else {
+                // NORMAL BROWSER: Show instructions
                 const ua = navigator.userAgent.toLowerCase();
                 if (/iphone|ipad|ipod/.test(ua)) {
                     document.getElementById('iosAction').style.display = 'block';
                 } else if (/android/.test(ua)) {
                     document.getElementById('androidAction').style.display = 'block';
+                } else {
+                    document.getElementById('desktopAction').style.display = 'block';
                 }
             }
         }
 
+        // Android Install Logic
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
