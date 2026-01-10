@@ -154,13 +154,16 @@
         }
 
         // UI for cases where we detect app is already installed but user is in browser
+        // REMOVED "Continue in Browser" button to force app usage
         function showAlreadyInstalledUI() {
             document.getElementById('installUI').style.display = 'none';
             document.getElementById('successPrompt').style.display = 'flex';
             document.getElementById('successPrompt').innerHTML = `
                 <h2>App Already Installed</h2>
-                <p style="color: var(--muted); font-size: 14px; margin-bottom: 20px;">You've already added RoadWatchHero to your home screen.</p>
-                <button class="proceed-btn ready" onclick="enterApp()">Continue in Browser</button>
+                <p style="color: var(--muted); font-size: 14px; margin-bottom: 25px;">You've already added RoadWatchHero to your home screen.</p>
+                <div style="padding: 20px; background: #fff9f6; border: 2px solid var(--accent); border-radius: 18px; color: var(--accent); font-weight: 800; font-size: 16px;">
+                    PLEASE OPEN THE APP FROM YOUR HOME SCREEN TO CONTINUE.
+                </div>
             `;
         }
 
