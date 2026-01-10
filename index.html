@@ -49,15 +49,13 @@
         /* Highlighted Link */
         .legal-link {
             color: var(--accent);
-            text-decoration: none;
+            text-decoration: underline;
             font-weight: 800;
             cursor: pointer;
             font-size: 14px;
             margin-bottom: 20px;
             display: inline-block;
         }
-
-        .legal-link:hover { text-decoration: underline; }
 
         /* --- COLLAPSIBLE DROPDOWN --- */
         .legal-dropdown {
@@ -78,7 +76,7 @@
             cursor: pointer;
             font-weight: 800;
             font-size: 14px;
-            color: var(--accent); /* Header is now orange */
+            color: var(--accent);
             user-select: none;
             background: #fff9f6;
         }
@@ -99,6 +97,7 @@
             background: white;
         }
 
+        /* The class that opens the menu */
         .legal-dropdown.open .legal-content { display: block; }
         .legal-dropdown.open .arrow { transform: rotate(180deg); }
 
@@ -161,8 +160,8 @@
         <h1>Install RoadWatcHero</h1>
         <p class="description">Your real-time assistance network. Please review our safety guidelines before installing.</p>
 
-        <!-- New Highlighted Link to trigger dropdown -->
-        <a class="legal-link" onclick="openLegal()">View Terms & Privacy Policy</a>
+        <!-- Fixed Link (Changed to span to avoid anchor issues) -->
+        <span class="legal-link" onclick="openLegal()">View Terms & Privacy Policy</span>
 
         <!-- DROPDOWN MENU -->
         <div class="legal-dropdown" id="legalDropdown">
@@ -210,15 +209,20 @@
         const androidInstructions = document.getElementById('androidInstructions');
         const desktopWarning = document.getElementById('desktopWarning');
 
-        // Function used by the header to toggle
+        // Toggle the menu manually
         function toggleLegal() {
-            document.getElementById('legalDropdown').classList.toggle('open');
+            const dropdown = document.getElementById('legalDropdown');
+            dropdown.classList.toggle('open');
         }
 
-        // Function used by the orange link to force open the menu
+        // Specifically open the menu and scroll to it
         function openLegal() {
-            document.getElementById('legalDropdown').classList.add('open');
-            document.getElementById('legalDropdown').scrollIntoView({ behavior: 'smooth' });
+            const dropdown = document.getElementById('legalDropdown');
+            dropdown.classList.add('open');
+            // Timeout ensures the browser calculates the display height before scrolling
+            setTimeout(() => {
+                dropdown.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
         }
 
         function checkMode() {
