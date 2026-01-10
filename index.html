@@ -31,12 +31,11 @@
             left: 0;
         }
 
-        /* THE GATEKEEPER COVER */
         #coverPage {
             position: fixed;
             inset: 0;
             background: white;
-            z-index: 99999; /* Forced to the very top */
+            z-index: 99999;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -47,7 +46,7 @@
 
         .logo { width: 180px; margin-bottom: 20px; }
         h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
-        .description { color: var(--muted); line-height: 1.5; margin-bottom: 10px; font-size: 15px; max-width: 320px; }
+        .description { color: var(--muted); line-height: 1.5; margin-bottom: 10px; font-size: 15px; max-width: 350px; }
 
         /* THE ORANGE LINK */
         .legal-link {
@@ -58,7 +57,7 @@
             font-size: 16px;
             margin: 15px 0;
             display: inline-block;
-            padding: 12px; /* Large touch target */
+            padding: 12px;
             background: rgba(238, 97, 28, 0.05);
             border-radius: 8px;
         }
@@ -66,7 +65,7 @@
         /* DROPDOWN BOX */
         .legal-dropdown {
             width: 100%;
-            max-width: 350px;
+            max-width: 400px;
             margin-bottom: 25px;
             border: 2px solid #f1f5f9;
             border-radius: 14px;
@@ -87,7 +86,6 @@
             border-bottom: 1px solid #f1f5f9;
         }
 
-        /* HIDDEN CONTENT BY DEFAULT */
         #legalContent {
             display: none; 
             padding: 18px;
@@ -107,18 +105,18 @@
             margin-bottom: 30px;
             cursor: pointer;
             text-align: left;
-            max-width: 340px;
+            max-width: 400px;
             padding: 10px;
         }
 
         .tos-check input { width: 26px; height: 26px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
         .tos-check span { font-size: 13px; color: var(--muted); font-weight: 500; }
 
-        /* INSTALL CARDS */
-        .instruction-card {
-            display: none;
+        /* ACTION CARDS */
+        .action-card {
+            display: none; /* Hidden until OS detected */
             width: 100%;
-            max-width: 360px;
+            max-width: 400px;
             background: #fff;
             border: 2px solid #f1f5f9;
             border-radius: 24px;
@@ -126,18 +124,17 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         }
 
-        .instruction-card.active { display: block; }
+        .action-card.active { display: block; }
         
-        .step { display: flex; align-items: center; gap: 15px; margin-bottom: 18px; font-size: 14px; font-weight: 600; }
+        .step { display: flex; align-items: center; gap: 15px; margin-bottom: 18px; font-size: 14px; font-weight: 600; text-align: left; }
         .step-num { background: var(--accent); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
-        .install-btn {
+        .proceed-btn {
             background: var(--accent); color: white; border: none; padding: 18px; border-radius: 16px; font-weight: 800; font-size: 16px; width: 100%;
             cursor: pointer; opacity: 0.3; pointer-events: none; transition: 0.3s;
+            text-transform: uppercase;
         }
-        .install-btn.ready { opacity: 1; pointer-events: auto; box-shadow: 0 4px 12px rgba(238, 97, 28, 0.3); }
-
-        #desktopWarning { display: none; padding: 20px; color: var(--accent); font-weight: bold; }
+        .proceed-btn.ready { opacity: 1; pointer-events: auto; box-shadow: 0 4px 12px rgba(238, 97, 28, 0.3); }
 
         /* PWA Hide Logic */
         body.standalone #coverPage { display: none !important; }
@@ -149,8 +146,8 @@
     <div id="coverPage">
         <img src="roadwatchlogo.png" alt="Logo" class="logo">
         
-        <h1>Install RoadWatcHero</h1>
-        <p class="description">To access real-time messaging and Hero tracking, please install the app.</p>
+        <h1>Welcome to RoadWatcHero</h1>
+        <p class="description">Your real-time roadside assistance network. Please review our safety guidelines to proceed.</p>
 
         <!-- THE LINK -->
         <span class="legal-link" id="triggerLink">View Terms & Privacy Policy</span>
@@ -162,8 +159,8 @@
                 <span id="arrowIcon">▼</span>
             </div>
             <div id="legalContent">
-                <p><span class="warning-text">USE AT YOUR OWN RISK:</span> This app uses real-time GPS tracking. You are sharing your live location with other users (Heroes) on the map during an SOS.</p>
-                <p><strong>PERSONAL DATA:</strong> We do not save your identity, phone number, or private files. Data is deleted when the session ends.</p>
+                <p><span class="warning-text">USE AT YOUR OWN RISK:</span> This app uses real-time GPS tracking. You are sharing your live location with other users (Heroes) on the map during an active SOS.</p>
+                <p><strong>PERSONAL DATA:</strong> We do not save your identity, phone number, or private files. Data is strictly used for active assistance sessions and deleted afterward.</p>
                 <p><strong>LIABILITY:</strong> RoadWatcHero is a peer-to-peer platform. We are not responsible for the actions of individual users.</p>
             </div>
         </div>
@@ -173,14 +170,14 @@
             <span>I have read the warnings and agree to use this app at my own risk.</span>
         </label>
 
-        <!-- ANDROID -->
-        <div id="androidInstructions" class="instruction-card">
-            <button id="androidInstallBtn" class="install-btn">INSTALL APP</button>
-            <p style="font-size:12px; color:var(--muted); margin-top:10px;">Click above to install</p>
+        <!-- ANDROID ACTION -->
+        <div id="androidAction" class="action-card">
+            <button id="androidInstallBtn" class="proceed-btn">Install App</button>
+            <p style="font-size:12px; color:var(--muted); margin-top:10px;">Install for the best mobile experience.</p>
         </div>
 
-        <!-- iOS -->
-        <div id="iosInstructions" class="instruction-card">
+        <!-- iOS ACTION -->
+        <div id="iosAction" class="action-card">
             <div id="iosReady" style="display:none;">
                 <div class="step"><div class="step-num">1</div><span>Tap <strong>Share</strong> ( <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png" width="15"> ) in Safari.</span></div>
                 <div class="step"><div class="step-num">2</div><span>Select <strong>'Add to Home Screen'</strong>.</span></div>
@@ -188,9 +185,14 @@
             <p id="iosLockText" style="color: var(--muted); font-size: 13px;">Agree to the terms above to see steps.</p>
         </div>
 
-        <div id="desktopWarning">Please open this on your mobile phone.</div>
+        <!-- DESKTOP/GENERAL ACTION -->
+        <div id="desktopAction" class="action-card">
+            <button id="desktopProceedBtn" class="proceed-btn" onclick="enterApp()">Enter Web App</button>
+            <p style="font-size:12px; color:var(--muted); margin-top:10px;">Click above to launch the application.</p>
+        </div>
     </div>
 
+    <!-- Main App Frame -->
     <iframe src="home.html" id="appFrame"></iframe>
 
     <script>
@@ -199,7 +201,7 @@
         const content = document.getElementById('legalContent');
         const arrow = document.getElementById('arrowIcon');
 
-        // --- THE FIX: ROBUST TOGGLE FUNCTION ---
+        // --- BULLETPROOF DROPDOWN LOGIC ---
         function togglePrivacyBox() {
             if (content.style.display === "block") {
                 content.style.display = "none";
@@ -207,54 +209,60 @@
             } else {
                 content.style.display = "block";
                 arrow.style.transform = "rotate(180deg)";
-                // Ensure it's in view
                 setTimeout(() => {
                     content.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 50);
             }
         }
 
-        // Attach to BOTH triggers with both Click and Touch
-        const triggers = [document.getElementById('triggerLink'), document.getElementById('triggerHeader')];
-        triggers.forEach(t => {
-            t.addEventListener('click', (e) => {
-                e.preventDefault();
-                togglePrivacyBox();
-            });
-            t.addEventListener('touchstart', (e) => {
-                // Touchstart is faster on some mobile browsers
-                e.preventDefault();
-                togglePrivacyBox();
-            }, {passive: false});
+        // Attach listeners to both link and header
+        [document.getElementById('triggerLink'), document.getElementById('triggerHeader')].forEach(t => {
+            t.addEventListener('click', (e) => { e.preventDefault(); togglePrivacyBox(); });
+            t.addEventListener('touchstart', (e) => { e.preventDefault(); togglePrivacyBox(); }, {passive: false});
         });
 
-        // --- CHECKBOX LOGIC ---
+        // --- CHECKBOX UNLOCK LOGIC ---
         document.getElementById('tosAgree').addEventListener('change', function() {
             const isAgreed = this.checked;
-            document.getElementById('androidInstallBtn').classList.toggle('ready', isAgreed);
-            document.getElementById('iosReady').style.display = isAgreed ? 'block' : 'none';
-            document.getElementById('iosLockText').style.display = isAgreed ? 'none' : 'block';
+            // Unlock all possible buttons
+            document.querySelectorAll('.proceed-btn').forEach(btn => {
+                btn.classList.toggle('ready', isAgreed);
+            });
+            // Show/Hide iOS instructions
+            const iosReady = document.getElementById('iosReady');
+            const iosLock = document.getElementById('iosLockText');
+            if(iosReady) iosReady.style.display = isAgreed ? 'block' : 'none';
+            if(iosLock) iosLock.style.display = isAgreed ? 'none' : 'block';
         });
 
-        // --- INSTALLATION & OS DETECTION ---
+        // --- NAVIGATION ---
+        function enterApp() {
+            document.getElementById('coverPage').style.display = 'none';
+            document.getElementById('appFrame').style.display = 'block';
+        }
+
+        // --- SYSTEM DETECTION ---
         function runSystemCheck() {
-            // Check if already in PWA mode
-            const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
             
-            if (isPWA) {
-                body.classList.add('standalone');
+            if (isStandalone) {
+                enterApp();
             } else {
                 const ua = navigator.userAgent.toLowerCase();
+                const isMobile = /iphone|ipad|ipod|android/.test(ua);
+
                 if (/iphone|ipad|ipod/.test(ua)) {
-                    document.getElementById('iosInstructions').classList.add('active');
+                    document.getElementById('iosAction').classList.add('active');
                 } else if (/android/.test(ua)) {
-                    document.getElementById('androidInstructions').classList.add('active');
+                    document.getElementById('androidAction').classList.add('active');
                 } else {
-                    document.getElementById('desktopWarning').style.display = 'block';
+                    // Laptop/Desktop/Other
+                    document.getElementById('desktopAction').classList.add('active');
                 }
             }
         }
 
+        // --- ANDROID INSTALL PROMPT ---
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -265,7 +273,8 @@
                 deferredPrompt.prompt();
                 deferredPrompt = null;
             } else {
-                alert("Please tap your browser menu (⋮) and select 'Install App'.");
+                // If the prompt isn't supported or ready, just let them in
+                enterApp();
             }
         });
 
