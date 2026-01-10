@@ -26,13 +26,17 @@
             height: 100vh;
             border: none;
             display: none; 
+            position: absolute;
+            top: 0;
+            left: 0;
         }
 
+        /* THE GATEKEEPER COVER */
         #coverPage {
             position: fixed;
             inset: 0;
             background: white;
-            z-index: 10000;
+            z-index: 99999; /* Forced to the very top */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -42,32 +46,32 @@
         }
 
         .logo { width: 180px; margin-bottom: 20px; }
-        
-        h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; color: var(--text); }
-        .description { color: var(--muted); line-height: 1.5; margin-bottom: 15px; font-size: 15px; max-width: 320px; }
+        h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+        .description { color: var(--muted); line-height: 1.5; margin-bottom: 10px; font-size: 15px; max-width: 320px; }
 
-        /* FIXED LINK STYLES */
+        /* THE ORANGE LINK */
         .legal-link {
             color: var(--accent);
             text-decoration: underline;
             font-weight: 800;
             cursor: pointer;
-            font-size: 15px;
-            margin-bottom: 20px;
+            font-size: 16px;
+            margin: 15px 0;
             display: inline-block;
-            padding: 10px; /* Bigger hit area for thumbs */
+            padding: 12px; /* Large touch target */
+            background: rgba(238, 97, 28, 0.05);
+            border-radius: 8px;
         }
 
-        /* --- COLLAPSIBLE DROPDOWN --- */
+        /* DROPDOWN BOX */
         .legal-dropdown {
             width: 100%;
-            max-width: 360px;
+            max-width: 350px;
             margin-bottom: 25px;
-            border: 1px solid #e2e8f0;
+            border: 2px solid #f1f5f9;
             border-radius: 14px;
-            overflow: hidden;
-            background: #fdfdfd;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            background: #fff;
+            text-align: left;
         }
 
         .legal-header {
@@ -80,32 +84,22 @@
             font-size: 13px;
             color: var(--accent);
             background: #fff9f6;
-            user-select: none;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .legal-header .arrow {
-            transition: transform 0.3s;
-            font-size: 10px;
-        }
-
-        .legal-content {
-            display: none; /* Controlled by JS */
+        /* HIDDEN CONTENT BY DEFAULT */
+        #legalContent {
+            display: none; 
             padding: 18px;
-            text-align: left;
             font-size: 13px;
             color: var(--text);
             line-height: 1.6;
-            border-top: 1px solid #f1f5f9;
             background: white;
         }
 
-        /* This class is added via JavaScript */
-        .legal-dropdown.open .legal-content { display: block; }
-        .legal-dropdown.open .arrow { transform: rotate(180deg); }
-
         .warning-text { color: #dc2626; font-weight: 700; }
 
-        /* --- TOS CHECK --- */
+        /* CHECKBOX SECTION */
         .tos-check {
             display: flex;
             align-items: center;
@@ -114,12 +108,13 @@
             cursor: pointer;
             text-align: left;
             max-width: 340px;
+            padding: 10px;
         }
 
-        .tos-check input { width: 24px; height: 24px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
-        .tos-check span { font-size: 13px; line-height: 1.4; color: var(--muted); }
+        .tos-check input { width: 26px; height: 26px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+        .tos-check span { font-size: 13px; color: var(--muted); font-weight: 500; }
 
-        /* --- INSTRUCTION CARDS --- */
+        /* INSTALL CARDS */
         .instruction-card {
             display: none;
             width: 100%;
@@ -133,21 +128,14 @@
 
         .instruction-card.active { display: block; }
         
-        .step { display: flex; align-items: center; gap: 15px; margin-bottom: 18px; text-align: left; font-size: 14px; font-weight: 600; }
-        .step-num { 
-            background: var(--accent); color: white; width: 28px; height: 28px; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
+        .step { display: flex; align-items: center; gap: 15px; margin-bottom: 18px; font-size: 14px; font-weight: 600; }
+        .step-num { background: var(--accent); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 
         .install-btn {
-            background: var(--accent); color: white; border: none; padding: 18px;
-            border-radius: 16px; font-weight: 800; font-size: 16px; width: 100%;
+            background: var(--accent); color: white; border: none; padding: 18px; border-radius: 16px; font-weight: 800; font-size: 16px; width: 100%;
             cursor: pointer; opacity: 0.3; pointer-events: none; transition: 0.3s;
-            text-transform: uppercase;
         }
         .install-btn.ready { opacity: 1; pointer-events: auto; box-shadow: 0 4px 12px rgba(238, 97, 28, 0.3); }
-
-        .waiting-msg { font-size: 12px; color: var(--muted); margin-top: 15px; font-style: italic; }
 
         #desktopWarning { display: none; padding: 20px; color: var(--accent); font-weight: bold; }
 
@@ -159,115 +147,114 @@
 <body id="mainBody">
 
     <div id="coverPage">
-        <img src="roadwatchlogo.png" alt="RoadWatcHero Logo" class="logo">
+        <img src="roadwatchlogo.png" alt="Logo" class="logo">
         
         <h1>Install RoadWatcHero</h1>
-        <p class="description">Your real-time assistance network. Please review our safety guidelines before installing.</p>
+        <p class="description">To access real-time messaging and Hero tracking, please install the app.</p>
 
-        <!-- The Clickable Link -->
-        <span class="legal-link" id="legalLinkTrigger">View Terms & Privacy Policy</span>
+        <!-- THE LINK -->
+        <span class="legal-link" id="triggerLink">View Terms & Privacy Policy</span>
 
-        <!-- THE DROPDOWN BOX -->
-        <div class="legal-dropdown" id="legalDropdown">
-            <div class="legal-header" id="legalHeaderTrigger">
+        <!-- THE BOX -->
+        <div class="legal-dropdown">
+            <div class="legal-header" id="triggerHeader">
                 <span>SAFETY, PRIVACY & RISKS</span>
-                <span class="arrow" id="legalArrow">▼</span>
+                <span id="arrowIcon">▼</span>
             </div>
-            <div class="legal-content" id="legalContent">
-                <p><span class="warning-text">USE AT YOUR OWN RISK:</span> This app uses real-time GPS tracking. By proceeding, you acknowledge that you are sharing your precise live location with other users (Heroes) on the map.</p>
-                <p><strong>PERSONAL DATA:</strong> We do not save your identity, phone number, or private files. Data is strictly used for active assistance sessions and is deleted when the session ends.</p>
-                <p><strong>LIABILITY:</strong> RoadWatcHero is a peer-to-peer platform. We are not responsible for the actions of individual users or Heroes.</p>
+            <div id="legalContent">
+                <p><span class="warning-text">USE AT YOUR OWN RISK:</span> This app uses real-time GPS tracking. You are sharing your live location with other users (Heroes) on the map during an SOS.</p>
+                <p><strong>PERSONAL DATA:</strong> We do not save your identity, phone number, or private files. Data is deleted when the session ends.</p>
+                <p><strong>LIABILITY:</strong> RoadWatcHero is a peer-to-peer platform. We are not responsible for the actions of individual users.</p>
             </div>
         </div>
 
         <label class="tos-check">
             <input type="checkbox" id="tosAgree">
-            <span>I have read the privacy warnings and agree to use this app at my own risk.</span>
+            <span>I have read the warnings and agree to use this app at my own risk.</span>
         </label>
 
-        <!-- ANDROID SECTION -->
+        <!-- ANDROID -->
         <div id="androidInstructions" class="instruction-card">
             <button id="androidInstallBtn" class="install-btn">INSTALL APP</button>
-            <p class="waiting-msg">Click above to install RoadWatcHero</p>
+            <p style="font-size:12px; color:var(--muted); margin-top:10px;">Click above to install</p>
         </div>
 
-        <!-- iOS SECTION -->
+        <!-- iOS -->
         <div id="iosInstructions" class="instruction-card">
             <div id="iosReady" style="display:none;">
-                <div class="step"><div class="step-num">1</div><span>Tap the <strong>Share</strong> icon ( <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png" width="15"> ) in Safari.</span></div>
+                <div class="step"><div class="step-num">1</div><span>Tap <strong>Share</strong> ( <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png" width="15"> ) in Safari.</span></div>
                 <div class="step"><div class="step-num">2</div><span>Select <strong>'Add to Home Screen'</strong>.</span></div>
-                <div class="step"><div class="step-num">3</div><span>Open the app from your home screen.</span></div>
             </div>
-            <p id="iosLockText" style="color: var(--muted); font-size: 13px;">Please agree to the terms to see steps.</p>
+            <p id="iosLockText" style="color: var(--muted); font-size: 13px;">Agree to the terms above to see steps.</p>
         </div>
 
-        <div id="desktopWarning">Please open this on your phone to install.</div>
+        <div id="desktopWarning">Please open this on your mobile phone.</div>
     </div>
 
-    <!-- Main App Frame -->
     <iframe src="home.html" id="appFrame"></iframe>
 
     <script>
         let deferredPrompt;
         const body = document.getElementById('mainBody');
-        const iosInstructions = document.getElementById('iosInstructions');
-        const androidInstructions = document.getElementById('androidInstructions');
-        const dropdown = document.getElementById('legalDropdown');
-        const checkbox = document.getElementById('tosAgree');
+        const content = document.getElementById('legalContent');
+        const arrow = document.getElementById('arrowIcon');
 
-        // --- UPDATED CLICK LOGIC ---
-        // This function handles the opening/closing
-        function toggleLegalMenu() {
-            dropdown.classList.toggle('open');
-            console.log("Legal Menu Toggled");
+        // --- THE FIX: ROBUST TOGGLE FUNCTION ---
+        function togglePrivacyBox() {
+            if (content.style.display === "block") {
+                content.style.display = "none";
+                arrow.style.transform = "rotate(0deg)";
+            } else {
+                content.style.display = "block";
+                arrow.style.transform = "rotate(180deg)";
+                // Ensure it's in view
+                setTimeout(() => {
+                    content.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 50);
+            }
         }
 
-        // Attach listeners to BOTH the link and the header itself
-        document.getElementById('legalLinkTrigger').addEventListener('click', (e) => {
-            e.preventDefault();
-            dropdown.classList.add('open');
-            // Scroll to the dropdown so they see it open
-            dropdown.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Attach to BOTH triggers with both Click and Touch
+        const triggers = [document.getElementById('triggerLink'), document.getElementById('triggerHeader')];
+        triggers.forEach(t => {
+            t.addEventListener('click', (e) => {
+                e.preventDefault();
+                togglePrivacyBox();
+            });
+            t.addEventListener('touchstart', (e) => {
+                // Touchstart is faster on some mobile browsers
+                e.preventDefault();
+                togglePrivacyBox();
+            }, {passive: false});
         });
 
-        document.getElementById('legalHeaderTrigger').addEventListener('click', toggleLegalMenu);
-
-        // --- CHECKBOX / INSTALL LOGIC ---
-        checkbox.addEventListener('change', () => {
-            const isAgreed = checkbox.checked;
-            const andBtn = document.getElementById('androidInstallBtn');
-            const iosReady = document.getElementById('iosReady');
-            const iosLock = document.getElementById('iosLockText');
-
-            if (isAgreed) {
-                andBtn.classList.add('ready');
-                iosReady.style.display = 'block';
-                iosLock.style.display = 'none';
-            } else {
-                andBtn.classList.remove('ready');
-                iosReady.style.display = 'none';
-                iosLock.style.display = 'block';
-            }
+        // --- CHECKBOX LOGIC ---
+        document.getElementById('tosAgree').addEventListener('change', function() {
+            const isAgreed = this.checked;
+            document.getElementById('androidInstallBtn').classList.toggle('ready', isAgreed);
+            document.getElementById('iosReady').style.display = isAgreed ? 'block' : 'none';
+            document.getElementById('iosLockText').style.display = isAgreed ? 'none' : 'block';
         });
 
-        // --- OS DETECTION ---
-        function checkMode() {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            if (isStandalone) {
+        // --- INSTALLATION & OS DETECTION ---
+        function runSystemCheck() {
+            // Check if already in PWA mode
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            
+            if (isPWA) {
                 body.classList.add('standalone');
             } else {
                 const ua = navigator.userAgent.toLowerCase();
                 if (/iphone|ipad|ipod/.test(ua)) {
-                    iosInstructions.classList.add('active');
+                    document.getElementById('iosInstructions').classList.add('active');
                 } else if (/android/.test(ua)) {
-                    androidInstructions.classList.add('active');
+                    document.getElementById('androidInstructions').classList.add('active');
                 } else {
                     document.getElementById('desktopWarning').style.display = 'block';
                 }
             }
         }
 
-        // --- PWA LOGIC ---
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -276,20 +263,17 @@
         document.getElementById('androidInstallBtn').addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
             } else {
-                alert("Please tap your browser menu (⋮) and select 'Install App' or 'Add to Home Screen'.");
+                alert("Please tap your browser menu (⋮) and select 'Install App'.");
             }
         });
 
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js');
-            });
+            window.addEventListener('load', () => { navigator.serviceWorker.register('/service-worker.js'); });
         }
 
-        checkMode();
+        runSystemCheck();
     </script>
 </body>
 </html>
