@@ -19,7 +19,7 @@
             --muted: #64748b;
         }
 
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
         
         iframe {
             width: 100vw;
@@ -36,7 +36,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px 25px;
+            padding: 40px 20px;
             overflow-y: auto;
             text-align: center;
         }
@@ -44,60 +44,62 @@
         .logo { width: 180px; margin-bottom: 20px; }
         
         h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; color: var(--text); }
-        .description { color: var(--muted); line-height: 1.5; margin-bottom: 10px; font-size: 15px; }
+        .description { color: var(--muted); line-height: 1.5; margin-bottom: 15px; font-size: 15px; max-width: 320px; }
 
-        /* Highlighted Link */
+        /* FIXED LINK STYLES */
         .legal-link {
             color: var(--accent);
             text-decoration: underline;
             font-weight: 800;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
             margin-bottom: 20px;
             display: inline-block;
+            padding: 10px; /* Bigger hit area for thumbs */
         }
 
         /* --- COLLAPSIBLE DROPDOWN --- */
         .legal-dropdown {
             width: 100%;
-            max-width: 400px;
-            margin-bottom: 20px;
-            border: 2px solid #f1f5f9;
-            border-radius: 12px;
+            max-width: 360px;
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
             overflow: hidden;
-            background: #fff;
+            background: #fdfdfd;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
 
         .legal-header {
-            padding: 15px;
+            padding: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
             font-weight: 800;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--accent);
-            user-select: none;
             background: #fff9f6;
+            user-select: none;
         }
 
         .legal-header .arrow {
             transition: transform 0.3s;
-            font-size: 12px;
+            font-size: 10px;
         }
 
         .legal-content {
-            display: none; 
-            padding: 15px;
+            display: none; /* Controlled by JS */
+            padding: 18px;
             text-align: left;
             font-size: 13px;
             color: var(--text);
-            line-height: 1.5;
+            line-height: 1.6;
             border-top: 1px solid #f1f5f9;
             background: white;
         }
 
-        /* The class that opens the menu */
+        /* This class is added via JavaScript */
         .legal-dropdown.open .legal-content { display: block; }
         .legal-dropdown.open .arrow { transform: rotate(180deg); }
 
@@ -106,53 +108,55 @@
         /* --- TOS CHECK --- */
         .tos-check {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 12px;
             margin-bottom: 30px;
             cursor: pointer;
             text-align: left;
-            max-width: 400px;
+            max-width: 340px;
         }
 
-        .tos-check input { width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
-        .tos-check span { font-size: 13px; line-height: 1.4; font-weight: 500; color: var(--muted); }
+        .tos-check input { width: 24px; height: 24px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+        .tos-check span { font-size: 13px; line-height: 1.4; color: var(--muted); }
 
         /* --- INSTRUCTION CARDS --- */
         .instruction-card {
             display: none;
             width: 100%;
-            max-width: 400px;
-            background: white;
+            max-width: 360px;
+            background: #fff;
             border: 2px solid #f1f5f9;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
         }
 
         .instruction-card.active { display: block; }
         
-        .step { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; text-align: left; font-size: 14px; font-weight: 600; }
+        .step { display: flex; align-items: center; gap: 15px; margin-bottom: 18px; text-align: left; font-size: 14px; font-weight: 600; }
         .step-num { 
             background: var(--accent); color: white; width: 28px; height: 28px; 
             border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
 
         .install-btn {
-            background: var(--accent); color: white; border: none; padding: 18px 30px;
-            border-radius: 14px; font-weight: 700; font-size: 16px; width: 100%;
-            cursor: pointer; opacity: 0.4; pointer-events: none; transition: 0.3s;
+            background: var(--accent); color: white; border: none; padding: 18px;
+            border-radius: 16px; font-weight: 800; font-size: 16px; width: 100%;
+            cursor: pointer; opacity: 0.3; pointer-events: none; transition: 0.3s;
+            text-transform: uppercase;
         }
-        .install-btn.ready { opacity: 1; pointer-events: auto; }
+        .install-btn.ready { opacity: 1; pointer-events: auto; box-shadow: 0 4px 12px rgba(238, 97, 28, 0.3); }
 
         .waiting-msg { font-size: 12px; color: var(--muted); margin-top: 15px; font-style: italic; }
 
         #desktopWarning { display: none; padding: 20px; color: var(--accent); font-weight: bold; }
 
-        body.standalone #coverPage { display: none; }
-        body.standalone iframe { display: block; }
+        /* PWA Hide Logic */
+        body.standalone #coverPage { display: none !important; }
+        body.standalone iframe { display: block !important; }
     </style>
 </head>
-<body>
+<body id="mainBody">
 
     <div id="coverPage">
         <img src="roadwatchlogo.png" alt="RoadWatcHero Logo" class="logo">
@@ -160,30 +164,30 @@
         <h1>Install RoadWatcHero</h1>
         <p class="description">Your real-time assistance network. Please review our safety guidelines before installing.</p>
 
-        <!-- Fixed Link (Changed to span to avoid anchor issues) -->
-        <span class="legal-link" onclick="openLegal()">View Terms & Privacy Policy</span>
+        <!-- The Clickable Link -->
+        <span class="legal-link" id="legalLinkTrigger">View Terms & Privacy Policy</span>
 
-        <!-- DROPDOWN MENU -->
+        <!-- THE DROPDOWN BOX -->
         <div class="legal-dropdown" id="legalDropdown">
-            <div class="legal-header" onclick="toggleLegal()">
+            <div class="legal-header" id="legalHeaderTrigger">
                 <span>SAFETY, PRIVACY & RISKS</span>
-                <span class="arrow">▼</span>
+                <span class="arrow" id="legalArrow">▼</span>
             </div>
-            <div class="legal-content">
+            <div class="legal-content" id="legalContent">
                 <p><span class="warning-text">USE AT YOUR OWN RISK:</span> This app uses real-time GPS tracking. By proceeding, you acknowledge that you are sharing your precise live location with other users (Heroes) on the map.</p>
-                <p><strong>PERSONAL DATA:</strong> We do not save your identity, phone number, or private files. Data is strictly used for active assistance sessions and is deleted when no longer needed.</p>
+                <p><strong>PERSONAL DATA:</strong> We do not save your identity, phone number, or private files. Data is strictly used for active assistance sessions and is deleted when the session ends.</p>
                 <p><strong>LIABILITY:</strong> RoadWatcHero is a peer-to-peer platform. We are not responsible for the actions of individual users or Heroes.</p>
             </div>
         </div>
 
         <label class="tos-check">
-            <input type="checkbox" id="tosAgree" onclick="toggleInstallReady()">
+            <input type="checkbox" id="tosAgree">
             <span>I have read the privacy warnings and agree to use this app at my own risk.</span>
         </label>
 
         <!-- ANDROID SECTION -->
         <div id="androidInstructions" class="instruction-card">
-            <button id="androidInstallBtn" class="install-btn" onclick="triggerAndroidInstall()">INSTALL APP</button>
+            <button id="androidInstallBtn" class="install-btn">INSTALL APP</button>
             <p class="waiting-msg">Click above to install RoadWatcHero</p>
         </div>
 
@@ -200,61 +204,42 @@
         <div id="desktopWarning">Please open this on your phone to install.</div>
     </div>
 
+    <!-- Main App Frame -->
     <iframe src="home.html" id="appFrame"></iframe>
 
     <script>
         let deferredPrompt;
-        const body = document.body;
+        const body = document.getElementById('mainBody');
         const iosInstructions = document.getElementById('iosInstructions');
         const androidInstructions = document.getElementById('androidInstructions');
-        const desktopWarning = document.getElementById('desktopWarning');
+        const dropdown = document.getElementById('legalDropdown');
+        const checkbox = document.getElementById('tosAgree');
 
-        // Toggle the menu manually
-        function toggleLegal() {
-            const dropdown = document.getElementById('legalDropdown');
+        // --- UPDATED CLICK LOGIC ---
+        // This function handles the opening/closing
+        function toggleLegalMenu() {
             dropdown.classList.toggle('open');
+            console.log("Legal Menu Toggled");
         }
 
-        // Specifically open the menu and scroll to it
-        function openLegal() {
-            const dropdown = document.getElementById('legalDropdown');
+        // Attach listeners to BOTH the link and the header itself
+        document.getElementById('legalLinkTrigger').addEventListener('click', (e) => {
+            e.preventDefault();
             dropdown.classList.add('open');
-            // Timeout ensures the browser calculates the display height before scrolling
-            setTimeout(() => {
-                dropdown.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 100);
-        }
+            // Scroll to the dropdown so they see it open
+            dropdown.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
 
-        function checkMode() {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            if (isStandalone) {
-                body.classList.add('standalone');
-            } else {
-                detectOS();
-            }
-        }
+        document.getElementById('legalHeaderTrigger').addEventListener('click', toggleLegalMenu);
 
-        function detectOS() {
-            const ua = navigator.userAgent.toLowerCase();
-            const isIOS = /iphone|ipad|ipod/.test(ua);
-            const isAndroid = /android/.test(ua);
-
-            if (isIOS) {
-                iosInstructions.classList.add('active');
-            } else if (isAndroid) {
-                androidInstructions.classList.add('active');
-            } else {
-                desktopWarning.style.display = 'block';
-            }
-        }
-
-        function toggleInstallReady() {
-            const agreed = document.getElementById('tosAgree').checked;
+        // --- CHECKBOX / INSTALL LOGIC ---
+        checkbox.addEventListener('change', () => {
+            const isAgreed = checkbox.checked;
             const andBtn = document.getElementById('androidInstallBtn');
             const iosReady = document.getElementById('iosReady');
             const iosLock = document.getElementById('iosLockText');
 
-            if (agreed) {
+            if (isAgreed) {
                 andBtn.classList.add('ready');
                 iosReady.style.display = 'block';
                 iosLock.style.display = 'none';
@@ -263,22 +248,40 @@
                 iosReady.style.display = 'none';
                 iosLock.style.display = 'block';
             }
+        });
+
+        // --- OS DETECTION ---
+        function checkMode() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            if (isStandalone) {
+                body.classList.add('standalone');
+            } else {
+                const ua = navigator.userAgent.toLowerCase();
+                if (/iphone|ipad|ipod/.test(ua)) {
+                    iosInstructions.classList.add('active');
+                } else if (/android/.test(ua)) {
+                    androidInstructions.classList.add('active');
+                } else {
+                    document.getElementById('desktopWarning').style.display = 'block';
+                }
+            }
         }
 
+        // --- PWA LOGIC ---
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
         });
 
-        async function triggerAndroidInstall() {
+        document.getElementById('androidInstallBtn').addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
             } else {
-                alert("Please use your browser's menu (⋮) and tap 'Install App' or 'Add to Home Screen'.");
+                alert("Please tap your browser menu (⋮) and select 'Install App' or 'Add to Home Screen'.");
             }
-        }
+        });
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
