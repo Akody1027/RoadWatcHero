@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ROADWATCHERO</title>
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="https://www.roadwatchero.com/icon-192x192.png">
@@ -12,250 +12,225 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#ffffff">
     <style>
-        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        :root {
+            --accent: #EE611C;
+            --bg: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+        }
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+        
         iframe {
             width: 100vw;
             height: 100vh;
             border: none;
-            display: block;
+            display: none; /* Hidden until app is installed */
         }
 
-        /* Preloader Styles */
-        #preloader {
+        /* --- COVER PAGE STYLES --- */
+        #coverPage {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #ffffff;
+            inset: 0;
+            background: white;
+            z-index: 10000;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease-out;
+            padding: 40px 25px;
+            overflow-y: auto;
+            text-align: center;
         }
 
-        #preloader.hidden {
-            opacity: 0;
-            pointer-events: none;
+        .logo { width: 180px; margin-bottom: 20px; }
+        
+        h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; color: var(--text); }
+        .description { color: var(--muted); line-height: 1.5; margin-bottom: 30px; font-size: 15px; }
+
+        .legal-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 30px;
+            font-size: 13px;
         }
 
-        #preloader img {
-            width: auto;
-            height: 300px;
-        }
+        .legal-box h3 { margin-top: 0; color: var(--accent); font-size: 14px; text-transform: uppercase; }
+        .warning-text { color: #dc2626; font-weight: 700; }
 
-        /* Install Button Styles */
-        #installButtonContainer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 10vh; /* Adjust height as needed */
-            background-color: #f8f8f8;
-            border-top: 1px solid #eee;
+        .tos-check {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9998; /* Below preloader, above appFrame */
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-            /* Initially hidden */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        }
-
-        #installButtonContainer.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        #installButton {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color:#EE611C ;
-            color: white;
-            border: none;
-            border-radius: 5px;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 30px;
             cursor: pointer;
-            outline: none;
+            text-align: left;
         }
 
-        #installButton:hover {
-            font-size: 20px;
+        .tos-check input { width: 22px; height: 22px; accent-color: var(--accent); cursor: pointer; }
+
+        /* --- INSTRUCTION BOXES --- */
+        .instruction-card {
+            display: none;
+            width: 100%;
+            background: white;
+            border: 2px solid #f1f5f9;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            margin-top: 10px;
         }
 
-        /* Adjust iframe height when install button is visible */
-        body.has-install-button iframe {
-            height: 80vh; /* 100vh - 10vh (button) - 10vh (top bar if any) */
+        .instruction-card.active { display: block; }
+        
+        .step { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; text-align: left; font-size: 14px; font-weight: 600; }
+        .step-num { 
+            background: var(--accent); color: white; width: 28px; height: 28px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
+
+        .install-btn {
+            background: var(--accent); color: white; border: none; padding: 18px 30px;
+            border-radius: 14px; font-weight: 700; font-size: 16px; width: 100%;
+            cursor: pointer; opacity: 0.5; pointer-events: none; transition: 0.3s;
+        }
+        .install-btn.ready { opacity: 1; pointer-events: auto; }
+
+        /* Loader Icon (for iOS users who can't use a button) */
+        .waiting-msg { font-size: 12px; color: var(--muted); margin-top: 15px; font-style: italic; }
+
+        /* Desktop Warning */
+        #desktopWarning { display: none; padding: 20px; color: var(--accent); font-weight: bold; }
+
+        /* When app is running in standalone mode */
+        body.standalone #coverPage { display: none; }
+        body.standalone iframe { display: block; }
     </style>
 </head>
 <body>
-    <div id="preloader">
-        <img src="Loaderlogo.gif" alt="Loading...">
+
+    <div id="coverPage">
+        <!-- Replace with your actual logo path -->
+        <img src="roadwatchlogo.png" alt="RoadWatcHero Logo" class="logo">
+        
+        <h1>Welcome to RoadWatcHero</h1>
+        <p class="description">Your real-time roadside assistance network. To ensure security and real-time tracking, this application must be installed on your device.</p>
+
+        <div class="legal-box">
+            <h3>Safety & Privacy</h3>
+            <p><span class="warning-text">USE AT YOUR OWN RISK:</span> By using this app, you acknowledge that you are sharing your precise live location with other users (Heroes) on the network.</p>
+            <p><strong>PERSONAL DATA:</strong> We prioritize your privacy. This app does not save your personal identity, contact lists, or private files. Data is used strictly for active SOS sessions.</p>
+        </div>
+
+        <label class="tos-check">
+            <input type="checkbox" id="tosAgree" onclick="toggleInstallReady()">
+            <span>I understand the risks of location sharing and agree to the Terms of Service.</span>
+        </label>
+
+        <!-- ANDROID SECTION -->
+        <div id="androidInstructions" class="instruction-card">
+            <button id="androidInstallBtn" class="install-btn" onclick="triggerAndroidInstall()">INSTALL APP</button>
+            <p class="waiting-msg">Click above to install RoadWatcHero</p>
+        </div>
+
+        <!-- iOS SECTION -->
+        <div id="iosInstructions" class="instruction-card">
+            <div id="iosReady" style="display:none;">
+                <div class="step"><div class="step-num">1</div><span>Tap the <strong>Share</strong> icon ( <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png" width="15"> ) at the bottom of Safari.</span></div>
+                <div class="step"><div class="step-num">2</div><span>Scroll down and select <strong>'Add to Home Screen'</strong>.</span></div>
+                <div class="step"><div class="step-num">3</div><span>Open the app from your home screen icon.</span></div>
+            </div>
+            <p id="iosLockText" style="color: var(--muted);">Please agree to the terms above to see installation steps.</p>
+        </div>
+
+        <div id="desktopWarning">This app is optimized for mobile devices. Please open on your phone to install.</div>
     </div>
 
     <iframe src="home.html" id="appFrame"></iframe>
 
-    <div id="installButtonContainer">
-        <button id="installButton">Install App</button>
-    </div>
-
     <script>
-        let deferredPrompt; // To store the event for later use
-        const installButtonContainer = document.getElementById('installButtonContainer');
-        const installButton = document.getElementById('installButton');
-        const appFrame = document.getElementById('appFrame');
+        let deferredPrompt;
         const body = document.body;
+        const iosInstructions = document.getElementById('iosInstructions');
+        const androidInstructions = document.getElementById('androidInstructions');
+        const desktopWarning = document.getElementById('desktopWarning');
 
-        // Service Worker Registration
+        // 1. DETECTION LOGIC
+        function checkMode() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            if (isStandalone) {
+                body.classList.add('standalone');
+            } else {
+                detectOS();
+            }
+        }
+
+        function detectOS() {
+            const ua = navigator.userAgent.toLowerCase();
+            const isIOS = /iphone|ipad|ipod/.test(ua);
+            const isAndroid = /android/.test(ua);
+
+            if (isIOS) {
+                iosInstructions.classList.add('active');
+            } else if (isAndroid) {
+                androidInstructions.classList.add('active');
+            } else {
+                desktopWarning.style.display = 'block';
+            }
+        }
+
+        // 2. INTERACTION LOGIC
+        function toggleInstallReady() {
+            const agreed = document.getElementById('tosAgree').checked;
+            const andBtn = document.getElementById('androidInstallBtn');
+            const iosReady = document.getElementById('iosReady');
+            const iosLock = document.getElementById('iosLockText');
+
+            if (agreed) {
+                andBtn.classList.add('ready');
+                iosReady.style.display = 'block';
+                iosLock.style.display = 'none';
+            } else {
+                andBtn.classList.remove('ready');
+                iosReady.style.display = 'none';
+                iosLock.style.display = 'block';
+            }
+        }
+
+        // 3. ANDROID INSTALL EVENT
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        async function triggerAndroidInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    deferredPrompt = null;
+                }
+            } else {
+                alert("Installation prompt not ready. If you are in a 'private' tab, please use a normal tab.");
+            }
+        }
+
+        // 4. SERVICE WORKER REGISTRATION
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registered:', registration);
-                    })
-                    .catch(error => {
-                        console.error('Service Worker registration failed:', error);
-                    });
+                navigator.serviceWorker.register('/service-worker.js');
             });
         }
 
-        // Request Push Notification Permission
-        function requestNotificationPermission() {
-            if ('Notification' in window) {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        console.log('Notification permission granted.');
-                    } else {
-                        console.warn('Notification permission denied.');
-                    }
-                });
-            } else {
-                console.warn('Notifications not supported in this browser.');
-            }
-        }
+        // Run detection on load
+        checkMode();
 
-        // Request Geolocation Permission
-        function requestGeolocationPermission() {
-            if ('geolocation' in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        console.log('Geolocation permission granted. Current position:', position.coords);
-                    },
-                    error => {
-                        console.error('Geolocation permission denied or error:', error);
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                console.error("User denied the request for Geolocation.");
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                console.error("Location information is unavailable.");
-                                break;
-                            case error.TIMEOUT:
-                                console.error("The request to get user location timed out.");
-                                break;
-                            case error.UNKNOWN_ERROR:
-                                console.error("An unknown error occurred.");
-                                break;
-                        }
-                    }
-                );
-            } else {
-                console.warn('Geolocation not supported in this browser.');
-            }
-        }
-
-        // Preloader logic
-        let minLoadingTimePassed = false;
-        let pageContentLoaded = false;
-
-        setTimeout(() => {
-            minLoadingTimePassed = true;
-            if (pageContentLoaded) {
-                hidePreloader();
-            }
-        }, 3000); // 3000 milliseconds = 3 seconds
-
-        function hidePreloader() {
-            const preloader = document.getElementById('preloader');
-            if (preloader) {
-                preloader.classList.add('hidden');
-                preloader.addEventListener('transitionend', () => {
-                    preloader.remove();
-                });
-            }
-        }
-
-        // --- PWA Install Logic ---
-
-        // Listen for the beforeinstallprompt event
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
-            e.preventDefault();
-            // Stash the event so it can be triggered later.
-            deferredPrompt = e;
-            console.log('beforeinstallprompt fired.');
-            // Update UI to notify the user they can add to home screen
-            // Only show the button if the app is not already installed
-            if (!navigator.standalone && !window.matchMedia('(display-mode: standalone)').matches) {
-                installButtonContainer.classList.add('show');
-                // Adjust iframe height to accommodate the install button
-                body.classList.add('has-install-button');
-                appFrame.style.height = 'calc(100vh - 10vh)'; // Adjust based on button container height
-            }
-        });
-
-        // Handle the install button click
-        installButton.addEventListener('click', async () => {
-            // Hide the install button
-            installButtonContainer.classList.remove('show');
-            body.classList.remove('has-install-button');
-            appFrame.style.height = '90vh'; // Reset iframe height
-
-            // Show the install prompt
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
-                const { outcome } = await deferredPrompt.userChoice;
-                // Optionally, send analytics event with outcome of user choice
-                console.log(`User response to the A2HS prompt: ${outcome}`);
-                // We've used the prompt, and can't use it again, clear it.
-                deferredPrompt = null;
-            }
-        });
-
-        // Listen for the appinstalled event
+        // Prevent standard browser refresh/pull-down if possible
         window.addEventListener('appinstalled', () => {
-            console.log('PWA was installed!');
-            // Hide the install button if it was visible
-            installButtonContainer.classList.remove('show');
-            body.classList.remove('has-install-button');
-            appFrame.style.height = '90vh'; // Reset iframe height
-            // Clear the deferredPrompt since the app is now installed
-            deferredPrompt = null;
-        });
-
-        // Hide preloader once the entire page (including iframe content) has loaded
-        window.addEventListener('load', () => {
-            pageContentLoaded = true;
-            if (minLoadingTimePassed) {
-                hidePreloader();
-            }
-
-            requestNotificationPermission();
-            requestGeolocationPermission();
-        });
-
-        document.getElementById('appFrame').addEventListener('load', () => {
-             console.log('Iframe content loaded.');
+            console.log('App successfully installed.');
         });
     </script>
 </body>
 </html>
-
-
-
-
-
