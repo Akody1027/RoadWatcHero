@@ -108,7 +108,7 @@
                 </div>
             </div>
 
-            <!-- SUCCESS MESSAGE (Shown only in the browser after clicking install) -->
+            <!-- SUCCESS MESSAGE -->
             <div id="successPrompt">
                 <h2>Please open installed app.</h2>
                 <p style="color: var(--muted); font-size: 14px;">Find the RoadWatchHero icon on your home screen to begin.</p>
@@ -147,29 +147,57 @@
             appFrame.style.display = 'block';
         }
 
-        // Show "Open Installed App" text inside browser after installation
+        // Show "Open Installed App" text
         function showSuccessPrompt() {
             document.getElementById('installUI').style.display = 'none';
             document.getElementById('successPrompt').style.display = 'flex';
         }
 
-        function runSystemCheck() {
-            // DETECT IF OPENED AS AN INSTALLED APP
+        // UI for cases where we detect app is already installed but user is in browser
+        function showAlreadyInstalledUI() {
+            document.getElementById('installUI').style.display = 'none';
+            document.getElementById('successPrompt').style.display = 'flex';
+            document.getElementById('successPrompt').innerHTML = `
+                <h2>App Already Installed</h2>
+                <p style="color: var(--muted); font-size: 14px; margin-bottom: 20px;">You've already added RoadWatchHero to your home screen.</p>
+                <button class="proceed-btn ready" onclick="enterApp()">Continue in Browser</button>
+            `;
+        }
+
+        async function runSystemCheck() {
+            // 1. DETECT IF OPENED AS AN INSTALLED APP (Standalone Mode)
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
             
             if (isStandalone) {
-                // BYPASS COVER PAGE IMMEDIATELY
+                // Save flag to localStorage so we know in the future (for iOS/Android fallback)
+                localStorage.setItem('rw_pwa_installed', 'true');
                 enterApp();
-            } else {
-                // NORMAL BROWSER: Show instructions
-                const ua = navigator.userAgent.toLowerCase();
-                if (/iphone|ipad|ipod/.test(ua)) {
-                    document.getElementById('iosAction').style.display = 'block';
-                } else if (/android/.test(ua)) {
-                    document.getElementById('androidAction').style.display = 'block';
-                } else {
-                    document.getElementById('desktopAction').style.display = 'block';
+                return;
+            }
+
+            // 2. CHECK LOCALSTORAGE FLAG (For users returning to browser after installing)
+            if (localStorage.getItem('rw_pwa_installed') === 'true') {
+                showAlreadyInstalledUI();
+                return;
+            }
+
+            // 3. ANDROID-SPECIFIC API CHECK
+            if ('getInstalledRelatedApps' in navigator) {
+                const relatedApps = await navigator.getInstalledRelatedApps();
+                if (relatedApps.length > 0) {
+                    showAlreadyInstalledUI();
+                    return;
                 }
+            }
+
+            // 4. NORMAL BROWSER: Show instructions if not detected as installed
+            const ua = navigator.userAgent.toLowerCase();
+            if (/iphone|ipad|ipod/.test(ua)) {
+                document.getElementById('iosAction').style.display = 'block';
+            } else if (/android/.test(ua)) {
+                document.getElementById('androidAction').style.display = 'block';
+            } else {
+                document.getElementById('desktopAction').style.display = 'block';
             }
         }
 
@@ -180,6 +208,7 @@
         });
 
         window.addEventListener('appinstalled', () => {
+            localStorage.setItem('rw_pwa_installed', 'true');
             showSuccessPrompt();
         });
 
@@ -187,7 +216,10 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') showSuccessPrompt();
+                if (outcome === 'accepted') {
+                    localStorage.setItem('rw_pwa_installed', 'true');
+                    showSuccessPrompt();
+                }
                 deferredPrompt = null;
             }
         });
