@@ -19,16 +19,17 @@
             --muted: #64748b;
         }
 
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
         
         iframe {
             width: 100vw;
             height: 100vh;
             border: none;
-            display: none; 
+            display: block; 
             position: absolute;
             top: 0;
             left: 0;
+            z-index: 1;
         }
 
         #coverPage {
@@ -42,18 +43,28 @@
             padding: 60px 20px;
             overflow-y: auto;
             text-align: center;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s ease;
         }
 
-        .logo { width: 220px; margin-bottom: 30px; }
+        /* Splash Animation for the logo */
+        .logo { 
+            width: 220px; 
+            margin-bottom: 30px; 
+            animation: logoPulse 2s infinite ease-in-out;
+        }
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
         
-        /* HIDDEN ELEMENTS WHEN INSTALLED */
+        /* Browser detection visibility */
         .browser-only { display: block; width: 100%; max-width: 400px; }
         body.is-installed .browser-only { display: none !important; }
 
         h1 { font-size: 26px; font-weight: 800; margin-bottom: 10px; }
         .description { color: var(--muted); line-height: 1.5; margin-bottom: 25px; font-size: 15px; max-width: 350px; }
 
-        /* LEGAL DROPDOWN */
+        /* ANIMATED DROPDOWN */
         .legal-dropdown {
             width: 100%;
             margin-bottom: 20px;
@@ -61,6 +72,7 @@
             border-radius: 14px;
             background: #fff;
             text-align: left;
+            overflow: hidden;
         }
 
         .legal-header {
@@ -73,10 +85,33 @@
             font-size: 13px;
             color: var(--accent);
             background: #fff9f6;
-            border-radius: 12px;
+            z-index: 2;
+            position: relative;
         }
 
-        #legalContent { display: none; padding: 18px; font-size: 13px; color: var(--text); line-height: 1.6; }
+        #legalContent { 
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, padding 0.4s ease;
+            font-size: 13px; 
+            color: var(--text); 
+            line-height: 1.6;
+            padding: 0 18px;
+        }
+
+        /* State for open dropdown */
+        .legal-dropdown.open #legalContent {
+            max-height: 500px;
+            opacity: 1;
+            padding: 18px;
+        }
+
+        .legal-dropdown.open #arrowIcon {
+            transform: rotate(180deg);
+        }
+
+        #arrowIcon { transition: transform 0.3s ease; }
 
         /* TOS CHECK */
         .tos-check {
@@ -85,25 +120,12 @@
             gap: 12px;
             margin-bottom: 30px;
             text-align: left;
-            opacity: 0.4;
+            opacity: 0.3;
             pointer-events: none;
-            transition: 0.3s;
+            transition: opacity 0.3s ease;
         }
         .tos-check.unlocked { opacity: 1; pointer-events: auto; }
         .tos-check input { width: 26px; height: 26px; accent-color: var(--accent); }
-
-        /* ACTION CARDS */
-        .action-card {
-            display: none;
-            width: 100%;
-            max-width: 400px;
-            background: #fff;
-            border: 2px solid #f1f5f9;
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-        }
-        .action-card.active { display: block; }
 
         /* BUTTONS */
         .proceed-btn {
@@ -111,11 +133,10 @@
             cursor: pointer; transition: 0.3s; text-transform: uppercase;
         }
         
-        /* Browser button locked state */
         .browser-only .proceed-btn { opacity: 0.3; pointer-events: none; }
         .browser-only .proceed-btn.ready { opacity: 1; pointer-events: auto; box-shadow: 0 4px 12px rgba(238, 97, 28, 0.3); }
 
-        /* INSTALLED MODE BUTTON */
+        /* INSTALLED MODE SECTION */
         #launchSection { display: none; width: 100%; max-width: 400px; }
         body.is-installed #launchSection { display: block; }
 
@@ -128,10 +149,10 @@
     <div id="coverPage">
         <img src="roadwatchlogo.png" alt="Logo" class="logo">
         
-        <!-- SECTION 1: SHOWN ONLY IN WEB BROWSER -->
+        <!-- SECTION 1: SHOWN ONLY IN BROWSER -->
         <div class="browser-only">
-            <h1>Welcome to RoadWatcHero</h1>
-            <p class="description">Your real-time assistance network. Please review safety policies to unlock installation.</p>
+            <h1>RoadWatcHero</h1>
+            <p class="description">Please review our safety policies and install the app to your home screen to continue.</p>
 
             <div class="legal-dropdown" id="legalDropdown">
                 <div class="legal-header" id="triggerHeader">
@@ -139,8 +160,8 @@
                     <span id="arrowIcon">▼</span>
                 </div>
                 <div id="legalContent">
-                    <p><strong>USE AT YOUR OWN RISK:</strong> This app uses real-time GPS tracking. You share your live location with Heroes on the map during an active SOS.</p>
-                    <p><strong>PERSONAL DATA:</strong> We do not save your identity or private files. Data is strictly used for active assistance sessions.</p>
+                    <p><strong>GPS TRACKING:</strong> This app uses real-time location. You share your live position with Heroes during an active SOS.</p>
+                    <p><strong>PRIVACY:</strong> We do not save your identity or personal files. Data is strictly for emergency assistance.</p>
                 </div>
             </div>
 
@@ -149,13 +170,11 @@
                 <span>2. I agree to proceed at my own risk.</span>
             </label>
 
-            <!-- BROWSER INSTALL ACTIONS -->
-            <div id="androidAction" class="action-card">
+            <div id="androidAction" style="display:none;" class="action-card">
                 <button id="androidInstallBtn" class="proceed-btn">Install App</button>
-                <p style="font-size:12px; color:var(--muted); margin-top:10px;">Required for mobile tracking.</p>
             </div>
 
-            <div id="iosAction" class="action-card">
+            <div id="iosAction" style="display:none;" class="action-card">
                 <div id="iosReady" style="display:none;">
                     <div class="step"><div class="step-num">1</div><span>Tap <strong>Share</strong> ( <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png" width="15"> )</span></div>
                     <div class="step"><div class="step-num">2</div><span>Select <strong>'Add to Home Screen'</strong></span></div>
@@ -163,16 +182,16 @@
                 <p id="iosLockText" style="color: var(--muted); font-size: 13px;">Complete steps 1 and 2 above to unlock.</p>
             </div>
 
-            <div id="desktopAction" class="action-card">
+            <div id="desktopAction" style="display:none;" class="action-card">
                 <button id="desktopProceedBtn" class="proceed-btn" onclick="enterApp()">Launch Web App</button>
             </div>
         </div>
 
-        <!-- SECTION 2: SHOWN ONLY WHEN INSTALLED ON MOBILE -->
+        <!-- SECTION 2: SHOWN ONLY IN STANDALONE (INSTALLED) MODE -->
         <div id="launchSection">
-            <h1 style="margin-bottom:20px;">App Ready</h1>
-            <button class="proceed-btn" onclick="enterApp()" style="padding:25px;">Launch RoadWatcHero</button>
-            <p style="margin-top:20px; color:var(--muted); font-size:14px;">Open assistance map</p>
+            <h1 style="margin-bottom:20px;">Welcome Hero</h1>
+            <button class="proceed-btn" onclick="enterApp()" style="padding:25px; letter-spacing: 1px;">LAUNCH APPLICATION</button>
+            <p style="margin-top:20px; color:var(--muted); font-size:14px;">Secure Standalone Connection Active</p>
         </div>
     </div>
 
@@ -182,22 +201,18 @@
         let deferredPrompt;
         let termsExpanded = false;
         const body = document.getElementById('mainBody');
-        const content = document.getElementById('legalContent');
-        const arrow = document.getElementById('arrowIcon');
+        const cover = document.getElementById('coverPage');
+        const dropdown = document.getElementById('legalDropdown');
         const tosWrapper = document.getElementById('tosWrapper');
 
-        // --- DROPDOWN LOGIC ---
+        // --- ANIMATED DROPDOWN TOGGLE ---
         function togglePrivacyBox() {
-            if (content.style.display === "block") {
-                content.style.display = "none";
-                arrow.style.transform = "rotate(0deg)";
-            } else {
-                content.style.display = "block";
-                arrow.style.transform = "rotate(180deg)";
-                if (!termsExpanded) {
-                    termsExpanded = true;
-                    tosWrapper.classList.add('unlocked');
-                }
+            dropdown.classList.toggle('open');
+            
+            // Unlock the checkbox when they expand for the first time
+            if (!termsExpanded) {
+                termsExpanded = true;
+                tosWrapper.classList.add('unlocked');
             }
         }
 
@@ -211,28 +226,31 @@
             if(document.getElementById('iosLockText')) document.getElementById('iosLockText').style.display = isAgreed ? 'none' : 'block';
         });
 
-        // --- NAVIGATION ---
+        // --- THE "APP LAUNCH" ANIMATION ---
         function enterApp() {
-            document.getElementById('coverPage').style.display = 'none';
-            document.getElementById('appFrame').style.display = 'block';
+            // Professional fade and slide out
+            cover.style.opacity = '0';
+            cover.style.transform = 'scale(1.1)';
+            
+            setTimeout(() => {
+                cover.style.display = 'none';
+            }, 600);
         }
 
-        // --- SYSTEM CHECK: IS IT INSTALLED? ---
+        // --- SYSTEM CHECK ---
         function runSystemCheck() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
             
             if (isStandalone) {
-                // USER IS IN THE INSTALLED APP
                 body.classList.add('is-installed');
             } else {
-                // USER IS IN A NORMAL BROWSER
                 const ua = navigator.userAgent.toLowerCase();
                 if (/iphone|ipad|ipod/.test(ua)) {
-                    document.getElementById('iosAction').classList.add('active');
+                    document.getElementById('iosAction').style.display = 'block';
                 } else if (/android/.test(ua)) {
-                    document.getElementById('androidAction').classList.add('active');
+                    document.getElementById('androidAction').style.display = 'block';
                 } else {
-                    document.getElementById('desktopAction').classList.add('active');
+                    document.getElementById('desktopAction').style.display = 'block';
                 }
             }
         }
@@ -242,7 +260,7 @@
             deferredPrompt = e;
         });
 
-        document.getElementById('androidInstallBtn').addEventListener('click', async () => {
+        document.getElementById('androidInstallBtn')?.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 deferredPrompt = null;
