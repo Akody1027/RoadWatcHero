@@ -46,31 +46,18 @@
 
         .logo { width: 180px; margin-bottom: 20px; }
         h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
-        .description { color: var(--muted); line-height: 1.5; margin-bottom: 10px; font-size: 15px; max-width: 350px; }
-
-        /* THE ORANGE LINK */
-        .legal-link {
-            color: var(--accent);
-            text-decoration: underline;
-            font-weight: 800;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 15px 0;
-            display: inline-block;
-            padding: 12px;
-            background: rgba(238, 97, 28, 0.05);
-            border-radius: 8px;
-        }
+        .description { color: var(--muted); line-height: 1.5; margin-bottom: 25px; font-size: 15px; max-width: 350px; }
 
         /* DROPDOWN BOX */
         .legal-dropdown {
             width: 100%;
             max-width: 400px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             border: 2px solid #f1f5f9;
             border-radius: 14px;
             background: #fff;
             text-align: left;
+            transition: border-color 0.3s;
         }
 
         .legal-header {
@@ -84,6 +71,7 @@
             color: var(--accent);
             background: #fff9f6;
             border-bottom: 1px solid #f1f5f9;
+            border-radius: 12px;
         }
 
         #legalContent {
@@ -97,16 +85,23 @@
 
         .warning-text { color: #dc2626; font-weight: 700; }
 
-        /* CHECKBOX SECTION */
+        /* CHECKBOX SECTION - LOCKED STATE */
         .tos-check {
             display: flex;
             align-items: center;
             gap: 12px;
             margin-bottom: 30px;
-            cursor: pointer;
             text-align: left;
             max-width: 400px;
             padding: 10px;
+            opacity: 0.4; /* Visually locked */
+            pointer-events: none; /* Physically locked */
+            transition: 0.3s;
+        }
+
+        .tos-check.unlocked {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .tos-check input { width: 26px; height: 26px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
@@ -114,7 +109,7 @@
 
         /* ACTION CARDS */
         .action-card {
-            display: none; /* Hidden until OS detected */
+            display: none;
             width: 100%;
             max-width: 400px;
             background: #fff;
@@ -136,7 +131,6 @@
         }
         .proceed-btn.ready { opacity: 1; pointer-events: auto; box-shadow: 0 4px 12px rgba(238, 97, 28, 0.3); }
 
-        /* PWA Hide Logic */
         body.standalone #coverPage { display: none !important; }
         body.standalone iframe { display: block !important; }
     </style>
@@ -147,15 +141,12 @@
         <img src="roadwatchlogo.png" alt="Logo" class="logo">
         
         <h1>Welcome to RoadWatcHero</h1>
-        <p class="description">Your real-time roadside assistance network. Please review our safety guidelines to proceed.</p>
+        <p class="description">Your real-time assistance network. Please expand and review our safety policies below to unlock the application.</p>
 
-        <!-- THE LINK -->
-        <span class="legal-link" id="triggerLink">View Terms & Privacy Policy</span>
-
-        <!-- THE BOX -->
-        <div class="legal-dropdown">
+        <!-- THE DROPDOWN (ONLY TRIGGER) -->
+        <div class="legal-dropdown" id="legalDropdown">
             <div class="legal-header" id="triggerHeader">
-                <span>SAFETY, PRIVACY & RISKS</span>
+                <span>1. REVIEW SAFETY & PRIVACY</span>
                 <span id="arrowIcon">▼</span>
             </div>
             <div id="legalContent">
@@ -165,9 +156,10 @@
             </div>
         </div>
 
-        <label class="tos-check">
+        <!-- THE CHECKBOX (STARTS LOCKED) -->
+        <label class="tos-check" id="tosWrapper">
             <input type="checkbox" id="tosAgree">
-            <span>I have read the warnings and agree to use this app at my own risk.</span>
+            <span>2. I have read the warnings and agree to proceed at my own risk.</span>
         </label>
 
         <!-- ANDROID ACTION -->
@@ -182,26 +174,27 @@
                 <div class="step"><div class="step-num">1</div><span>Tap <strong>Share</strong> ( <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png" width="15"> ) in Safari.</span></div>
                 <div class="step"><div class="step-num">2</div><span>Select <strong>'Add to Home Screen'</strong>.</span></div>
             </div>
-            <p id="iosLockText" style="color: var(--muted); font-size: 13px;">Agree to the terms above to see steps.</p>
+            <p id="iosLockText" style="color: var(--muted); font-size: 13px;">Complete steps 1 and 2 above to unlock.</p>
         </div>
 
         <!-- DESKTOP/GENERAL ACTION -->
         <div id="desktopAction" class="action-card">
             <button id="desktopProceedBtn" class="proceed-btn" onclick="enterApp()">Enter Web App</button>
-            <p style="font-size:12px; color:var(--muted); margin-top:10px;">Click above to launch the application.</p>
+            <p style="font-size:12px; color:var(--muted); margin-top:10px;">Launch the application.</p>
         </div>
     </div>
 
-    <!-- Main App Frame -->
     <iframe src="home.html" id="appFrame"></iframe>
 
     <script>
         let deferredPrompt;
+        let termsExpanded = false;
         const body = document.getElementById('mainBody');
         const content = document.getElementById('legalContent');
         const arrow = document.getElementById('arrowIcon');
+        const tosWrapper = document.getElementById('tosWrapper');
 
-        // --- BULLETPROOF DROPDOWN LOGIC ---
+        // --- DROPDOWN LOGIC ---
         function togglePrivacyBox() {
             if (content.style.display === "block") {
                 content.style.display = "none";
@@ -209,26 +202,30 @@
             } else {
                 content.style.display = "block";
                 arrow.style.transform = "rotate(180deg)";
+                
+                // UNLOCK THE CHECKBOX when they expand for the first time
+                if (!termsExpanded) {
+                    termsExpanded = true;
+                    tosWrapper.classList.add('unlocked');
+                    document.getElementById('legalDropdown').style.borderColor = "var(--accent)";
+                }
+
                 setTimeout(() => {
                     content.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 50);
             }
         }
 
-        // Attach listeners to both link and header
-        [document.getElementById('triggerLink'), document.getElementById('triggerHeader')].forEach(t => {
-            t.addEventListener('click', (e) => { e.preventDefault(); togglePrivacyBox(); });
-            t.addEventListener('touchstart', (e) => { e.preventDefault(); togglePrivacyBox(); }, {passive: false});
-        });
+        const header = document.getElementById('triggerHeader');
+        header.addEventListener('click', (e) => { e.preventDefault(); togglePrivacyBox(); });
+        header.addEventListener('touchstart', (e) => { e.preventDefault(); togglePrivacyBox(); }, {passive: false});
 
         // --- CHECKBOX UNLOCK LOGIC ---
         document.getElementById('tosAgree').addEventListener('change', function() {
             const isAgreed = this.checked;
-            // Unlock all possible buttons
             document.querySelectorAll('.proceed-btn').forEach(btn => {
                 btn.classList.toggle('ready', isAgreed);
             });
-            // Show/Hide iOS instructions
             const iosReady = document.getElementById('iosReady');
             const iosLock = document.getElementById('iosLockText');
             if(iosReady) iosReady.style.display = isAgreed ? 'block' : 'none';
@@ -244,25 +241,20 @@
         // --- SYSTEM DETECTION ---
         function runSystemCheck() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            
             if (isStandalone) {
                 enterApp();
             } else {
                 const ua = navigator.userAgent.toLowerCase();
-                const isMobile = /iphone|ipad|ipod|android/.test(ua);
-
                 if (/iphone|ipad|ipod/.test(ua)) {
                     document.getElementById('iosAction').classList.add('active');
                 } else if (/android/.test(ua)) {
                     document.getElementById('androidAction').classList.add('active');
                 } else {
-                    // Laptop/Desktop/Other
                     document.getElementById('desktopAction').classList.add('active');
                 }
             }
         }
 
-        // --- ANDROID INSTALL PROMPT ---
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -273,7 +265,6 @@
                 deferredPrompt.prompt();
                 deferredPrompt = null;
             } else {
-                // If the prompt isn't supported or ready, just let them in
                 enterApp();
             }
         });
