@@ -427,7 +427,6 @@ function updateChatBadges(count) {
 onValue(ref(db, 'chats'), (snapshot) => {
     let unreadCount = 0;
     let latestMessageTimestampInActiveChat = 0;
-    let latestSender = ""; // Track who sent the most recent message
     
     // Determine the active SOS request for *this user*
     const myActiveSOSRequest = Object.entries(sosCache).find(
@@ -450,10 +449,9 @@ onValue(ref(db, 'chats'), (snapshot) => {
                 if (message.sender !== myId && message.read === false) {
                     unreadCount++;
                 }
-                // Keep track of the latest message timestamp and sender in this active chat
+                // Keep track of the latest message timestamp in this active chat
                 if (message.timestamp && message.timestamp > latestMessageTimestampInActiveChat) {
                     latestMessageTimestampInActiveChat = message.timestamp;
-                    latestSender = message.sender;
                 }
             }
         }
@@ -462,10 +460,9 @@ onValue(ref(db, 'chats'), (snapshot) => {
     // Check if chat modal is currently open
     const chatModalOpen = document.getElementById('chatModal').style.display === 'flex';
 
-    // PLAY SOUND LOGIC
-    // Removed !chatModalOpen condition so sound plays even when chat is open.
-    // Added latestSender !== myId to prevent sound on your own sent messages.
-    if (!isInitialLoadForChatListener && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp && latestSender !== myId) {
+    // Play notification sound if new unread messages are detected AND chat is not open
+    // This logic handles app refresh/reopen and new messages while app is in background
+    if (!isInitialLoadForChatListener && unreadCount > 0 && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp && !chatModalOpen) {
         const sound = document.getElementById('notificationSound');
         if (sound) {
             sound.play().catch(e => console.error("Error playing sound:", e));
@@ -473,6 +470,7 @@ onValue(ref(db, 'chats'), (snapshot) => {
     }
     
     // Update lastProcessedMessageTimestamp
+    // On initial load, set the baseline. For subsequent updates, it tracks the latest message.
     if (latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) {
         lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
     }
@@ -725,7 +723,7 @@ function syncUI() {
 }
 
 function updateSeekerMiniMap(sos, hero) {
-    if(!seekerMiniMap) { seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }); seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon width="10px": 'https://www.roadwatchero.com/heromapicon.png' }); }
+    if(!seekerMiniMap) { seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }); seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/truck.png' }); }
     const userPos = {lat: sos.lat, lng: sos.lng}; seekerUserMarker.setPosition(userPos);
     if(hero.lat) { const heroPos = {lat: hero.lat, lng: hero.lng}; seekerHeroMarker.setPosition(heroPos); const bounds = new google.maps.LatLngBounds(); bounds.extend(userPos); bounds.extend(heroPos); seekerMiniMap.fitBounds(bounds); }
     else { seekerMiniMap.setCenter(userPos); }
@@ -786,5 +784,14 @@ window.confirmDeleteActivity = () => {
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
 
 
