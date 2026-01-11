@@ -725,7 +725,7 @@ function syncUI() {
 }
 
 function updateSeekerMiniMap(sos, hero) {
-    if(!seekerMiniMap) { seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }); seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'https://www.roadwatchero.com/heromapicon.png' }); }
+    if(!seekerMiniMap) { seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }); seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon width="10px": 'https://www.roadwatchero.com/heromapicon.png' }); }
     const userPos = {lat: sos.lat, lng: sos.lng}; seekerUserMarker.setPosition(userPos);
     if(hero.lat) { const heroPos = {lat: hero.lat, lng: hero.lng}; seekerHeroMarker.setPosition(heroPos); const bounds = new google.maps.LatLngBounds(); bounds.extend(userPos); bounds.extend(heroPos); seekerMiniMap.fitBounds(bounds); }
     else { seekerMiniMap.setCenter(userPos); }
@@ -786,4 +786,5 @@ window.confirmDeleteActivity = () => {
 </script>
 </body>
 </html>
+
 
