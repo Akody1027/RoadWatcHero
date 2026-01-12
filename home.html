@@ -286,7 +286,8 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
         <input type="file" id="damageInput" accept="image/*" style="display:none" onchange="window.handleImageUpload(this, 'damage')">
         <button onclick="document.getElementById('damageInput').click()" style="width:100%; padding:15px; border-radius:16px; border:2px dashed #cbd5e1; background:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--muted);">📷 Add Damage Photo</button>
         <textarea id="reqIssue" placeholder="What's the problem?" rows="2"></textarea>
-        <button class="submit-btn" onclick="window.submitSOS()">FIND HERO</button>
+        <button class="submit-btn" id="submitSosBtn" onclick="window.submitSOS(false)">FIND HERO</button>
+        <button class="submit-btn" style="background: #0f172a; margin-top:10px;" onclick="window.submitSOS(true)">I NEED A TOW TRUCK!</button>
         <p onclick="window.closeModal('requestModal')" class="cancel-link">Cancel</p>
     </div>
 </div>
@@ -308,6 +309,10 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
         <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
             <label style="font-size:11px; font-weight:900; color:var(--muted);">SERVICE RADIUS: <span id="radiusVal" style="color:var(--accent);">25</span> miles</label>
             <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="margin: 15px 0 0 0;" oninput="document.getElementById('radiusVal').innerText = this.value">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 20px;">
+            <label for="prefersTowTruckRequests" style="font-weight: 700;">Only show Tow Truck requests</label>
+            <input type="checkbox" id="prefersTowTruckRequests" style="width: auto; margin: 0;">
         </div>
         <button class="submit-btn" onclick="window.saveProfile()">Save Settings</button>
         <span class="cancel-link" onclick="window.closeModal('profileModal')">Close</span>
@@ -353,8 +358,10 @@ let activityToDeleteId = null; // New variable to store the ID of the activity t
 let currentUnreadCount = 0; // New variable to track the overall unread count
 let lastProcessedMessageTimestamp = 0; // Renamed for clarity: tracks the timestamp of the latest message processed
 let isInitialLoadForChatListener = true; // New flag for initial load handling
+let towTruckAnimationInterval = null; // For the tow truck icon animation
+let currentTowTruckIconState = 0; // 0 for left-red, 1 for left-blue
 
-
+// Standard marker icon for regular SOS requests
 const getMarkerIcon = (color) => ({
     path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z",
     fillColor: color, fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff", scale: 1.5, anchor: new google.maps.Point(12, 12)
@@ -377,6 +384,62 @@ const seekerHeroCustomIcon = {
     anchor: new google.maps.Point(0, 32) // Bottom-left corner (0, height)
 };
 
+// Custom SVG path for the split marker icon (approximate standard marker shape)
+// This path is a simplified version of the default marker for easier splitting
+const splitMarkerPath = "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z";
+const splitMarkerCirclePath = "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"; // Base circle path for split
+const splitMarkerVerticalLinePath = "M12 2L12 22"; // Vertical line through the middle (approximate)
+
+// Helper function to create a tow truck icon with split colors
+function getTowTruckSplitIcon(leftColor, rightColor) {
+    // We'll use two overlapping SVG markers for simplicity to achieve the split color.
+    // One for the left half, one for the right half.
+    // This is an approximation of splitting the default icon path.
+    // For a perfect split of the provided default icon, a more complex SVG mask/clipping path would be needed.
+    // For "simplest possible" and visible alternating, two semi-transparent rects on top of a circle,
+    // or two custom SVG path components that represent halves will be best.
+
+    // Let's create two custom SVG paths that approximate halves of the circle and swap their colors.
+    // This is a simplified circle split vertically.
+
+    const svgIcon = {
+        path: "M12 2 C6.48 2 2 6.48 2 12 S6.48 22 12 22 S22 17.52 22 12 S17.52 2 12 2z", // The full circle
+        fillColor: leftColor, // Default to left color for initial fill if no split
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: "#ffffff",
+        scale: 1.5,
+        anchor: new google.maps.Point(12, 12),
+        // For actual split, we need to draw two separate paths or a custom SVG.
+        // Google Maps JS API markers directly don't support compound SVG icons with different fill colors.
+        // The common workaround is to use an SVG data URI or an external SVG image.
+
+        // Given "simplest as possible" and the previous getMarkerIcon structure,
+        // using a full SVG data URI is the way to create a true split.
+        // This SVG creates a circle with a vertical dividing line and two halves with different colors.
+        url: 'data:image/svg+xml;utf-8,' + encodeURIComponent(`
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <clipPath id="clipLeft">
+                        <rect x="0" y="0" width="12" height="24"/>
+                    </clipPath>
+                    <clipPath id="clipRight">
+                        <rect x="12" y="0" width="12" height="24"/>
+                    </clipPath>
+                </defs>
+                <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${leftColor}" clip-path="url(#clipLeft)"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${rightColor}" clip-path="url(#clipRight)"/>
+                <line x1="12" y1="2" x2="12" y2="22" stroke="#ffffff" stroke-width="2"/>
+                <rect x="11" y="15" width="2" height="2" fill="#ffffff"/>
+                <rect x="11" y="9" width="2" height="6" fill="#ffffff"/>
+            </svg>
+        `),
+        scaledSize: new google.maps.Size(24, 24), // Ensure consistent size
+        anchor: new google.maps.Point(12, 12)
+    };
+    return svgIcon;
+}
 
 window.onload = () => {
     if (navigator.geolocation) {
@@ -612,8 +675,9 @@ window.acknowledgeCancel = () => {
     }
 };
 
-window.submitSOS = () => {
-    const issue = document.getElementById('reqIssue').value; const tip = document.getElementById('customTip').value || 0;
+window.submitSOS = (isTowTruckRequest) => { // Added isTowTruckRequest parameter
+    const issue = document.getElementById('reqIssue').value; 
+    const tip = document.getElementById('customTip').value || 0;
     
     // SESSION PERSISTENCE: 1. Check if user already has an active help request before starting a new one
     const existingReq = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
@@ -624,8 +688,22 @@ window.submitSOS = () => {
     }
 
     if(!issue || !userLocation) return alert("Please describe the issue.");
-    push(ref(db, "sosRequests"), { ownerId: myId, userName: "Driver", issue, vehicle: selectedVehicle, damagePic: damageImgData, tip: tip, lat: userLocation.lat, lng: userLocation.lng, status: 'open', timestamp: Date.now() });
-    window.closeModal('requestModal'); window.switchView('seekerUI');
+    
+    push(ref(db, "sosRequests"), { 
+        ownerId: myId, 
+        userName: "Driver", 
+        issue, 
+        vehicle: selectedVehicle, 
+        damagePic: damageImgData, 
+        tip: tip, 
+        lat: userLocation.lat, 
+        lng: userLocation.lng, 
+        status: 'open', 
+        isTowTruckRequest: isTowTruckRequest, // Save the tow truck request status
+        timestamp: Date.now() 
+    });
+    window.closeModal('requestModal'); 
+    window.switchView('seekerUI');
 };
 
 window.submitCancellation = (reason) => {
@@ -649,22 +727,46 @@ function syncUI() {
     let currentTask = null; 
     let myActiveSOS = null;
     let jobActive = false;
+    let towTruckRequestsOnMap = false; // Track if any tow truck requests are on the map
+
+    const currentHeroProfile = profilesCache[myId] || {};
+    const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
 
     // First, iterate through all SOS requests to manage map markers for ALL open requests
     Object.entries(sosCache).forEach(([id, r]) => {
+        const isTowTruck = r.isTowTruckRequest === true;
+
+        // Apply tow truck preference filter for heroes
+        if (prefersTowTruck && !isTowTruck) {
+            // If hero prefers tow trucks, hide non-tow truck requests
+            if (markers[id]) {
+                markers[id].setMap(null);
+                delete markers[id];
+            }
+            return; // Skip processing for this non-tow truck request
+        }
+        // If hero doesn't prefer tow trucks, they see everything, no filter applied here.
+
         // Handle all 'open' requests for map display (regardless of radius)
         if (r.status === 'open' && r.ownerId !== myId) {
+            if (isTowTruck) {
+                towTruckRequestsOnMap = true; // Mark that there's at least one tow truck request
+            }
+
             if (!markers[id] && map) {
-                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#EE611C") });
+                const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C"); // Default state
+                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: iconToUse });
                 marker.addListener('click', () => window.viewRequest(id));
                 markers[id] = marker;
             } else if (markers[id]) {
-                // Ensure marker icon is correct if status changed to open
-                markers[id].setIcon(getMarkerIcon("#EE611C"));
+                // Ensure marker icon is correct if status changed (e.g., from regular to tow truck, though not typical)
+                // Or if it was filtered out and now should be visible
+                const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C");
+                markers[id].setIcon(iconToUse);
                 markers[id].setMap(map); // Make sure it's visible if it was hidden
             }
         }
-        // Handle markers for accepted/arrived jobs
+        // Handle markers for accepted/arrived jobs (no special tow truck icon needed here as it's accepted)
         else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
             if(!markers[id] && map) {
                 const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e") });
@@ -682,17 +784,29 @@ function syncUI() {
         }
     });
 
+    // Start/Stop Tow Truck Animation
+    if (towTruckRequestsOnMap && !towTruckAnimationInterval) {
+        startTowTruckAnimation();
+    } else if (!towTruckRequestsOnMap && towTruckAnimationInterval) {
+        stopTowTruckAnimation();
+    }
+
 
     // Now, iterate again (or continue the loop for other logic) to populate nearbySOS for the list and other UI
     Object.entries(sosCache).forEach(([id, r]) => {
         const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
+        const isTowTruck = r.isTowTruckRequest === true;
 
-        // This section remains unchanged for filtering the nearbySOS list by radius
+        // Apply tow truck preference filter for the list as well
+        if (prefersTowTruck && !isTowTruck) {
+            return; // Skip non-tow truck requests if filter is on
+        }
+
         if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
             nearbySOS.push({id, ...r, dist: distMiles});
         }
 
-        // Identify current hero task
+        // Identify current hero task (no preference filter here, you've accepted it)
         if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) currentTask = r;
         
         // Identify active seeker request (Only latest non-finalized)
@@ -711,7 +825,7 @@ function syncUI() {
                 <div class="history-item" style="padding:15px; background:#f8fafc; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
                     <div>
                         <span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; background:${sCol};">${r.status}</span>
-                        <b>${r.vehicle}</b><br><small>${r.issue}</small>
+                        <b>${r.vehicle}</b>${isTowTruck ? ' (Tow)' : ''}<br><small>${r.issue}</small>
                     </div>
                     <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="window.confirmDeleteActivityPrompt('${id}')">
                 </div>`;
@@ -741,7 +855,7 @@ function syncUI() {
                     <b style="color:${currentTask.status === 'arrived' ? 'var(--warning)' : 'var(--accent)'};">${currentTask.status.toUpperCase()} JOB</b>
                     <button onclick="window.openChat()" style="background:var(--accent); color:white; border:none; padding:10px 18px; border-radius:12px; font-weight:bold; font-size:12px;">CHAT</button>
                 </div>
-                <p style="margin:10px 0; font-weight:700; font-size:15px;">${currentTask.vehicle}: ${currentTask.issue}</p>
+                <p style="margin:10px 0; font-weight:700; font-size:15px;">${currentTask.vehicle}${currentTask.isTowTruckRequest ? ' (Tow Truck)' : ''}: ${currentTask.issue}</p>
                 ${(currentTask.tip > 0) ? `<p style="margin: 0 0 10px 0; font-weight: 800; color: var(--success); font-size: 14px;">💰 Tip: $${currentTask.tip}</p>` : ''}
                 <div style="display:flex; gap:8px;">
                     <a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">MAPS</a>
@@ -753,7 +867,7 @@ function syncUI() {
         let listHtml = `<b style="color:var(--danger); display:block; margin-bottom:10px;">${nearbySOS.length} SOS NEARBY</b>`;
         nearbySOS.forEach(s => {
             listHtml += `<div class="sos-list-item" onclick="window.viewRequest('${s.id}')">
-                <div><b>${s.vehicle}</b><br><small>${s.dist.toFixed(1)} miles away</small></div>
+                <div><b>${s.vehicle}${s.isTowTruckRequest ? ' (Tow)' : ''}</b><br><small>${s.dist.toFixed(1)} miles away</small></div>
                 <div style="color:var(--success); font-weight:bold;">${s.tip > 0 ? '$'+s.tip : 'HELP'}</div>
             </div>`;
         });
@@ -869,6 +983,39 @@ window.toggleSeekerMapExpansion = () => {
     }
 };
 
+// Function to start the tow truck icon animation
+function startTowTruckAnimation() {
+    if (towTruckAnimationInterval) return; // Already running
+    
+    towTruckAnimationInterval = setInterval(() => {
+        currentTowTruckIconState = 1 - currentTowTruckIconState; // Toggle between 0 and 1
+        Object.values(markers).forEach(marker => {
+            const sos = sosCache[Object.keys(markers).find(key => markers[key] === marker)]; // Find corresponding SOS
+            if (sos && sos.isTowTruckRequest && sos.status === 'open') {
+                const icon = currentTowTruckIconState === 0 
+                             ? getTowTruckSplitIcon("#ef4444", "#2563eb") // Left Red, Right Blue
+                             : getTowTruckSplitIcon("#2563eb", "#ef4444"); // Left Blue, Right Red
+                marker.setIcon(icon);
+            }
+        });
+    }, 500); // Toggle every 500ms
+}
+
+// Function to stop the tow truck icon animation
+function stopTowTruckAnimation() {
+    if (towTruckAnimationInterval) {
+        clearInterval(towTruckAnimationInterval);
+        towTruckAnimationInterval = null;
+    }
+    // Reset tow truck icons to default state (e.g., Left Red, Right Blue) when animation stops
+    Object.values(markers).forEach(marker => {
+        const sos = sosCache[Object.keys(markers).find(key => markers[key] === marker)];
+        if (sos && sos.isTowTruckRequest && sos.status === 'open') {
+            marker.setIcon(getTowTruckSplitIcon("#ef4444", "#2563eb"));
+        }
+    });
+}
+
 
 onValue(ref(db, "sosRequests"), (snap) => { 
     sosCache = snap.val() || {}; 
@@ -881,7 +1028,7 @@ onValue(ref(db, "sosRequests"), (snap) => {
     }
 });
 
-// IMPORTANT: Listen to profiles for live hero tracking
+// IMPORTANT: Listen to profiles for live hero tracking AND preference filtering
 onValue(ref(db, "profiles"), (snap) => { 
     profilesCache = snap.val() || {}; 
     syncUI(); 
@@ -895,7 +1042,15 @@ onValue(ref(db, "profiles"), (snap) => {
 
 window.saveProfile = () => {
     myRadius = parseInt(document.getElementById("profileRadius").value);
-    update(ref(db, `profiles/${myId}`), { name: document.getElementById("profileName").value, bio: document.getElementById("profileBio").value, pic: document.getElementById("profileDisplayPic").src, radius: myRadius });
+    const prefersTowTruckRequests = document.getElementById("prefersTowTruckRequests").checked;
+
+    update(ref(db, `profiles/${myId}`), { 
+        name: document.getElementById("profileName").value, 
+        bio: document.getElementById("profileBio").value, 
+        pic: document.getElementById("profileDisplayPic").src, 
+        radius: myRadius,
+        prefersTowTruckRequests: prefersTowTruckRequests // Save the new preference
+    });
     if(map && userLocation) { 
         const radiusInMeters = myRadius * 1609.34; 
         const circle = new google.maps.Circle({center: userLocation, radius: radiusInMeters}); 
@@ -909,7 +1064,12 @@ window.openProfile = async () => {
     window.openModal("profileModal");
     const snap = await get(ref(db, `profiles/${myId}`));
     if(snap.exists()) {
-        const d = snap.val(); document.getElementById("profileName").value = d.name || ""; document.getElementById("profileBio").value = d.bio || ""; if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius; }
+        const d = snap.val(); 
+        document.getElementById("profileName").value = d.name || ""; 
+        document.getElementById("profileBio").value = d.bio || ""; 
+        if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; 
+        if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius; }
+        document.getElementById("prefersTowTruckRequests").checked = d.prefersTowTruckRequests === true; // Load preference
     }
 };
 
