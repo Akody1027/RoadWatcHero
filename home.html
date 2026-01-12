@@ -1,3 +1,5 @@
+--- START OF FILE Paste January 12, 2026 - 9:59AM ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -723,9 +725,27 @@ function syncUI() {
 }
 
 function updateSeekerMiniMap(sos, hero) {
-    if(!seekerMiniMap) { seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }); seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/truck.png' }); }
+    if(!seekerMiniMap) { 
+        seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); 
+        seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' }); 
+        
+        // Define the custom icon for the hero
+        const heroIcon = {
+            url: 'heromapicon.png', // Your custom image
+            scaledSize: new google.maps.Size(32, 32), // Adjust size as needed, e.g., 32x32 pixels
+            anchor: new google.maps.Point(0, 32) // Bottom-left corner (0, height)
+        };
+        seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: heroIcon }); 
+    }
     const userPos = {lat: sos.lat, lng: sos.lng}; seekerUserMarker.setPosition(userPos);
-    if(hero.lat) { const heroPos = {lat: hero.lat, lng: hero.lng}; seekerHeroMarker.setPosition(heroPos); const bounds = new google.maps.LatLngBounds(); bounds.extend(userPos); bounds.extend(heroPos); seekerMiniMap.fitBounds(bounds); }
+    if(hero.lat) { 
+        const heroPos = {lat: hero.lat, lng: hero.lng}; 
+        seekerHeroMarker.setPosition(heroPos); 
+        const bounds = new google.maps.LatLngBounds(); 
+        bounds.extend(userPos); 
+        bounds.extend(heroPos); 
+        seekerMiniMap.fitBounds(bounds); 
+    }
     else { seekerMiniMap.setCenter(userPos); }
 }
 
@@ -784,14 +804,3 @@ window.confirmDeleteActivity = () => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
