@@ -10,7 +10,7 @@
 
 <style>
 :root {
-  --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #fc8383;
+  --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: black;
   --accent: #EE611C; --danger: #EE611C; --success: #22c55e; --warning: #f59e0b;
   --shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
 }
@@ -130,7 +130,7 @@ body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -app
 
 input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 12px; font-size: 15px; background: #f8fafc;  font-family: math;}
 .submit-btn { width: 100%; padding: 18px; background: #EE611C; color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; }
-.cancel-link { display: block; text-align: center; padding: 15px; color: var(--muted); cursor: pointer; font-weight: 600; }
+.cancel-link { display: block; text-align: center; padding: 15px; color: red; cursor: pointer; font-weight: 600; }
 
 .footer { position: fixed; bottom: 0; width: 100%;  background: rgba(238, 97, 28, 0.9); backdrop-filter: blur(10px); display: flex; justify-content:center; align-items: center; z-index: 200; border-top: 1px solid rgba(255,255,255,0.2); }
 .footer-icons { display:flex; gap:100px; padding:5px; }
@@ -1216,6 +1216,7 @@ window.confirmDeleteActivity = () => {
 </script>
 </body>
 </html>
+
 
 
 
