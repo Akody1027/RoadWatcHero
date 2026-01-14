@@ -239,6 +239,8 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     max-width: 95vw;
     max-height: 95vh;
     object-fit: contain;
+    /* Ensure it's hidden by default, and only visible when src is set and modal active */
+    display: none; 
 }
 #imageEnlargeModal .close-btn {
     position: absolute;
@@ -287,6 +289,19 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 }
 .contact-icons img:active {
     transform: scale(0.95);
+}
+
+/* NEW: Style for the "Estimate Accepted" notification for heroes */
+#estimateAcceptedPrompt {
+    background: var(--success);
+    color: white;
+    padding: 15px;
+    border-radius: 18px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 15px;
+    display: none; /* Hidden by default */
 }
 
 </style>
@@ -365,6 +380,10 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     <div id="statusIndicator" style="background: #94a3b8;" onclick="window.toggleTaskCard()">!</div>
     <div id="map"></div>
     <div id="heroPanel">
+        <!-- NEW: Estimate Accepted Prompt -->
+        <div id="estimateAcceptedPrompt" style="display:none;">
+            Your estimate was accepted! Review details below.
+        </div>
         <div id="activeTask" class="task-card">
             <!-- DYNAMIC HERO CONTENT -->
         </div>
@@ -657,15 +676,18 @@ window.openModal = (id) => document.getElementById(id).style.display = "flex";
 // MODIFIED closeModal to also close the image enlargement modal and clean its src
 window.closeModal = (id) => {
     document.getElementById(id).style.display = "none";
-    if (id === 'detailsModal' || id === 'imageEnlargeModal') { // Changed condition to catch both cases
+    if (id === 'detailsModal' || id === 'imageEnlargeModal') { 
         const enlargedImage = document.getElementById('enlargedImage');
         enlargedImage.src = ''; // Clear the source
         enlargedImage.style.display = 'none'; // Explicitly hide it
-        // Also ensure the modal itself is closed if it was opened via detailsModal
-        document.getElementById('imageEnlargeModal').style.display = 'none';
+        // Only hide the modal if it's the image enlargement modal
+        if (id === 'imageEnlargeModal') {
+            document.getElementById('imageEnlargeModal').style.display = 'none';
+        }
     }
     if (id === 'detailsModal') {
         window.currentViewingSosId = null; // Clear the SOS ID when details modal closes
+        document.getElementById('estimateAcceptedPrompt').style.display = 'none'; // Hide prompt when details modal closes
     }
 };
 // MODIFIED switchView to also close image enlargement modal
@@ -955,6 +977,10 @@ window.viewRequest = (id) => {
     const detEstimatedCost = document.getElementById('detEstimatedCost');
     const heroEstimateInput = document.getElementById('heroEstimateInput');
     const heroContactIcons = document.getElementById('heroContactIcons');
+    const detAcceptBtn = document.getElementById('detAcceptBtn');
+    const etaInput = document.getElementById('detETA');
+    const progressText = document.getElementById('detInProgressText');
+
 
     if (r.isTowTruckRequest) {
         heroTowEstimateSection.style.display = 'block';
@@ -967,27 +993,45 @@ window.viewRequest = (id) => {
             detEstimatedCost.innerText = `Calculated: N/A (Set rates in profile)`;
         }
         // Prefill hero's last submitted estimate if it exists
-        if (r.estimates && r.estimates[myId]) {
-            heroEstimateInput.value = r.estimates[myId];
+        if (r.estimates && r.estimates[myId] && typeof r.estimates[myId] === 'object' && r.estimates[myId].amount) {
+            heroEstimateInput.value = r.estimates[myId].amount;
         } else {
             heroEstimateInput.value = '';
         }
-    } else {
+
+        // Show "Estimate Accepted" prompt if applicable
+        if (r.acceptedEstimateId === myId && r.status === 'open') {
+            document.getElementById('estimateAcceptedPrompt').style.display = 'block';
+            detAcceptBtn.style.display = 'block'; // Show accept button
+            etaInput.style.display = 'block'; // Show ETA
+        } else if (r.status === 'open') { // Only show estimate section if job is open and not accepted by this hero
+            document.getElementById('estimateAcceptedPrompt').style.display = 'none';
+            detAcceptBtn.style.display = 'none'; // Hide accept button initially
+            etaInput.style.display = 'none'; // Hide ETA initially
+        }
+
+    } else { // Not a tow truck request
         heroTowEstimateSection.style.display = 'none';
         heroContactIcons.style.display = 'none';
+        document.getElementById('estimateAcceptedPrompt').style.display = 'none'; // Hide if not tow request
     }
 
-    // ETA, Accept Button
-    const acceptBtn = document.getElementById('detAcceptBtn');
-    const progressText = document.getElementById('detInProgressText');
-    const etaInput = document.getElementById('detETA');
+    // ETA, Accept Button (General logic, may be overridden by tow-specific logic above)
     if(r.status === 'accepted' || r.status === 'arrived') {
-        acceptBtn.style.display = "none"; progressText.style.display = "block"; etaInput.style.display = "none";
+        detAcceptBtn.style.display = "none"; 
+        progressText.style.display = "block"; 
+        etaInput.style.display = "none";
         heroTowEstimateSection.style.display = 'none'; // Hide estimate section if already accepted
         heroContactIcons.style.display = 'none'; // Hide contact icons if already accepted
-    } else {
-        acceptBtn.style.display = "block"; progressText.style.display = "none"; etaInput.style.display = "block";
+        document.getElementById('estimateAcceptedPrompt').style.display = 'none'; // Hide prompt if job is accepted
+    } else if (!r.isTowTruckRequest) { // For regular requests, always show accept/ETA if open
+        detAcceptBtn.style.display = "block"; 
+        progressText.style.display = "none"; 
+        etaInput.style.display = "block";
     }
+
+    detAcceptBtn.onclick = () => window.confirmHelp(id);
+    
     window.openModal('detailsModal');
 };
 
@@ -1004,7 +1048,7 @@ window.submitHeroTowEstimate = async (sosId) => {
     const heroPic = currentHeroProfile.pic || "https://via.placeholder.com/65"; // Placeholder for hero pic
 
     const estimateData = {
-        [myId]: parseFloat(heroEstimate),
+        amount: parseFloat(heroEstimate),
         name: heroName,
         pic: heroPic,
         timestamp: Date.now()
@@ -1015,6 +1059,8 @@ window.submitHeroTowEstimate = async (sosId) => {
     // This allows multiple heroes to submit estimates
     await update(ref(db, `sosRequests/${sosId}/estimates/${myId}`), estimateData);
     alert("Your estimate has been sent!");
+    // Re-render the details modal to reflect the sent estimate (e.g., clear input or show confirmation)
+    window.viewRequest(sosId); 
 };
 
 // NEW: Call seeker function
@@ -1028,13 +1074,22 @@ window.callSeeker = () => {
 };
 
 
-// MODIFIED enlargeImage function (removed the explicit display = 'block' from the function itself
-// as the modal opening logic already handles it for enlargedImage)
+// MODIFIED enlargeImage function
 window.enlargeImage = (src) => {
     const enlargedImage = document.getElementById('enlargedImage');
+    // Ensure image is hidden before setting new src to prevent broken image flicker
+    enlargedImage.style.display = 'none'; 
     enlargedImage.src = src;
-    // The modal itself will be opened after src is set, which will handle visibility
-    window.openModal('imageEnlargeModal');
+    enlargedImage.onload = () => { // Show only after it's loaded
+        enlargedImage.style.display = 'block';
+        window.openModal('imageEnlargeModal');
+    };
+    // Handle cases where image might not load (e.g., broken URL)
+    enlargedImage.onerror = () => {
+        enlargedImage.style.display = 'none'; // Hide if it fails to load
+        console.error("Failed to load image for enlargement."); // Log error
+        window.openModal('imageEnlargeModal'); // Still open modal, but without image
+    };
 };
 
 
@@ -1126,7 +1181,8 @@ window.submitSOS = () => {
         phoneNumber: isTowTruckRequestActive ? phoneNumber : null, // Save phone number if tow truck request
         towDestination: isTowTruckRequestActive ? towDestination : null, // Save destination if tow truck request (NEW)
         timestamp: Date.now(),
-        estimates: {} // Initialize an empty object for tow estimates
+        estimates: {}, // Initialize an empty object for tow estimates
+        acceptedEstimateId: null // NEW: To store the heroId of the accepted estimate
     });
     window.closeModal('requestModal'); 
     window.switchView('seekerUI');
@@ -1162,18 +1218,14 @@ window.selectTowEstimate = async (sosId, heroId) => {
         return;
     }
 
-    // Set the chosen hero as the helper and mark status as accepted
+    // Update SOS request to indicate which estimate was accepted
     await update(ref(db, `sosRequests/${sosId}`), { 
-        status: 'accepted', 
-        helperId: heroId, 
-        helperAcknowledged: false, 
-        eta: '...' // Placeholder ETA, hero will update
+        acceptedEstimateId: heroId,
+        // Do NOT change status to 'accepted' yet. Keep 'open'.
+        // The hero will manually accept after getting the notification.
     });
-    // Remove all other estimates to prevent multiple acceptances
-    // (This part is tricky, consider if you want to explicitly delete them or just ignore)
-    // For now, we'll just accept the selected one and the UI will reflect that.
-    alert(`Tow service from ${sos.estimates[heroId].name} selected!`);
-    syncUI(); // Re-render the UI to reflect the accepted state
+    alert(`Tow service from ${sos.estimates[heroId].name || 'Hero'} selected! Waiting for their confirmation.`);
+    syncUI(); // Re-render the UI to reflect the selection
 };
 
 
@@ -1317,6 +1369,11 @@ function syncUI() {
 
     // HERO STATUS INDICATOR COLORS - MODIFIED
     const ind = document.getElementById('statusIndicator');
+    const estimateAcceptedPrompt = document.getElementById('estimateAcceptedPrompt');
+
+    // Reset prompt visibility
+    estimateAcceptedPrompt.style.display = 'none';
+
     if(currentTask && currentTask.status === 'canceled') { // Canceled task
         ind.style.background = "var(--danger)"; // Red for canceled
     } else if(currentTask) { // Active task (accepted/arrived)
@@ -1373,8 +1430,17 @@ function syncUI() {
         tCard.innerHTML = listHtml;
     } else {
         tCard.style.display = 'block';
-        tCard.innerHTML = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone nearby sends an SOS.</p></div>`;
+        tCard.innerHTML = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone nearby sends an an SOS.</p></div>`;
     }
+
+    // NEW: Logic for 'Estimate Accepted' prompt for heroes
+    const heroHasAcceptedEstimate = Object.values(sosCache).some(r => r.acceptedEstimateId === myId && r.status === 'open');
+    if (heroHasAcceptedEstimate) {
+        estimateAcceptedPrompt.style.display = 'block';
+    } else {
+        estimateAcceptedPrompt.style.display = 'none';
+    }
+
 
     if(myActiveSOS) {
         // SESSION PERSISTENCE: 2. If an active SOS is detected, force the view to seekerUI if they refresh back to the landing page
@@ -1400,17 +1466,23 @@ function syncUI() {
             if (myActiveSOS.isTowTruckRequest && myActiveSOS.estimates && Object.keys(myActiveSOS.estimates).length > 0) {
                 seekerTowEstimates.style.display = 'block';
                 estimatesList.innerHTML = ''; // Clear previous estimates
+                let hasEstimatesToShow = false;
                 Object.entries(myActiveSOS.estimates).forEach(([heroId, estimate]) => {
-                    if (heroId !== 'undefined') { // Exclude the 'undefined' key if it somehow appears
+                    // Only show estimates that are valid and from a real heroId
+                    if (heroId !== 'undefined' && estimate && typeof estimate.amount === 'number') {
                         estimatesList.innerHTML += `
                             <div class="tow-estimate-item">
                                 <span class="hero-name">${estimate.name || 'Hero'}</span>
-                                <span class="estimate-price">$${parseFloat(estimate[heroId]).toFixed(2)}</span>
+                                <span class="estimate-price">$${parseFloat(estimate.amount).toFixed(2)}</span>
                                 <button class="select-estimate-btn" onclick="window.selectTowEstimate('${Object.keys(sosCache).find(k => sosCache[k] === myActiveSOS)}', '${heroId}')">SELECT</button>
                             </div>
                         `;
+                        hasEstimatesToShow = true;
                     }
                 });
+                if (!hasEstimatesToShow) {
+                    estimatesList.innerHTML = '<p style="font-size:13px; color:var(--muted);">No valid estimates yet. Hold tight!</p>';
+                }
             } else {
                 seekerTowEstimates.style.display = 'none';
             }
