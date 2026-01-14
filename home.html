@@ -1,3 +1,5 @@
+--- START OF FILE Paste January 13, 2026 - 7:02PM ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -177,6 +179,38 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     margin-bottom: 8px;
     display: block;
 }
+
+/* Styles for the image enlargement modal */
+#imageEnlargeModal {
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1002; /* Above other modals */
+}
+#imageEnlargeModal img {
+    max-width: 95vw;
+    max-height: 95vh;
+    object-fit: contain;
+}
+#imageEnlargeModal .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: white;
+    color: var(--text);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+}
 </style>
 </head>
 <body>
@@ -266,13 +300,26 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 <!-- MODALS -->
 <div id="detailsModal" class="modal">
     <div class="modal-content">
-        <h3 id="detVehicle">Vehicle Request</h3>
-        <img id="detImg" style="width:100%; height:200px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
-        <p id="detIssue" style="font-weight:bold; margin-bottom:5px;"></p>
-        <p id="detTip" style="color:var(--success); font-weight: 900; font-size: 18px; margin: 10px 0;"></p>
-        <p id="detDist" style="color:var(--accent); font-size:14px; margin-bottom:20px; font-weight:600;"></p>
+        <h3 style="color:var(--accent); text-align:center;">SOS DETAILS</h3>
+        <!-- Damage Photo -->
+        <div style="position:relative; margin-bottom:15px; display:none;" id="detImgContainer">
+            <img id="detImg" style="width:100%; height:200px; object-fit:cover; border-radius:20px; cursor:pointer;">
+            <button onclick="window.enlargeImage(document.getElementById('detImg').src)" style="position:absolute; bottom:10px; right:10px; background:rgba(255,255,255,0.8); border:none; padding:8px 12px; border-radius:15px; font-size:12px; font-weight:bold; cursor:pointer;">Enlarge</button>
+        </div>
+        
+        <!-- Description -->
+        <p id="detIssue" style="font-weight:bold; margin-bottom:10px;"></p>
+        
+        <!-- Distance Away -->
+        <p id="detDist" style="color:var(--accent); font-size:14px; margin-bottom:10px; font-weight:600;"></p>
+
+        <!-- Tow Truck Estimated Cost (New) -->
+        <p id="detEstimatedCost" style="color:var(--text); font-size:15px; margin-bottom:10px; font-weight:700; display:none;"></p>
+
         <!-- Phone number for tow truck requests -->
         <p id="detPhoneNumber" style="font-size:14px; margin-bottom:10px; font-weight:600; display:none;">Contact: <a id="detPhoneLink" href="#" style="color:var(--text); text-decoration: underline;"></a></p>
+
+        <!-- ETA to Arrival -->
         <label style="font-size:11px; font-weight:bold; color:var(--muted);">ETA TO ARRIVAL</label>
         <select id="detETA">
             <option value="5-10 mins">5-10 mins</option>
@@ -280,10 +327,15 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
             <option value="30-45 mins">30-45 mins</option>
             <option value="1 hour+">1 hour+</option>
         </select>
-        <button id="detAcceptBtn" class="submit-btn">ACCEPT & HELP</button>
-        <span id="detInProgressText" style="display:none; color:var(--success); font-weight:bold; text-align:center;">JOB IN PROGRESS...</span>
+        <button id="detAcceptBtn" class="submit-btn" style="margin-top:20px;">ACCEPT & HELP</button>
+        <span id="detInProgressText" style="display:none; color:var(--success); font-weight:bold; text-align:center; margin-top:20px;">JOB IN PROGRESS...</span>
         <span class="cancel-link" onclick="window.closeModal('detailsModal')">Go Back</span>
     </div>
+</div>
+
+<div id="imageEnlargeModal" class="modal">
+    <img id="enlargedImage" src="" alt="Enlarged Image">
+    <button class="close-btn" onclick="window.closeModal('imageEnlargeModal')">✕</button>
 </div>
 
 <div id="chatModal" class="modal">
@@ -355,7 +407,13 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
         </div>
         <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 20px;">
             <label for="prefersTowTruckRequests" style="font-weight: 700;">Only show Tow Truck requests</label>
-            <input type="checkbox" id="prefersTowTruckRequests" style="width: auto; margin: 0;">
+            <input type="checkbox" id="prefersTowTruckRequests" style="width: auto; margin: 0;" onchange="window.toggleTowTruckProfileFields()">
+        </div>
+        <!-- New fields for Tow Truck Rates -->
+        <div id="towTruckRateFields" style="display:none; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 20px;">
+            <label style="font-size:11px; font-weight:900; color:var(--muted); margin-bottom: 5px; display: block;">TOWING RATES</label>
+            <input type="number" id="towTruckBaseRate" placeholder="Base Rate ($)" style="margin-bottom: 10px;">
+            <input type="number" id="towTruckPerMileRate" placeholder="Per Mile Rate ($)">
         </div>
         <button class="submit-btn" onclick="window.saveProfile()">Save Settings</button>
         <span class="cancel-link" onclick="window.closeModal('profileModal')">Close</span>
@@ -385,7 +443,7 @@ const firebaseConfig = {
   authDomain: "roadsidehero-104ea.firebaseapp.com",
   databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
   projectId: "roadsidehero-104ea",
-  storageBucket: "roadsidehero-104ea.firebasestorage.app"
+  storageBucket: "roadsidehero-104ea.firebaseapp.com"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -667,16 +725,40 @@ onValue(ref(db, 'chats'), (snapshot) => {
 
 window.viewRequest = (id) => {
     const r = sosCache[id]; if(!r) return;
-    
-    // Update Vehicle Request title
-    document.getElementById('detVehicle').innerText = r.vehicle + (r.isTowTruckRequest ? ' (Tow Truck)' : '');
-    
+    const heroProfile = profilesCache[myId] || {}; // Current hero's profile
+    const towTruckBaseRate = heroProfile.towTruckBaseRate || 0;
+    const towTruckPerMileRate = heroProfile.towTruckPerMileRate || 0;
+
+    // Damage Photo
+    const detImgContainer = document.getElementById('detImgContainer');
+    const detImg = document.getElementById('detImg');
+    if(r.damagePic) { 
+        detImg.src = r.damagePic; 
+        detImgContainer.style.display = "block"; 
+    } else { 
+        detImgContainer.style.display = "none"; 
+    }
+
+    // Description
     document.getElementById('detIssue').innerText = r.issue;
-    document.getElementById('detTip').innerText = (r.tip && r.tip > 0) ? " $" + r.tip + " Tip" : "";
     
+    // Distance Away
+    const dist = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1) : "?";
+    document.getElementById('detDist').innerText = "" + dist + " miles away";
+
+    // Estimated Cost for Tow Truck (New)
+    const detEstimatedCost = document.getElementById('detEstimatedCost');
+    if (r.isTowTruckRequest && towTruckBaseRate > 0 && towTruckPerMileRate >= 0 && dist !== "?") {
+        const estimatedTotal = (parseFloat(towTruckBaseRate) + (parseFloat(towTruckPerMileRate) * parseFloat(dist))).toFixed(2);
+        detEstimatedCost.innerText = `Estimated Tow Cost: $${estimatedTotal}`;
+        detEstimatedCost.style.display = 'block';
+    } else {
+        detEstimatedCost.style.display = 'none';
+    }
+
+    // Phone number for tow truck requests
     const detPhoneNumberElement = document.getElementById('detPhoneNumber');
     const detPhoneLink = document.getElementById('detPhoneLink');
-
     if (r.isTowTruckRequest && r.phoneNumber) {
         detPhoneLink.innerText = r.phoneNumber;
         detPhoneLink.href = `tel:${r.phoneNumber}`;
@@ -685,10 +767,7 @@ window.viewRequest = (id) => {
         detPhoneNumberElement.style.display = 'none';
     }
 
-    const dist = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1) : "?";
-    document.getElementById('detDist').innerText = "" + dist + " miles away";
-    const img = document.getElementById('detImg');
-    if(r.damagePic) { img.src = r.damagePic; img.style.display = "block"; } else { img.style.display = "none"; }
+    // ETA, Accept Button
     const acceptBtn = document.getElementById('detAcceptBtn');
     const progressText = document.getElementById('detInProgressText');
     const etaInput = document.getElementById('detETA');
@@ -699,6 +778,11 @@ window.viewRequest = (id) => {
         acceptBtn.onclick = () => window.confirmHelp(id);
     }
     window.openModal('detailsModal');
+};
+
+window.enlargeImage = (src) => {
+    document.getElementById('enlargedImage').src = src;
+    window.openModal('imageEnlargeModal');
 };
 
 window.enterHeroMode = () => { window.switchView('heroUI'); if(!map) initMap(); };
@@ -808,6 +892,12 @@ function syncUI() {
     let myActiveSOS = null;
     let jobActive = false;
     let towTruckRequestsOnMap = false; // Track if any tow truck requests are on the map
+    let previousSOSStatus = {}; // To store previous status for notification logic
+
+    // Capture current status of all SOS requests before processing
+    Object.keys(sosCache).forEach(id => {
+        previousSOSStatus[id] = sosCache[id].status;
+    });
 
     const currentHeroProfile = profilesCache[myId] || {};
     const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
@@ -898,6 +988,15 @@ function syncUI() {
             jobActive = true; 
         }
 
+        // Notification for CANCELED jobs for the helper
+        // Play notification sound unconditionally if an accepted job is now canceled
+        if (r.helperId === myId && r.status === 'canceled' && previousSOSStatus[id] === 'accepted') {
+            const sound = document.getElementById('notificationSound');
+            if (sound) {
+                sound.play().catch(e => console.error("Error playing sound:", e));
+            }
+        }
+
         // Filtered Activity History for the specific hero
         if (r.ownerId === myId || r.helperId === myId) {
             let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
@@ -919,9 +1018,15 @@ function syncUI() {
 
     // HERO STATUS INDICATOR COLORS
     const ind = document.getElementById('statusIndicator');
-    if(currentTask) { ind.style.background = "var(--success)"; } 
-    else if (nearbySOS.length > 0) { ind.style.background = "var(--danger)"; } 
-    else { ind.style.background = "#94a3b8"; }
+    if(currentTask && currentTask.status === 'canceled') { // Canceled task
+        ind.style.background = "var(--danger)"; // Red for canceled
+    } else if(currentTask) { // Active task (accepted/arrived)
+        ind.style.background = "var(--success)"; 
+    } else if (nearbySOS.length > 0) { // Nearby open SOS
+        ind.style.background = "var(--danger)"; 
+    } else { // No tasks, no nearby SOS
+        ind.style.background = "#94a3b8"; 
+    }
     
     // HERO TASK PANEL
     const tCard = document.getElementById('activeTask');
@@ -1163,16 +1268,34 @@ onValue(ref(db, "profiles"), (snap) => {
     }
 });
 
+window.toggleTowTruckProfileFields = () => {
+    const prefersTowTruckRequests = document.getElementById("prefersTowTruckRequests").checked;
+    const towTruckRateFields = document.getElementById("towTruckRateFields");
+    if (prefersTowTruckRequests) {
+        towTruckRateFields.style.display = 'block';
+    } else {
+        towTruckRateFields.style.display = 'none';
+        // Clear values if preference is deselected
+        document.getElementById("towTruckBaseRate").value = '';
+        document.getElementById("towTruckPerMileRate").value = '';
+    }
+};
+
 window.saveProfile = () => {
     myRadius = parseInt(document.getElementById("profileRadius").value);
     const prefersTowTruckRequests = document.getElementById("prefersTowTruckRequests").checked;
+    const towTruckBaseRate = prefersTowTruckRequests ? parseFloat(document.getElementById("towTruckBaseRate").value) || 0 : null;
+    const towTruckPerMileRate = prefersTowTruckRequests ? parseFloat(document.getElementById("towTruckPerMileRate").value) || 0 : null;
+
 
     update(ref(db, `profiles/${myId}`), { 
         name: document.getElementById("profileName").value, 
         bio: document.getElementById("profileBio").value, 
         pic: document.getElementById("profileDisplayPic").src, 
         radius: myRadius,
-        prefersTowTruckRequests: prefersTowTruckRequests // Save the new preference
+        prefersTowTruckRequests: prefersTowTruckRequests, // Save the new preference
+        towTruckBaseRate: towTruckBaseRate, // Save base rate
+        towTruckPerMileRate: towTruckPerMileRate // Save per mile rate
     });
     if(map && userLocation) { 
         const radiusInMeters = myRadius * 1609.34; 
@@ -1193,6 +1316,9 @@ window.openProfile = async () => {
         if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; 
         if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius; }
         document.getElementById("prefersTowTruckRequests").checked = d.prefersTowTruckRequests === true; // Load preference
+        document.getElementById("towTruckBaseRate").value = d.towTruckBaseRate || '';
+        document.getElementById("towTruckPerMileRate").value = d.towTruckPerMileRate || '';
+        window.toggleTowTruckProfileFields(); // Ensure rate fields visibility is correct on load
     }
 };
 
@@ -1218,15 +1344,3 @@ window.confirmDeleteActivity = () => {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
