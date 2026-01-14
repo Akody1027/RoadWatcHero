@@ -1,5 +1,3 @@
---- START OF FILE Paste January 13, 2026 - 7:02PM ---
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -241,6 +239,7 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
                 <h3 id="matchName" style="margin:0;">Hero Name</h3>
                 <p id="matchETA" style="margin:4px 0; color: var(--success); font-weight: 800; font-size: 14px;">Arriving in ...</p>
                 <p id="matchHeroPhone" style="margin:4px 0; font-size: 14px; font-weight: 600; display:none;"></p>
+                <p id="matchTowDestination" style="margin:4px 0; font-size: 14px; font-weight:600; display:none;"></p> <!-- ADDED -->
             </div>
             
         </div>
@@ -318,6 +317,9 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 
         <!-- Phone number for tow truck requests -->
         <p id="detPhoneNumber" style="font-size:14px; margin-bottom:10px; font-weight:600; display:none;">Contact: <a id="detPhoneLink" href="#" style="color:var(--text); text-decoration: underline;"></a></p>
+        
+        <!-- NEW: Tow Destination (initially hidden) -->
+        <p id="detTowDestination" style="font-size:14px; margin-bottom:10px; font-weight:600; display:none;"></p>
 
         <!-- ETA to Arrival -->
         <label style="font-size:11px; font-weight:bold; color:var(--muted);">ETA TO ARRIVAL</label>
@@ -380,6 +382,9 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
         <div id="towTruckContact" class="phone-input-group">
             <label>PHONE NUMBER REQUIRED FOR TOWING</label>
             <input type="tel" id="phoneNumberInput" placeholder="Enter your phone number">
+            <!-- NEW: Tow Destination Input -->
+            <label style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:8px; display:block; margin-top:15px;">TOW DESTINATION (e.g., "123 Main St, Anytown")</label>
+            <input type="text" id="towDestinationInput" placeholder="Enter destination address or landmark">
         </div>
 
         <button class="submit-btn" id="submitSosBtn" onclick="window.submitSOS()">FIND HERO</button>
@@ -545,15 +550,16 @@ window.setTip = (amt, el) => { document.querySelectorAll('.tip-btn').forEach(b =
 window.updateRadius = (val) => { myRadius = parseInt(val); document.getElementById('radiusVal').innerText = val; syncUI(); };
 window.centerOnMe = () => { if (map && userLocation) map.setCenter(userLocation); };
 window.openModal = (id) => document.getElementById(id).style.display = "flex";
+
 // MODIFIED closeModal to also close the image enlargement modal and clean its src
 window.closeModal = (id) => {
     document.getElementById(id).style.display = "none";
-    if (id === 'detailsModal' && document.getElementById('imageEnlargeModal').style.display === 'flex') {
+    if (id === 'detailsModal' || id === 'imageEnlargeModal') { // Changed condition to catch both cases
+        const enlargedImage = document.getElementById('enlargedImage');
+        enlargedImage.src = ''; // Clear the source
+        enlargedImage.style.display = 'none'; // Explicitly hide it
+        // Also ensure the modal itself is closed if it was opened via detailsModal
         document.getElementById('imageEnlargeModal').style.display = 'none';
-        document.getElementById('enlargedImage').src = ''; // Clear the source to prevent broken image
-    }
-    if (id === 'imageEnlargeModal') {
-        document.getElementById('enlargedImage').src = ''; // Clear the source when closing it directly
     }
 };
 // MODIFIED switchView to also close image enlargement modal
@@ -578,6 +584,8 @@ window.selectVehicle = (type, el) => {
     document.getElementById('towTruckContact').style.display = 'none';
     document.getElementById('phoneNumberInput').removeAttribute('required');
     document.getElementById('phoneNumberInput').value = '';
+    document.getElementById('towDestinationInput').removeAttribute('required'); // ADDED
+    document.getElementById('towDestinationInput').value = ''; // ADDED
 };
 
 
@@ -782,6 +790,15 @@ window.viewRequest = (id) => {
         detPhoneNumberElement.style.display = 'none';
     }
 
+    // NEW: Tow Destination for tow truck requests
+    const detTowDestinationElement = document.getElementById('detTowDestination');
+    if (r.isTowTruckRequest && r.towDestination) {
+        detTowDestinationElement.innerText = `Tow Destination: ${r.towDestination}`;
+        detTowDestinationElement.style.display = 'block';
+    } else {
+        detTowDestinationElement.style.display = 'none';
+    }
+
     // ETA, Accept Button
     const acceptBtn = document.getElementById('detAcceptBtn');
     const progressText = document.getElementById('detInProgressText');
@@ -795,10 +812,23 @@ window.viewRequest = (id) => {
     window.openModal('detailsModal');
 };
 
+// MODIFIED enlargeImage function
 window.enlargeImage = (src) => {
-    document.getElementById('enlargedImage').src = src;
-    window.openModal('imageEnlargeModal');
+    const enlargedImage = document.getElementById('enlargedImage');
+    enlargedImage.style.display = 'none'; // Hide it first
+    enlargedImage.src = src;
+    enlargedImage.onload = () => { // Show only after it's loaded
+        enlargedImage.style.display = 'block';
+        window.openModal('imageEnlargeModal');
+    };
+    // Handle cases where image might not load (e.g., broken URL)
+    enlargedImage.onerror = () => {
+        enlargedImage.style.display = 'none'; // Hide if it fails to load
+        console.error("Failed to load image for enlargement."); // Log error
+        window.openModal('imageEnlargeModal'); // Still open modal, but without image
+    };
 };
+
 
 window.enterHeroMode = () => { window.switchView('heroUI'); if(!map) initMap(); };
 window.confirmHelp = (sosId) => {
@@ -822,29 +852,36 @@ window.acknowledgeCancel = () => {
     }
 };
 
+// MODIFIED toggleTowTruckRequest
 window.toggleTowTruckRequest = (button) => {
     isTowTruckRequestActive = !isTowTruckRequestActive;
     const towTruckContactDiv = document.getElementById('towTruckContact');
     const phoneNumberInput = document.getElementById('phoneNumberInput');
+    const towDestinationInput = document.getElementById('towDestinationInput'); // Get new input
 
     if (isTowTruckRequestActive) {
         button.classList.add('active');
         button.innerText = 'TOW TRUCK REQUEST ACTIVE';
         towTruckContactDiv.style.display = 'block';
         phoneNumberInput.setAttribute('required', 'required');
+        towDestinationInput.setAttribute('required', 'required'); // Make destination required
     } else {
         button.classList.remove('active');
         button.innerText = 'I NEED A TOW TRUCK!';
         towTruckContactDiv.style.display = 'none';
         phoneNumberInput.removeAttribute('required');
         phoneNumberInput.value = ''; // Clear phone number when deselected
+        towDestinationInput.removeAttribute('required'); // Remove required
+        towDestinationInput.value = ''; // Clear destination when deselected
     }
 };
 
+// MODIFIED submitSOS
 window.submitSOS = () => { 
     const issue = document.getElementById('reqIssue').value; 
     const tip = document.getElementById('customTip').value || 0;
     const phoneNumber = document.getElementById('phoneNumberInput').value;
+    const towDestination = document.getElementById('towDestinationInput').value; // Get new value
 
     // SESSION PERSISTENCE: 1. Check if user already has an "open" request
     const existingReq = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
@@ -854,10 +891,17 @@ window.submitSOS = () => {
         return; // Don't submit a second request
     }
 
-    if(!issue || !userLocation) return alert("Please describe the issue.");
+    if(!issue || !userLocation) {
+        return alert("Please describe the issue.");
+    }
     
-    if (isTowTruckRequestActive && !phoneNumber.trim()) {
-        return alert("Please enter your phone number for tow truck assistance.");
+    if (isTowTruckRequestActive) {
+        if (!phoneNumber.trim()) {
+            return alert("Please enter your phone number for tow truck assistance.");
+        }
+        if (!towDestination.trim()) { // New validation
+            return alert("Please enter your tow destination for tow truck assistance.");
+        }
     }
 
     push(ref(db, "sosRequests"), { 
@@ -872,6 +916,7 @@ window.submitSOS = () => {
         status: 'open', 
         isTowTruckRequest: isTowTruckRequestActive, // Use the flag
         phoneNumber: isTowTruckRequestActive ? phoneNumber : null, // Save phone number if tow truck request
+        towDestination: isTowTruckRequestActive ? towDestination : null, // Save destination if tow truck request (NEW)
         timestamp: Date.now() 
     });
     window.closeModal('requestModal'); 
@@ -883,6 +928,8 @@ window.submitSOS = () => {
     document.getElementById('towTruckContact').style.display = 'none';
     document.getElementById('phoneNumberInput').removeAttribute('required');
     document.getElementById('phoneNumberInput').value = '';
+    document.getElementById('towDestinationInput').removeAttribute('required'); // Reset destination
+    document.getElementById('towDestinationInput').value = ''; // Clear destination
 };
 
 window.submitCancellation = (reason) => {
@@ -1059,6 +1106,12 @@ function syncUI() {
             if (currentTask.isTowTruckRequest && currentTask.phoneNumber) {
                 contactInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;">📞 Contact: <a href="tel:${currentTask.phoneNumber}" style="color:var(--text); text-decoration: underline;">${currentTask.phoneNumber}</a></p>`;
             }
+            // NEW: Add towDestination to the task card if it's a tow truck request
+            let towDestinationInfo = '';
+            if (currentTask.isTowTruckRequest && currentTask.towDestination) {
+                towDestinationInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;">📍 Destination: ${currentTask.towDestination}</p>`;
+            }
+
 
             tCard.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1068,8 +1121,9 @@ function syncUI() {
                 <p style="margin:10px 0; font-weight:700; font-size:15px;">${currentTask.vehicle}${currentTask.isTowTruckRequest ? ' (Tow Truck)' : ''}: ${currentTask.issue}</p>
                 ${(currentTask.tip > 0) ? `<p style="margin: 0 0 10px 0; font-weight: 800; color: var(--success); font-size: 14px;">💰 Tip: $${currentTask.tip}</p>` : ''}
                 ${contactInfo}
+                ${towDestinationInfo} <!-- NEW: Insert destination info here -->
                 <div style="display:flex; gap:8px;">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">MAPS</a>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}&${currentTask.isTowTruckRequest && currentTask.towDestination ? `destination_place_id=null&destination_address=${encodeURIComponent(currentTask.towDestination)}` : ''}" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">MAPS</a>
                     ${currentTask.status === 'accepted' ? `<button onclick="window.markArrived()" style="flex:1; background:var(--warning); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">HERE</button>` : `<button onclick="window.completeTask()" style="flex:1; background:var(--success); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">DONE</button>`}
                 </div>`;
         }
@@ -1122,6 +1176,15 @@ function syncUI() {
                 matchHeroPhone.style.display = 'block';
             } else {
                 matchHeroPhone.style.display = 'none';
+            }
+
+            // NEW: Display Tow Destination
+            const matchTowDestination = document.getElementById('matchTowDestination');
+            if (myActiveSOS.isTowTruckRequest && myActiveSOS.towDestination) {
+                matchTowDestination.innerText = `Destination: ${myActiveSOS.towDestination}`;
+                matchTowDestination.style.display = 'block';
+            } else {
+                matchTowDestination.style.display = 'none';
             }
 
             updateSeekerMiniMap(myActiveSOS, hero);
@@ -1256,14 +1319,21 @@ onValue(ref(db, "sosRequests"), (snap) => {
     if (myActive && document.getElementById('landingPage').classList.contains('view-active')) {
         window.switchView('seekerUI');
         // Pre-fill phone number if seeker revisits an active tow truck request
-        if (myActive.isTowTruckRequest && myActive.phoneNumber) {
-            document.getElementById('phoneNumberInput').value = myActive.phoneNumber;
-            // Also ensure the tow truck button and input are visible/active
+        if (myActive.isTowTruckRequest) {
             isTowTruckRequestActive = true;
             document.getElementById('towTruckBtn').classList.add('active');
             document.getElementById('towTruckBtn').innerText = 'TOW TRUCK REQUEST ACTIVE';
             document.getElementById('towTruckContact').style.display = 'block';
-            document.getElementById('phoneNumberInput').setAttribute('required', 'required');
+
+            if (myActive.phoneNumber) {
+                document.getElementById('phoneNumberInput').value = myActive.phoneNumber;
+                document.getElementById('phoneNumberInput').setAttribute('required', 'required');
+            }
+            // NEW: Pre-fill tow destination if seeker revisits an active tow truck request
+            if (myActive.towDestination) {
+                document.getElementById('towDestinationInput').value = myActive.towDestination;
+                document.getElementById('towDestinationInput').setAttribute('required', 'required');
+            }
         } else {
              // If not a tow truck request, or no phone number, ensure these are reset
             isTowTruckRequestActive = false;
@@ -1272,6 +1342,8 @@ onValue(ref(db, "sosRequests"), (snap) => {
             document.getElementById('towTruckContact').style.display = 'none';
             document.getElementById('phoneNumberInput').removeAttribute('required');
             document.getElementById('phoneNumberInput').value = '';
+            document.getElementById('towDestinationInput').removeAttribute('required');
+            document.getElementById('towDestinationInput').value = '';
         }
     }
 });
