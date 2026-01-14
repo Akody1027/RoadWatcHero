@@ -545,11 +545,26 @@ window.setTip = (amt, el) => { document.querySelectorAll('.tip-btn').forEach(b =
 window.updateRadius = (val) => { myRadius = parseInt(val); document.getElementById('radiusVal').innerText = val; syncUI(); };
 window.centerOnMe = () => { if (map && userLocation) map.setCenter(userLocation); };
 window.openModal = (id) => document.getElementById(id).style.display = "flex";
-window.closeModal = (id) => document.getElementById(id).style.display = "none";
+// MODIFIED closeModal to also close the image enlargement modal and clean its src
+window.closeModal = (id) => {
+    document.getElementById(id).style.display = "none";
+    if (id === 'detailsModal' && document.getElementById('imageEnlargeModal').style.display === 'flex') {
+        document.getElementById('imageEnlargeModal').style.display = 'none';
+        document.getElementById('enlargedImage').src = ''; // Clear the source to prevent broken image
+    }
+    if (id === 'imageEnlargeModal') {
+        document.getElementById('enlargedImage').src = ''; // Clear the source when closing it directly
+    }
+};
+// MODIFIED switchView to also close image enlargement modal
 window.switchView = (id) => {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('view-active'));
     document.getElementById(id).classList.add('view-active');
     if (id === 'heroUI' && map && userLocation) { google.maps.event.trigger(map, 'resize'); map.setCenter(userLocation); }
+    
+    // Close image enlargement modal when switching views
+    document.getElementById('imageEnlargeModal').style.display = 'none';
+    document.getElementById('enlargedImage').src = ''; // Clear the source to prevent broken image
 };
 
 window.selectVehicle = (type, el) => { 
@@ -831,7 +846,7 @@ window.submitSOS = () => {
     const tip = document.getElementById('customTip').value || 0;
     const phoneNumber = document.getElementById('phoneNumberInput').value;
 
-    // SESSION PERSISTENCE: 1. Check if user already has an active help request before starting a new one
+    // SESSION PERSISTENCE: 1. Check if user already has an "open" request
     const existingReq = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
     if (existingReq) {
         window.switchView('seekerUI'); // Go to status screen
@@ -895,9 +910,12 @@ function syncUI() {
     let previousSOSStatus = {}; // To store previous status for notification logic
 
     // Capture current status of all SOS requests before processing
-    Object.keys(sosCache).forEach(id => {
-        previousSOSStatus[id] = sosCache[id].status;
-    });
+    // This needs to be done *before* sosCache is potentially updated by onValue if this syncUI
+    // is called from another context. However, onValue itself provides the latest snapshot.
+    // For reliable notification logic, it's better to compare the *new* state with the *old* state.
+    // Given the current onValue structure, `sosCache` will always be the latest.
+    // The notification for canceled jobs will trigger based on the *previous* state of `sosCache`
+    // when a new `sosCache` is received by the onValue listener. This is handled below.
 
     const currentHeroProfile = profilesCache[myId] || {};
     const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
@@ -988,9 +1006,9 @@ function syncUI() {
             jobActive = true; 
         }
 
-        // Notification for CANCELED jobs for the helper
-        // Play notification sound unconditionally if an accepted job is now canceled
-        if (r.helperId === myId && r.status === 'canceled' && previousSOSStatus[id] === 'accepted') {
+        // Notification for CANCELED jobs for the helper - MODIFIED to use a stored previous state
+        const lastKnownSOS = window._lastSosCacheState_ ? window._lastSosCacheState_[id] : null;
+        if (r.helperId === myId && r.status === 'canceled' && lastKnownSOS && lastKnownSOS.status === 'accepted') {
             const sound = document.getElementById('notificationSound');
             if (sound) {
                 sound.play().catch(e => console.error("Error playing sound:", e));
@@ -1016,7 +1034,7 @@ function syncUI() {
     document.getElementById('cancelSosBtn').style.display = myActiveSOS ? 'block' : 'none'; // Only show cancel if there's an active SOS
 
 
-    // HERO STATUS INDICATOR COLORS
+    // HERO STATUS INDICATOR COLORS - MODIFIED
     const ind = document.getElementById('statusIndicator');
     if(currentTask && currentTask.status === 'canceled') { // Canceled task
         ind.style.background = "var(--danger)"; // Red for canceled
@@ -1228,6 +1246,8 @@ function stopTowTruckAnimation() {
 
 
 onValue(ref(db, "sosRequests"), (snap) => { 
+    // Store the current state of sosCache before updating for notification comparison
+    window._lastSosCacheState_ = { ...sosCache }; 
     sosCache = snap.val() || {}; 
     syncUI(); 
     
