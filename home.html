@@ -1,5 +1,3 @@
---- START OF FILE Paste January 14, 2026 - 2:44PM ---
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -304,6 +302,40 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     display: none; /* Hidden by default */
 }
 
+/* Custom Alert Styles */
+#customAlertContainer {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    pointer-events: none; /* Allow clicks to pass through */
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.custom-alert {
+    background-color: var(--accent);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 10px;
+    font-weight: 600;
+    text-align: center;
+    opacity: 0; /* Start hidden */
+    animation: fadeInOut 5s forwards; /* 5 seconds total */
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-20px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+}
+
 </style>
 </head>
 <body>
@@ -556,6 +588,9 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
+<!-- Custom Alert Container -->
+<div id="customAlertContainer"></div>
+
 <!-- Hidden audio element for notifications -->
 <audio id="notificationSound" src="Roadwatchero.mp3" preload="auto" style="display:none;"></audio>
 
@@ -675,16 +710,19 @@ window.openModal = (id) => document.getElementById(id).style.display = "flex";
 
 // MODIFIED closeModal to also close the image enlargement modal and clean its src
 window.closeModal = (id) => {
-    document.getElementById(id).style.display = "none";
-    if (id === 'detailsModal' || id === 'imageEnlargeModal') { 
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.style.display = "none";
+    }
+
+    if (id === 'imageEnlargeModal') {
         const enlargedImage = document.getElementById('enlargedImage');
-        enlargedImage.src = ''; // Clear the source
-        enlargedImage.style.display = 'none'; // Explicitly hide it
-        // Only hide the modal if it's the image enlargement modal
-        if (id === 'imageEnlargeModal') {
-            document.getElementById('imageEnlargeModal').style.display = 'none';
+        if (enlargedImage) {
+            enlargedImage.src = ''; // Clear the source
+            enlargedImage.style.display = 'none'; // Explicitly hide the image element
         }
     }
+    
     if (id === 'detailsModal') {
         window.currentViewingSosId = null; // Clear the SOS ID when details modal closes
         document.getElementById('estimateAcceptedPrompt').style.display = 'none'; // Hide prompt when details modal closes
@@ -697,8 +735,7 @@ window.switchView = (id) => {
     if (id === 'heroUI' && map && userLocation) { google.maps.event.trigger(map, 'resize'); map.setCenter(userLocation); }
     
     // Close image enlargement modal when switching views
-    document.getElementById('imageEnlargeModal').style.display = 'none';
-    document.getElementById('enlargedImage').src = ''; // Clear the source to prevent broken image
+    window.closeModal('imageEnlargeModal'); // Use the modified closeModal for consistency
 };
 
 window.selectVehicle = (type, el) => { 
@@ -1058,9 +1095,26 @@ window.submitHeroTowEstimate = async (sosId) => {
     // `sosRequests/SOS_ID/estimates/HERO_ID` = { amount, name, pic, timestamp }
     // This allows multiple heroes to submit estimates
     await update(ref(db, `sosRequests/${sosId}/estimates/${myId}`), estimateData);
-    alert("Your estimate has been sent!");
+    
+    // Use custom alert instead of browser alert
+    window.showCustomAlert("Your bid has been submitted!");
+
     // Re-render the details modal to reflect the sent estimate (e.g., clear input or show confirmation)
     window.viewRequest(sosId); 
+};
+
+// NEW: Custom Alert Function
+window.showCustomAlert = (message) => {
+    const alertContainer = document.getElementById('customAlertContainer');
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'custom-alert';
+    alertDiv.textContent = message;
+    alertContainer.appendChild(alertDiv);
+
+    // Remove the alert after the animation finishes (5 seconds)
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000); 
 };
 
 // NEW: Call seeker function
@@ -1077,19 +1131,31 @@ window.callSeeker = () => {
 // MODIFIED enlargeImage function
 window.enlargeImage = (src) => {
     const enlargedImage = document.getElementById('enlargedImage');
-    // Ensure image is hidden before setting new src to prevent broken image flicker
+    const imageEnlargeModal = document.getElementById('imageEnlargeModal');
+
+    // Hide the image immediately and then update its source
     enlargedImage.style.display = 'none'; 
     enlargedImage.src = src;
-    enlargedImage.onload = () => { // Show only after it's loaded
+
+    // Show the modal and image only after the image has loaded
+    enlargedImage.onload = () => { 
         enlargedImage.style.display = 'block';
-        window.openModal('imageEnlargeModal');
+        imageEnlargeModal.style.display = 'flex'; // Explicitly set modal to flex
     };
+    
     // Handle cases where image might not load (e.g., broken URL)
     enlargedImage.onerror = () => {
         enlargedImage.style.display = 'none'; // Hide if it fails to load
         console.error("Failed to load image for enlargement."); // Log error
-        window.openModal('imageEnlargeModal'); // Still open modal, but without image
+        imageEnlargeModal.style.display = 'flex'; // Still open modal, but without image
     };
+
+    // If for some reason the image has no src (e.g. initial load or error),
+    // ensure the modal is opened correctly even without an image
+    if (!src) {
+        enlargedImage.style.display = 'none';
+        imageEnlargeModal.style.display = 'flex';
+    }
 };
 
 
@@ -1155,15 +1221,15 @@ window.submitSOS = () => {
     }
 
     if(!issue || !userLocation) {
-        return alert("Please describe the issue.");
+        return window.showCustomAlert("Please describe the issue."); // Changed alert to custom alert
     }
     
     if (isTowTruckRequestActive) {
         if (!phoneNumber.trim()) {
-            return alert("Please enter your phone number for tow truck assistance.");
+            return window.showCustomAlert("Please enter your phone number for tow truck assistance."); // Changed alert to custom alert
         }
         if (!towDestination.trim()) { // New validation
-            return alert("Please enter your tow destination for tow truck assistance.");
+            return window.showCustomAlert("Please enter your tow destination for tow truck assistance."); // Changed alert to custom alert
         }
     }
 
@@ -1214,7 +1280,7 @@ window.finalSeekerConfirm = () => {
 window.selectTowEstimate = async (sosId, heroId) => {
     const sos = sosCache[sosId];
     if (!sos || !sos.estimates || !sos.estimates[heroId]) {
-        alert("Invalid estimate selected.");
+        window.showCustomAlert("Invalid estimate selected."); // Changed alert to custom alert
         return;
     }
 
@@ -1224,7 +1290,7 @@ window.selectTowEstimate = async (sosId, heroId) => {
         // Do NOT change status to 'accepted' yet. Keep 'open'.
         // The hero will manually accept after getting the notification.
     });
-    alert(`Tow service from ${sos.estimates[heroId].name || 'Hero'} selected! Waiting for their confirmation.`);
+    window.showCustomAlert(`Tow service from ${sos.estimates[heroId].name || 'Hero'} selected! Waiting for their confirmation.`); // Changed alert to custom alert
     syncUI(); // Re-render the UI to reflect the selection
 };
 
@@ -1469,7 +1535,8 @@ function syncUI() {
                 let hasEstimatesToShow = false;
                 Object.entries(myActiveSOS.estimates).forEach(([heroId, estimate]) => {
                     // Only show estimates that are valid and from a real heroId
-                    if (heroId !== 'undefined' && estimate && typeof estimate.amount === 'number') {
+                    // Ensure the estimate is an object and has an amount property
+                    if (heroId !== 'undefined' && estimate && typeof estimate === 'object' && typeof estimate.amount === 'number') {
                         estimatesList.innerHTML += `
                             <div class="tow-estimate-item">
                                 <span class="hero-name">${estimate.name || 'Hero'}</span>
@@ -1760,7 +1827,7 @@ window.confirmDeleteActivity = () => {
             })
             .catch((error) => {
                 console.error("Error deleting activity:", error);
-                alert("Failed to delete activity. Please try again.");
+                window.showCustomAlert("Failed to delete activity. Please try again."); // Changed alert to custom alert
             });
     }
 };
