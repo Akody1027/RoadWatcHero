@@ -380,10 +380,10 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
         
         <!-- Phone number input, initially hidden -->
         <div id="towTruckContact" class="phone-input-group">
-            <label>PHONE NUMBER REQUIRED FOR TOWING</label>
+            <label>REQUIRED</label>
             <input type="tel" id="phoneNumberInput" placeholder="Enter your phone number">
             <!-- NEW: Tow Destination Input -->
-            <label style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:8px; display:block; margin-top:15px;">TOW DESTINATION (e.g., "123 Main St, Anytown")</label>
+            <label style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:8px; display:block; margin-top:15px;"></label>
             <input type="text" id="towDestinationInput" placeholder="Enter destination address or landmark">
         </div>
 
@@ -1104,12 +1104,12 @@ function syncUI() {
         } else {
             let contactInfo = '';
             if (currentTask.isTowTruckRequest && currentTask.phoneNumber) {
-                contactInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;">📞 Contact: <a href="tel:${currentTask.phoneNumber}" style="color:var(--text); text-decoration: underline;">${currentTask.phoneNumber}</a></p>`;
+                contactInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;"> SOS Contact: <a href="tel:${currentTask.phoneNumber}" style="color:var(--text); text-decoration: underline;">${currentTask.phoneNumber}</a></p>`;
             }
             // NEW: Add towDestination to the task card if it's a tow truck request
             let towDestinationInfo = '';
             if (currentTask.isTowTruckRequest && currentTask.towDestination) {
-                towDestinationInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;">📍 Destination: ${currentTask.towDestination}</p>`;
+                towDestinationInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;">Destination: ${currentTask.towDestination}</p>`;
             }
 
 
@@ -1288,7 +1288,7 @@ function startTowTruckAnimation() {
                 marker.setIcon(icon);
             }
         });
-    }, 500); // Toggle every 500ms
+    }, 100); // Toggle every 500ms
 }
 
 // Function to stop the tow truck icon animation
@@ -1436,3 +1436,4 @@ window.confirmDeleteActivity = () => {
 </script>
 </body>
 </html>
+
