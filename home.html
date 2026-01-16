@@ -10,177 +10,243 @@
 
 <style>
 :root {
-  --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
+  --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: black;
   --accent: #EE611C; --danger: #EE611C; --success: #22c55e; --warning: #f59e0b;
   --shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; color: var(--text); background: white; overflow: hidden; }
-h3{ text-align: center; }
+h3{
+  text-align: center;
+}
+.view { display: none; width: 100vw; height: 100vh; position: fixed; inset: 0; z-index: 10; background: white; overflow-y: auto; }
+.view-active { display: flex; flex-direction: column; }
 
-/* VIEW SYSTEM */
-.view { display: none; width: 100vw; height: 100vh; position: fixed; inset: 0; z-index: 10; background: white; overflow-y: auto; flex-direction: column; }
-.view-active { display: flex; }
-
-/* AUTH SCREEN */
-#authPage { align-items: center; justify-content: center; padding: 30px; background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%); z-index: 2000; }
-.auth-card { width: 100%; max-width: 400px; padding: 30px; background: white; border-radius: 32px; box-shadow: var(--shadow); text-align: center; border: 1px solid #f1f5f9; }
-.auth-card img { width: 200px; margin-bottom: 20px; }
-.google-btn { background: white; color: #444; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 15px; }
-
-/* LANDING PAGE */
-#landingPage { align-items: center; justify-content: center; padding: 30px; text-align: center; background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%); }
+#landingPage { align-items: center; justify-content: center; padding: 30px; text-align: center; z-index: 100; background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%); }
 #landingPage img { width: 240px; margin-bottom: 10px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1)); }
-
-/* ADMIN UI */
-.admin-stat-card { background: var(--text); color: white; padding: 25px; border-radius: 24px; margin-bottom: 20px; text-align: center; }
-.user-row { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; display: flex; justify-content: space-between; }
-
-/* BUTTONS */
 .mode-btn { width: 100%; max-width: 320px; padding: 20px; border-radius: 18px; font-size: 18px; font-weight: 700; border: none; cursor: pointer; margin-bottom: 16px; box-shadow: var(--shadow); }
 .mode-btn:active { transform: scale(0.98); }
 .btn-req { background: var(--danger); color: white; }
 .btn-hero { background: var(--text); color: white; }
-.submit-btn { width: 100%; padding: 18px; background: #EE611C; color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; }
 
-/* SEEKER UI */
 #seekerUI { background: var(--bg); padding: 20px; align-items: center; }
 .status-card { background: white; width: 100%; max-width: 450px; padding: 25px; border-radius: 28px; box-shadow: var(--shadow); text-align: center; margin-top: 10px; border: 1px solid rgba(226, 232, 240, 0.8); }
-#seekerMapContainer { position: relative; width: 100%; height: 220px; border-radius: 20px; margin: 15px 0; background: #eee; overflow: hidden; transition: all 0.3s ease-in-out; }
-#seekerMapContainer.expanded { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1001; border-radius: 0; margin: 0; }
-#seekerMap { width: 100%; height: 100%; }
 
-/* HERO UI */
+#seekerMapContainer { 
+    position: relative; 
+    width: 100%; 
+    height: 220px; 
+    border-radius: 20px; 
+    margin: 15px 0; 
+    background: #eee; 
+    border: 1px solid #e2e8f0;
+    overflow: hidden; /* Ensure expand button stays within bounds */
+    transition: all 0.3s ease-in-out; /* Smooth transition for expansion */
+}
+#seekerMapContainer.expanded {
+    position: fixed; /* Take over the entire screen */
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1001; /* Above other modals but below main app modals if any */
+    border-radius: 0;
+    margin: 0;
+}
+
+#seekerMap { 
+    width: 100%; 
+    height: 100%; 
+    border-radius: 20px; /* Applies to non-expanded state */
+}
+#seekerMapContainer.expanded #seekerMap {
+    border-radius: 0; /* No radius when expanded */
+}
+
+.map-expand-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    z-index: 2; /* Above the map */
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+}
+.map-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    z-index: 1002; /* Above expanded map */
+    display: none; /* Only visible when expanded */
+}
+
+.search-pulse { width: 80px; height: 80px; background: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: white; margin: 0 auto 20px; position: relative; }
+.search-pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--danger); opacity: 0.4; animation: pulse 2s infinite; }
+@keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
+
 #map { width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 1; }
-#statusIndicator { position: fixed; left: 15px; bottom: 85px; z-index: 150; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 28px; cursor: pointer; box-shadow: var(--shadow); border: 3px solid white; transition: 0.3s; }
+#statusIndicator { position: fixed; left: 5px; bottom: 50px; z-index: 150; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 28px; cursor: pointer; box-shadow: var(--shadow); border: 3px solid white; transition: 0.3s; }
+
 #heroPanel { width:100%; max-width: 400px; position: fixed; bottom: 85px; left: 0; z-index: 100; display: flex; flex-direction: column; padding: 0 15px; pointer-events: none; }
 #heroPanel > * { pointer-events: auto; }
+
 .task-card { background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); padding: 20px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-left: 6px solid var(--accent); display: none; transform: translateX(-110%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); max-height: 400px; overflow-y: auto; }
 .task-card.expanded { display: block; transform: translateX(0); }
 
-/* MODALS */
+.sos-list-item { padding: 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+.sos-list-item:active { background: #f8fafc; }
+
 .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
 .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 95vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); }
 @keyframes slideUp { to { transform: translateY(0); } }
 
-/* VEHICLE LIST */
-.vehicle-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8fafc; border-radius: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
-.trash-icon { width: 20px; height: 20px; cursor: pointer; color: var(--danger); }
-
-/* FOOTER */
-.footer { position: fixed; bottom: 0; width: 100%; height: 75px; background: rgba(238, 97, 28, 0.95); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 500; border-top: 1px solid rgba(255,255,255,0.2); }
-.footer-icons { display: flex; gap: 80px; padding: 5px; }
-.icon-btn { cursor: pointer; width: 30px; height: 30px; filter: brightness(0) invert(1); }
-
-/* CHAT */
 #chatBox { height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 20px; margin-bottom: 12px; border: 1px solid #e2e8f0; }
-.msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 14px; }
+.msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 14px; line-height: 1.4; }
 .msg-me { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
 .msg-them { align-self: flex-start; background: white; color: var(--text); border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
 
-input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 12px; font-size: 15px; background: #f8fafc; }
-.cancel-link { display: block; text-align: center; padding: 15px; color: var(--muted); cursor: pointer; font-weight: 600; }
-.hidden { display: none !important; }
+.vehicle-grid { display: flex; grid-template-columns: repeat(2, 1fr); margin: 15px 0; }
+.v-type { padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 700; width:25%; align-content:center;}
+.v-type.active { border-color: #EE611C; background: ; color: #EE611C; }
+.tip-btn { border: 2px solid #f1f5f9; border-radius: 10px; padding: 12px; flex: 1; text-align: center; cursor: pointer; font-weight: 800; background: white; }
+.tip-btn.active { border-color: var(--success); background: ; color: var(--success); }
 
-/* UTILITY */
-.search-pulse { width: 80px; height: 80px; background: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: white; margin: 0 auto 20px; position: relative; }
-.search-pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--danger); opacity: 0.4; animation: pulse 2s infinite; }
-@keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
+input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 12px; font-size: 15px; background: #f8fafc;  font-family: math;}
+.submit-btn { width: 100%; padding: 18px; background: #EE611C; color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; }
+.cancel-link { display: block; text-align: center; padding: 15px; color: red; cursor: pointer; font-weight: 600; }
+
+.footer { position: fixed; bottom: 0; width: 100%;  background: rgba(238, 97, 28, 0.9); backdrop-filter: blur(10px); display: flex; justify-content:center; align-items: center; z-index: 200; border-top: 1px solid rgba(255,255,255,0.2); }
+.footer-icons { display:flex; gap:100px; padding:5px; }
+.icon-btn { cursor: pointer; width: 32px; height: 32px; filter: brightness(0) invert(1); }
+/* #notifBadge, */ #chatBadge, #chatBadgeHero { position: absolute; top: -5px; right: -5px; background: white; color: var(--danger); font-size: 10px; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: 900; }
+#chatBadge, #chatBadgeHero { background: var(--accent); color: white; }
+
+.center-btn { position: absolute; top: 20px; right: 20px; background: #EE611C; border: none; padding: 12px; border-radius: 12px; box-shadow: var(--shadow); cursor: pointer; z-index: 5; font-weight: 800; font-size: 11px; color:white; }
+.trash-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin-left: 10px;
+    colo:red;
+}
+
+/* New style for the blue tow truck button */
+.btn-towtruck { 
+    background: white; /* A nice white color */
+    color: #2563eb; 
+    border: 2px solid #2563eb; 
+    border-radius: 16px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    font-size: 16px; 
+    padding: 18px;
+    width: 100%;
+    margin-bottom: 10px; /* Space between tow truck and find hero */
+}
+.btn-towtruck.active {
+    background: #1d4ed8;/* Slightly darker blue when active */
+    color:white;
+}
+.phone-input-group {
+    margin-bottom: 15px;
+    display: none; /* Initially hidden */
+}
+.phone-input-group label {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Styles for the image enlargement modal */
+#imageEnlargeModal {
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1002; /* Above other modals */
+}
+#imageEnlargeModal img {
+    max-width: 95vw;
+    max-height: 95vh;
+    object-fit: contain;
+}
+#imageEnlargeModal .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: white;
+    color: var(--text);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+}
 </style>
 </head>
 <body>
 
-<!-- 1. AUTHENTICATION PAGE -->
-<div id="authPage" class="view view-active">
-    <div class="auth-card">
-        <img src="roadwatchlogo.png" alt="Logo">
-        <h2 id="authTitle" style="margin-bottom: 5px;">Welcome</h2>
-        <p style="color: var(--muted); font-size: 14px; margin-bottom: 25px;">Sign in to continue to RoadWatcHero</p>
-        
-        <div id="loginFields">
-            <input type="email" id="authEmail" placeholder="Email Address">
-            <input type="password" id="authPassword" placeholder="Password">
-            <button class="submit-btn" onclick="window.handleAuth('login')">Sign In</button>
-            <p onclick="window.toggleAuthMode()" class="cancel-link">Don't have an account? Sign Up</p>
-            <p onclick="window.handlePasswordReset()" class="cancel-link" style="margin-top:-15px; color: var(--accent); font-size: 12px;">Forgot Password?</p>
-        </div>
-
-        <div id="registerFields" class="hidden">
-            <input type="text" id="regName" placeholder="Full Name">
-            <input type="email" id="regEmail" placeholder="Email Address">
-            <input type="password" id="regPassword" placeholder="Create Password">
-            <button class="submit-btn" onclick="window.handleAuth('register')">Create Account</button>
-            <p onclick="window.toggleAuthMode()" class="cancel-link">Already have an account? Log In</p>
-        </div>
-
-        <div style="margin: 20px 0; display: flex; align-items: center; gap: 10px; color: #cbd5e1;">
-            <hr style="flex:1; border: 0.5px solid #f1f5f9;"> or <hr style="flex:1; border: 0.5px solid #f1f5f9;">
-        </div>
-        <button class="submit-btn google-btn" onclick="window.handleGoogleAuth()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="18"> 
-            Continue with Google
-        </button>
-    </div>
-</div>
-
-<!-- 2. LANDING PAGE -->
-<div id="landingPage" class="view">
+<!-- APP CONTENT -->
+<div id="landingPage" class="view view-active">
     <img src="roadwatchlogo.png" alt="Logo">
     <h2 style="color: var(--muted); margin-bottom: 40px; font-weight: 500; font-size: 18px;">Help is just a click away.</h2>
-    <button class="mode-btn btn-req" onclick="window.openRequestFlow()">Find a Hero!</button>
+    <button class="mode-btn btn-req" onclick="window.openModal('requestModal')">Find a Hero!</button>
     <button class="mode-btn btn-hero" onclick="window.enterHeroMode()">Become a Hero!</button>
-    <button id="devDashBtn" class="mode-btn hidden" style="background: #6366f1; color: white;" onclick="window.switchView('adminUI')">Developer Dashboard</button>
-    <p onclick="window.handleLogout()" class="cancel-link">Sign Out</p>
 </div>
 
-<!-- 3. ADMIN / DEVELOPER UI -->
-<div id="adminUI" class="view">
-    <div style="padding: 25px;">
-        <h3>Developer Control</h3>
-        <div class="admin-stat-card">
-            <div style="font-size: 12px; opacity: 0.8; letter-spacing: 1px;">TOTAL REGISTERED USERS</div>
-            <div id="totalUsersCount" style="font-size: 38px; font-weight: 900; margin-top: 5px;">0</div>
-        </div>
-
-        <div style="background: white; padding: 20px; border-radius: 24px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <b style="font-size: 15px;">Mandatory Subscription</b>
-                <input type="checkbox" id="subToggle" style="width: 25px; height: 25px; margin: 0;" onchange="window.toggleGlobalSubMode(this.checked)">
-            </div>
-            <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">If enabled, users cannot request help without an active subscription.</p>
-        </div>
-
-        <h4 style="margin-left: 5px;">User Registry</h4>
-        <div id="userRegistryList" style="background: white; border-radius: 20px; border: 1px solid #f1f5f9; max-height: 300px; overflow-y: auto;"></div>
-    </div>
-    <div class="footer"><img src="thishomeicon.png" class="icon-btn" onclick="window.switchView('landingPage')"></div>
-</div>
-
-<!-- 4. SEEKER UI -->
+<!-- SEEKER UI -->
 <div id="seekerUI" class="view">
     <button id="cancelSosBtn" onclick="window.openModal('cancelConfirmModal')" style="align-self: flex-start; background: none; border: none; font-weight: 800; color: var(--danger); padding: 20px; display: none;">✕ CANCEL SOS</button>
     
     <div id="searchingState" class="status-card">
         <div class="search-pulse">📡</div>
         <h3>Broadcasting SOS...</h3>
-        <p>Waiting for a Hero to accept...</p>
+        <p>Your request is live. Waiting for a Hero to accept...</p>
     </div>
 
     <div id="matchedState" class="status-card" style="display:none; border-color: var(--success);">
         <div id="seekerStatusPill" style="background: var(--success); color: white; padding: 6px 16px; border-radius: 20px; display: inline-block; font-size: 12px; font-weight: 800; margin-bottom: 15px;">HERO CONNECTED</div>
         <div style="display: flex; align-items: center; gap: 15px; text-align: left;">
-            <img id="matchPic" src="" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid #f1f5f9;">
+            <img id="matchPic" src="" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid #f1f5f9; text-align:center;">
             <div style="flex:1">
-                <h3 id="matchName" style="margin:0; text-align: left;">Hero Name</h3>
+                <h3 id="matchName" style="margin:0;">Hero Name</h3>
                 <p id="matchETA" style="margin:4px 0; color: var(--success); font-weight: 800; font-size: 14px;">Arriving in ...</p>
-                <p id="matchHeroPhone" style="margin:4px 0; font-size: 13px; font-weight: 600; display:none;"></p>
-                <p id="matchTowDestination" style="margin:4px 0; font-size: 13px; font-weight:600; display:none;"></p>
+                <p id="matchHeroPhone" style="margin:4px 0; font-size: 14px; font-weight: 600; display:none;"></p>
+                <p id="matchTowDestination" style="margin:4px 0; font-size: 14px; font-weight:600; display:none;"></p> <!-- ADDED -->
             </div>
+            
         </div>
         <div id="seekerMapContainer">
             <div id="seekerMap"></div>
-            <button style="position:absolute; bottom:10px; right:10px; background:white; border:none; padding:8px 12px; border-radius:12px; font-weight:bold; font-size:11px; box-shadow:var(--shadow);" onclick="window.toggleSeekerMapExpansion()">Expand Map</button>
+            <button class="map-expand-btn" onclick="window.toggleSeekerMapExpansion()">Expand Map</button>
+            <button class="map-close-btn" onclick="window.toggleSeekerMapExpansion()">✕</button>
         </div>
         <p style="font-size:11px; color:var(--muted)">LIVE HERO TRACKING ENABLED</p>
     </div>
@@ -188,160 +254,99 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     <div id="completionConfirmState" class="status-card" style="display:none; border-color: var(--success);">
         <div style="font-size: 40px; margin-bottom: 15px;">✅</div>
         <h3>Job Completed!</h3>
-        <p>Confirm that your issue has been resolved.</p>
+        <p>Your Hero has marked the job as finished.</p>
         <button class="submit-btn" style="background: var(--success); margin-top: 15px;" onclick="window.finalSeekerConfirm()">CONFIRM & FINISH</button>
     </div>
 
     <div class="footer">
         <div class="footer-icons">
-            <img src="thishomeicon.png" class="icon-btn" onclick="location.reload()">
+            
             <div id="footerChatBtn" style="position:relative; display:none;">
                 <img src="Chaticon.png" class="icon-btn" onclick="window.openChat()">
-                <span id="chatBadge" style="position:absolute; top:-5px; right:-5px; background:white; color:var(--accent); font-size:10px; width:20px; height:20px; border-radius:50%; display:none; align-items:center; justify-content:center; font-weight:900;">0</span>
+                <span id="chatBadge">0</span>
             </div>
+            
         </div>
     </div>
 </div>
 
-<!-- 5. HERO UI -->
+<!-- HERO UI -->
 <div id="heroUI" class="view">
-    <button style="position: absolute; top: 20px; right: 20px; background: #EE611C; border: none; padding: 12px; border-radius: 12px; box-shadow: var(--shadow); cursor: pointer; z-index: 5; font-weight: 800; font-size: 11px; color:white;" onclick="window.centerOnMe()">RE-CENTER</button>
+    <button class="center-btn" onclick="window.centerOnMe()">RE-CENTER</button>
     <div id="statusIndicator" style="background: #94a3b8;" onclick="window.toggleTaskCard()">!</div>
     <div id="map"></div>
     <div id="heroPanel">
-        <div id="activeTask" class="task-card"></div>
+        <div id="activeTask" class="task-card">
+            <!-- DYNAMIC HERO CONTENT -->
+        </div>
     </div>
     <div class="footer">
         <div class="footer-icons">
-            <img src="Historyicon.png" class="icon-btn" onclick="window.openModal('notifModal')">
+            <div style="position:relative">
+                <img src="Historyicon.png" class="icon-btn" onclick="window.openModal('notifModal')">
+                <!-- Removed #notifBadge as per request -->
+            </div>
             <img src="thishomeicon.png" class="icon-btn" onclick="location.reload()">
             <div id="heroFooterChatBtn" style="position:relative; display:none;">
                 <img src="Chaticon.png" class="icon-btn" onclick="window.openChat()">
-                <span id="chatBadgeHero" style="position:absolute; top:-5px; right:-5px; background:white; color:var(--accent); font-size:10px; width:20px; height:20px; border-radius:50%; display:none; align-items:center; justify-content:center; font-weight:900;">0</span>
+                <span id="chatBadgeHero">0</span>
             </div>
             <img src="usericon.png"  class="icon-btn" onclick="window.openProfile()">
         </div>
     </div>
 </div>
 
-<!-- 6. MODALS -->
-<div id="profileModal" class="modal">
-    <div class="modal-content">
-        <div style="display: flex; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px; overflow-x: auto;">
-            <div id="tabGeneral" class="cancel-link" style="color: var(--accent); border-bottom: 2px solid var(--accent); flex: 1;" onclick="window.switchProfileTab('general')">Hero</div>
-            <div id="tabVehicles" class="cancel-link" style="flex: 1;" onclick="window.switchProfileTab('vehicles')">Vehicles</div>
-            <div id="tabBilling" class="cancel-link" style="flex: 1;" onclick="window.switchProfileTab('billing')">Billing</div>
-        </div>
-
-        <div id="sectionGeneral">
-            <div style="text-align:center; margin-bottom:20px;">
-                <img id="profileDisplayPic" src="https://via.placeholder.com/100" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid #eff6ff;">
-                <input type="file" id="picInput" style="display:none" onchange="window.handleImageUpload(this, 'profile')">
-                <button onclick="document.getElementById('picInput').click()" style="display:block; margin:8px auto; border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer;">Update Photo</button>
-            </div>
-            <input id="profileName" placeholder="Name">
-            <textarea id="profileBio" placeholder="Bio / Tools Available..."></textarea>
-            <div style="background: #f8fafc; padding: 15px; border-radius: 20px; margin-bottom: 20px;">
-                <label style="font-size:11px; font-weight:900; color:var(--muted);">SERVICE RADIUS: <span id="radiusVal" style="color:var(--accent);">25</span> miles</label>
-                <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="margin: 15px 0;" oninput="document.getElementById('radiusVal').innerText = this.value">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
-                    <label style="font-size: 13px; font-weight: 700;">Tow Truck Mode</label>
-                    <input type="checkbox" id="prefersTow" style="width: auto; margin: 0;" onchange="window.toggleTowFields()">
-                </div>
-            </div>
-            <div id="towFields" style="display:none; background: #f8fafc; padding: 15px; border-radius: 20px; margin-bottom: 20px;">
-                <input type="number" id="baseRate" placeholder="Base Rate ($)">
-                <input type="number" id="mileRate" placeholder="Per Mile ($)" style="margin:0;">
-            </div>
-            <button class="submit-btn" onclick="window.saveProfile()">Save Hero Settings</button>
-        </div>
-
-        <div id="sectionVehicles" class="hidden">
-            <div id="vList"></div>
-            <hr style="border:0.5px solid #f1f5f9; margin: 20px 0;">
-            <h4 style="margin-bottom: 15px;">Add New Vehicle</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input id="vYear" placeholder="Year">
-                <input id="vMake" placeholder="Make">
-            </div>
-            <input id="vModel" placeholder="Model">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <input id="vColor" placeholder="Color">
-                <input id="vPlate" placeholder="License Plate">
-            </div>
-            <button class="submit-btn" style="background: var(--text)" onclick="window.addVehicle()">Save Vehicle</button>
-        </div>
-
-        <div id="sectionBilling" class="hidden">
-            <div style="background: #f8fafc; padding: 25px; border-radius: 24px; text-align: center; margin-bottom: 20px;">
-                <div style="font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 5px;">CURRENT SUBSCRIPTION</div>
-                <div id="subStatusDisplay" style="font-size: 22px; font-weight: 900; color: var(--accent);">Free Tier</div>
-            </div>
-            <button class="submit-btn" onclick="window.openStripe()">Manage Subscription</button>
-            <p style="font-size: 11px; text-align: center; margin-top: 15px; color: var(--muted);">Powered by Stripe Secure Payments</p>
-        </div>
-
-        <span class="cancel-link" onclick="window.closeModal('profileModal')">Close</span>
-    </div>
-</div>
-
-<div id="requestModal" class="modal">
-    <div class="modal-content">
-        <h3>Request Hero</h3>
-        <label style="font-size: 11px; font-weight: 900; color: var(--muted);">SELECT VEHICLE</label>
-        <select id="sosVehicleSelect"></select>
-        
-        <label style="font-size: 11px; font-weight: 900; color: var(--muted);">PROBLEM DESCRIPTION</label>
-        <textarea id="reqIssue" placeholder="What's the problem?" rows="2"></textarea>
-        
-        <img id="damagePreview" style="width:100%; height:150px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
-        <input type="file" id="damageInput" style="display:none" onchange="window.handleImageUpload(this, 'damage')">
-        <button onclick="document.getElementById('damageInput').click()" style="width:100%; padding:15px; border-radius:16px; border:2px dashed #cbd5e1; background:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--muted);">📷 Add Damage Photo</button>
-        
-        <button id="towBtn" class="submit-btn" style="background: white; color: #2563eb; border: 2px solid #2563eb; margin-bottom: 12px;" onclick="window.toggleSosTow()">I NEED A TOW TRUCK!</button>
-        
-        <div id="towSosFields" style="display:none;">
-            <input type="tel" id="sosPhone" placeholder="Your Phone Number">
-            <input type="text" id="sosDest" placeholder="Tow Destination">
-        </div>
-
-        <button class="submit-btn" onclick="window.submitSOS()">FIND HERO</button>
-        <p onclick="window.closeModal('requestModal')" class="cancel-link">Cancel</p>
-    </div>
-</div>
-
-<!-- Details Modal -->
+<!-- MODALS -->
 <div id="detailsModal" class="modal">
     <div class="modal-content">
-        <h3 style="color:var(--accent);">SOS DETAILS</h3>
-        <div id="detImgContainer" style="display:none; margin-bottom:15px;">
-            <img id="detImg" style="width:100%; height:200px; object-fit:cover; border-radius:20px;" onclick="window.enlargeImage(this.src)">
+        <h3 style="color:var(--accent); text-align:center;">SOS DETAILS</h3>
+        <!-- Damage Photo -->
+        <div style="position:relative; margin-bottom:15px; display:none;" id="detImgContainer">
+            <img id="detImg" style="width:100%; height:200px; object-fit:cover; border-radius:20px; cursor:pointer;">
+            <button onclick="window.enlargeImage(document.getElementById('detImg').src)" style="position:absolute; bottom:10px; right:10px; background:rgba(255,255,255,0.8); border:none; padding:8px 12px; border-radius:15px; font-size:12px; font-weight:bold; cursor:pointer;">Enlarge</button>
         </div>
-        <p id="detIssue" style="font-weight:bold;"></p>
-        <p id="detVehicle" style="font-size: 14px; color: var(--muted);"></p>
-        <p id="detDist" style="color:var(--accent); font-weight:bold;"></p>
-        <p id="detCost" style="font-weight:bold; display:none;"></p>
-        <p id="detContact" style="font-weight:bold; display:none;"></p>
-        <p id="detDest" style="font-weight:bold; display:none;"></p>
         
+        <!-- Description -->
+        <p id="detIssue" style="font-weight:bold; margin-bottom:10px;"></p>
+        
+        <!-- Distance Away -->
+        <p id="detDist" style="color:var(--accent); font-size:14px; margin-bottom:10px; font-weight:600;"></p>
+
+        <!-- Tow Truck Estimated Cost (New) -->
+        <p id="detEstimatedCost" style="color:var(--text); font-size:15px; margin-bottom:10px; font-weight:700; display:none;"></p>
+
+        <!-- Phone number for tow truck requests -->
+        <p id="detPhoneNumber" style="font-size:14px; margin-bottom:10px; font-weight:600; display:none;">Contact: <a id="detPhoneLink" href="#" style="color:var(--text); text-decoration: underline;"></a></p>
+        
+        <!-- NEW: Tow Destination (initially hidden) -->
+        <p id="detTowDestination" style="font-size:14px; margin-bottom:10px; font-weight:600; display:none;"></p>
+
+        <!-- ETA to Arrival -->
+        <label style="font-size:11px; font-weight:bold; color:var(--muted);">ETA TO ARRIVAL</label>
         <select id="detETA">
             <option value="5-10 mins">5-10 mins</option>
             <option value="15-20 mins">15-20 mins</option>
             <option value="30-45 mins">30-45 mins</option>
+            <option value="1 hour+">1 hour+</option>
         </select>
-        <button id="detAcceptBtn" class="submit-btn">ACCEPT & HELP</button>
+        <button id="detAcceptBtn" class="submit-btn" style="margin-top:20px;">ACCEPT & HELP</button>
+        <span id="detInProgressText" style="display:none; color:var(--success); font-weight:bold; text-align:center; margin-top:20px;">JOB IN PROGRESS...</span>
         <span class="cancel-link" onclick="window.closeModal('detailsModal')">Go Back</span>
     </div>
 </div>
 
-<!-- Other Shared UI Components -->
+<div id="imageEnlargeModal" class="modal">
+    <img id="enlargedImage" src="" alt="Enlarged Image">
+    <button class="close-btn" onclick="window.closeModal('imageEnlargeModal')">✕</button>
+</div>
+
 <div id="chatModal" class="modal">
     <div class="modal-content" style="height:85vh">
-        <h3>Messages</h3>
+        <h3 id="chatTitle">Messages</h3>
         <div id="chatBox"></div>
         <div style="display:flex; gap:10px;">
             <button onclick="document.getElementById('chatImgInput').click()" style="padding:15px; background:#f1f5f9; border:none; border-radius:15px;">📷</button>
-            <input type="file" id="chatImgInput" style="display:none" onchange="window.sendChatImg(this)">
+            <input type="file" id="chatImgInput" accept="image/*" style="display:none" onchange="window.sendChatImg(this)">
             <input id="chatInput" placeholder="Type message..." style="margin:0;">
             <button onclick="window.sendTextMsg()" style="background:var(--accent); color:white; border:none; padding:0 20px; border-radius:15px; font-weight:bold;">SEND</button>
         </div>
@@ -349,407 +354,1085 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     </div>
 </div>
 
-<div id="cancelConfirmModal" class="modal"><div class="modal-content"><h3>Cancel SOS?</h3><button class="submit-btn" style="background:var(--success); margin-bottom:10px;" onclick="window.submitCancellation('Issue Resolved')">Issue Resolved</button><button class="submit-btn" style="background:var(--accent); margin-bottom:10px;" onclick="window.submitCancellation('Found Other Helper')">Found Other Helper</button><button class="submit-btn" style="background:var(--muted); margin-bottom:10px;" onclick="window.submitCancellation('Changed Mind')">Don't Need Help</button><span class="cancel-link" onclick="window.closeModal('cancelConfirmModal')">Keep Request</span></div></div>
-<div id="notifModal" class="modal"><div class="modal-content"><h3>Activity History</h3><div id="historyList"></div><button class="submit-btn" style="background:#f1f5f9; color:var(--text); margin-top:20px;" onclick="window.closeModal('notifModal')">CLOSE</button></div></div>
-<div id="imageEnlargeModal" class="modal" onclick="this.style.display='none'"><img id="enlargedImage" style="max-width:95%; max-height:90%; object-fit:contain; border-radius:10px;"></div>
+<div id="requestModal" class="modal">
+    <div class="modal-content">
+        <h3>Request Hero</h3>
+        <div class="vehicle-grid">
+            <div class="v-type active" onclick="window.selectVehicle('Car', this)">🚗 Car</div>
+            <div class="v-type" onclick="window.selectVehicle('Truck', this)">🛻 Truck</div>
+            <div class="v-type" onclick="window.selectVehicle('RV', this)">🚐 RV</div>
+            <div class="v-type" onclick="window.selectVehicle('HeavyDuty', this)">🚛 Heavy Duty</div>
+        </div>
+        <label style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:8px; display:block;">TIP NOT REQUIRED, BUT APPRECIATED!</label>
+        <div style="display:flex; gap:10px; margin-bottom:12px;">
+            <div class="tip-btn" onclick="window.setTip(5, this)">$5</div>
+            <div class="tip-btn" onclick="window.setTip(10, this)">$10</div>
+            <div class="tip-btn" onclick="window.setTip(20, this)">$20</div>
+        </div>
+        <input type="number" id="customTip" placeholder="Other Tip Amount ($)" style="margin-bottom:15px;">
+        <img id="damagePreview" style="width:100%; height:150px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
+        <input type="file" id="damageInput" accept="image/*" style="display:none" onchange="window.handleImageUpload(this, 'damage')">
+        <button onclick="document.getElementById('damageInput').click()" style="width:100%; padding:15px; border-radius:16px; border:2px dashed #cbd5e1; background:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--muted);">📷 Add Damage Photo</button>
+        <textarea id="reqIssue" placeholder="What's the problem?" rows="2"></textarea>
+        
+        <!-- Moved and restyled "I NEED A TOW TRUCK!" button -->
+        <button id="towTruckBtn" class="btn-towtruck" onclick="window.toggleTowTruckRequest(this)">I NEED A TOW TRUCK!</button>
+        
+        <!-- Phone number input, initially hidden -->
+        <div id="towTruckContact" class="phone-input-group">
+            <label>REQUIRED</label>
+            <input type="tel" id="phoneNumberInput" placeholder="Enter your phone number">
+            <!-- NEW: Tow Destination Input -->
+            <label style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:8px; display:block; margin-top:15px;"></label>
+            <input type="text" id="towDestinationInput" placeholder="Enter destination address or landmark">
+        </div>
 
-<audio id="notificationSound" src="Roadwatchero.mp3" preload="auto"></audio>
+        <button class="submit-btn" id="submitSosBtn" onclick="window.submitSOS()">FIND HERO</button>
+        <p onclick="window.closeModal('requestModal')" class="cancel-link">Cancel</p>
+    </div>
+</div>
+
+<div id="cancelConfirmModal" class="modal">
+    <div class="modal-content"><h3>Cancel SOS?</h3><button class="submit-btn" style="background:var(--success); margin-bottom:10px;" onclick="window.submitCancellation('Issue Resolved')">Issue Resolved</button><button class="submit-btn" style="background:var(--accent); margin-bottom:10px;" onclick="window.submitCancellation('Found Other Helper')">Found Other Helper</button><button class="submit-btn" style="background:var(--muted); margin-bottom:10px;" onclick="window.submitCancellation('Changed Mind')">Don't Need Help</button><span class="cancel-link" onclick="window.closeModal('cancelConfirmModal')">Keep Request</span></div>
+</div>
+
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <h3>Hero Profile</h3>
+        <div style="text-align:center; margin-bottom:20px;">
+            <img id="profileDisplayPic" src="https://via.placeholder.com/100" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid #eff6ff;">
+            <input type="file" id="picInput" style="display:none" onchange="window.handleImageUpload(this, 'profile')">
+            <button onclick="document.getElementById('picInput').click()" style="display:block; margin:8px auto; border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer;">Update Photo</button>
+        </div>
+        <input id="profileName" placeholder="Hero Name">
+        <textarea id="profileBio" placeholder="Bio / Tools Available..." rows="2"></textarea>
+        <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
+            <label style="font-size:11px; font-weight:900; color:var(--muted);">SERVICE RADIUS: <span id="radiusVal" style="color:var(--accent);">25</span> miles</label>
+            <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="margin: 15px 0 0 0;" oninput="document.getElementById('radiusVal').innerText = this.value">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 20px;">
+            <label for="prefersTowTruckRequests" style="font-weight: 700;">Only show Tow Truck requests</label>
+            <input type="checkbox" id="prefersTowTruckRequests" style="width: auto; margin: 0;" onchange="window.toggleTowTruckProfileFields()">
+        </div>
+        <!-- New fields for Tow Truck Rates -->
+        <div id="towTruckRateFields" style="display:none; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 20px;">
+            <label style="font-size:11px; font-weight:900; color:var(--muted); margin-bottom: 5px; display: block;">TOWING RATES</label>
+            <input type="number" id="towTruckBaseRate" placeholder="Base Rate ($)" style="margin-bottom: 10px;">
+            <input type="number" id="towTruckPerMileRate" placeholder="Per Mile Rate ($)">
+        </div>
+        <button class="submit-btn" onclick="window.saveProfile()">Save Settings</button>
+        <span class="cancel-link" onclick="window.closeModal('profileModal')">Close</span>
+    </div>
+</div>
+
+<div id="notifModal" class="modal"><div class="modal-content"><h3>Activity History</h3><div id="notifHistory"></div><button class="submit-btn" style="background:#f1f5f9; color:var(--text); margin-top:20px;" onclick="window.closeModal('notifModal')">CLOSE</button></div></div>
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content">
+        <h3>Confirm Deletion</h3>
+        <p>Are you sure you want to delete this activity?</p>
+        <button class="submit-btn" style="background:var(--danger); margin-bottom:10px;" onclick="window.confirmDeleteActivity()">Delete</button>
+        <span class="cancel-link" onclick="window.closeModal('deleteConfirmModal')">Cancel</span>
+    </div>
+</div>
+
+<!-- Hidden audio element for notifications -->
+<audio id="notificationSound" src="Roadwatchero.mp3" preload="auto" style="display:none;"></audio>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getDatabase, ref, set, update, push, onValue, get, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getDatabase, ref, push, onValue, set, get, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
-    authDomain: "roadsidehero-104ea.firebaseapp.com",
-    databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
-    projectId: "roadsidehero-104ea",
-    storageBucket: "roadsidehero-104ea.firebaseapp.com"
+  apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
+  authDomain: "roadsidehero-104ea.firebaseapp.com",
+  databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
+  projectId: "roadsidehero-104ea",
+  storageBucket: "roadsidehero-104ea.firebaseapp.com"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getDatabase(app);
-const googleProvider = new GoogleAuthProvider();
 
-// SETTINGS (CHANGE THESE)
-const ADMIN_EMAIL = "akody81@gmail.com";
-const STRIPE_LINK = "https://buy.stripe.com/example";
+if(!localStorage.getItem('heroUserId')) localStorage.setItem('heroUserId', 'u_' + Math.random().toString(36).substr(2, 9));
+const myId = localStorage.getItem('heroUserId');
 
-// GLOBALS
-let currentUser, map, seekerMiniMap, userLocation, heroMarker, seekerUserMarker, seekerHeroMarker;
-let sosCache = {}, profilesCache = {}, markers = {}, userVehicles = [];
-let activeChatId = null, currentUnread = 0, lastProcessedTs = 0;
-let subscriptionsEnabled = false, isSosTow = false, towAnimInterval = null;
+let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgData = null, myRadius = 25, heroMarker;
+let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUserMarker;
+let activeChatId = null, lastMsgCount = 0;
+let activityToDeleteId = null; // New variable to store the ID of the activity to delete
+let currentUnreadCount = 0; // New variable to track the overall unread count
+let lastProcessedMessageTimestamp = 0; // Renamed for clarity: tracks the timestamp of the latest message processed
+let isInitialLoadForChatListener = true; // New flag for initial load handling
+let towTruckAnimationInterval = null; // For the tow truck icon animation
+let currentTowTruckIconState = 0; // 0 for left-red, 1 for left-blue
+let isTowTruckRequestActive = false; // New flag to track tow truck request state
 
-// VIEW LOGIC
+
+// Standard marker icon for regular SOS requests
+const getMarkerIcon = (color) => ({
+    path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z",
+    fillColor: color, fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff", scale: 1.5, anchor: new google.maps.Point(12, 12)
+});
+
+// Custom icon for the seeker's own location on the mini-map (blue circle)
+const seekerOwnIcon = {
+    path: google.maps.SymbolPath.CIRCLE,
+    scale: 8,
+    fillColor: "#2563eb",
+    fillOpacity: 1,
+    strokeColor: "white",
+    strokeWeight: 2
+};
+
+// Custom icon for the hero on the seeker's mini-map (heromapicon.png)
+const seekerHeroCustomIcon = {
+    url: 'heromapicon.png', // Path to your hero map icon image
+    scaledSize: new google.maps.Size(32, 32), // Adjust size as needed
+    anchor: new google.maps.Point(0, 32) // Bottom-left corner (0, height)
+};
+
+
+// Helper function to create a tow truck icon with split colors and an exclamation mark
+function getTowTruckSplitIcon(leftColor, rightColor) {
+    const svgIcon = {
+        url: 'data:image/svg+xml;utf-8,' + encodeURIComponent(`
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <clipPath id="clipLeft">
+                        <rect x="0" y="0" width="12" height="24"/>
+                    </clipPath>
+                    <clipPath id="clipRight">
+                        <rect x="12" y="0" width="12" height="24"/>
+                    </clipPath>
+                </defs>
+                
+                <!-- The main circle background, split into two colors -->
+                <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${leftColor}" clip-path="url(#clipLeft)"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${rightColor}" clip-path="url(#clipRight)"/>
+                
+                <!-- The exclamation mark path (vertical bar and dot) -->
+                <rect x="11" y="7" width="2" height="8" fill="#ffffff"/>
+                <circle cx="12" cy="17" r="1.5" fill="#ffffff"/>
+            </svg>
+        `),
+        scaledSize: new google.maps.Size(24, 24), // Ensure consistent size
+        anchor: new google.maps.Point(12, 12)
+    };
+    return svgIcon;
+}
+
+
+window.onload = () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(p => {
+            const freshLoc = { lat: p.coords.latitude, lng: p.coords.longitude };
+            const isFirstLoad = !userLocation;
+            userLocation = freshLoc;
+            update(ref(db, `profiles/${myId}`), { ...userLocation, id: myId });
+            if (map) {
+                if (!heroMarker) {
+                    heroMarker = new google.maps.Marker({
+                        position: userLocation, map: map,
+                        icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }
+                    });
+                } else { heroMarker.setPosition(userLocation); }
+                if (isFirstLoad && document.getElementById('heroUI').classList.contains('view-active')) { map.setCenter(userLocation); }
+            }
+            syncUI();
+        }, (err) => console.error(err), { enableHighAccuracy: true });
+    }
+};
+
+window.toggleTaskCard = () => { document.getElementById('activeTask').classList.toggle('expanded'); };
+window.setTip = (amt, el) => { document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); document.getElementById('customTip').value = amt; };
+window.updateRadius = (val) => { myRadius = parseInt(val); document.getElementById('radiusVal').innerText = val; syncUI(); };
+window.centerOnMe = () => { if (map && userLocation) map.setCenter(userLocation); };
+window.openModal = (id) => document.getElementById(id).style.display = "flex";
+
+// MODIFIED closeModal to also close the image enlargement modal and clean its src
+window.closeModal = (id) => {
+    document.getElementById(id).style.display = "none";
+    if (id === 'detailsModal' || id === 'imageEnlargeModal') { // Changed condition to catch both cases
+        const enlargedImage = document.getElementById('enlargedImage');
+        enlargedImage.src = ''; // Clear the source
+        enlargedImage.style.display = 'none'; // Explicitly hide it
+        // Also ensure the modal itself is closed if it was opened via detailsModal
+        document.getElementById('imageEnlargeModal').style.display = 'none';
+    }
+};
+// MODIFIED switchView to also close image enlargement modal
 window.switchView = (id) => {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('view-active'));
     document.getElementById(id).classList.add('view-active');
-    if(id === 'heroUI' && !map) initMap();
-};
-window.openModal = (id) => document.getElementById(id).style.display = "flex";
-window.closeModal = (id) => document.getElementById(id).style.display = "none";
-
-// AUTH HANDLERS
-window.toggleAuthMode = () => {
-    document.getElementById('loginFields').classList.toggle('hidden');
-    document.getElementById('registerFields').classList.toggle('hidden');
-    document.getElementById('authTitle').innerText = document.getElementById('loginFields').classList.contains('hidden') ? "Create Account" : "Welcome";
-};
-window.handleAuth = (mode) => {
-    const email = document.getElementById(mode === 'login' ? 'authEmail' : 'regEmail').value;
-    const pass = document.getElementById(mode === 'login' ? 'authPassword' : 'regPassword').value;
-    if(mode === 'register') {
-        const name = document.getElementById('regName').value;
-        createUserWithEmailAndPassword(auth, email, pass).then(res => set(ref(db, `users/${res.user.uid}/profile`), { name, email, role: 'user', created: Date.now() })).catch(e => alert(e.message));
-    } else {
-        signInWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
-    }
-};
-window.handleGoogleAuth = () => signInWithPopup(auth, googleProvider).then(res => set(ref(db, `users/${res.user.uid}/profile`), { name: res.user.displayName, email: res.user.email, pic: res.user.photoURL }));
-window.handlePasswordReset = () => { const e = document.getElementById('authEmail').value; if(e) sendPasswordResetEmail(auth, e).then(()=>alert("Sent!")); };
-window.handleLogout = () => signOut(auth).then(()=>location.reload());
-
-onAuthStateChanged(auth, user => {
-    if(user) {
-        currentUser = user;
-        window.switchView('landingPage');
-        if(user.email === ADMIN_EMAIL) document.getElementById('devDashBtn').classList.remove('hidden');
-        startTracking();
-        listenToData();
-    } else {
-        window.switchView('authPage');
-    }
-});
-
-// CORE DATA LISTENER
-function listenToData() {
-    onValue(ref(db, "sosRequests"), snap => { sosCache = snap.val() || {}; syncUI(); });
-    onValue(ref(db, "users"), snap => { profilesCache = snap.val() || {}; syncUI(); });
-    onValue(ref(db, "settings"), snap => { subscriptionsEnabled = snap.val()?.subscriptionsEnabled || false; });
-}
-
-// GEOLOCATION
-function startTracking() {
-    navigator.geolocation.watchPosition(p => {
-        userLocation = { lat: p.coords.latitude, lng: p.coords.longitude };
-        update(ref(db, `users/${currentUser.uid}/profile`), { ...userLocation });
-        if(map) {
-            if(!heroMarker) heroMarker = new google.maps.Marker({ position: userLocation, map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 } });
-            else heroMarker.setPosition(userLocation);
-        }
-    }, null, { enableHighAccuracy: true });
-}
-
-// PROFILE & VEHICLES
-window.switchProfileTab = (tab) => {
-    ['general','vehicles','billing'].forEach(t => {
-        document.getElementById(`section${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.add('hidden');
-        document.getElementById(`tab${t.charAt(0).toUpperCase()+t.slice(1)}`).style.color = 'var(--muted)';
-        document.getElementById(`tab${t.charAt(0).toUpperCase()+t.slice(1)}`).style.borderBottom = 'none';
-    });
-    document.getElementById(`section${tab.charAt(0).toUpperCase()+tab.slice(1)}`).classList.remove('hidden');
-    document.getElementById(`tab${tab.charAt(0).toUpperCase()+tab.slice(1)}`).style.color = 'var(--accent)';
-    document.getElementById(`tab${tab.charAt(0).toUpperCase()+tab.slice(1)}`).style.borderBottom = '2px solid var(--accent)';
-};
-
-window.addVehicle = () => {
-    const v = { year: document.getElementById('vYear').value, make: document.getElementById('vMake').value, model: document.getElementById('vModel').value, color: document.getElementById('vColor').value, plate: document.getElementById('vPlate').value };
-    if(v.make && v.plate) { push(ref(db, `users/${currentUser.uid}/vehicles`), v); ['vYear','vMake','vModel','vColor','vPlate'].forEach(i => document.getElementById(i).value = ""); }
-};
-window.removeVehicle = (id) => remove(ref(db, `users/${currentUser.uid}/vehicles/${id}`));
-window.openProfile = () => {
-    const d = profilesCache[currentUser.uid]?.profile || {};
-    document.getElementById('profileName').value = d.name || "";
-    document.getElementById('profileBio').value = d.bio || "";
-    document.getElementById('radiusVal').innerText = d.radius || 25;
-    document.getElementById('profileRadius').value = d.radius || 25;
-    document.getElementById('subStatusDisplay').innerText = d.isSubscribed ? "Premium Hero" : "Free Tier";
-    document.getElementById('prefersTow').checked = d.prefersTow || false;
-    document.getElementById('towFields').style.display = d.prefersTow ? 'block' : 'none';
-    document.getElementById('baseRate').value = d.baseRate || "";
-    document.getElementById('mileRate').value = d.mileRate || "";
-    window.openModal('profileModal');
-};
-window.saveProfile = () => {
-    const prefersTow = document.getElementById('prefersTow').checked;
-    update(ref(db, `users/${currentUser.uid}/profile`), {
-        name: document.getElementById('profileName').value,
-        bio: document.getElementById('profileBio').value,
-        radius: parseInt(document.getElementById('profileRadius').value),
-        prefersTow,
-        baseRate: prefersTow ? document.getElementById('baseRate').value : null,
-        mileRate: prefersTow ? document.getElementById('mileRate').value : null
-    });
-    window.closeModal('profileModal');
-};
-window.toggleTowFields = () => document.getElementById('towFields').style.display = document.getElementById('prefersTow').checked ? 'block' : 'none';
-
-// SOS SYSTEM
-window.openRequestFlow = async () => {
-    if(subscriptionsEnabled) {
-        const snap = await get(ref(db, `users/${currentUser.uid}/profile/isSubscribed`));
-        if(!snap.val()) return alert("Subscription Required. Enable in Billing tab.");
-    }
-    const myVehicles = profilesCache[currentUser.uid]?.vehicles || {};
-    userVehicles = Object.entries(myVehicles).map(([id, v]) => ({id, ...v}));
-    if(userVehicles.length === 0) { alert("Add a vehicle in Profile first!"); window.openProfile(); window.switchProfileTab('vehicles'); return; }
+    if (id === 'heroUI' && map && userLocation) { google.maps.event.trigger(map, 'resize'); map.setCenter(userLocation); }
     
-    const sel = document.getElementById('sosVehicleSelect'); sel.innerHTML = "";
-    userVehicles.forEach(v => sel.innerHTML += `<option value="${v.id}">${v.year} ${v.make} ${v.model}</option>`);
-    window.openModal('requestModal');
+    // Close image enlargement modal when switching views
+    document.getElementById('imageEnlargeModal').style.display = 'none';
+    document.getElementById('enlargedImage').src = ''; // Clear the source to prevent broken image
 };
 
-let damageImg = null;
+window.selectVehicle = (type, el) => { 
+    selectedVehicle = type; 
+    document.querySelectorAll(".v-type").forEach(b => b.classList.remove("active")); 
+    el.classList.add("active"); 
+    // Reset tow truck request state when vehicle type changes
+    isTowTruckRequestActive = false;
+    document.getElementById('towTruckBtn').classList.remove('active');
+    document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!';
+    document.getElementById('towTruckContact').style.display = 'none';
+    document.getElementById('phoneNumberInput').removeAttribute('required');
+    document.getElementById('phoneNumberInput').value = '';
+    document.getElementById('towDestinationInput').removeAttribute('required'); // ADDED
+    document.getElementById('towDestinationInput').value = ''; // ADDED
+};
+
+
 window.handleImageUpload = (input, target) => {
+    const file = input.files[0]; if(!file) return;
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
-            const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
-            canvas.width = 600; canvas.height = img.height * (600 / img.width);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            const data = canvas.toDataURL('image/jpeg', 0.7);
-            if(target === 'damage') { damageImg = data; document.getElementById('damagePreview').src = data; document.getElementById('damagePreview').style.display = 'block'; }
-            else { document.getElementById('profileDisplayPic').src = data; update(ref(db, `users/${currentUser.uid}/profile`), { pic: data }); }
+            const canvas = document.createElement('canvas'); const MAX_WIDTH = 600; const scaleSize = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+            const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            const compressedData = canvas.toDataURL('image/jpeg', 0.7);
+            if(target === 'damage') { damageImgData = compressedData; document.getElementById('damagePreview').src = compressedData; document.getElementById('damagePreview').style.display = 'block'; }
+            else if(target === 'profile') { document.getElementById('profileDisplayPic').src = compressedData; }
         };
         img.src = e.target.result;
     };
-    reader.readAsDataURL(input.files[0]);
+    reader.readAsDataURL(file);
 };
 
-window.toggleSosTow = () => {
-    isSosTow = !isSosTow;
-    const b = document.getElementById('towBtn');
-    b.innerText = isSosTow ? "TOW REQUEST ACTIVE" : "I NEED A TOW TRUCK!";
-    b.style.background = isSosTow ? "#2563eb" : "white";
-    b.style.color = isSosTow ? "white" : "#2563eb";
-    document.getElementById('towSosFields').style.display = isSosTow ? 'block' : 'none';
-};
-
-window.submitSOS = () => {
-    const v = userVehicles.find(x => x.id === document.getElementById('sosVehicleSelect').value);
-    const issue = document.getElementById('reqIssue').value;
-    if(!issue) return alert("Describe the issue");
-    if(isSosTow && (!document.getElementById('sosPhone').value || !document.getElementById('sosDest').value)) return alert("Phone and Destination required for tow.");
-
-    const id = push(ref(db, "sosRequests")).key;
-    set(ref(db, `sosRequests/${id}`), {
-        id, ownerId: currentUser.uid, vehicle: `${v.year} ${v.make} ${v.model}`, vehicleDetails: v, issue, 
-        damagePic: damageImg, isTow: isSosTow, phone: document.getElementById('sosPhone').value, 
-        dest: document.getElementById('sosDest').value, lat: userLocation.lat, lng: userLocation.lng, 
-        status: 'open', timestamp: Date.now()
-    });
-    window.closeModal('requestModal');
-    window.switchView('seekerUI');
-};
-
-// SYNC UI BRAIN
-function syncUI() {
-    const devList = document.getElementById('userRegistryList'); if(devList) devList.innerHTML = "";
-    let myActiveSos = null, nearbySos = [], jobActive = false, towOnMap = false;
-    const history = document.getElementById('historyList'); history.innerHTML = "";
-    const myProfile = profilesCache[currentUser.uid]?.profile || {};
-
-    Object.entries(sosCache).forEach(([id, r]) => {
-        const dist = userLocation ? google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609 : 999;
-        const isTow = r.isTow === true;
-
-        // Filter for Hero
-        if(r.status === 'open' && r.ownerId !== currentUser.uid) {
-            if(myProfile.prefersTow && !isTow) return;
-            if(dist <= (myProfile.radius || 25)) nearbySos.push({id, ...r, dist});
-            if(isTow) towOnMap = true;
-            updateMarker(id, r, isTow);
-        } else if((r.status === 'accepted' || r.status === 'arrived') && r.helperId === currentUser.uid) {
-            updateMarker(id, r, false, true);
-        } else if(markers[id]) { markers[id].setMap(null); delete markers[id]; }
-
-        // History
-        if(r.ownerId === currentUser.uid || r.helperId === currentUser.uid) {
-            history.innerHTML += `<div class="user-row"><span>${r.vehicle}</span><b style="color:var(--accent)">${r.status}</b></div>`;
-        }
-
-        // Active State
-        if(r.ownerId === currentUser.uid && ['open','accepted','arrived','completed'].includes(r.status)) myActiveSos = r;
-        if((r.ownerId === currentUser.uid || r.helperId === currentUser.uid) && ['accepted','arrived'].includes(r.status)) jobActive = true;
-    });
-
-    // Tow Animation
-    if(towOnMap && !towAnimInterval) startTowAnim();
-    else if(!towOnMap && towAnimInterval) stopTowAnim();
-
-    // UI Updates
-    document.getElementById('footerChatBtn').style.display = jobActive ? 'block' : 'none';
-    document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
-    document.getElementById('cancelSosBtn').style.display = myActiveSos ? 'block' : 'none';
+window.openChat = async () => {
+    // Determine the truly active chat ID here based on the current active job.
+    const currentActiveSOS = Object.values(sosCache).find(
+        r => (r.ownerId === myId || r.helperId === myId) &&
+             (r.status === 'accepted' || r.status === 'arrived')
+    );
+    if (!currentActiveSOS) return;
     
-    // Developer Stats
-    const totalUsers = Object.keys(profilesCache).length;
-    if(document.getElementById('totalUsersCount')) document.getElementById('totalUsersCount').innerText = totalUsers;
-    Object.entries(profilesCache).forEach(([uid, u]) => {
-        if(devList) devList.innerHTML += `<div class="user-row"><span>${u.profile?.name || 'User'}</span><small>${u.profile?.isSubscribed ? 'Premium' : 'Free'}</small></div>`;
-    });
+    // Set activeChatId globally from the identified active SOS
+    activeChatId = Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS); 
 
-    // Seeker State
-    if(myActiveSos) {
-        if(document.getElementById('landingPage').classList.contains('view-active')) window.switchView('seekerUI');
-        const s = myActiveSos.status;
-        document.getElementById('searchingState').style.display = s === 'open' ? 'block' : 'none';
-        document.getElementById('matchedState').style.display = (s === 'accepted' || s === 'arrived') ? 'block' : 'none';
-        document.getElementById('completionConfirmState').style.display = s === 'completed' ? 'block' : 'none';
-        if(s === 'accepted' || s === 'arrived') {
-            const h = profilesCache[myActiveSos.helperId]?.profile || {};
-            document.getElementById('matchName').innerText = h.name || "Hero";
-            document.getElementById('matchPic').src = h.pic || "https://via.placeholder.com/70";
-            document.getElementById('matchETA').innerText = s === 'arrived' ? "Hero has arrived!" : `ETA: ${myActiveSos.eta || '...'}`;
-            updateMiniMap(myActiveSos, h);
-        }
-    }
-
-    // Hero Task Card
-    const tCard = document.getElementById('activeTask');
-    const currentTask = Object.values(sosCache).find(r => r.helperId === currentUser.uid && ['accepted','arrived','canceled'].includes(r.status) && !r.helperAcknowledged);
-    
-    if(currentTask) {
-        tCard.style.display = 'block'; tCard.classList.add('expanded');
-        if(currentTask.status === 'canceled') {
-            tCard.innerHTML = `<div style="text-align:center"><b>SOS CANCELED</b><p>${currentTask.reason || ''}</p><button class="submit-btn" onclick="window.ackCancel('${currentTask.id}')">OK</button></div>`;
-        } else {
-            tCard.innerHTML = `
-                <div style="display:flex; justify-content:space-between"><b>${currentTask.status.toUpperCase()}</b><button onclick="window.openChat()" style="background:var(--accent); color:white; border:none; border-radius:10px; padding:5px 15px;">CHAT</button></div>
-                <p><b>${currentTask.vehicle}</b>: ${currentTask.issue}</p>
-                <div style="display:flex; gap:10px;">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}" class="submit-btn" style="text-decoration:none; text-align:center; flex:1">MAP</a>
-                    <button class="submit-btn" style="background:var(--success); flex:1" onclick="window.updateJob('${currentTask.id}', '${currentTask.status === 'accepted' ? 'arrived' : 'completed'}')">${currentTask.status === 'accepted' ? 'ARRIVED' : 'DONE'}</button>
-                </div>`;
-        }
-    } else if(nearbySos.length > 0) {
-        tCard.style.display = 'block'; tCard.classList.add('expanded');
-        tCard.innerHTML = `<b>${nearbySos.length} SOS NEARBY</b>`;
-        nearbySos.forEach(s => tCard.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee" onclick="window.viewRequest('${s.id}')"><b>${s.vehicle}</b><br><small>${s.dist.toFixed(1)} miles away</small></div>`);
-    } else {
-        tCard.style.display = 'none'; tCard.classList.remove('expanded');
-    }
-}
-
-// MAP UTILS
-function initMap() { map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true }); }
-function updateMarker(id, r, isTow, isAccepted = false) {
-    if(!map) return;
-    if(!markers[id]) {
-        markers[id] = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map });
-        markers[id].addListener('click', () => window.viewRequest(id));
-    }
-    const color = isAccepted ? "#22c55e" : "#EE611C";
-    markers[id].setIcon(isTow ? getTowIcon("#ef4444","#2563eb") : { path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z", fillColor: color, fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff", scale: 1.5, anchor: new google.maps.Point(12, 12) });
-}
-function getTowIcon(l,r) {
-    return { url: 'data:image/svg+xml;utf-8,' + encodeURIComponent(`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="2"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${l}" clip-path="inset(0 50% 0 0)"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${r}" clip-path="inset(0 0 0 50%)"/><rect x="11" y="7" width="2" height="8" fill="#fff"/><circle cx="12" cy="17" r="1.5" fill="#fff"/></svg>`), scaledSize: new google.maps.Size(30, 30), anchor: new google.maps.Point(15, 15) };
-}
-function startTowAnim() {
-    let state = 0;
-    towAnimInterval = setInterval(() => {
-        state = 1 - state;
-        Object.entries(sosCache).forEach(([id, r]) => { if(r.isTow && markers[id]) markers[id].setIcon(state ? getTowIcon("#ef4444","#2563eb") : getTowIcon("#2563eb","#ef4444")); });
-    }, 500);
-}
-function stopTowAnim() { clearInterval(towAnimInterval); towAnimInterval = null; }
-
-function updateMiniMap(sos, hero) {
-    if(!seekerMiniMap) seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true });
-    if(!seekerUserMarker) seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 6, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 } });
-    if(!seekerHeroMarker) seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: { url: 'heromapicon.png', scaledSize: new google.maps.Size(32, 32) } });
-    
-    const uPos = {lat: sos.lat, lng: sos.lng}; seekerUserMarker.setPosition(uPos);
-    if(hero.lat) { const hPos = {lat: hero.lat, lng: hero.lng}; seekerHeroMarker.setPosition(hPos); const b = new google.maps.LatLngBounds(); b.extend(uPos); b.extend(hPos); seekerMiniMap.fitBounds(b); }
-    else seekerMiniMap.setCenter(uPos);
-}
-
-// JOB HANDLERS
-window.viewRequest = (id) => {
-    const r = sosCache[id]; if(!r) return;
-    document.getElementById('detIssue').innerText = r.issue;
-    document.getElementById('detVehicle').innerText = r.vehicle + (r.isTow ? " (TOW)" : "");
-    const dist = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1) : "?";
-    document.getElementById('detDist').innerText = dist + " miles away";
-    
-    if(r.damagePic) { document.getElementById('detImg').src = r.damagePic; document.getElementById('detImgContainer').style.display='block'; }
-    else document.getElementById('detImgContainer').style.display='none';
-
-    if(r.isTow) {
-        const h = profilesCache[currentUser.uid]?.profile || {};
-        const cost = (parseFloat(h.baseRate||0) + (parseFloat(h.mileRate||0)*dist)).toFixed(2);
-        document.getElementById('detCost').innerText = `Est. Cost: $${cost}`; document.getElementById('detCost').style.display='block';
-        document.getElementById('detContact').innerText = `Phone: ${r.phone}`; document.getElementById('detContact').style.display='block';
-        document.getElementById('detDest').innerText = `To: ${r.dest}`; document.getElementById('detDest').style.display='block';
-    } else {
-        ['detCost','detContact','detDest'].forEach(i => document.getElementById(i).style.display='none');
-    }
-
-    const btn = document.getElementById('detAcceptBtn');
-    if(r.status !== 'open') btn.style.display='none';
-    else { btn.style.display='block'; btn.onclick = () => {
-        update(ref(db, `sosRequests/${id}`), { status: 'accepted', helperId: currentUser.uid, eta: document.getElementById('detETA').value });
-        window.closeModal('detailsModal');
-    }; }
-    window.openModal('detailsModal');
-};
-
-window.updateJob = (id, status) => update(ref(db, `sosRequests/${id}`), { status });
-window.ackCancel = (id) => update(ref(db, `sosRequests/${id}`), { helperAcknowledged: true });
-window.submitCancellation = (reason) => {
-    const active = Object.values(sosCache).find(r => r.ownerId === currentUser.uid && ['open','accepted','arrived'].includes(r.status));
-    if(active) update(ref(db, `sosRequests/${active.id}`), { status: 'canceled', reason });
-    window.closeModal('cancelConfirmModal'); window.switchView('landingPage');
-};
-window.finalSeekerConfirm = () => {
-    const active = Object.values(sosCache).find(r => r.ownerId === currentUser.uid && r.status === 'completed');
-    if(active) update(ref(db, `sosRequests/${active.id}`), { status: 'finalized' });
-    window.switchView('landingPage');
-};
-
-// CHAT SYSTEM
-window.openChat = () => {
-    const active = Object.values(sosCache).find(r => (r.ownerId === currentUser.uid || r.helperId === currentUser.uid) && ['accepted','arrived'].includes(r.status));
-    if(!active) return;
-    activeChatId = active.id;
     window.openModal('chatModal');
-    onValue(ref(db, `chats/${activeChatId}`), snap => {
+
+    // Mark messages as read when chat is opened
+    const chatSnap = await get(ref(db, `chats/${activeChatId}`));
+    if (chatSnap.exists()) {
+        const messages = chatSnap.val();
+        const updates = {};
+        for (const msgId in messages) {
+            if (messages[msgId].sender !== myId && messages[msgId].read === false) {
+                updates[`chats/${activeChatId}/${msgId}/read`] = true;
+            }
+        }
+        if (Object.keys(updates).length > 0) {
+            await update(ref(db), updates);
+        }
+    }
+    // The global listener will update the badge count after messages are marked as read.
+    // Explicitly set to 0 here for immediate visual feedback
+    updateChatBadges(0); 
+
+    // This listener is specific to the currently opened chat modal
+    onValue(ref(db, `chats/${activeChatId}`), (snap) => {
         const box = document.getElementById('chatBox'); box.innerHTML = "";
         const data = snap.val() || {};
-        Object.values(data).forEach(m => {
-            const side = m.sender === currentUser.uid ? 'msg-me' : 'msg-them';
+        const msgs = Object.values(data);
+        msgs.forEach(m => {
+            const side = m.sender === myId ? 'msg-me' : 'msg-them';
             let content = m.text ? `<div>${m.text}</div>` : "";
             if(m.img) content += `<img src="${m.img}" style="max-width:100%; border-radius:10px; margin-top:5px;">`;
             box.innerHTML += `<div class="msg ${side}">${content}</div>`;
         });
         box.scrollTop = box.scrollHeight;
-        update(ref(db, `chats/${activeChatId}`), { read: true }); // Simple read flag
+        lastMsgCount = msgs.length;
     });
 };
+
 window.sendTextMsg = () => {
-    const i = document.getElementById('chatInput'); if(!i.value || !activeChatId) return;
-    push(ref(db, `chats/${activeChatId}`), { sender: currentUser.uid, text: i.value, timestamp: Date.now() });
-    i.value = "";
+    const input = document.getElementById('chatInput'); if(!input.value.trim() || !activeChatId) return;
+    push(ref(db, `chats/${activeChatId}`), { sender: myId, text: input.value, timestamp: Date.now(), read: false }); // Added read: false
+    input.value = "";
 };
+
 window.sendChatImg = (input) => {
-    const reader = new FileReader(); reader.onload = e => push(ref(db, `chats/${activeChatId}`), { sender: currentUser.uid, img: e.target.result, timestamp: Date.now() });
-    reader.readAsDataURL(input.files[0]);
+    const file = input.files[0]; if(!file || !activeChatId) return;
+    const reader = new FileReader();
+    reader.onload = (e) => push(ref(db, `chats/${activeChatId}`), { sender: myId, img: e.target.result, timestamp: Date.now(), read: false }); // Added read: false
+    reader.readAsDataURL(file);
 };
 
-// ADMIN & BILLING
-window.toggleGlobalSubMode = (enabled) => update(ref(db, 'settings'), { subscriptionsEnabled: enabled });
-window.openStripe = () => window.open(STRIPE_LINK, '_blank');
-window.enterHeroMode = () => { window.switchView('heroUI'); if(!map) initMap(); };
-window.centerOnMe = () => map.setCenter(userLocation);
-window.toggleTaskCard = () => document.getElementById('activeTask').classList.toggle('expanded');
-window.toggleSeekerMapExpansion = () => document.getElementById('seekerMapContainer').classList.toggle('expanded');
-window.enlargeImage = (src) => { document.getElementById('enlargedImage').src = src; window.openModal('imageEnlargeModal'); };
+function updateChatBadges(count) {
+    const sB = document.getElementById('chatBadge');
+    const hB = document.getElementById('chatBadgeHero');
 
+    if(sB) {
+        if (count > 0) { sB.innerText = count; sB.style.display = 'flex'; }
+        else { sB.style.display = 'none'; }
+    }
+    if(hB) {
+        if (count > 0) { hB.innerText = count; hB.style.display = 'flex'; }
+        else { hB.style.display = 'none'; }
+    }
+}
+
+// Global listener for unread messages and notification sound
+onValue(ref(db, 'chats'), (snapshot) => {
+    let unreadCount = 0;
+    let latestMessageTimestampInActiveChat = 0;
+    
+    // Determine the active SOS request for *this user*
+    const myActiveSOSRequest = Object.entries(sosCache).find(
+        ([id, r]) => (r.ownerId === myId || r.helperId === myId) &&
+                     (r.status === 'accepted' || r.status === 'arrived')
+    );
+
+    let currentActiveChatIdForBadge = null;
+    if (myActiveSOSRequest) {
+        currentActiveChatIdForBadge = myActiveSOSRequest[0]; // The ID of the SOS request is also the chat ID
+    }
+
+    // Only proceed if there's an active chat relevant to the current user
+    if (currentActiveChatIdForBadge) {
+        const messages = snapshot.val() ? snapshot.val()[currentActiveChatIdForBadge] : null;
+
+        if (messages) {
+            for (const msgId in messages) {
+                const message = messages[msgId];
+                if (message.sender !== myId && message.read === false) {
+                    unreadCount++;
+                }
+                // Keep track of the latest message timestamp in this active chat
+                if (message.timestamp && message.timestamp > latestMessageTimestampInActiveChat) {
+                    latestMessageTimestampInActiveChat = message.timestamp;
+                }
+            }
+        }
+    }
+
+    // Check if chat modal is currently open
+    const chatModalOpen = document.getElementById('chatModal').style.display === 'flex';
+
+    // Play notification sound if new unread messages are detected AND chat is not open
+    // This logic handles app refresh/reopen and new messages while app is in background
+    if (!isInitialLoadForChatListener && unreadCount > 0 && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp && !chatModalOpen) {
+        const sound = document.getElementById('notificationSound');
+        if (sound) {
+            sound.play().catch(e => console.error("Error playing sound:", e));
+        }
+    }
+    
+    // Update lastProcessedMessageTimestamp
+    // On initial load, set the baseline. For subsequent updates, it tracks the latest message.
+    if (latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) {
+        lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
+    }
+    
+    currentUnreadCount = unreadCount; // Update the global unread count
+    updateChatBadges(currentUnreadCount);
+
+    // After the first full processing, set isInitialLoadForChatListener to false
+    if (isInitialLoadForChatListener) {
+        isInitialLoadForChatListener = false;
+    }
+
+}, (error) => {
+    console.error("Error fetching chats for unread count:", error);
+});
+
+
+window.viewRequest = (id) => {
+    const r = sosCache[id]; if(!r) return;
+    const heroProfile = profilesCache[myId] || {}; // Current hero's profile
+    const towTruckBaseRate = heroProfile.towTruckBaseRate || 0;
+    const towTruckPerMileRate = heroProfile.towTruckPerMileRate || 0;
+
+    // Damage Photo
+    const detImgContainer = document.getElementById('detImgContainer');
+    const detImg = document.getElementById('detImg');
+    if(r.damagePic) { 
+        detImg.src = r.damagePic; 
+        detImgContainer.style.display = "block"; 
+    } else { 
+        detImgContainer.style.display = "none"; 
+    }
+
+    // Description
+    document.getElementById('detIssue').innerText = r.issue;
+    
+    // Distance Away
+    const dist = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1) : "?";
+    document.getElementById('detDist').innerText = "" + dist + " miles away";
+
+    // Estimated Cost for Tow Truck (New)
+    const detEstimatedCost = document.getElementById('detEstimatedCost');
+    if (r.isTowTruckRequest && towTruckBaseRate > 0 && towTruckPerMileRate >= 0 && dist !== "?") {
+        const estimatedTotal = (parseFloat(towTruckBaseRate) + (parseFloat(towTruckPerMileRate) * parseFloat(dist))).toFixed(2);
+        detEstimatedCost.innerText = `Estimated Tow Cost: $${estimatedTotal}`;
+        detEstimatedCost.style.display = 'block';
+    } else {
+        detEstimatedCost.style.display = 'none';
+    }
+
+    // Phone number for tow truck requests
+    const detPhoneNumberElement = document.getElementById('detPhoneNumber');
+    const detPhoneLink = document.getElementById('detPhoneLink');
+    if (r.isTowTruckRequest && r.phoneNumber) {
+        detPhoneLink.innerText = r.phoneNumber;
+        detPhoneLink.href = `tel:${r.phoneNumber}`;
+        detPhoneNumberElement.style.display = 'block';
+    } else {
+        detPhoneNumberElement.style.display = 'none';
+    }
+
+    // NEW: Tow Destination for tow truck requests
+    const detTowDestinationElement = document.getElementById('detTowDestination');
+    if (r.isTowTruckRequest && r.towDestination) {
+        detTowDestinationElement.innerText = `Tow Destination: ${r.towDestination}`;
+        detTowDestinationElement.style.display = 'block';
+    } else {
+        detTowDestinationElement.style.display = 'none';
+    }
+
+    // ETA, Accept Button
+    const acceptBtn = document.getElementById('detAcceptBtn');
+    const progressText = document.getElementById('detInProgressText');
+    const etaInput = document.getElementById('detETA');
+    if(r.status === 'accepted' || r.status === 'arrived') {
+        acceptBtn.style.display = "none"; progressText.style.display = "block"; etaInput.style.display = "none";
+    } else {
+        acceptBtn.style.display = "block"; progressText.style.display = "none"; etaInput.style.display = "block";
+        acceptBtn.onclick = () => window.confirmHelp(id);
+    }
+    window.openModal('detailsModal');
+};
+
+// MODIFIED enlargeImage function
+window.enlargeImage = (src) => {
+    const enlargedImage = document.getElementById('enlargedImage');
+    enlargedImage.style.display = 'none'; // Hide it first
+    enlargedImage.src = src;
+    enlargedImage.onload = () => { // Show only after it's loaded
+        enlargedImage.style.display = 'block';
+        window.openModal('imageEnlargeModal');
+    };
+    // Handle cases where image might not load (e.g., broken URL)
+    enlargedImage.onerror = () => {
+        enlargedImage.style.display = 'none'; // Hide if it fails to load
+        console.error("Failed to load image for enlargement."); // Log error
+        window.openModal('imageEnlargeModal'); // Still open modal, but without image
+    };
+};
+
+
+window.enterHeroMode = () => { window.switchView('heroUI'); if(!map) initMap(); };
+window.confirmHelp = (sosId) => {
+    const eta = document.getElementById('detETA').value;
+    update(ref(db, `sosRequests/${sosId}`), { status: 'accepted', helperId: myId, helperAcknowledged: false, eta: eta });
+    window.closeModal('detailsModal');
+    document.getElementById('activeTask').classList.add('expanded');
+};
+window.markArrived = () => { const active = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'accepted'); if(active) update(ref(db, `sosRequests/${active[0]}`), { status: 'arrived' }); };
+window.completeTask = () => { const active = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived'); if(active) update(ref(db, `sosRequests/${active[0]}`), { status: 'completed' }); };
+
+window.acknowledgeCancel = () => {
+    const canceledTask = Object.entries(sosCache).find(([id, r]) => 
+        r.helperId === myId && r.status === 'canceled' && r.helperAcknowledged !== true
+    );
+    if(canceledTask) {
+        update(ref(db, `sosRequests/${canceledTask[0]}`), { helperAcknowledged: true });
+        const tCard = document.getElementById('activeTask');
+        tCard.classList.remove('expanded');
+        setTimeout(() => { tCard.style.display = 'none'; }, 400);
+    }
+};
+
+// MODIFIED toggleTowTruckRequest
+window.toggleTowTruckRequest = (button) => {
+    isTowTruckRequestActive = !isTowTruckRequestActive;
+    const towTruckContactDiv = document.getElementById('towTruckContact');
+    const phoneNumberInput = document.getElementById('phoneNumberInput');
+    const towDestinationInput = document.getElementById('towDestinationInput'); // Get new input
+
+    if (isTowTruckRequestActive) {
+        button.classList.add('active');
+        button.innerText = 'TOW TRUCK REQUEST ACTIVE';
+        towTruckContactDiv.style.display = 'block';
+        phoneNumberInput.setAttribute('required', 'required');
+        towDestinationInput.setAttribute('required', 'required'); // Make destination required
+    } else {
+        button.classList.remove('active');
+        button.innerText = 'I NEED A TOW TRUCK!';
+        towTruckContactDiv.style.display = 'none';
+        phoneNumberInput.removeAttribute('required');
+        phoneNumberInput.value = ''; // Clear phone number when deselected
+        towDestinationInput.removeAttribute('required'); // Remove required
+        towDestinationInput.value = ''; // Clear destination when deselected
+    }
+};
+
+// MODIFIED submitSOS
+window.submitSOS = () => { 
+    const issue = document.getElementById('reqIssue').value; 
+    const tip = document.getElementById('customTip').value || 0;
+    const phoneNumber = document.getElementById('phoneNumberInput').value;
+    const towDestination = document.getElementById('towDestinationInput').value; // Get new value
+
+    // SESSION PERSISTENCE: 1. Check if user already has an "open" request
+    const existingReq = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
+    if (existingReq) {
+        window.switchView('seekerUI'); // Go to status screen
+        window.closeModal('requestModal');
+        return; // Don't submit a second request
+    }
+
+    if(!issue || !userLocation) {
+        return alert("Please describe the issue.");
+    }
+    
+    if (isTowTruckRequestActive) {
+        if (!phoneNumber.trim()) {
+            return alert("Please enter your phone number for tow truck assistance.");
+        }
+        if (!towDestination.trim()) { // New validation
+            return alert("Please enter your tow destination for tow truck assistance.");
+        }
+    }
+
+    push(ref(db, "sosRequests"), { 
+        ownerId: myId, 
+        userName: "Driver", 
+        issue, 
+        vehicle: selectedVehicle, 
+        damagePic: damageImgData, 
+        tip: tip, 
+        lat: userLocation.lat, 
+        lng: userLocation.lng, 
+        status: 'open', 
+        isTowTruckRequest: isTowTruckRequestActive, // Use the flag
+        phoneNumber: isTowTruckRequestActive ? phoneNumber : null, // Save phone number if tow truck request
+        towDestination: isTowTruckRequestActive ? towDestination : null, // Save destination if tow truck request (NEW)
+        timestamp: Date.now() 
+    });
+    window.closeModal('requestModal'); 
+    window.switchView('seekerUI');
+    // Reset tow truck request state after submission
+    isTowTruckRequestActive = false;
+    document.getElementById('towTruckBtn').classList.remove('active');
+    document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!';
+    document.getElementById('towTruckContact').style.display = 'none';
+    document.getElementById('phoneNumberInput').removeAttribute('required');
+    document.getElementById('phoneNumberInput').value = '';
+    document.getElementById('towDestinationInput').removeAttribute('required'); // Reset destination
+    document.getElementById('towDestinationInput').value = ''; // Clear destination
+};
+
+window.submitCancellation = (reason) => {
+    const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && (sosCache[k].status === 'open' || sosCache[k].status === 'accepted' || sosCache[k].status === 'arrived'));
+    if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'canceled', cancelReason: reason });
+    window.closeModal('cancelConfirmModal'); window.switchView('landingPage'); damageImgData = null;
+};
+
+window.finalSeekerConfirm = () => {
+    const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === 'completed');
+    if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'finalized' });
+    damageImgData = null;
+    window.switchView('landingPage');
+};
+
+function initMap() { map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true, styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] }); }
+
+function syncUI() {
+    const history = document.getElementById('notifHistory'); history.innerHTML = "";
+    let nearbySOS = [];
+    let currentTask = null; 
+    let myActiveSOS = null;
+    let jobActive = false;
+    let towTruckRequestsOnMap = false; // Track if any tow truck requests are on the map
+    let previousSOSStatus = {}; // To store previous status for notification logic
+
+    // Capture current status of all SOS requests before processing
+    // This needs to be done *before* sosCache is potentially updated by onValue if this syncUI
+    // is called from another context. However, onValue itself provides the latest snapshot.
+    // For reliable notification logic, it's better to compare the *new* state with the *old* state.
+    // Given the current onValue structure, `sosCache` will always be the latest.
+    // The notification for canceled jobs will trigger based on the *previous* state of `sosCache`
+    // when a new `sosCache` is received by the onValue listener. This is handled below.
+
+    const currentHeroProfile = profilesCache[myId] || {};
+    const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
+
+    // First, iterate through all SOS requests to manage map markers for ALL open requests
+    Object.entries(sosCache).forEach(([id, r]) => {
+        const isTowTruck = r.isTowTruckRequest === true;
+
+        // Apply tow truck preference filter for heroes
+        if (prefersTowTruck && !isTowTruck) {
+            // If hero prefers tow trucks, hide non-tow truck requests
+            if (markers[id]) {
+                markers[id].setMap(null);
+                delete markers[id];
+            }
+            return; // Skip processing for this non-tow truck request
+        }
+        // If hero doesn't prefer tow trucks, they see everything, no filter applied here.
+
+        // Handle all 'open' requests for map display (regardless of radius)
+        if (r.status === 'open' && r.ownerId !== myId) {
+            if (isTowTruck) {
+                towTruckRequestsOnMap = true; // Mark that there's at least one tow truck request
+            }
+
+            if (!markers[id] && map) {
+                const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C"); // Default state
+                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: iconToUse });
+                marker.addListener('click', () => window.viewRequest(id));
+                markers[id] = marker;
+            } else if (markers[id]) {
+                // Ensure marker icon is correct if status changed (e.g., from regular to tow truck, though not typical)
+                // Or if it was filtered out and now should be visible
+                const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C");
+                markers[id].setIcon(iconToUse);
+                markers[id].setMap(map); // Make sure it's visible if it was hidden
+            }
+        }
+        // Handle markers for accepted/arrived jobs (no special tow truck icon needed here as it's accepted)
+        else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
+            if(!markers[id] && map) {
+                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e") });
+                marker.addListener('click', () => window.viewRequest(id));
+                markers[id] = marker;
+            } else if (markers[id]) {
+                markers[id].setIcon(getMarkerIcon("#22c55e"));
+                markers[id].setMap(map); // Make sure it's visible if it was hidden
+            }
+        }
+        // Remove markers for finalized/canceled or other non-display statuses
+        else if (markers[id]) {
+            markers[id].setMap(null);
+            delete markers[id];
+        }
+    });
+
+    // Start/Stop Tow Truck Animation
+    if (towTruckRequestsOnMap && !towTruckAnimationInterval) {
+        startTowTruckAnimation();
+    } else if (!towTruckRequestsOnMap && towTruckAnimationInterval) {
+        stopTowTruckAnimation();
+    }
+
+
+    // Now, iterate again (or continue the loop for other logic) to populate nearbySOS for the list and other UI
+    Object.entries(sosCache).forEach(([id, r]) => {
+        const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
+        const isTowTruck = r.isTowTruckRequest === true;
+
+        // Apply tow truck preference filter for the list as well
+        if (prefersTowTruck && !isTowTruck) {
+            return; // Skip non-tow truck requests if filter is on
+        }
+
+        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
+            nearbySOS.push({id, ...r, dist: distMiles});
+        }
+
+        // Identify current hero task (no preference filter here, you've accepted it)
+        if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) currentTask = r;
+        
+        // Identify active seeker request (Only latest non-finalized)
+        if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) {
+            if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = r;
+        }
+        
+        if((r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived')) {
+            jobActive = true; 
+        }
+
+        // Notification for CANCELED jobs for the helper - MODIFIED to use a stored previous state
+        const lastKnownSOS = window._lastSosCacheState_ ? window._lastSosCacheState_[id] : null;
+        if (r.helperId === myId && r.status === 'canceled' && lastKnownSOS && lastKnownSOS.status === 'accepted') {
+            const sound = document.getElementById('notificationSound');
+            if (sound) {
+                sound.play().catch(e => console.error("Error playing sound:", e));
+            }
+        }
+
+        // Filtered Activity History for the specific hero
+        if (r.ownerId === myId || r.helperId === myId) {
+            let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
+            history.innerHTML += `
+                <div class="history-item" style="padding:15px; background:#f8fafc; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; background:${sCol};">${r.status}</span>
+                        <b>${r.vehicle}${isTowTruck ? ' (Tow)' : ''}</b><br><small>${r.issue}</small>
+                    </div>
+                    <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="window.confirmDeleteActivityPrompt('${id}')">
+                </div>`;
+        }
+    });
+
+    document.getElementById('footerChatBtn').style.display = jobActive ? 'block' : 'none';
+    document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
+    document.getElementById('cancelSosBtn').style.display = myActiveSOS ? 'block' : 'none'; // Only show cancel if there's an active SOS
+
+
+    // HERO STATUS INDICATOR COLORS - MODIFIED
+    const ind = document.getElementById('statusIndicator');
+    if(currentTask && currentTask.status === 'canceled') { // Canceled task
+        ind.style.background = "var(--danger)"; // Red for canceled
+    } else if(currentTask) { // Active task (accepted/arrived)
+        ind.style.background = "var(--success)"; 
+    } else if (nearbySOS.length > 0) { // Nearby open SOS
+        ind.style.background = "var(--danger)"; 
+    } else { // No tasks, no nearby SOS
+        ind.style.background = "#94a3b8"; 
+    }
+    
+    // HERO TASK PANEL
+    const tCard = document.getElementById('activeTask');
+    tCard.innerHTML = ""; 
+
+    if(currentTask) {
+        tCard.style.display = 'block';
+        if(currentTask.status === 'canceled') {
+            tCard.innerHTML = `<div style="text-align:center;"><b style="color:var(--danger)">SOS CANCELED</b><p style="font-size:13px; margin:10px 0;">Reason: ${currentTask.cancelReason || 'None'}</p><button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:10px; font-size:13px;">CLOSE</button></div>`;
+        } else {
+            let contactInfo = '';
+            if (currentTask.isTowTruckRequest && currentTask.phoneNumber) {
+                contactInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;"> SOS Contact: <a href="tel:${currentTask.phoneNumber}" style="color:var(--text); text-decoration: underline;">${currentTask.phoneNumber}</a></p>`;
+            }
+            // NEW: Add towDestination to the task card if it's a tow truck request
+            let towDestinationInfo = '';
+            if (currentTask.isTowTruckRequest && currentTask.towDestination) {
+                towDestinationInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;">Destination: ${currentTask.towDestination}</p>`;
+            }
+
+
+            tCard.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <b style="color:${currentTask.status === 'arrived' ? 'var(--warning)' : 'var(--accent)'};">${currentTask.status.toUpperCase()} JOB</b>
+                    <button onclick="window.openChat()" style="background:var(--accent); color:white; border:none; padding:10px 18px; border-radius:12px; font-weight:bold; font-size:12px;">CHAT</button>
+                </div>
+                <p style="margin:10px 0; font-weight:700; font-size:15px;">${currentTask.vehicle}${currentTask.isTowTruckRequest ? ' (Tow Truck)' : ''}: ${currentTask.issue}</p>
+                ${(currentTask.tip > 0) ? `<p style="margin: 0 0 10px 0; font-weight: 800; color: var(--success); font-size: 14px;">💰 Tip: $${currentTask.tip}</p>` : ''}
+                ${contactInfo}
+                ${towDestinationInfo} <!-- NEW: Insert destination info here -->
+                <div style="display:flex; gap:8px;">
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}&${currentTask.isTowTruckRequest && currentTask.towDestination ? `destination_place_id=null&destination_address=${encodeURIComponent(currentTask.towDestination)}` : ''}" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">MAPS</a>
+                    ${currentTask.status === 'accepted' ? `<button onclick="window.markArrived()" style="flex:1; background:var(--warning); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">HERE</button>` : `<button onclick="window.completeTask()" style="flex:1; background:var(--success); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">DONE</button>`}
+                </div>`;
+        }
+    } else if (nearbySOS.length > 0) {
+        tCard.style.display = 'block';
+        let listHtml = `<b style="color:var(--danger); display:block; margin-bottom:10px;">${nearbySOS.length} SOS NEARBY</b>`;
+        nearbySOS.forEach(s => {
+            listHtml += `<div class="sos-list-item" onclick="window.viewRequest('${s.id}')">
+                <div><b>${s.vehicle}${s.isTowTruckRequest ? ' (Tow)' : ''}</b><br><small>${s.dist.toFixed(1)} miles away</small></div>
+                <div style="color:var(--success); font-weight:bold;">${s.tip > 0 ? '$'+s.tip : 'HELP'}</div>
+            </div>`;
+        });
+        tCard.innerHTML = listHtml;
+    } else {
+        tCard.style.display = 'block';
+        tCard.innerHTML = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone nearby sends an SOS.</p></div>`;
+    }
+
+    if(myActiveSOS) {
+        // SESSION PERSISTENCE: 2. If an active SOS is detected, force the view to seekerUI if they refresh back to the landing page
+        if (document.getElementById('landingPage').classList.contains('view-active')) {
+            window.switchView('seekerUI');
+        }
+
+        const searching = document.getElementById('searchingState');
+        const matched = document.getElementById('matchedState');
+        const completed = document.getElementById('completionConfirmState');
+        const cancelBtn = document.getElementById('cancelSosBtn');
+
+        // STRICT STATE TRANSITIONS
+        if(myActiveSOS.status === 'open') {
+            searching.style.display = 'block'; 
+            matched.style.display = 'none'; 
+            completed.style.display = 'none'; 
+            cancelBtn.style.display = 'block';
+        } else if(myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') {
+            searching.style.display = 'none'; 
+            matched.style.display = 'block'; 
+            completed.style.display = 'none'; 
+            cancelBtn.style.display = 'block';
+            
+            const hero = profilesCache[myActiveSOS.helperId] || {};
+            document.getElementById('matchName').innerText = hero.name || "Roadside Hero";
+            document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
+            document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is at your location!" : `Arriving in ${myActiveSOS.eta || '...'}`;
+            
+            const matchHeroPhone = document.getElementById('matchHeroPhone');
+            if (myActiveSOS.isTowTruckRequest && myActiveSOS.phoneNumber) {
+                matchHeroPhone.innerHTML = `📞 Contact: <a href="tel:${myActiveSOS.phoneNumber}" style="color:var(--text); text-decoration: underline;">${myActiveSOS.phoneNumber}</a>`;
+                matchHeroPhone.style.display = 'block';
+            } else {
+                matchHeroPhone.style.display = 'none';
+            }
+
+            // NEW: Display Tow Destination
+            const matchTowDestination = document.getElementById('matchTowDestination');
+            if (myActiveSOS.isTowTruckRequest && myActiveSOS.towDestination) {
+                matchTowDestination.innerText = `Destination: ${myActiveSOS.towDestination}`;
+                matchTowDestination.style.display = 'block';
+            } else {
+                matchTowDestination.style.display = 'none';
+            }
+
+            updateSeekerMiniMap(myActiveSOS, hero);
+        } else if(myActiveSOS.status === 'completed') {
+            searching.style.display = 'none'; 
+            matched.style.display = 'none'; 
+            completed.style.display = 'block'; 
+            cancelBtn.style.display = 'none';
+        }
+    } else {
+        // If no active SOS, ensure seeker UI elements are hidden
+        document.getElementById('searchingState').style.display = 'none'; 
+        document.getElementById('matchedState').style.display = 'none'; 
+        document.getElementById('completionConfirmState').style.display = 'none'; 
+        document.getElementById('cancelSosBtn').style.display = 'none';
+    }
+    
+    // Removed badge count for activity history
+    // const badge = document.getElementById('notifBadge'); badge.innerText = nearbySOS.length; badge.style.display = nearbySOS.length > 0 ? "flex" : "none";
+}
+
+function updateSeekerMiniMap(sos, hero) {
+    if(!seekerMiniMap) { 
+        seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); 
+        
+        // Seeker's own marker with the blue circle icon
+        seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: seekerOwnIcon }); 
+        
+        // Hero's marker with the custom image icon
+        seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: seekerHeroCustomIcon }); 
+    }
+
+    // Seeker's location from the SOS request (fixed at request time)
+    const userPos = {lat: sos.lat, lng: sos.lng}; 
+    seekerUserMarker.setPosition(userPos);
+
+    // Hero's live location from their profile (if available)
+    if(hero && hero.lat && hero.lng) { 
+        const heroPos = {lat: hero.lat, lng: hero.lng}; 
+        seekerHeroMarker.setPosition(heroPos); 
+        
+        const bounds = new google.maps.LatLngBounds(); 
+        bounds.extend(userPos); 
+        bounds.extend(heroPos); 
+        seekerMiniMap.fitBounds(bounds); 
+    }
+    else { 
+        // If hero's live location isn't available yet, center on seeker's location
+        seekerMiniMap.setCenter(userPos); 
+    }
+    
+    // Trigger map resize after updates in case it was expanded/collapsed
+    google.maps.event.trigger(seekerMiniMap, 'resize');
+}
+
+window.toggleSeekerMapExpansion = () => {
+    const container = document.getElementById('seekerMapContainer');
+    const expandBtn = container.querySelector('.map-expand-btn');
+    const closeBtn = container.querySelector('.map-close-btn');
+    
+    container.classList.toggle('expanded');
+    
+    if (container.classList.contains('expanded')) {
+        expandBtn.style.display = 'none';
+        closeBtn.style.display = 'flex'; // Use flex to center 'X'
+        // Ensure map resizes and re-centers correctly after expansion
+        google.maps.event.trigger(seekerMiniMap, 'resize');
+        if (seekerMiniMap && seekerUserMarker && seekerHeroMarker) {
+             const bounds = new google.maps.LatLngBounds();
+             bounds.extend(seekerUserMarker.getPosition());
+             bounds.extend(seekerHeroMarker.getPosition());
+             seekerMiniMap.fitBounds(bounds);
+        }
+    } else {
+        expandBtn.style.display = 'block';
+        closeBtn.style.display = 'none';
+        // Ensure map resizes and re-centers correctly after collapsing
+        google.maps.event.trigger(seekerMiniMap, 'resize');
+        if (seekerMiniMap && seekerUserMarker && seekerHeroMarker) {
+             const bounds = new google.maps.LatLngBounds();
+             bounds.extend(seekerUserMarker.getPosition());
+             bounds.extend(seekerHeroMarker.getPosition());
+             seekerMiniMap.fitBounds(bounds);
+        }
+    }
+};
+
+// Function to start the tow truck icon animation
+function startTowTruckAnimation() {
+    if (towTruckAnimationInterval) return; // Already running
+    
+    towTruckAnimationInterval = setInterval(() => {
+        currentTowTruckIconState = 1 - currentTowTruckIconState; // Toggle between 0 and 1
+        Object.values(markers).forEach(marker => {
+            const sosId = Object.keys(markers).find(key => markers[key] === marker);
+            const sos = sosCache[sosId]; // Find corresponding SOS
+            if (sos && sos.isTowTruckRequest && sos.status === 'open') {
+                const icon = currentTowTruckIconState === 0 
+                             ? getTowTruckSplitIcon("#ef4444", "#2563eb") // Left Red, Right Blue
+                             : getTowTruckSplitIcon("#2563eb", "#ef4444"); // Left Blue, Right Red
+                marker.setIcon(icon);
+            }
+        });
+    }, 100); // Toggle every 500ms
+}
+
+// Function to stop the tow truck icon animation
+function stopTowTruckAnimation() {
+    if (towTruckAnimationInterval) {
+        clearInterval(towTruckAnimationInterval);
+        towTruckAnimationInterval = null;
+    }
+    // Reset tow truck icons to default state (e.g., Left Red, Right Blue) when animation stops
+    Object.values(markers).forEach(marker => {
+        const sosId = Object.keys(markers).find(key => markers[key] === marker);
+        const sos = sosCache[sosId];
+        if (sos && sos.isTowTruckRequest && sos.status === 'open') {
+            marker.setIcon(getTowTruckSplitIcon("#ef4444", "#2563eb"));
+        }
+    });
+}
+
+
+onValue(ref(db, "sosRequests"), (snap) => { 
+    // Store the current state of sosCache before updating for notification comparison
+    window._lastSosCacheState_ = { ...sosCache }; 
+    sosCache = snap.val() || {}; 
+    syncUI(); 
+    
+    // SESSION PERSISTENCE: 3. Immediately switch the view if the database loads and sees you have an active session
+    const myActive = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
+    if (myActive && document.getElementById('landingPage').classList.contains('view-active')) {
+        window.switchView('seekerUI');
+        // Pre-fill phone number if seeker revisits an active tow truck request
+        if (myActive.isTowTruckRequest) {
+            isTowTruckRequestActive = true;
+            document.getElementById('towTruckBtn').classList.add('active');
+            document.getElementById('towTruckBtn').innerText = 'TOW TRUCK REQUEST ACTIVE';
+            document.getElementById('towTruckContact').style.display = 'block';
+
+            if (myActive.phoneNumber) {
+                document.getElementById('phoneNumberInput').value = myActive.phoneNumber;
+                document.getElementById('phoneNumberInput').setAttribute('required', 'required');
+            }
+            // NEW: Pre-fill tow destination if seeker revisits an active tow truck request
+            if (myActive.towDestination) {
+                document.getElementById('towDestinationInput').value = myActive.towDestination;
+                document.getElementById('towDestinationInput').setAttribute('required', 'required');
+            }
+        } else {
+             // If not a tow truck request, or no phone number, ensure these are reset
+            isTowTruckRequestActive = false;
+            document.getElementById('towTruckBtn').classList.remove('active');
+            document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!';
+            document.getElementById('towTruckContact').style.display = 'none';
+            document.getElementById('phoneNumberInput').removeAttribute('required');
+            document.getElementById('phoneNumberInput').value = '';
+            document.getElementById('towDestinationInput').removeAttribute('required');
+            document.getElementById('towDestinationInput').value = '';
+        }
+    }
+});
+
+// IMPORTANT: Listen to profiles for live hero tracking AND preference filtering
+onValue(ref(db, "profiles"), (snap) => { 
+    profilesCache = snap.val() || {}; 
+    syncUI(); 
+
+    // Update seeker minimap hero position in real-time if there's an active matched SOS
+    const myActiveSOS = Object.values(sosCache).find(r => r.ownerId === myId && (r.status === 'accepted' || r.status === 'arrived'));
+    if (myActiveSOS && myActiveSOS.helperId && profilesCache[myActiveSOS.helperId]) {
+        updateSeekerMiniMap(myActiveSOS, profilesCache[myActiveSOS.helperId]);
+    }
+});
+
+window.toggleTowTruckProfileFields = () => {
+    const prefersTowTruckRequests = document.getElementById("prefersTowTruckRequests").checked;
+    const towTruckRateFields = document.getElementById("towTruckRateFields");
+    if (prefersTowTruckRequests) {
+        towTruckRateFields.style.display = 'block';
+    } else {
+        towTruckRateFields.style.display = 'none';
+        // Clear values if preference is deselected
+        document.getElementById("towTruckBaseRate").value = '';
+        document.getElementById("towTruckPerMileRate").value = '';
+    }
+};
+
+window.saveProfile = () => {
+    myRadius = parseInt(document.getElementById("profileRadius").value);
+    const prefersTowTruckRequests = document.getElementById("prefersTowTruckRequests").checked;
+    const towTruckBaseRate = prefersTowTruckRequests ? parseFloat(document.getElementById("towTruckBaseRate").value) || 0 : null;
+    const towTruckPerMileRate = prefersTowTruckRequests ? parseFloat(document.getElementById("towTruckPerMileRate").value) || 0 : null;
+
+
+    update(ref(db, `profiles/${myId}`), { 
+        name: document.getElementById("profileName").value, 
+        bio: document.getElementById("profileBio").value, 
+        pic: document.getElementById("profileDisplayPic").src, 
+        radius: myRadius,
+        prefersTowTruckRequests: prefersTowTruckRequests, // Save the new preference
+        towTruckBaseRate: towTruckBaseRate, // Save base rate
+        towTruckPerMileRate: towTruckPerMileRate // Save per mile rate
+    });
+    if(map && userLocation) { 
+        const radiusInMeters = myRadius * 1609.34; 
+        const circle = new google.maps.Circle({center: userLocation, radius: radiusInMeters}); 
+        map.setCenter(userLocation);
+        map.fitBounds(circle.getBounds()); 
+    }
+    window.closeModal("profileModal");
+};
+
+window.openProfile = async () => {
+    window.openModal("profileModal");
+    const snap = await get(ref(db, `profiles/${myId}`));
+    if(snap.exists()) {
+        const d = snap.val(); 
+        document.getElementById("profileName").value = d.name || ""; 
+        document.getElementById("profileBio").value = d.bio || ""; 
+        if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; 
+        if(d.radius) { myRadius = d.radius; document.getElementById("profileRadius").value = d.radius; document.getElementById("radiusVal").innerText = d.radius; }
+        document.getElementById("prefersTowTruckRequests").checked = d.prefersTowTruckRequests === true; // Load preference
+        document.getElementById("towTruckBaseRate").value = d.towTruckBaseRate || '';
+        document.getElementById("towTruckPerMileRate").value = d.towTruckPerMileRate || '';
+        window.toggleTowTruckProfileFields(); // Ensure rate fields visibility is correct on load
+    }
+};
+
+window.confirmDeleteActivityPrompt = (id) => {
+    activityToDeleteId = id;
+    window.openModal('deleteConfirmModal');
+};
+
+window.confirmDeleteActivity = () => {
+    if (activityToDeleteId) {
+        remove(ref(db, `sosRequests/${activityToDeleteId}`))
+            .then(() => {
+                console.log("Activity deleted successfully:", activityToDeleteId);
+                activityToDeleteId = null; // Clear the stored ID
+                window.closeModal('deleteConfirmModal');
+            })
+            .catch((error) => {
+                console.error("Error deleting activity:", error);
+                alert("Failed to delete activity. Please try again.");
+            });
+    }
+};
 </script>
 </body>
 </html>
-
