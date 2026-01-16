@@ -5,7 +5,7 @@
 <title>RoadWatcHero</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<!-- Google Maps -->
+<!-- Google Maps with Geometry -->
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5GbyoapPOyLYJLNo9y85cyorIczEI-WU&libraries=geometry" async defer></script>
 
 <style>
@@ -481,18 +481,20 @@ window.toggleLoading = (show, text = "Processing...") => {
     }
 };
 
-// Safe marker creation - only call when google is ready
+// --- SAFE MAP FUNCTIONS (Crash-Proof) ---
+
+const isGoogleReady = () => typeof google !== 'undefined' && google.maps && google.maps.geometry;
+
 const getMarkerIcon = (color) => {
-    if (typeof google === 'undefined') return null;
+    if (!isGoogleReady()) return null;
     return {
         path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z",
         fillColor: color, fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff", scale: 1.5, anchor: new google.maps.Point(12, 12)
     };
 };
 
-// Safe icon creation functions
 const getSeekerOwnIcon = () => {
-    if (typeof google === 'undefined') return null;
+    if (!isGoogleReady()) return null;
     return {
         path: google.maps.SymbolPath.CIRCLE,
         scale: 8,
@@ -504,7 +506,7 @@ const getSeekerOwnIcon = () => {
 };
 
 const getSeekerHeroCustomIcon = () => {
-    if (typeof google === 'undefined') return null;
+    if (!isGoogleReady()) return null;
     return {
         url: 'heromapicon.png', 
         scaledSize: new google.maps.Size(32, 32), 
@@ -513,8 +515,8 @@ const getSeekerHeroCustomIcon = () => {
 };
 
 function getTowTruckSplitIcon(leftColor, rightColor) {
-    if (typeof google === 'undefined') return null;
-    const svgIcon = {
+    if (!isGoogleReady()) return null;
+    return {
         url: 'data:image/svg+xml;utf-8,' + encodeURIComponent(`
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs><clipPath id="clipLeft"><rect x="0" y="0" width="12" height="24"/></clipPath><clipPath id="clipRight"><rect x="12" y="0" width="12" height="24"/></clipPath></defs>
@@ -528,7 +530,6 @@ function getTowTruckSplitIcon(leftColor, rightColor) {
         scaledSize: new google.maps.Size(24, 24),
         anchor: new google.maps.Point(12, 12)
     };
-    return svgIcon;
 }
 
 window.onload = () => {
@@ -538,7 +539,8 @@ window.onload = () => {
             const isFirstLoad = !userLocation;
             userLocation = freshLoc;
             update(ref(db, `profiles/${myId}`), { ...userLocation, id: myId });
-            if (map && typeof google !== 'undefined') {
+            
+            if (map && isGoogleReady()) {
                 if (!heroMarker) {
                     heroMarker = new google.maps.Marker({
                         position: userLocation, map: map,
@@ -587,7 +589,7 @@ window.switchView = (id) => {
     triggerHaptic('light'); 
     document.querySelectorAll('.view').forEach(v => v.classList.remove('view-active'));
     document.getElementById(id).classList.add('view-active');
-    if (id === 'heroUI' && map && userLocation && typeof google !== 'undefined') { 
+    if (id === 'heroUI' && map && userLocation && isGoogleReady()) { 
         google.maps.event.trigger(map, 'resize'); 
         map.setCenter(userLocation); 
     }
@@ -839,7 +841,7 @@ window.viewRequest = (id) => {
 
     // SAFE DISTANCE CALCULATION
     let dist = "?";
-    if (typeof google !== 'undefined' && userLocation) {
+    if (isGoogleReady() && userLocation) {
         try {
             dist = (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1);
         } catch(e) {}
@@ -873,7 +875,6 @@ window.viewRequest = (id) => {
         heroContactIcons.style.display = 'flex'; 
 
         if (towTruckBaseRate > 0 || towTruckPerMileRate > 0) {
-            // Using 'dist' from above, handle potential '?' string
             const distVal = dist === "?" ? 0 : parseFloat(dist);
             const estimatedTotal = (parseFloat(towTruckBaseRate) + (parseFloat(towTruckPerMileRate) * distVal)).toFixed(2);
             detEstimatedCost.innerText = `Calculated: $${estimatedTotal}`;
@@ -1021,8 +1022,7 @@ window.enlargeImage = (src) => {
 
 window.enterHeroMode = () => { 
     window.switchView('heroUI'); 
-    // Fix: Only init map if google is loaded, otherwise it will self-correct in syncUI
-    if(!map && typeof google !== 'undefined') initMap(); 
+    if(!map && isGoogleReady()) initMap(); 
 };
 
 window.confirmHelp = (sosId) => {
@@ -1188,347 +1188,354 @@ window.confirmTowSelection = async () => {
 
 
 function initMap() { 
-    if (typeof google === 'undefined') return; // Safety check
-    map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true, styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] }); 
+    if (!isGoogleReady()) return;
+    try {
+        map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true, styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] }); 
+    } catch(e) { console.error("Map init failed", e); }
 }
 
 function syncUI() {
-    const history = document.getElementById('notifHistory'); history.innerHTML = "";
-    let nearbySOS = [];
-    let currentTask = null; 
-    let myActiveSOS = null;
-    let jobActive = false;
-    let towTruckRequestsOnMap = false; 
+    try {
+        const history = document.getElementById('notifHistory'); history.innerHTML = "";
+        let nearbySOS = [];
+        let currentTask = null; 
+        let myActiveSOS = null;
+        let jobActive = false;
+        let towTruckRequestsOnMap = false; 
 
-    const currentHeroProfile = profilesCache[myId] || {};
-    const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
+        const currentHeroProfile = profilesCache[myId] || {};
+        const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
 
-    // --- FIX FOR GOOGLE MAPS RACE CONDITION ---
-    const isMapsReady = (typeof google !== 'undefined' && google.maps && google.maps.geometry);
-    
-    if (!isMapsReady) {
-        if (!window.mapRetryInterval) {
-            window.mapRetryInterval = setTimeout(() => {
-                window.mapRetryInterval = null;
-                syncUI();
-            }, 500); // Retry in 500ms
+        // SAFE MAP CHECK
+        if (!isGoogleReady()) {
+            if (!window.mapRetryInterval) {
+                window.mapRetryInterval = setTimeout(() => {
+                    window.mapRetryInterval = null;
+                    syncUI();
+                }, 500); 
+            }
         }
-    }
 
-    Object.entries(sosCache).forEach(([id, r]) => {
-        const isTowTruck = r.isTowTruckRequest === true;
+        Object.entries(sosCache).forEach(([id, r]) => {
+            const isTowTruck = r.isTowTruckRequest === true;
 
-        if (prefersTowTruck && !isTowTruck) {
-            if (markers[id]) {
+            if (prefersTowTruck && !isTowTruck) {
+                if (markers[id]) {
+                    markers[id].setMap(null);
+                    delete markers[id];
+                }
+                return; 
+            }
+
+            if (r.status === 'open' && r.ownerId !== myId) {
+                if (isTowTruck) {
+                    towTruckRequestsOnMap = true; 
+                }
+
+                if (!markers[id] && map && isGoogleReady()) {
+                    const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C"); 
+                    if (iconToUse) {
+                        const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: iconToUse, animation: google.maps.Animation.DROP });
+                        marker.addListener('click', () => window.viewRequest(id));
+                        markers[id] = marker;
+                    }
+                } else if (markers[id] && isGoogleReady()) {
+                    const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C");
+                    if (iconToUse) {
+                        markers[id].setIcon(iconToUse);
+                        markers[id].setMap(map); 
+                    }
+                }
+            }
+            else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
+                if(!markers[id] && map && isGoogleReady()) {
+                    const icon = getMarkerIcon("#22c55e");
+                    if (icon) {
+                        const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: icon, animation: google.maps.Animation.DROP });
+                        marker.addListener('click', () => window.viewRequest(id));
+                        markers[id] = marker;
+                    }
+                } else if (markers[id] && isGoogleReady()) {
+                    const icon = getMarkerIcon("#22c55e");
+                    if (icon) {
+                        markers[id].setIcon(icon);
+                        markers[id].setMap(map); 
+                    }
+                }
+            }
+            else if (markers[id]) {
                 markers[id].setMap(null);
                 delete markers[id];
             }
-            return; 
-        }
-
-        if (r.status === 'open' && r.ownerId !== myId) {
-            if (isTowTruck) {
-                towTruckRequestsOnMap = true; 
-            }
-
-            if (!markers[id] && map && isMapsReady) {
-                const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C"); 
-                // Only create marker if icon creation succeeded (google is ready)
-                if (iconToUse) {
-                    const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: iconToUse, animation: google.maps.Animation.DROP });
-                    marker.addListener('click', () => window.viewRequest(id));
-                    markers[id] = marker;
-                }
-            } else if (markers[id] && isMapsReady) {
-                const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C");
-                if (iconToUse) {
-                    markers[id].setIcon(iconToUse);
-                    markers[id].setMap(map); 
-                }
-            }
-        }
-        else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
-            if(!markers[id] && map && isMapsReady) {
-                const icon = getMarkerIcon("#22c55e");
-                if (icon) {
-                    const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: icon, animation: google.maps.Animation.DROP });
-                    marker.addListener('click', () => window.viewRequest(id));
-                    markers[id] = marker;
-                }
-            } else if (markers[id] && isMapsReady) {
-                const icon = getMarkerIcon("#22c55e");
-                if (icon) {
-                    markers[id].setIcon(icon);
-                    markers[id].setMap(map); 
-                }
-            }
-        }
-        else if (markers[id]) {
-            markers[id].setMap(null);
-            delete markers[id];
-        }
-    });
-
-    if (towTruckRequestsOnMap && !towTruckAnimationInterval) {
-        startTowTruckAnimation();
-    } else if (!towTruckRequestsOnMap && towTruckAnimationInterval) {
-        stopTowTruckAnimation();
-    }
-
-
-    Object.entries(sosCache).forEach(([id, r]) => {
-        // Safe Distance Calculation
-        let distMiles = null;
-        if (isMapsReady && userLocation) {
-             try {
-                 distMiles = (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34);
-             } catch(e) { console.log("Map calc error", e); }
-        }
-
-        const isTowTruck = r.isTowTruckRequest === true;
-
-        if (prefersTowTruck && !isTowTruck) {
-            return; 
-        }
-
-        // Only add to nearbySOS if distance could be calculated
-        if (distMiles !== null && r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
-            nearbySOS.push({id, ...r, dist: distMiles});
-        }
-
-        if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) currentTask = r;
-        
-        if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) {
-            if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = r;
-        }
-        
-        if((r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived')) {
-            jobActive = true; 
-        } else if (r.ownerId === myId && r.status === 'open' && r.isTowTruckRequest && r.estimates && Object.keys(r.estimates).length > 0) {
-            jobActive = true;
-        }
-
-        const lastKnownSOS = window._lastSosCacheState_ ? window._lastSosCacheState_[id] : null;
-        if (r.helperId === myId && r.status === 'canceled' && lastKnownSOS && lastKnownSOS.status === 'accepted') {
-            playSound();
-        }
-
-        if (r.ownerId === myId || r.helperId === myId) {
-            let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
-            history.innerHTML += `
-                <div class="history-item" style="padding:15px; background:#f8fafc; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; background:${sCol};">${r.status}</span>
-                        <b>${r.vehicle}${isTowTruck ? ' (Tow)' : ''}</b><br><small>${r.issue}</small>
-                    </div>
-                    <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="window.confirmDeleteActivityPrompt('${id}')">
-                </div>`;
-        }
-    });
-
-    document.getElementById('footerChatBtn').style.display = jobActive ? 'block' : 'none';
-    document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
-    document.getElementById('cancelSosBtn').style.display = myActiveSOS ? 'block' : 'none'; 
-
-
-    const ind = document.getElementById('statusIndicator');
-    const estimateAcceptedPrompt = document.getElementById('estimateAcceptedPrompt');
-
-    estimateAcceptedPrompt.style.display = 'none';
-
-    if(currentTask && currentTask.status === 'canceled') { 
-        ind.style.background = "var(--danger)"; 
-    } else if(currentTask) { 
-        ind.style.background = "var(--success)"; 
-    } else if (nearbySOS.length > 0) { 
-        ind.style.background = "var(--danger)"; 
-    } else { 
-        ind.style.background = "#94a3b8"; 
-    }
-    
-    const tCard = document.getElementById('activeTask');
-    tCard.innerHTML = ""; 
-
-    if(currentTask) {
-        tCard.style.display = 'block';
-        if(currentTask.status === 'canceled') {
-            tCard.innerHTML = `<div style="text-align:center;"><b style="color:var(--danger)">SOS CANCELED</b><p style="font-size:13px; margin:10px 0;">Reason: ${currentTask.cancelReason || 'None'}</p><button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:10px; font-size:13px;">CLOSE</button></div>`;
-        } else {
-            let contactInfo = '';
-            if (currentTask.isTowTruckRequest && currentTask.phoneNumber) {
-                contactInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;"> SOS Contact: <a href="tel:${currentTask.phoneNumber}" style="color:var(--text); text-decoration: underline;">${currentTask.phoneNumber}</a></p>`;
-            }
-            let towDestinationInfo = '';
-            if (currentTask.isTowTruckRequest && currentTask.towDestination) {
-                towDestinationInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;">Destination: ${currentTask.towDestination}</p>`;
-            }
-
-
-            tCard.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <b style="color:${currentTask.status === 'arrived' ? 'var(--warning)' : 'var(--accent)'};">${currentTask.status.toUpperCase()} JOB</b>
-                    <button onclick="window.openChat()" style="background:var(--accent); color:white; border:none; padding:10px 18px; border-radius:12px; font-weight:bold; font-size:12px;">CHAT</button>
-                </div>
-                <p style="margin:10px 0; font-weight:700; font-size:15px;">${currentTask.vehicle}${currentTask.isTowTruckRequest ? ' (Tow Truck)' : ''}: ${currentTask.issue}</p>
-                ${(currentTask.tip > 0) ? `<p style="margin: 0 0 10px 0; font-weight: 800; color: var(--success); font-size: 14px;">💰 Tip: $${currentTask.tip}</p>` : ''}
-                ${contactInfo}
-                ${towDestinationInfo} 
-                <div style="display:flex; gap:8px;">
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}&${currentTask.isTowTruckRequest && currentTask.towDestination ? `destination_place_id=null&destination_address=${encodeURIComponent(currentTask.towDestination)}` : ''}" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">MAPS</a>
-                    ${currentTask.status === 'accepted' ? `<button onclick="window.markArrived()" style="flex:1; background:var(--warning); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">HERE</button>` : `<button onclick="window.completeTask()" style="flex:1; background:var(--success); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">DONE</button>`}
-                </div>`;
-        }
-    } else if (nearbySOS.length > 0) {
-        tCard.style.display = 'block';
-        let listHtml = `<b style="color:var(--danger); display:block; margin-bottom:10px;">${nearbySOS.length} SOS NEARBY</b>`;
-        nearbySOS.forEach(s => {
-            listHtml += `<div class="sos-list-item" onclick="window.viewRequest('${s.id}')">
-                <div><b>${s.vehicle}${s.isTowTruckRequest ? ' (Tow)' : ''}</b><br><small>${s.dist.toFixed(1)} miles away</small></div>
-                <div style="color:var(--success); font-weight:bold;">${s.tip > 0 ? '$'+s.tip : 'HELP'}</div>
-            </div>`;
         });
-        tCard.innerHTML = listHtml;
-    } else {
-        tCard.style.display = 'block';
-        tCard.innerHTML = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone nearby sends an an SOS.</p></div>`;
-    }
 
-    const heroHasAcceptedEstimate = Object.values(sosCache).some(r => r.acceptedEstimateId === myId && r.status === 'open');
-    if (heroHasAcceptedEstimate) {
-        estimateAcceptedPrompt.style.display = 'block';
-    } else {
+        if (towTruckRequestsOnMap && !towTruckAnimationInterval) {
+            startTowTruckAnimation();
+        } else if (!towTruckRequestsOnMap && towTruckAnimationInterval) {
+            stopTowTruckAnimation();
+        }
+
+
+        Object.entries(sosCache).forEach(([id, r]) => {
+            let distMiles = null;
+            if (isGoogleReady() && userLocation) {
+                 try {
+                     distMiles = (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34);
+                 } catch(e) { }
+            }
+
+            const isTowTruck = r.isTowTruckRequest === true;
+
+            if (prefersTowTruck && !isTowTruck) {
+                return; 
+            }
+
+            if (distMiles !== null && r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
+                nearbySOS.push({id, ...r, dist: distMiles});
+            }
+
+            if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) currentTask = r;
+            
+            if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) {
+                if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = r;
+            }
+            
+            if((r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived')) {
+                jobActive = true; 
+            } else if (r.ownerId === myId && r.status === 'open' && r.isTowTruckRequest && r.estimates && Object.keys(r.estimates).length > 0) {
+                jobActive = true;
+            }
+
+            const lastKnownSOS = window._lastSosCacheState_ ? window._lastSosCacheState_[id] : null;
+            if (r.helperId === myId && r.status === 'canceled' && lastKnownSOS && lastKnownSOS.status === 'accepted') {
+                playSound();
+            }
+
+            if (r.ownerId === myId || r.helperId === myId) {
+                let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
+                history.innerHTML += `
+                    <div class="history-item" style="padding:15px; background:#f8fafc; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; background:${sCol};">${r.status}</span>
+                            <b>${r.vehicle}${isTowTruck ? ' (Tow)' : ''}</b><br><small>${r.issue}</small>
+                        </div>
+                        <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="window.confirmDeleteActivityPrompt('${id}')">
+                    </div>`;
+            }
+        });
+
+        document.getElementById('footerChatBtn').style.display = jobActive ? 'block' : 'none';
+        document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
+        document.getElementById('cancelSosBtn').style.display = myActiveSOS ? 'block' : 'none'; 
+
+
+        const ind = document.getElementById('statusIndicator');
+        const estimateAcceptedPrompt = document.getElementById('estimateAcceptedPrompt');
+
         estimateAcceptedPrompt.style.display = 'none';
-    }
 
-
-    if(myActiveSOS) {
-        if (document.getElementById('landingPage').classList.contains('view-active')) {
-            window.switchView('seekerUI');
+        if(currentTask && currentTask.status === 'canceled') { 
+            ind.style.background = "var(--danger)"; 
+        } else if(currentTask) { 
+            ind.style.background = "var(--success)"; 
+        } else if (nearbySOS.length > 0) { 
+            ind.style.background = "var(--danger)"; 
+        } else { 
+            ind.style.background = "#94a3b8"; 
         }
+        
+        const tCard = document.getElementById('activeTask');
+        tCard.innerHTML = ""; 
 
-        const searching = document.getElementById('searchingState');
-        const matched = document.getElementById('matchedState');
-        const completed = document.getElementById('completionConfirmState');
-        const cancelBtn = document.getElementById('cancelSosBtn');
-        const seekerTowEstimates = document.getElementById('seekerTowEstimates');
-        const estimatesList = document.getElementById('estimatesList');
-
-        const isMatchedOrPreMatched = (myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') || 
-                                      (myActiveSOS.status === 'open' && myActiveSOS.acceptedEstimateId);
-
-        if(!isMatchedOrPreMatched && myActiveSOS.status === 'open') {
-            searching.style.display = 'block'; 
-            matched.style.display = 'none'; 
-            completed.style.display = 'none'; 
-            cancelBtn.style.display = 'block';
-            
-            // --- STATIC TEXT RESTORED ---
-            // No cycling text interval logic here.
-
-            if (myActiveSOS.isTowTruckRequest && myActiveSOS.estimates && Object.keys(myActiveSOS.estimates).length > 0) {
-                seekerTowEstimates.style.display = 'block';
-                estimatesList.innerHTML = ''; 
-                let hasEstimatesToShow = false;
-                Object.entries(myActiveSOS.estimates).forEach(([heroId, estimate]) => {
-                    if (heroId !== 'undefined' && estimate && typeof estimate === 'object' && typeof estimate.amount === 'number') {
-                        estimatesList.innerHTML += `
-                            <div class="tow-estimate-item">
-                                <span class="hero-name">${estimate.name || 'Hero'}</span>
-                                <span class="estimate-price">$${parseFloat(estimate.amount).toFixed(2)}</span>
-                                <button class="select-estimate-btn" onclick="window.selectTowEstimate('${Object.keys(sosCache).find(k => sosCache[k] === myActiveSOS)}', '${heroId}')">SELECT</button>
-                            </div>
-                        `;
-                        hasEstimatesToShow = true;
-                    }
-                });
-                if (!hasEstimatesToShow) {
-                    estimatesList.innerHTML = '<p style="font-size:13px; color:var(--muted);">No valid estimates yet. Hold tight!</p>';
+        if(currentTask) {
+            tCard.style.display = 'block';
+            if(currentTask.status === 'canceled') {
+                tCard.innerHTML = `<div style="text-align:center;"><b style="color:var(--danger)">SOS CANCELED</b><p style="font-size:13px; margin:10px 0;">Reason: ${currentTask.cancelReason || 'None'}</p><button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:10px; font-size:13px;">CLOSE</button></div>`;
+            } else {
+                let contactInfo = '';
+                if (currentTask.isTowTruckRequest && currentTask.phoneNumber) {
+                    contactInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;"> SOS Contact: <a href="tel:${currentTask.phoneNumber}" style="color:var(--text); text-decoration: underline;">${currentTask.phoneNumber}</a></p>`;
                 }
-            } else {
-                seekerTowEstimates.style.display = 'none';
-            }
+                let towDestinationInfo = '';
+                if (currentTask.isTowTruckRequest && currentTask.towDestination) {
+                    towDestinationInfo = `<p style="margin: 0 0 10px 0; font-weight: 700; font-size: 14px;">Destination: ${currentTask.towDestination}</p>`;
+                }
 
-        } else if(isMatchedOrPreMatched) {
-            searching.style.display = 'none'; 
-            matched.style.display = 'block'; 
-            completed.style.display = 'none'; 
-            cancelBtn.style.display = 'block';
-            seekerTowEstimates.style.display = 'none'; 
-            
-            const matchedHeroId = myActiveSOS.helperId || myActiveSOS.acceptedEstimateId;
-            const hero = profilesCache[matchedHeroId] || {};
-            
-            document.getElementById('matchName').innerText = hero.name || "Roadside Hero";
-            document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
-            
-            if (myActiveSOS.status === 'open' && myActiveSOS.acceptedEstimateId) {
-                 document.getElementById('matchETA').innerText = "Connecting to Hero...";
-                 document.getElementById('seekerStatusPill').innerText = "WAITING FOR HERO CONFIRMATION";
-                 document.getElementById('seekerStatusPill').style.background = "var(--warning)";
-            } else {
-                 document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is at your location!" : `Arriving in ${myActiveSOS.eta || '...'}`;
-                 document.getElementById('seekerStatusPill').innerText = "HERO CONNECTED";
-                 document.getElementById('seekerStatusPill').style.background = "var(--success)";
-            }
 
-            const matchHeroPhone = document.getElementById('matchHeroPhone');
-            if (myActiveSOS.isTowTruckRequest && myActiveSOS.phoneNumber) {
-                matchHeroPhone.innerHTML = `📞 Contact: <a href="tel:${myActiveSOS.phoneNumber}" style="color:var(--text); text-decoration: underline;">${myActiveSOS.phoneNumber}</a>`;
-                matchHeroPhone.style.display = 'block';
-            } else {
-                matchHeroPhone.style.display = 'none';
+                tCard.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <b style="color:${currentTask.status === 'arrived' ? 'var(--warning)' : 'var(--accent)'};">${currentTask.status.toUpperCase()} JOB</b>
+                        <button onclick="window.openChat()" style="background:var(--accent); color:white; border:none; padding:10px 18px; border-radius:12px; font-weight:bold; font-size:12px;">CHAT</button>
+                    </div>
+                    <p style="margin:10px 0; font-weight:700; font-size:15px;">${currentTask.vehicle}${currentTask.isTowTruckRequest ? ' (Tow Truck)' : ''}: ${currentTask.issue}</p>
+                    ${(currentTask.tip > 0) ? `<p style="margin: 0 0 10px 0; font-weight: 800; color: var(--success); font-size: 14px;">💰 Tip: $${currentTask.tip}</p>` : ''}
+                    ${contactInfo}
+                    ${towDestinationInfo} 
+                    <div style="display:flex; gap:8px;">
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${currentTask.lat},${currentTask.lng}&${currentTask.isTowTruckRequest && currentTask.towDestination ? `destination_place_id=null&destination_address=${encodeURIComponent(currentTask.towDestination)}` : ''}" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">MAPS</a>
+                        ${currentTask.status === 'accepted' ? `<button onclick="window.markArrived()" style="flex:1; background:var(--warning); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">HERE</button>` : `<button onclick="window.completeTask()" style="flex:1; background:var(--success); color:white; border:none; border-radius:12px; font-weight:700; font-size:13px;">DONE</button>`}
+                    </div>`;
             }
-
-            const matchTowDestination = document.getElementById('matchTowDestination');
-            if (myActiveSOS.isTowTruckRequest && myActiveSOS.towDestination) {
-                matchTowDestination.innerText = `Destination: ${myActiveSOS.towDestination}`;
-                matchTowDestination.style.display = 'block';
-            } else {
-                matchTowDestination.style.display = 'none';
-            }
-
-            updateSeekerMiniMap(myActiveSOS, hero);
-        } else if(myActiveSOS.status === 'completed') {
-            searching.style.display = 'none'; 
-            matched.style.display = 'none'; 
-            completed.style.display = 'block'; 
-            cancelBtn.style.display = 'none';
-            seekerTowEstimates.style.display = 'none'; 
+        } else if (nearbySOS.length > 0) {
+            tCard.style.display = 'block';
+            let listHtml = `<b style="color:var(--danger); display:block; margin-bottom:10px;">${nearbySOS.length} SOS NEARBY</b>`;
+            nearbySOS.forEach(s => {
+                listHtml += `<div class="sos-list-item" onclick="window.viewRequest('${s.id}')">
+                    <div><b>${s.vehicle}${s.isTowTruckRequest ? ' (Tow)' : ''}</b><br><small>${s.dist.toFixed(1)} miles away</small></div>
+                    <div style="color:var(--success); font-weight:bold;">${s.tip > 0 ? '$'+s.tip : 'HELP'}</div>
+                </div>`;
+            });
+            tCard.innerHTML = listHtml;
+        } else {
+            tCard.style.display = 'block';
+            tCard.innerHTML = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone nearby sends an an SOS.</p></div>`;
         }
-    } else {
-        document.getElementById('searchingState').style.display = 'none'; 
-        document.getElementById('matchedState').style.display = 'none'; 
-        document.getElementById('completionConfirmState').style.display = 'none'; 
-        document.getElementById('cancelSosBtn').style.display = 'none';
-        document.getElementById('seekerTowEstimates').style.display = 'none'; 
+
+        const heroHasAcceptedEstimate = Object.values(sosCache).some(r => r.acceptedEstimateId === myId && r.status === 'open');
+        if (heroHasAcceptedEstimate) {
+            estimateAcceptedPrompt.style.display = 'block';
+        } else {
+            estimateAcceptedPrompt.style.display = 'none';
+        }
+
+
+        if(myActiveSOS) {
+            if (document.getElementById('landingPage').classList.contains('view-active')) {
+                window.switchView('seekerUI');
+            }
+
+            const searching = document.getElementById('searchingState');
+            const matched = document.getElementById('matchedState');
+            const completed = document.getElementById('completionConfirmState');
+            const cancelBtn = document.getElementById('cancelSosBtn');
+            const seekerTowEstimates = document.getElementById('seekerTowEstimates');
+            const estimatesList = document.getElementById('estimatesList');
+
+            const isMatchedOrPreMatched = (myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') || 
+                                          (myActiveSOS.status === 'open' && myActiveSOS.acceptedEstimateId);
+
+            if(!isMatchedOrPreMatched && myActiveSOS.status === 'open') {
+                searching.style.display = 'block'; 
+                matched.style.display = 'none'; 
+                completed.style.display = 'none'; 
+                cancelBtn.style.display = 'block';
+                
+                // --- STATIC TEXT RESTORED ---
+                // No cycling text interval logic here.
+
+                if (myActiveSOS.isTowTruckRequest && myActiveSOS.estimates && Object.keys(myActiveSOS.estimates).length > 0) {
+                    seekerTowEstimates.style.display = 'block';
+                    estimatesList.innerHTML = ''; 
+                    let hasEstimatesToShow = false;
+                    Object.entries(myActiveSOS.estimates).forEach(([heroId, estimate]) => {
+                        if (heroId !== 'undefined' && estimate && typeof estimate === 'object' && typeof estimate.amount === 'number') {
+                            estimatesList.innerHTML += `
+                                <div class="tow-estimate-item">
+                                    <span class="hero-name">${estimate.name || 'Hero'}</span>
+                                    <span class="estimate-price">$${parseFloat(estimate.amount).toFixed(2)}</span>
+                                    <button class="select-estimate-btn" onclick="window.selectTowEstimate('${Object.keys(sosCache).find(k => sosCache[k] === myActiveSOS)}', '${heroId}')">SELECT</button>
+                                </div>
+                            `;
+                            hasEstimatesToShow = true;
+                        }
+                    });
+                    if (!hasEstimatesToShow) {
+                        estimatesList.innerHTML = '<p style="font-size:13px; color:var(--muted);">No valid estimates yet. Hold tight!</p>';
+                    }
+                } else {
+                    seekerTowEstimates.style.display = 'none';
+                }
+
+            } else if(isMatchedOrPreMatched) {
+                searching.style.display = 'none'; 
+                matched.style.display = 'block'; 
+                completed.style.display = 'none'; 
+                cancelBtn.style.display = 'block';
+                seekerTowEstimates.style.display = 'none'; 
+                
+                const matchedHeroId = myActiveSOS.helperId || myActiveSOS.acceptedEstimateId;
+                const hero = profilesCache[matchedHeroId] || {};
+                
+                document.getElementById('matchName').innerText = hero.name || "Roadside Hero";
+                document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
+                
+                if (myActiveSOS.status === 'open' && myActiveSOS.acceptedEstimateId) {
+                     document.getElementById('matchETA').innerText = "Connecting to Hero...";
+                     document.getElementById('seekerStatusPill').innerText = "WAITING FOR HERO CONFIRMATION";
+                     document.getElementById('seekerStatusPill').style.background = "var(--warning)";
+                } else {
+                     document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is at your location!" : `Arriving in ${myActiveSOS.eta || '...'}`;
+                     document.getElementById('seekerStatusPill').innerText = "HERO CONNECTED";
+                     document.getElementById('seekerStatusPill').style.background = "var(--success)";
+                }
+
+                const matchHeroPhone = document.getElementById('matchHeroPhone');
+                if (myActiveSOS.isTowTruckRequest && myActiveSOS.phoneNumber) {
+                    matchHeroPhone.innerHTML = `📞 Contact: <a href="tel:${myActiveSOS.phoneNumber}" style="color:var(--text); text-decoration: underline;">${myActiveSOS.phoneNumber}</a>`;
+                    matchHeroPhone.style.display = 'block';
+                } else {
+                    matchHeroPhone.style.display = 'none';
+                }
+
+                const matchTowDestination = document.getElementById('matchTowDestination');
+                if (myActiveSOS.isTowTruckRequest && myActiveSOS.towDestination) {
+                    matchTowDestination.innerText = `Destination: ${myActiveSOS.towDestination}`;
+                    matchTowDestination.style.display = 'block';
+                } else {
+                    matchTowDestination.style.display = 'none';
+                }
+
+                updateSeekerMiniMap(myActiveSOS, hero);
+            } else if(myActiveSOS.status === 'completed') {
+                searching.style.display = 'none'; 
+                matched.style.display = 'none'; 
+                completed.style.display = 'block'; 
+                cancelBtn.style.display = 'none';
+                seekerTowEstimates.style.display = 'none'; 
+            }
+        } else {
+            document.getElementById('searchingState').style.display = 'none'; 
+            document.getElementById('matchedState').style.display = 'none'; 
+            document.getElementById('completionConfirmState').style.display = 'none'; 
+            document.getElementById('cancelSosBtn').style.display = 'none';
+            document.getElementById('seekerTowEstimates').style.display = 'none'; 
+        }
+    } catch (e) {
+        console.error("Sync UI Crash Prevented", e);
     }
 }
 
 function updateSeekerMiniMap(sos, hero) {
-    if(!seekerMiniMap) { 
-        if (typeof google === 'undefined') return;
-        seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); 
-        seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: getSeekerOwnIcon() }); 
-        seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: getSeekerHeroCustomIcon() }); 
-    }
+    try {
+        if(!seekerMiniMap) { 
+            if (!isGoogleReady()) return;
+            seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); 
+            seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: getSeekerOwnIcon() }); 
+            seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: getSeekerHeroCustomIcon() }); 
+        }
 
-    const userPos = {lat: sos.lat, lng: sos.lng}; 
-    seekerUserMarker.setPosition(userPos);
+        const userPos = {lat: sos.lat, lng: sos.lng}; 
+        if (seekerUserMarker) seekerUserMarker.setPosition(userPos);
 
-    if(hero && hero.lat && hero.lng) { 
-        const heroPos = {lat: hero.lat, lng: hero.lng}; 
-        seekerHeroMarker.setPosition(heroPos); 
+        if(hero && hero.lat && hero.lng) { 
+            const heroPos = {lat: hero.lat, lng: hero.lng}; 
+            if (seekerHeroMarker) seekerHeroMarker.setPosition(heroPos); 
+            
+            if (seekerUserMarker && seekerHeroMarker) {
+                const bounds = new google.maps.LatLngBounds(); 
+                bounds.extend(userPos); 
+                bounds.extend(heroPos); 
+                seekerMiniMap.fitBounds(bounds); 
+            }
+        }
+        else { 
+            seekerMiniMap.setCenter(userPos); 
+        }
         
-        const bounds = new google.maps.LatLngBounds(); 
-        bounds.extend(userPos); 
-        bounds.extend(heroPos); 
-        seekerMiniMap.fitBounds(bounds); 
+        google.maps.event.trigger(seekerMiniMap, 'resize');
+    } catch(e) {
+        console.error("Minimap Error", e);
     }
-    else { 
-        seekerMiniMap.setCenter(userPos); 
-    }
-    
-    google.maps.event.trigger(seekerMiniMap, 'resize');
 }
 
 window.toggleSeekerMapExpansion = () => {
@@ -1542,7 +1549,7 @@ window.toggleSeekerMapExpansion = () => {
     if (container.classList.contains('expanded')) {
         expandBtn.style.display = 'none';
         closeBtn.style.display = 'flex'; 
-        if (typeof google !== 'undefined') {
+        if (isGoogleReady()) {
             google.maps.event.trigger(seekerMiniMap, 'resize');
             if (seekerMiniMap && seekerUserMarker && seekerHeroMarker) {
                  const bounds = new google.maps.LatLngBounds();
@@ -1554,7 +1561,7 @@ window.toggleSeekerMapExpansion = () => {
     } else {
         expandBtn.style.display = 'block';
         closeBtn.style.display = 'none';
-        if (typeof google !== 'undefined') {
+        if (isGoogleReady()) {
             google.maps.event.trigger(seekerMiniMap, 'resize');
             if (seekerMiniMap && seekerUserMarker && seekerHeroMarker) {
                  const bounds = new google.maps.LatLngBounds();
@@ -1677,7 +1684,7 @@ window.saveProfile = async () => {
             towTruckBaseRate: towTruckBaseRate, 
             towTruckPerMileRate: towTruckPerMileRate 
         });
-        if(map && userLocation && typeof google !== 'undefined') { 
+        if(map && userLocation && isGoogleReady()) { 
             const radiusInMeters = myRadius * 1609.34; 
             const circle = new google.maps.Circle({center: userLocation, radius: radiusInMeters}); 
             map.setCenter(userLocation);
