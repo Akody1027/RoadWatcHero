@@ -68,6 +68,7 @@ input:focus, textarea:focus, select:focus {
 .map-expand-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(255, 255, 255, 0.9); border: none; padding: 8px 12px; border-radius: 15px; box-shadow: var(--shadow); cursor: pointer; z-index: 2; font-size: 14px; font-weight: 700; color: var(--text); }
 .map-close-btn { position: absolute; top: 15px; right: 15px; background: var(--danger); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; font-weight: bold; display: none; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow); z-index: 1002; }
 
+/* ORIGINAL PULSE ANIMATION (Restored) */
 .search-pulse { width: 80px; height: 80px; background: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: white; margin: 0 auto 20px; position: relative; }
 .search-pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--danger); opacity: 0.4; animation: pulse 2s infinite; }
 @keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
@@ -102,11 +103,11 @@ input:focus, textarea:focus, select:focus {
 
 .vehicle-grid { display: flex; grid-template-columns: repeat(2, 1fr); margin: 15px 0; }
 .v-type { padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 700; width:25%; align-content:center;}
-/* FIX: Added background color for active state */
+/* CSS Fix: Active State */
 .v-type.active { border-color: #EE611C; color: #EE611C; background: #fff7ed; }
 
 .tip-btn { border: 2px solid #f1f5f9; border-radius: 10px; padding: 12px; flex: 1; text-align: center; cursor: pointer; font-weight: 800; background: white; }
-/* FIX: Added background color for active state */
+/* CSS Fix: Active State */
 .tip-btn.active { border-color: var(--success); color: var(--success); background: #f0fdf4; }
 
 input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 12px; font-size: 15px; background: #f8fafc;  font-family: math;}
@@ -121,7 +122,7 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 
 .center-btn { position: absolute; top: 20px; right: 20px; background: #EE611C; border: none; padding: 12px; border-radius: 12px; box-shadow: var(--shadow); cursor: pointer; z-index: 5; font-weight: 800; font-size: 11px; color:white; }
 
-/* FIX: Fixed typo color:red */
+/* CSS Fix: Typo */
 .trash-icon { width: 20px; height: 20px; cursor: pointer; margin-left: 10px; color: red; }
 
 .btn-towtruck { background: white; color: #2563eb; border: 2px solid #2563eb; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; padding: 18px; width: 100%; margin-bottom: 10px; }
@@ -146,7 +147,7 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 .custom-alert { background-color: var(--accent); color: white; padding: 15px 25px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 10px; font-weight: 600; text-align: center; opacity: 0; animation: fadeInOut 5s forwards; }
 @keyframes fadeInOut { 0% { opacity: 0; transform: translateY(-20px); } 10% { opacity: 1; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
 
-/* LOADING OVERLAY */
+/* LOADING OVERLAY - Kept for Image Uploads Only */
 #loadingOverlay {
     position: fixed; inset: 0; background: rgba(255,255,255,0.8);
     backdrop-filter: blur(5px); z-index: 9999; display: none;
@@ -182,9 +183,10 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     <button id="cancelSosBtn" onclick="window.openModal('cancelConfirmModal')" style="align-self: flex-start; background: none; border: none; font-weight: 800; color: var(--danger); padding: 20px; display: none;">✕ CANCEL SOS</button>
     
     <div id="searchingState" class="status-card">
+        <!-- RESTORED PULSE ANIMATION DIV -->
         <div class="search-pulse">📡</div>
         <h3>Broadcasting SOS...</h3>
-        <p id="seekingStatusText">Your request is live. Waiting for a Hero to accept...</p>
+        <p>Your request is live. Waiting for a Hero to accept...</p>
     </div>
 
     <!-- Seeker Tow Estimates container -->
@@ -452,9 +454,8 @@ let currentTowTruckIconState = 0;
 let isTowTruckRequestActive = false; 
 window.currentViewingSosId = null; 
 let pendingTowSelect = null; 
-window.seekingTextInterval = null; // New global for interval
 
-// --- NEW HELPER FUNCTIONS ---
+// --- NEW HELPER FUNCTIONS (POLISH) ---
 
 const triggerHaptic = (type = 'light') => {
     if (navigator.vibrate) {
@@ -573,9 +574,8 @@ window.closeModal = (id) => {
     }
 };
 
-// UPDATED SWITCHVIEW
 window.switchView = (id) => {
-    triggerHaptic('light'); // Visual/tactile feedback
+    triggerHaptic('light'); 
     document.querySelectorAll('.view').forEach(v => v.classList.remove('view-active'));
     document.getElementById(id).classList.add('view-active');
     if (id === 'heroUI' && map && userLocation) { google.maps.event.trigger(map, 'resize'); map.setCenter(userLocation); }
@@ -597,7 +597,6 @@ window.selectVehicle = (type, el) => {
     document.getElementById('towDestinationInput').value = '';
 };
 
-// UPDATED IMAGE UPLOAD
 window.handleImageUpload = (input, target) => {
     window.toggleLoading(true, "Compressing Image...");
     const file = input.files[0]; if(!file) { window.toggleLoading(false); return; }
@@ -954,7 +953,7 @@ window.submitHeroTowEstimate = async (sosId) => {
 };
 
 window.showCustomAlert = (message) => {
-    playSound(); // Optional generic sound
+    playSound(); 
     const alertContainer = document.getElementById('customAlertContainer');
     const alertDiv = document.createElement('div');
     alertDiv.className = 'custom-alert';
@@ -1048,7 +1047,6 @@ window.toggleTowTruckRequest = (button) => {
     }
 };
 
-// UPDATED SUBMIT SOS (Loading & Delay)
 window.submitSOS = async () => { 
     triggerHaptic('medium');
     const issue = document.getElementById('reqIssue').value; 
@@ -1076,8 +1074,7 @@ window.submitSOS = async () => {
         }
     }
 
-    window.toggleLoading(true, "Broadcasting Signal...");
-
+    // ORIGINAL LOGIC RESTORED: No Loading Overlay, immediate switch to Radar.
     try {
         await push(ref(db, "sosRequests"), { 
             ownerId: myId, 
@@ -1097,26 +1094,21 @@ window.submitSOS = async () => {
             acceptedEstimateId: null 
         });
 
-        // Artificial delay for feel
-        setTimeout(() => {
-            window.toggleLoading(false);
-            window.closeModal('requestModal'); 
-            window.switchView('seekerUI');
-            window.showCustomAlert("SOS Broadcasted!");
-            triggerHaptic('medium');
+        window.closeModal('requestModal'); 
+        window.switchView('seekerUI');
+        window.showCustomAlert("SOS Broadcasted!");
+        triggerHaptic('medium');
 
-            isTowTruckRequestActive = false;
-            document.getElementById('towTruckBtn').classList.remove('active');
-            document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!';
-            document.getElementById('towTruckContact').style.display = 'none';
-            document.getElementById('phoneNumberInput').removeAttribute('required');
-            document.getElementById('phoneNumberInput').value = '';
-            document.getElementById('towDestinationInput').removeAttribute('required'); 
-            document.getElementById('towDestinationInput').value = ''; 
-        }, 800);
+        isTowTruckRequestActive = false;
+        document.getElementById('towTruckBtn').classList.remove('active');
+        document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!';
+        document.getElementById('towTruckContact').style.display = 'none';
+        document.getElementById('phoneNumberInput').removeAttribute('required');
+        document.getElementById('phoneNumberInput').value = '';
+        document.getElementById('towDestinationInput').removeAttribute('required'); 
+        document.getElementById('towDestinationInput').value = ''; 
 
     } catch(e) {
-        window.toggleLoading(false);
         window.showCustomAlert("Error submitting request");
         triggerHaptic('heavy');
     }
@@ -1202,7 +1194,6 @@ function syncUI() {
 
             if (!markers[id] && map) {
                 const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C"); 
-                // ADDED DROP ANIMATION
                 const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: iconToUse, animation: google.maps.Animation.DROP });
                 marker.addListener('click', () => window.viewRequest(id));
                 markers[id] = marker;
@@ -1214,7 +1205,6 @@ function syncUI() {
         }
         else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
             if(!markers[id] && map) {
-                // ADDED DROP ANIMATION
                 const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e"), animation: google.maps.Animation.DROP });
                 marker.addListener('click', () => window.viewRequest(id));
                 markers[id] = marker;
@@ -1374,16 +1364,8 @@ function syncUI() {
             completed.style.display = 'none'; 
             cancelBtn.style.display = 'block';
             
-            // --- UPDATED WAITING TEXT LOGIC ---
-            const loadingTexts = ["Broadcasting Signal...", "Locating Nearby Drivers...", "Contacting Tow Trucks..."];
-            const textElement = document.getElementById('seekingStatusText');
-            if (!window.seekingTextInterval) {
-                let i = 0;
-                window.seekingTextInterval = setInterval(() => {
-                    textElement.innerText = loadingTexts[i % loadingTexts.length];
-                    i++;
-                }, 2000);
-            }
+            // --- STATIC TEXT RESTORED ---
+            // No cycling text interval logic here.
 
             if (myActiveSOS.isTowTruckRequest && myActiveSOS.estimates && Object.keys(myActiveSOS.estimates).length > 0) {
                 seekerTowEstimates.style.display = 'block';
@@ -1409,12 +1391,6 @@ function syncUI() {
             }
 
         } else if(isMatchedOrPreMatched) {
-            // STOP WAITING TEXT
-            if (window.seekingTextInterval) {
-                clearInterval(window.seekingTextInterval);
-                window.seekingTextInterval = null;
-            }
-
             searching.style.display = 'none'; 
             matched.style.display = 'block'; 
             completed.style.display = 'none'; 
@@ -1455,11 +1431,6 @@ function syncUI() {
 
             updateSeekerMiniMap(myActiveSOS, hero);
         } else if(myActiveSOS.status === 'completed') {
-             // STOP WAITING TEXT
-            if (window.seekingTextInterval) {
-                clearInterval(window.seekingTextInterval);
-                window.seekingTextInterval = null;
-            }
             searching.style.display = 'none'; 
             matched.style.display = 'none'; 
             completed.style.display = 'block'; 
@@ -1472,12 +1443,6 @@ function syncUI() {
         document.getElementById('completionConfirmState').style.display = 'none'; 
         document.getElementById('cancelSosBtn').style.display = 'none';
         document.getElementById('seekerTowEstimates').style.display = 'none'; 
-        
-        // STOP WAITING TEXT
-        if (window.seekingTextInterval) {
-            clearInterval(window.seekingTextInterval);
-            window.seekingTextInterval = null;
-        }
     }
 }
 
