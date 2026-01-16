@@ -1,5 +1,3 @@
---- START OF FILE Paste January 15, 2026 - 9:46PM ---
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -414,9 +412,9 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     <div id="statusIndicator" style="background: #94a3b8;" onclick="window.toggleTaskCard()">!</div>
     <div id="map"></div>
     <div id="heroPanel">
-        <!-- NEW: Estimate Accepted Prompt (Visible if hero submitted estimate and seeker confirmed) -->
+        <!-- NEW: Estimate Accepted Prompt -->
         <div id="estimateAcceptedPrompt" style="display:none;">
-            Your estimate was accepted! Please start the job below.
+            Your estimate was accepted! Review details below.
         </div>
         <div id="activeTask" class="task-card">
             <!-- DYNAMIC HERO CONTENT -->
@@ -463,23 +461,10 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
         <!-- NEW: Towing Estimate Section for Hero -->
         <div id="heroTowEstimateSection" style="margin-top:20px; padding-top:15px; border-top:1px solid #e2e8f0; display:none;">
             <label style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:8px; display:block;">TOWING ESTIMATE</label>
-            
-            <!-- Input Container: Shown only if not submitted or confirmed -->
-            <div id="towEstimateInputContainer" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <span id="detEstimatedCost" style="color:var(--text); font-size:15px; font-weight:700;"></span>
                 <input type="number" id="heroEstimateInput" placeholder="Your Bid ($)" style="width: 120px; margin-bottom:0;">
                 <button id="submitHeroEstimateBtn" class="submit-btn" style="width: auto; padding: 10px 15px; font-size: 13px; margin-bottom:0;" onclick="window.submitHeroTowEstimate(window.currentViewingSosId)">SEND</button>
-            </div>
-
-            <!-- Waiting Message: Shown if submitted but not yet accepted -->
-            <div id="towEstimateWaitingMsg" style="display:none; background: #f1f5f9; padding:15px; border-radius:14px; text-align:center; color: var(--muted); font-weight:600; font-size:14px;">
-                Submitted. Waiting for response...
-            </div>
-
-            <!-- Confirmed Message: Shown if seeker accepted -->
-            <div id="towEstimateConfirmedMsg" style="display:none; background: #dcfce7; padding:15px; border-radius:14px; text-align:center; color: var(--success); font-weight:700; font-size:14px;">
-                The seeker confirmed your towing estimate!
-                <br><span style="font-size:12px; color:black; font-weight:normal;">Confirm below to start.</span>
             </div>
         </div>
 
@@ -490,7 +475,7 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
         </div>
 
         <!-- ETA, Accept Button -->
-        <label id="lblEta" style="font-size:11px; font-weight:bold; color:var(--muted);">ETA TO ARRIVAL</label>
+        <label style="font-size:11px; font-weight:bold; color:var(--muted);">ETA TO ARRIVAL</label>
         <select id="detETA">
             <option value="5-10 mins">5-10 mins</option>
             <option value="15-20 mins">15-20 mins</option>
@@ -506,16 +491,6 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 <div id="imageEnlargeModal" class="modal">
     <img id="enlargedImage" src="" alt="Enlarged Image">
     <button class="close-btn" onclick="window.closeModal('imageEnlargeModal')">✕</button>
-</div>
-
-<!-- Modal for Confirming Estimate Selection (Seeker Side) -->
-<div id="confirmEstimateModal" class="modal">
-    <div class="modal-content">
-        <h3>Confirm Selection?</h3>
-        <p style="text-align:center; margin-bottom:20px;">You are selecting <b id="confHeroName"></b> for <b id="confPrice" style="color:var(--success)"></b>.</p>
-        <button class="submit-btn" style="margin-bottom:10px;" onclick="window.confirmTowSelection()">CONFIRM & CONNECT</button>
-        <span class="cancel-link" onclick="window.closeModal('confirmEstimateModal')">Cancel</span>
-    </div>
 </div>
 
 <div id="chatModal" class="modal">
@@ -649,7 +624,6 @@ let towTruckAnimationInterval = null; // For the tow truck icon animation
 let currentTowTruckIconState = 0; // 0 for left-red, 1 for left-blue
 let isTowTruckRequestActive = false; // New flag to track tow truck request state
 window.currentViewingSosId = null; // To keep track of the SOS ID currently open in detailsModal
-let pendingTowSelect = null; // To store temporary selection data before confirming
 
 
 // Standard marker icon for regular SOS requests
@@ -752,10 +726,6 @@ window.closeModal = (id) => {
     if (id === 'detailsModal') {
         window.currentViewingSosId = null; // Clear the SOS ID when details modal closes
         document.getElementById('estimateAcceptedPrompt').style.display = 'none'; // Hide prompt when details modal closes
-    }
-    
-    if (id === 'confirmEstimateModal') {
-        pendingTowSelect = null; // Clear pending data
     }
 };
 // MODIFIED switchView to also close image enlargement modal
@@ -1046,13 +1016,7 @@ window.viewRequest = (id) => {
     const heroContactIcons = document.getElementById('heroContactIcons');
     const detAcceptBtn = document.getElementById('detAcceptBtn');
     const etaInput = document.getElementById('detETA');
-    const etaLabel = document.getElementById('lblEta');
     const progressText = document.getElementById('detInProgressText');
-    
-    // Sub-elements for logic switching
-    const towEstimateInputContainer = document.getElementById('towEstimateInputContainer');
-    const towEstimateWaitingMsg = document.getElementById('towEstimateWaitingMsg');
-    const towEstimateConfirmedMsg = document.getElementById('towEstimateConfirmedMsg');
 
 
     if (r.isTowTruckRequest) {
@@ -1065,72 +1029,42 @@ window.viewRequest = (id) => {
         } else {
             detEstimatedCost.innerText = `Calculated: N/A (Set rates in profile)`;
         }
-        
-        // LOGIC FOR TOW ESTIMATE STATE
-        const myEstimateExists = r.estimates && r.estimates[myId];
-        const estimateIsAccepted = r.acceptedEstimateId === myId;
-        
-        if (estimateIsAccepted) {
-            // State: Confirmed by seeker, waiting for Hero to Accept
-            towEstimateInputContainer.style.display = 'none';
-            towEstimateWaitingMsg.style.display = 'none';
-            towEstimateConfirmedMsg.style.display = 'block';
-            
+        // Prefill hero's last submitted estimate if it exists
+        if (r.estimates && r.estimates[myId] && typeof r.estimates[myId] === 'object' && r.estimates[myId].amount) {
+            heroEstimateInput.value = r.estimates[myId].amount;
+        } else {
+            heroEstimateInput.value = '';
+        }
+
+        // Show "Estimate Accepted" prompt if applicable
+        if (r.acceptedEstimateId === myId && r.status === 'open') {
             document.getElementById('estimateAcceptedPrompt').style.display = 'block';
             detAcceptBtn.style.display = 'block'; // Show accept button
-            etaInput.style.display = 'block'; // Show ETA input
-            etaLabel.style.display = 'block';
-        } 
-        else if (myEstimateExists) {
-            // State: Submitted, waiting for seeker response
-            towEstimateInputContainer.style.display = 'none';
-            towEstimateWaitingMsg.style.display = 'block';
-            towEstimateConfirmedMsg.style.display = 'none';
-            
-            // Prefill value just in case
-            if (typeof r.estimates[myId] === 'object' && r.estimates[myId].amount) {
-                heroEstimateInput.value = r.estimates[myId].amount;
-            }
-
+            etaInput.style.display = 'block'; // Show ETA
+        } else if (r.status === 'open') { // Only show estimate section if job is open and not accepted by this hero
             document.getElementById('estimateAcceptedPrompt').style.display = 'none';
-            detAcceptBtn.style.display = 'none'; 
-            etaInput.style.display = 'none';
-            etaLabel.style.display = 'none';
-        } 
-        else {
-            // State: Not submitted yet
-            towEstimateInputContainer.style.display = 'flex';
-            towEstimateWaitingMsg.style.display = 'none';
-            towEstimateConfirmedMsg.style.display = 'none';
-            
-            heroEstimateInput.value = '';
-            
-            document.getElementById('estimateAcceptedPrompt').style.display = 'none';
-            detAcceptBtn.style.display = 'none';
-            etaInput.style.display = 'none';
-            etaLabel.style.display = 'none';
+            detAcceptBtn.style.display = 'none'; // Hide accept button initially
+            etaInput.style.display = 'none'; // Hide ETA initially
         }
 
     } else { // Not a tow truck request
         heroTowEstimateSection.style.display = 'none';
         heroContactIcons.style.display = 'none';
-        document.getElementById('estimateAcceptedPrompt').style.display = 'none'; 
+        document.getElementById('estimateAcceptedPrompt').style.display = 'none'; // Hide if not tow request
     }
 
-    // ETA, Accept Button (General logic)
+    // ETA, Accept Button (General logic, may be overridden by tow-specific logic above)
     if(r.status === 'accepted' || r.status === 'arrived') {
         detAcceptBtn.style.display = "none"; 
         progressText.style.display = "block"; 
         etaInput.style.display = "none";
-        etaLabel.style.display = "none";
         heroTowEstimateSection.style.display = 'none'; // Hide estimate section if already accepted
-        heroContactIcons.style.display = 'none'; 
-        document.getElementById('estimateAcceptedPrompt').style.display = 'none'; 
+        heroContactIcons.style.display = 'none'; // Hide contact icons if already accepted
+        document.getElementById('estimateAcceptedPrompt').style.display = 'none'; // Hide prompt if job is accepted
     } else if (!r.isTowTruckRequest) { // For regular requests, always show accept/ETA if open
         detAcceptBtn.style.display = "block"; 
         progressText.style.display = "none"; 
         etaInput.style.display = "block";
-        etaLabel.style.display = "block";
     }
 
     detAcceptBtn.onclick = () => window.confirmHelp(id);
@@ -1342,29 +1276,13 @@ window.finalSeekerConfirm = () => {
     window.switchView('landingPage');
 };
 
-// NEW: Function for seeker to select a tow estimate - Stage 1 (Open Confirmation)
-window.selectTowEstimate = (sosId, heroId) => {
+// NEW: Function for seeker to select a tow estimate
+window.selectTowEstimate = async (sosId, heroId) => {
     const sos = sosCache[sosId];
     if (!sos || !sos.estimates || !sos.estimates[heroId]) {
-        window.showCustomAlert("Invalid estimate selected."); 
+        window.showCustomAlert("Invalid estimate selected."); // Changed alert to custom alert
         return;
     }
-    
-    // Store pending selection info
-    pendingTowSelect = { sosId, heroId, estimate: sos.estimates[heroId] };
-    
-    document.getElementById('confHeroName').innerText = pendingTowSelect.estimate.name || "Hero";
-    document.getElementById('confPrice').innerText = "$" + parseFloat(pendingTowSelect.estimate.amount).toFixed(2);
-    
-    window.openModal('confirmEstimateModal');
-};
-
-// NEW: Function for seeker to confirm selection - Stage 2 (Update DB)
-window.confirmTowSelection = async () => {
-    if (!pendingTowSelect) return;
-    
-    const { sosId, heroId } = pendingTowSelect;
-    const sos = sosCache[sosId];
 
     // Update SOS request to indicate which estimate was accepted
     await update(ref(db, `sosRequests/${sosId}`), { 
@@ -1372,12 +1290,8 @@ window.confirmTowSelection = async () => {
         // Do NOT change status to 'accepted' yet. Keep 'open'.
         // The hero will manually accept after getting the notification.
     });
-    
-    window.closeModal('confirmEstimateModal');
-    window.showCustomAlert(`Tow service confirmed! Connecting to hero...`); 
-    
-    pendingTowSelect = null;
-    // UI sync will handle transition to matched screen due to syncUI logic update
+    window.showCustomAlert(`Tow service from ${sos.estimates[heroId].name || 'Hero'} selected! Waiting for their confirmation.`); // Changed alert to custom alert
+    syncUI(); // Re-render the UI to reflect the selection
 };
 
 
@@ -1585,7 +1499,7 @@ function syncUI() {
         tCard.innerHTML = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone nearby sends an an SOS.</p></div>`;
     }
 
-    // NEW: Logic for 'Estimate Accepted' prompt for heroes (Only show if still in open state waiting for confirmation)
+    // NEW: Logic for 'Estimate Accepted' prompt for heroes
     const heroHasAcceptedEstimate = Object.values(sosCache).some(r => r.acceptedEstimateId === myId && r.status === 'open');
     if (heroHasAcceptedEstimate) {
         estimateAcceptedPrompt.style.display = 'block';
@@ -1607,13 +1521,8 @@ function syncUI() {
         const seekerTowEstimates = document.getElementById('seekerTowEstimates');
         const estimatesList = document.getElementById('estimatesList');
 
-        // CHECK if Seeker has accepted an estimate (Pseudo-Matched State)
-        // If myActiveSOS.acceptedEstimateId is set, treat as matched even if status is 'open'
-        const isMatchedOrPreMatched = (myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') || 
-                                      (myActiveSOS.status === 'open' && myActiveSOS.acceptedEstimateId);
-
         // STRICT STATE TRANSITIONS
-        if(!isMatchedOrPreMatched && myActiveSOS.status === 'open') {
+        if(myActiveSOS.status === 'open') {
             searching.style.display = 'block'; 
             matched.style.display = 'none'; 
             completed.style.display = 'none'; 
@@ -1645,31 +1554,18 @@ function syncUI() {
                 seekerTowEstimates.style.display = 'none';
             }
 
-        } else if(isMatchedOrPreMatched) {
+        } else if(myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') {
             searching.style.display = 'none'; 
             matched.style.display = 'block'; 
             completed.style.display = 'none'; 
             cancelBtn.style.display = 'block';
             seekerTowEstimates.style.display = 'none'; // Hide estimates once accepted
             
-            // Determine hero ID (either from formal helperId or preliminary acceptedEstimateId)
-            const matchedHeroId = myActiveSOS.helperId || myActiveSOS.acceptedEstimateId;
-            const hero = profilesCache[matchedHeroId] || {};
-            
+            const hero = profilesCache[myActiveSOS.helperId] || {};
             document.getElementById('matchName').innerText = hero.name || "Roadside Hero";
             document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
+            document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is at your location!" : `Arriving in ${myActiveSOS.eta || '...'}`;
             
-            // ETA logic: if confirmed but not yet accepted by hero, show "Connecting..."
-            if (myActiveSOS.status === 'open' && myActiveSOS.acceptedEstimateId) {
-                 document.getElementById('matchETA').innerText = "Connecting to Hero...";
-                 document.getElementById('seekerStatusPill').innerText = "WAITING FOR HERO CONFIRMATION";
-                 document.getElementById('seekerStatusPill').style.background = "var(--warning)";
-            } else {
-                 document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is at your location!" : `Arriving in ${myActiveSOS.eta || '...'}`;
-                 document.getElementById('seekerStatusPill').innerText = "HERO CONNECTED";
-                 document.getElementById('seekerStatusPill').style.background = "var(--success)";
-            }
-
             const matchHeroPhone = document.getElementById('matchHeroPhone');
             if (myActiveSOS.isTowTruckRequest && myActiveSOS.phoneNumber) {
                 matchHeroPhone.innerHTML = `📞 Contact: <a href="tel:${myActiveSOS.phoneNumber}" style="color:var(--text); text-decoration: underline;">${myActiveSOS.phoneNumber}</a>`;
