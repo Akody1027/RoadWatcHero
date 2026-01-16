@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <!-- Google Maps with Geometry -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5GbyoapPOyLYJLNo9y85cyorIczEI-WU&libraries=geometry"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB5GbyoapPOyLYJLNo9y85cyorIczEI-WU&libraries=geometry" async defer></script>
 
 <style>
 :root {
@@ -68,7 +68,7 @@ input:focus, textarea:focus, select:focus {
 .map-expand-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(255, 255, 255, 0.9); border: none; padding: 8px 12px; border-radius: 15px; box-shadow: var(--shadow); cursor: pointer; z-index: 2; font-size: 14px; font-weight: 700; color: var(--text); }
 .map-close-btn { position: absolute; top: 15px; right: 15px; background: var(--danger); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 20px; font-weight: bold; display: none; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow); z-index: 1002; }
 
-/* ORIGINAL PULSE ANIMATION (Restored) */
+/* ORIGINAL PULSE ANIMATION */
 .search-pulse { width: 80px; height: 80px; background: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: white; margin: 0 auto 20px; position: relative; }
 .search-pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--danger); opacity: 0.4; animation: pulse 2s infinite; }
 @keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
@@ -103,11 +103,9 @@ input:focus, textarea:focus, select:focus {
 
 .vehicle-grid { display: flex; grid-template-columns: repeat(2, 1fr); margin: 15px 0; }
 .v-type { padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 700; width:25%; align-content:center;}
-/* CSS Fix: Active State */
 .v-type.active { border-color: #EE611C; color: #EE611C; background: #fff7ed; }
 
 .tip-btn { border: 2px solid #f1f5f9; border-radius: 10px; padding: 12px; flex: 1; text-align: center; cursor: pointer; font-weight: 800; background: white; }
-/* CSS Fix: Active State */
 .tip-btn.active { border-color: var(--success); color: var(--success); background: #f0fdf4; }
 
 input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 12px; font-size: 15px; background: #f8fafc;  font-family: math;}
@@ -122,7 +120,6 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 
 .center-btn { position: absolute; top: 20px; right: 20px; background: #EE611C; border: none; padding: 12px; border-radius: 12px; box-shadow: var(--shadow); cursor: pointer; z-index: 5; font-weight: 800; font-size: 11px; color:white; }
 
-/* CSS Fix: Typo */
 .trash-icon { width: 20px; height: 20px; cursor: pointer; margin-left: 10px; color: red; }
 
 .btn-towtruck { background: white; color: #2563eb; border: 2px solid #2563eb; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; padding: 18px; width: 100%; margin-bottom: 10px; }
@@ -454,8 +451,9 @@ let currentTowTruckIconState = 0;
 let isTowTruckRequestActive = false; 
 window.currentViewingSosId = null; 
 let pendingTowSelect = null; 
+window.mapRetryInterval = null; // To prevent multiple timeouts
 
-// --- NEW HELPER FUNCTIONS (POLISH) ---
+// --- HELPER FUNCTIONS ---
 
 const triggerHaptic = (type = 'light') => {
     if (navigator.vibrate) {
@@ -1074,7 +1072,6 @@ window.submitSOS = async () => {
         }
     }
 
-    // ORIGINAL LOGIC RESTORED: No Loading Overlay, immediate switch to Radar.
     try {
         await push(ref(db, "sosRequests"), { 
             ownerId: myId, 
@@ -1176,6 +1173,21 @@ function syncUI() {
     const currentHeroProfile = profilesCache[myId] || {};
     const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
 
+    // --- FIX FOR GOOGLE MAPS RACE CONDITION ---
+    // If google maps is not fully loaded, skip filtering distance-based logic 
+    // to prevent crash, but continue rendering other UI elements.
+    // Set a retry interval to syncUI again once maps might be ready.
+    const isMapsReady = (typeof google !== 'undefined' && google.maps && google.maps.geometry);
+    
+    if (!isMapsReady) {
+        if (!window.mapRetryInterval) {
+            window.mapRetryInterval = setTimeout(() => {
+                window.mapRetryInterval = null;
+                syncUI();
+            }, 500); // Retry in 500ms
+        }
+    }
+
     Object.entries(sosCache).forEach(([id, r]) => {
         const isTowTruck = r.isTowTruckRequest === true;
 
@@ -1192,23 +1204,23 @@ function syncUI() {
                 towTruckRequestsOnMap = true; 
             }
 
-            if (!markers[id] && map) {
+            if (!markers[id] && map && isMapsReady) {
                 const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C"); 
                 const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: iconToUse, animation: google.maps.Animation.DROP });
                 marker.addListener('click', () => window.viewRequest(id));
                 markers[id] = marker;
-            } else if (markers[id]) {
+            } else if (markers[id] && isMapsReady) {
                 const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C");
                 markers[id].setIcon(iconToUse);
                 markers[id].setMap(map); 
             }
         }
         else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
-            if(!markers[id] && map) {
+            if(!markers[id] && map && isMapsReady) {
                 const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e"), animation: google.maps.Animation.DROP });
                 marker.addListener('click', () => window.viewRequest(id));
                 markers[id] = marker;
-            } else if (markers[id]) {
+            } else if (markers[id] && isMapsReady) {
                 markers[id].setIcon(getMarkerIcon("#22c55e"));
                 markers[id].setMap(map); 
             }
@@ -1227,14 +1239,20 @@ function syncUI() {
 
 
     Object.entries(sosCache).forEach(([id, r]) => {
-        const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
+        // Safe Distance Calculation
+        let distMiles = null;
+        if (isMapsReady && userLocation) {
+             distMiles = (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34);
+        }
+
         const isTowTruck = r.isTowTruckRequest === true;
 
         if (prefersTowTruck && !isTowTruck) {
             return; 
         }
 
-        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
+        // Only add to nearbySOS if distance could be calculated
+        if (distMiles !== null && r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
             nearbySOS.push({id, ...r, dist: distMiles});
         }
 
