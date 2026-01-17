@@ -1,3 +1,5 @@
+--- START OF FILE Paste January 17, 2026 - 10:34AM ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -209,6 +211,60 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
     justify-content: center;
     box-shadow: var(--shadow);
 }
+
+/* Styles for updated details modal header and comms */
+.modal-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+.modal-header-row h3 {
+    margin: 0;
+    color: var(--accent);
+    flex: 1;
+    text-align: center;
+}
+.close-x-btn {
+    background: var(--muted);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+.comm-btn-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 15px 0 20px 0;
+}
+.comm-icon-btn {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 16px;
+    padding: 12px 25px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.comm-icon-btn:active {
+    background: #e2e8f0;
+    transform: scale(0.95);
+}
+.comm-icon-btn img {
+    width: 32px;
+    height: 32px;
+}
 </style>
 </head>
 <body>
@@ -299,7 +355,13 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 <!-- MODALS -->
 <div id="detailsModal" class="modal">
     <div class="modal-content">
-        <h3 style="color:var(--accent); text-align:center;">SOS DETAILS</h3>
+        <!-- New Header Row: Mileage - Header - Close X -->
+        <div class="modal-header-row">
+            <span id="detDist" style="color:var(--muted); font-size:14px; font-weight:700;"></span>
+            <h3>SOS DETAILS</h3>
+            <button class="close-x-btn" onclick="window.closeModal('detailsModal')">✕</button>
+        </div>
+
         <!-- Damage Photo -->
         <div style="position:relative; margin-bottom:15px; display:none;" id="detImgContainer">
             <img id="detImg" style="width:100%; height:200px; object-fit:cover; border-radius:20px; cursor:pointer;">
@@ -307,31 +369,42 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
         </div>
         
         <!-- Description -->
-        <p id="detIssue" style="font-weight:bold; margin-bottom:10px;"></p>
-        
-        <!-- Distance Away -->
-        <p id="detDist" style="color:var(--accent); font-size:14px; margin-bottom:10px; font-weight:600;"></p>
+        <p style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:4px;">ISSUE DESCRIPTION</p>
+        <div id="detIssue" style="font-weight:500; margin-bottom:15px; background:#f8fafc; padding:15px; border-radius:12px; border:1px solid #e2e8f0;"></div>
 
-        <!-- Tow Truck Estimated Cost (New) -->
-        <p id="detEstimatedCost" style="color:var(--text); font-size:15px; margin-bottom:10px; font-weight:700; display:none;"></p>
+        <!-- NEW: Tow Destination -->
+        <p id="detTowDestination" style="font-size:14px; margin-bottom:10px; font-weight:600; display:none; color: var(--text);"></p>
 
-        <!-- Phone number for tow truck requests -->
-        <p id="detPhoneNumber" style="font-size:14px; margin-bottom:10px; font-weight:600; display:none;">Contact: <a id="detPhoneLink" href="#" style="color:var(--text); text-decoration: underline;"></a></p>
-        
-        <!-- NEW: Tow Destination (initially hidden) -->
-        <p id="detTowDestination" style="font-size:14px; margin-bottom:10px; font-weight:600; display:none;"></p>
+        <!-- Tow Truck Estimated Cost -->
+        <p id="detEstimatedCost" style="color:var(--text); font-size:15px; margin-bottom:15px; font-weight:700; display:none;"></p>
 
-        <!-- ETA to Arrival -->
+        <!-- Communication Row (Phone and Chat) -->
+        <div class="comm-btn-row">
+            <!-- Phone Icon Button (Hidden if no number) -->
+            <a id="detPhoneBtn" href="#" class="comm-icon-btn" style="display:none;">
+               <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png" alt="Call">
+            </a>
+            <!-- Chat Icon Button -->
+            <button id="detChatBtn" class="comm-icon-btn">
+                <img src="Chaticon.png" alt="Chat">
+            </button>
+        </div>
+
+        <!-- ETA to Arrival (Expanded to 3 hours) -->
         <label style="font-size:11px; font-weight:bold; color:var(--muted);">ETA TO ARRIVAL</label>
         <select id="detETA">
             <option value="5-10 mins">5-10 mins</option>
             <option value="15-20 mins">15-20 mins</option>
             <option value="30-45 mins">30-45 mins</option>
-            <option value="1 hour+">1 hour+</option>
+            <option value="45-60 mins">45-60 mins</option>
+            <option value="1h - 1.5h">1h - 1.5h</option>
+            <option value="1.5h - 2h">1.5h - 2h</option>
+            <option value="2h - 3h">2h - 3h</option>
+            <option value="3 hours+">3 hours+</option>
         </select>
+
         <button id="detAcceptBtn" class="submit-btn" style="margin-top:20px;">ACCEPT & HELP</button>
         <span id="detInProgressText" style="display:none; color:var(--success); font-weight:bold; text-align:center; margin-top:20px;">JOB IN PROGRESS...</span>
-        <span class="cancel-link" onclick="window.closeModal('detailsModal')">Go Back</span>
     </div>
 </div>
 
@@ -613,10 +686,16 @@ window.openChat = async () => {
         r => (r.ownerId === myId || r.helperId === myId) &&
              (r.status === 'accepted' || r.status === 'arrived')
     );
-    if (!currentActiveSOS) return;
     
-    // Set activeChatId globally from the identified active SOS
-    activeChatId = Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS); 
+    // Fallback: If no active accepted job, check if we manually set a chat ID (via Details Modal)
+    if (!currentActiveSOS && !activeChatId) return;
+
+    // If we have an active SOS, override activeChatId
+    if (currentActiveSOS) {
+        activeChatId = Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS); 
+    }
+
+    if (!activeChatId) return; // Logic check
 
     window.openModal('chatModal');
 
@@ -765,7 +844,7 @@ window.viewRequest = (id) => {
     // Description
     document.getElementById('detIssue').innerText = r.issue;
     
-    // Distance Away
+    // Distance Away (Moved to header in HTML, update value here)
     const dist = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1) : "?";
     document.getElementById('detDist').innerText = "" + dist + " miles away";
 
@@ -779,16 +858,23 @@ window.viewRequest = (id) => {
         detEstimatedCost.style.display = 'none';
     }
 
-    // Phone number for tow truck requests
-    const detPhoneNumberElement = document.getElementById('detPhoneNumber');
-    const detPhoneLink = document.getElementById('detPhoneLink');
+    // Communication Row Logic
+    const detPhoneBtn = document.getElementById('detPhoneBtn');
+    const detChatBtn = document.getElementById('detChatBtn');
+
+    // Phone Button logic
     if (r.isTowTruckRequest && r.phoneNumber) {
-        detPhoneLink.innerText = r.phoneNumber;
-        detPhoneLink.href = `tel:${r.phoneNumber}`;
-        detPhoneNumberElement.style.display = 'block';
+        detPhoneBtn.href = `tel:${r.phoneNumber}`;
+        detPhoneBtn.style.display = 'flex'; // Show if phone number exists
     } else {
-        detPhoneNumberElement.style.display = 'none';
+        detPhoneBtn.style.display = 'none';
     }
+    
+    // Chat Button logic (Before Acceptance)
+    detChatBtn.onclick = () => {
+        activeChatId = id; // Set active chat ID to this request ID so chat modal knows what to load
+        window.openChat();
+    };
 
     // NEW: Tow Destination for tow truck requests
     const detTowDestinationElement = document.getElementById('detTowDestination');
