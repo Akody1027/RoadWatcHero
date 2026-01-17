@@ -31,183 +31,110 @@ h3{ text-align: center; }
 #seekerUI { background: var(--bg); padding: 20px; align-items: center; }
 .status-card { background: white; width: 100%; max-width: 450px; padding: 25px; border-radius: 28px; box-shadow: var(--shadow); text-align: center; margin-top: 10px; border: 1px solid rgba(226, 232, 240, 0.8); }
 
-#seekerMapContainer { 
-    position: relative; 
-    width: 100%; 
-    height: 220px; 
-    border-radius: 20px; 
-    margin: 15px 0; 
-    background: #eee; 
-    border: 1px solid #e2e8f0;
-    overflow: hidden;
-    transition: all 0.3s ease-in-out;
-}
-#seekerMapContainer.expanded {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 1001;
-    border-radius: 0;
-    margin: 0;
-}
-#seekerMap { width: 100%; height: 100%; border-radius: 20px; }
-#seekerMapContainer.expanded #seekerMap { border-radius: 0; }
+#seekerMapContainer { position: relative; width: 100%; height: 220px; border-radius: 20px; margin: 15px 0; background: #eee; border: 1px solid #e2e8f0; overflow: hidden; }
+#seekerMapContainer.expanded { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1001; border-radius: 0; margin: 0; }
+#seekerMap { width: 100%; height: 100%; }
 
-.map-expand-btn {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    border: none;
-    padding: 8px 12px;
-    border-radius: 15px;
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    z-index: 2;
-    font-size: 14px;
-    font-weight: 700;
-}
-.map-close-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: var(--danger);
-    color: white;
-    border: none;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    font-size: 20px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1002;
-}
+.map-expand-btn { position: absolute; bottom: 10px; right: 10px; background: white; border: none; padding: 8px 12px; border-radius: 15px; box-shadow: var(--shadow); cursor: pointer; z-index: 2; font-weight: 700; }
+.map-close-btn { position: absolute; top: 15px; right: 15px; background: var(--danger); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; display: none; align-items: center; justify-content: center; z-index: 1002; }
 
 .search-pulse { width: 80px; height: 80px; background: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: white; margin: 0 auto 20px; position: relative; }
 .search-pulse::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--danger); opacity: 0.4; animation: pulse 2s infinite; }
 @keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2.5); opacity: 0; } }
 
 #map { width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 1; }
-#statusIndicator { position: fixed; left: 5px; bottom: 50px; z-index: 150; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 28px; cursor: pointer; box-shadow: var(--shadow); border: 3px solid white; transition: 0.3s; }
+#statusIndicator { position: fixed; left: 10px; bottom: 80px; z-index: 150; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 28px; cursor: pointer; box-shadow: var(--shadow); border: 3px solid white; transition: 0.3s; }
 
-#heroPanel { width:100%; max-width: 400px; position: fixed; bottom: 85px; left: 0; z-index: 100; display: flex; flex-direction: column; padding: 0 15px; pointer-events: none; }
+#heroPanel { width:100%; max-width: 400px; position: fixed; bottom: 145px; left: 0; z-index: 100; display: flex; flex-direction: column; padding: 0 15px; pointer-events: none; }
 #heroPanel > * { pointer-events: auto; }
 
-.task-card { background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); padding: 20px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-left: 6px solid var(--accent); display: none; transform: translateX(-110%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); max-height: 400px; overflow-y: auto; }
+.task-card { background: white; padding: 20px; border-radius: 24px; box-shadow: var(--shadow); border-left: 6px solid var(--accent); display: none; transform: translateX(-110%); transition: 0.4s; max-height: 400px; overflow-y: auto; }
 .task-card.expanded { display: block; transform: translateX(0); }
 
-.sos-list-item { padding: 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; justify-content: space-between; align-items: center; text-align: left; }
+.sos-list-item { padding: 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
 
 .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
-.modal-content { background: white; width: 100%; max-width: 500px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 95vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); }
-@keyframes slideUp { to { transform: translateY(0); } }
+.modal-content { background: white; width: 100%; max-width: 500px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 95vh; overflow-y: auto; }
 
-#chatBox { height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 20px; margin-bottom: 12px; border: 1px solid #e2e8f0; }
-.msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 14px; }
-.msg-me { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
-.msg-them { align-self: flex-start; background: white; color: var(--text); border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
+#chatBox { height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 20px; margin-bottom: 12px; }
+.msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; }
+.msg-me { align-self: flex-end; background: var(--accent); color: white; }
+.msg-them { align-self: flex-start; background: white; border: 1px solid #e2e8f0; }
 
-.vehicle-grid { display: flex; margin: 15px 0; }
-.v-type { padding: 15px; border: 2px solid #f1f5f9; border-radius: 10px; text-align: center; cursor: pointer; font-weight: 700; width:25%; }
-.v-type.active { border-color: #EE611C; color: #EE611C; }
+.vehicle-grid { display: flex; gap: 5px; margin: 15px 0; }
+.v-type { padding: 10px; border: 2px solid #f1f5f9; border-radius: 10px; text-align: center; cursor: pointer; flex: 1; font-weight: 700; font-size: 12px; }
+.v-type.active { border-color: var(--accent); color: var(--accent); }
 .tip-btn { border: 2px solid #f1f5f9; border-radius: 10px; padding: 12px; flex: 1; text-align: center; cursor: pointer; font-weight: 800; background: white; }
 .tip-btn.active { border-color: var(--success); color: var(--success); }
 
-input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 12px; font-size: 15px; background: #f8fafc; }
-.submit-btn { width: 100%; padding: 18px; background: #EE611C; color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; }
+input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 12px; font-size: 15px; }
+.submit-btn { width: 100%; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; }
 .cancel-link { display: block; text-align: center; padding: 15px; color: red; cursor: pointer; font-weight: 600; }
 
-.footer { position: fixed; bottom: 0; width: 100%; background: rgba(238, 97, 28, 0.9); backdrop-filter: blur(10px); display: flex; justify-content:center; align-items: center; z-index: 200; height: 60px; }
-.footer-icons { display:flex; gap:100px; padding:5px; }
-.icon-btn { cursor: pointer; width: 32px; height: 32px; filter: brightness(0) invert(1); }
-#chatBadge, #chatBadgeHero { position: absolute; top: -5px; right: -5px; background: white; color: var(--accent); font-size: 10px; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-weight: 900; }
+.footer { position: fixed; bottom: 0; width: 100%; background: var(--accent); height: 70px; display: flex; justify-content: center; align-items: center; z-index: 200; }
+.footer-icons { display: flex; gap: 60px; }
+.icon-btn { cursor: pointer; width: 30px; height: 30px; filter: brightness(0) invert(1); }
 
-.center-btn { position: absolute; top: 20px; right: 20px; background: #EE611C; border: none; padding: 12px; border-radius: 12px; box-shadow: var(--shadow); cursor: pointer; z-index: 5; font-weight: 800; font-size: 11px; color:white; }
-.trash-icon { width: 20px; height: 20px; cursor: pointer; margin-left: 10px; }
-
-.btn-towtruck { background: white; color: #2563eb; border: 2px solid #2563eb; border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 16px; padding: 18px; width: 100%; margin-bottom: 10px; }
-.btn-towtruck.active { background: #1d4ed8; color:white; }
-.phone-input-group { margin-bottom: 15px; display: none; }
-
-#imageEnlargeModal { background: rgba(0, 0, 0, 0.9); display: none; align-items: center; justify-content: center; z-index: 1002; }
+#imageEnlargeModal { background: rgba(0, 0, 0, 0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
 #imageEnlargeModal img { max-width: 95vw; max-height: 95vh; object-fit: contain; }
-#imageEnlargeModal .close-btn { position: absolute; top: 20px; right: 20px; background: white; color: var(--text); border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+#imageEnlargeModal .close-btn { position: absolute; top: 20px; right: 20px; background: white; border-radius: 50%; width: 40px; height: 40px; border: none; font-size: 20px; cursor: pointer; }
+
+.btn-towtruck { background: white; color: #2563eb; border: 2px solid #2563eb; border-radius: 16px; font-weight: 700; padding: 15px; width: 100%; margin-bottom: 10px; cursor: pointer; }
+.btn-towtruck.active { background: #2563eb; color: white; }
 </style>
 </head>
 <body>
 
-<!-- LANDING -->
 <div id="landingPage" class="view view-active">
     <img src="roadwatchlogo.png" alt="Logo">
-    <h2 style="color: var(--muted); margin-bottom: 40px; font-weight: 500; font-size: 18px;">Help is just a click away.</h2>
+    <h2 style="color: var(--muted); margin-bottom: 40px; font-weight: 500;">Help is just a click away.</h2>
     <button class="mode-btn btn-req" onclick="window.openModal('requestModal')">Find a Hero!</button>
     <button class="mode-btn btn-hero" onclick="window.enterHeroMode()">Become a Hero!</button>
 </div>
 
-<!-- SEEKER UI -->
 <div id="seekerUI" class="view">
-    <button id="cancelSosBtn" onclick="window.openModal('cancelConfirmModal')" style="align-self: flex-start; background: none; border: none; font-weight: 800; color: var(--danger); padding: 20px; display: none;">✕ CANCEL SOS</button>
+    <button id="cancelSosBtn" onclick="window.openModal('cancelConfirmModal')" style="background: none; border: none; font-weight: 800; color: var(--danger); padding: 20px; display: none;">✕ CANCEL SOS</button>
     
     <div id="searchingState" class="status-card" style="display:none;">
         <div class="search-pulse">📡</div>
         <h3>Broadcasting SOS...</h3>
-        <p>Your request is live. Waiting for a Hero to accept...</p>
+        <p>Your request is live. Waiting for a Hero...</p>
     </div>
 
     <div id="matchedState" class="status-card" style="display:none; border-color: var(--success);">
         <div style="background: var(--success); color: white; padding: 6px 16px; border-radius: 20px; display: inline-block; font-size: 12px; font-weight: 800; margin-bottom: 15px;">HERO CONNECTED</div>
         <div style="display: flex; align-items: center; gap: 15px; text-align: left;">
-            <img id="matchPic" src="" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid #f1f5f9;">
+            <img id="matchPic" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #eee;">
             <div style="flex:1">
-                <h3 id="matchName" style="margin:0; text-align: left;">Hero Name</h3>
-                <p id="matchETA" style="margin:4px 0; color: var(--success); font-weight: 800; font-size: 14px;">Arriving in ...</p>
-                <p id="matchHeroPhone" style="margin:4px 0; font-size: 14px; font-weight: 600; display:none;"></p>
-                <p id="matchTowDestination" style="margin:4px 0; font-size: 14px; font-weight:600; display:none;"></p>
+                <h3 id="matchName" style="margin:0; text-align: left;">Hero</h3>
+                <p id="matchETA" style="margin:4px 0; color: var(--success); font-weight: 800; font-size: 14px;">Arriving...</p>
             </div>
         </div>
         <div id="seekerMapContainer">
-            <div id="seekerMap"></div>
-            <button class="map-expand-btn" onclick="window.toggleSeekerMapExpansion()">Expand Map</button>
+            <div id="seekerMap" style="width:100%; height:100%;"></div>
+            <button class="map-expand-btn" onclick="window.toggleSeekerMapExpansion()">Expand</button>
             <button class="map-close-btn" onclick="window.toggleSeekerMapExpansion()">✕</button>
         </div>
-        <p style="font-size:11px; color:var(--muted)">LIVE HERO TRACKING ENABLED</p>
     </div>
 
-    <div id="completionConfirmState" class="status-card" style="display:none; border-color: var(--success);">
-        <div style="font-size: 40px; margin-bottom: 15px;">✅</div>
+    <div id="completionConfirmState" class="status-card" style="display:none;">
+        <div style="font-size: 40px;">✅</div>
         <h3>Job Completed!</h3>
-        <p>Your Hero has marked the job as finished.</p>
-        <button class="submit-btn" style="background: var(--success); margin-top: 15px;" onclick="window.finalSeekerConfirm()">CONFIRM & FINISH</button>
+        <button class="submit-btn" style="background: var(--success);" onclick="window.finalSeekerConfirm()">FINISH</button>
     </div>
 
-    <div class="footer">
-        <div class="footer-icons">
-            <div id="footerChatBtn" style="position:relative; display:none;">
-                <img src="Chaticon.png" class="icon-btn" onclick="window.openChat()">
-                <span id="chatBadge">0</span>
-            </div>
-        </div>
-    </div>
+    <div class="footer"><div class="footer-icons"><img src="Chaticon.png" class="icon-btn" onclick="window.openChat()"></div></div>
 </div>
 
-<!-- HERO UI -->
 <div id="heroUI" class="view">
     <button class="center-btn" onclick="window.centerOnMe()">RE-CENTER</button>
     <div id="statusIndicator" style="background: #94a3b8;" onclick="window.toggleTaskCard()">!</div>
     <div id="map"></div>
-    <div id="heroPanel">
-        <div id="activeTask" class="task-card"></div>
-    </div>
+    <div id="heroPanel"><div id="activeTask" class="task-card"></div></div>
     <div class="footer">
         <div class="footer-icons">
             <img src="Historyicon.png" class="icon-btn" onclick="window.openModal('notifModal')">
             <img src="thishomeicon.png" class="icon-btn" onclick="location.reload()">
-            <div id="heroFooterChatBtn" style="position:relative; display:none;">
-                <img src="Chaticon.png" class="icon-btn" onclick="window.openChat()">
-                <span id="chatBadgeHero">0</span>
-            </div>
             <img src="usericon.png" class="icon-btn" onclick="window.openProfile()">
         </div>
     </div>
@@ -217,44 +144,12 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 <div id="detailsModal" class="modal">
     <div class="modal-content">
         <h3 style="color:var(--accent);">SOS DETAILS</h3>
-        <div style="position:relative; margin-bottom:15px; display:none;" id="detImgContainer">
-            <img id="detImg" style="width:100%; height:200px; object-fit:cover; border-radius:20px;">
-            <button onclick="window.enlargeImage(document.getElementById('detImg').src)" style="position:absolute; bottom:10px; right:10px; background:rgba(255,255,255,0.8); border:none; padding:8px 12px; border-radius:15px; font-size:12px; font-weight:bold;">Enlarge</button>
-        </div>
+        <img id="detImg" style="width:100%; height:180px; object-fit:cover; border-radius:15px; display:none; margin-bottom:10px;">
         <p id="detIssue" style="font-weight:bold;"></p>
-        <p id="detDist" style="color:var(--accent); font-size:14px; font-weight:600;"></p>
-        <p id="detEstimatedCost" style="font-size:15px; font-weight:700; display:none;"></p>
-        <p id="detPhoneNumber" style="font-size:14px; font-weight:600; display:none;">Contact: <a id="detPhoneLink" href="#" style="color:var(--text); text-decoration: underline;"></a></p>
-        <p id="detTowDestination" style="font-size:14px; font-weight:600; display:none;"></p>
-        <label style="font-size:11px; font-weight:bold; color:var(--muted);">ETA TO ARRIVAL</label>
-        <select id="detETA">
-            <option value="5-10 mins">5-10 mins</option>
-            <option value="15-20 mins">15-20 mins</option>
-            <option value="30-45 mins">30-45 mins</option>
-            <option value="1 hour+">1 hour+</option>
-        </select>
-        <button id="detAcceptBtn" class="submit-btn" style="margin-top:20px;">ACCEPT & HELP</button>
-        <span id="detInProgressText" style="display:none; color:var(--success); font-weight:bold; text-align:center;">JOB IN PROGRESS...</span>
+        <p id="detDist" style="color:var(--accent); font-weight:600;"></p>
+        <select id="detETA"><option value="5-10 mins">5-10 mins</option><option value="15-20 mins">15-20 mins</option></select>
+        <button id="detAcceptBtn" class="submit-btn" style="margin-top:15px;">ACCEPT & HELP</button>
         <span class="cancel-link" onclick="window.closeModal('detailsModal')">Go Back</span>
-    </div>
-</div>
-
-<div id="imageEnlargeModal" class="modal">
-    <img id="enlargedImage" src="" alt="Enlarged Image">
-    <button class="close-btn" onclick="window.closeModal('imageEnlargeModal')">✕</button>
-</div>
-
-<div id="chatModal" class="modal">
-    <div class="modal-content" style="height:85vh">
-        <h3 id="chatTitle">Messages</h3>
-        <div id="chatBox"></div>
-        <div style="display:flex; gap:10px;">
-            <button onclick="document.getElementById('chatImgInput').click()" style="padding:15px; background:#f1f5f9; border:none; border-radius:15px;">📷</button>
-            <input type="file" id="chatImgInput" accept="image/*" style="display:none" onchange="window.sendChatImg(this)">
-            <input id="chatInput" placeholder="Type message..." style="margin:0;">
-            <button onclick="window.sendTextMsg()" style="background:var(--accent); color:white; border:none; padding:0 20px; border-radius:15px; font-weight:bold;">SEND</button>
-        </div>
-        <span class="cancel-link" onclick="window.closeModal('chatModal')">Close</span>
     </div>
 </div>
 
@@ -265,93 +160,34 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
             <div class="v-type active" onclick="window.selectVehicle('Car', this)">🚗 Car</div>
             <div class="v-type" onclick="window.selectVehicle('Truck', this)">🛻 Truck</div>
             <div class="v-type" onclick="window.selectVehicle('RV', this)">🚐 RV</div>
-            <div class="v-type" onclick="window.selectVehicle('HeavyDuty', this)">🚛 Heavy Duty</div>
         </div>
-        <label style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:8px; display:block;">TIP NOT REQUIRED, BUT APPRECIATED!</label>
-        <div style="display:flex; gap:10px; margin-bottom:12px;">
-            <div class="tip-btn" onclick="window.setTip(5, this)">$5</div>
-            <div class="tip-btn" onclick="window.setTip(10, this)">$10</div>
-            <div class="tip-btn" onclick="window.setTip(20, this)">$20</div>
-        </div>
-        <input type="number" id="customTip" placeholder="Other Tip Amount ($)" style="margin-bottom:15px;">
-        <img id="damagePreview" style="width:100%; height:150px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
-        <input type="file" id="damageInput" accept="image/*" style="display:none" onchange="window.handleImageUpload(this, 'damage')">
-        <button onclick="document.getElementById('damageInput').click()" style="width:100%; padding:15px; border-radius:16px; border:2px dashed #cbd5e1; background:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--muted);">📷 Add Damage Photo</button>
-        <textarea id="reqIssue" placeholder="What's the problem?" rows="2"></textarea>
-        
+        <textarea id="reqIssue" placeholder="What's the problem?"></textarea>
         <button id="towTruckBtn" class="btn-towtruck" onclick="window.toggleTowTruckRequest(this)">I NEED A TOW TRUCK!</button>
-        
-        <div id="towTruckContact" class="phone-input-group">
-            <label>PHONE NUMBER (REQUIRED)</label>
-            <input type="tel" id="phoneNumberInput" placeholder="Enter your phone number">
-            <label>TOW DESTINATION (REQUIRED)</label>
-            <input type="text" id="towDestinationInput" placeholder="Enter destination address">
+        <div id="towTruckContact" style="display:none;">
+            <input type="tel" id="phoneNumberInput" placeholder="Phone Number">
+            <input type="text" id="towDestinationInput" placeholder="Destination">
         </div>
-
-        <button class="submit-btn" id="submitSosBtn" onclick="window.submitSOS()">FIND HERO</button>
+        <button class="submit-btn" onclick="window.submitSOS()">FIND HERO</button>
         <p onclick="window.closeModal('requestModal')" class="cancel-link">Cancel</p>
     </div>
 </div>
 
-<div id="cancelConfirmModal" class="modal">
-    <div class="modal-content">
-        <h3>Cancel SOS?</h3>
-        <button class="submit-btn" style="background:var(--success); margin-bottom:10px;" onclick="window.submitCancellation('Issue Resolved')">Issue Resolved</button>
-        <button class="submit-btn" style="background:var(--accent); margin-bottom:10px;" onclick="window.submitCancellation('Found Other Helper')">Found Other Helper</button>
-        <span class="cancel-link" onclick="window.closeModal('cancelConfirmModal')">Keep Request</span>
-    </div>
-</div>
+<div id="notifModal" class="modal"><div class="modal-content"><h3>History</h3><div id="notifHistory"></div><button class="submit-btn" onclick="window.closeModal('notifModal')">Close</button></div></div>
 
 <div id="profileModal" class="modal">
     <div class="modal-content">
-        <h3>Hero Profile</h3>
-        <div style="text-align:center; margin-bottom:20px;">
-            <img id="profileDisplayPic" src="https://via.placeholder.com/100" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:4px solid #eff6ff;">
-            <input type="file" id="picInput" style="display:none" onchange="window.handleImageUpload(this, 'profile')">
-            <button onclick="document.getElementById('picInput').click()" style="display:block; margin:8px auto; border:none; background:none; color:var(--accent); font-weight:bold; cursor:pointer;">Update Photo</button>
-        </div>
-        <input id="profileName" placeholder="Hero Name">
-        <textarea id="profileBio" placeholder="Bio / Tools Available..." rows="2"></textarea>
-        <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
-            <label style="font-size:11px; font-weight:900; color:var(--muted);">SERVICE RADIUS: <span id="radiusVal" style="color:var(--accent);">25</span> miles</label>
-            <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="margin: 15px 0 0 0;" oninput="document.getElementById('radiusVal').innerText = this.value">
-        </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 20px;">
-            <label for="prefersTowTruckRequests" style="font-weight: 700;">Only show Tow Truck requests</label>
-            <input type="checkbox" id="prefersTowTruckRequests" style="width: auto; margin: 0;" onchange="window.toggleTowTruckProfileFields()">
-        </div>
-        <div id="towTruckRateFields" style="display:none; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 20px;">
-            <label style="font-size:11px; font-weight:900; color:var(--muted); margin-bottom: 5px; display: block;">TOWING RATES</label>
-            <input type="number" id="towTruckBaseRate" placeholder="Base Rate ($)" style="margin-bottom: 10px;">
-            <input type="number" id="towTruckPerMileRate" placeholder="Per Mile Rate ($)">
-        </div>
-        <button class="submit-btn" onclick="window.saveProfile()">Save Settings</button>
+        <h3>Profile</h3>
+        <input id="profileName" placeholder="Name">
+        <label>Radius: <span id="radiusVal">25</span> miles</label>
+        <input type="range" id="profileRadius" min="5" max="100" value="25" oninput="document.getElementById('radiusVal').innerText=this.value">
+        <button class="submit-btn" onclick="window.saveProfile()">Save</button>
         <span class="cancel-link" onclick="window.closeModal('profileModal')">Close</span>
     </div>
 </div>
 
-<div id="notifModal" class="modal">
-    <div class="modal-content">
-        <h3>Activity History</h3>
-        <div id="notifHistory"></div>
-        <button class="submit-btn" style="background:#f1f5f9; color:var(--text); margin-top:20px;" onclick="window.closeModal('notifModal')">CLOSE</button>
-    </div>
-</div>
-
-<div id="deleteConfirmModal" class="modal">
-    <div class="modal-content">
-        <h3>Confirm Deletion</h3>
-        <p>Are you sure you want to delete this activity?</p>
-        <button class="submit-btn" style="background:var(--danger); margin-bottom:10px;" onclick="window.confirmDeleteActivity()">Delete</button>
-        <span class="cancel-link" onclick="window.closeModal('deleteConfirmModal')">Cancel</span>
-    </div>
-</div>
-
-<audio id="notificationSound" src="Roadwatchero.mp3" preload="auto" style="display:none;"></audio>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, push, onValue, set, get, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getDatabase, ref, push, onValue, get, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
@@ -367,214 +203,49 @@ const db = getDatabase(app);
 if(!localStorage.getItem('heroUserId')) localStorage.setItem('heroUserId', 'u_' + Math.random().toString(36).substr(2, 9));
 const myId = localStorage.getItem('heroUserId');
 
-let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgData = null, myRadius = 25, heroMarker;
-let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUserMarker;
-let activeChatId = null, lastProcessedMessageTimestamp = 0, isInitialLoadForChatListener = true;
-let towTruckAnimationInterval = null, currentTowTruckIconState = 0, isTowTruckRequestActive = false;
+let map, seekerMiniMap, userLocation, selectedVehicle = "Car", myRadius = 25;
+let sosCache = {}, profilesCache = {}, markers = {}, isTowTruckRequestActive = false;
+let towTruckAnimationInterval = null, currentTowTruckIconState = 0;
 
-// Helpers
-const getMarkerIcon = (color) => ({
-    path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z",
-    fillColor: color, fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff", scale: 1.5, anchor: new google.maps.Point(12, 12)
-});
-
-function getTowTruckSplitIcon(leftColor, rightColor) {
-    return {
-        url: 'data:image/svg+xml;utf-8,' + encodeURIComponent(`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="l"><rect x="0" y="0" width="12" height="24"/></clipPath><clipPath id="r"><rect x="12" y="0" width="12" height="24"/></clipPath></defs><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="2" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${leftColor}" clip-path="url(#l)"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${rightColor}" clip-path="url(#r)"/><rect x="11" y="7" width="2" height="8" fill="#fff"/><circle cx="12" cy="17" r="1.5" fill="#fff"/></svg>`),
-        scaledSize: new google.maps.Size(24, 24),
-        anchor: new google.maps.Point(12, 12)
-    };
-}
-
-// Startup
-window.onload = () => {
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(p => {
-            const freshLoc = { lat: p.coords.latitude, lng: p.coords.longitude };
-            const isFirstLoad = !userLocation;
-            userLocation = freshLoc;
-            update(ref(db, `profiles/${myId}`), { ...userLocation, id: myId });
-            
-            if (map) {
-                if (!heroMarker) {
-                    heroMarker = new google.maps.Marker({ position: userLocation, map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }});
-                } else { heroMarker.setPosition(userLocation); }
-            }
-            syncUI();
-        }, (err) => console.error(err), { enableHighAccuracy: true });
-    }
-};
-
-window.switchView = (id) => {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('view-active'));
-    document.getElementById(id).classList.add('view-active');
-    if (id === 'heroUI' && map && userLocation) { 
-        google.maps.event.trigger(map, 'resize'); 
-        map.setCenter(userLocation); 
-    }
-    document.getElementById('imageEnlargeModal').style.display = 'none';
-};
-
-// UI Logic
-function syncUI() {
-    // GUARD: If location or Google Maps isn't ready, do not proceed (prevents white screen)
-    if (!userLocation || typeof google === 'undefined' || !google.maps.geometry) return;
-
-    const history = document.getElementById('notifHistory'); history.innerHTML = "";
-    let nearbySOS = [];
-    let currentTask = null; 
-    let myActiveSOS = null;
-    let jobActive = false;
-    let towTruckRequestsOnMap = false;
-
-    const currentHeroProfile = profilesCache[myId] || {};
-    const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
-
-    Object.entries(sosCache).forEach(([id, r]) => {
-        const isTowTruck = r.isTowTruckRequest === true;
-        const distMiles = (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34);
-
-        if (r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) {
-            if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = r;
-        }
-
-        if (prefersTowTruck && !isTowTruck && r.ownerId !== myId) return;
-
-        if (r.status === 'open' && r.ownerId !== myId) {
-            if (isTowTruck) towTruckRequestsOnMap = true;
-            if (distMiles <= (currentHeroProfile.radius || 25)) nearbySOS.push({id, ...r, dist: distMiles});
-            
-            if (map) {
-                if (!markers[id]) {
-                    const icon = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C");
-                    markers[id] = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon });
-                    markers[id].addListener('click', () => window.viewRequest(id));
-                }
-            }
-        } else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
-            if (map && !markers[id]) {
-                markers[id] = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e") });
-                markers[id].addListener('click', () => window.viewRequest(id));
-            }
-        } else if (markers[id]) {
-            markers[id].setMap(null);
-            delete markers[id];
-        }
-
-        if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && !r.helperAcknowledged))) currentTask = r;
-        if ((r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived')) jobActive = true;
-    });
-
-    // Handle Animation
-    if (towTruckRequestsOnMap && !towTruckAnimationInterval) startTowTruckAnimation();
-    else if (!towTruckRequestsOnMap && towTruckAnimationInterval) stopTowTruckAnimation();
-
-    // Seeker UI State
-    if (myActiveSOS) {
-        if (!document.getElementById('seekerUI').classList.contains('view-active')) window.switchView('seekerUI');
-        
-        const searching = document.getElementById('searchingState');
-        const matched = document.getElementById('matchedState');
-        const completed = document.getElementById('completionConfirmState');
-
-        searching.style.display = (myActiveSOS.status === 'open') ? 'block' : 'none';
-        matched.style.display = (myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') ? 'block' : 'none';
-        completed.style.display = (myActiveSOS.status === 'completed') ? 'block' : 'none';
-        document.getElementById('cancelSosBtn').style.display = (myActiveSOS.status !== 'completed') ? 'block' : 'none';
-
-        if (myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') {
-            const hero = profilesCache[myActiveSOS.helperId] || {};
-            document.getElementById('matchName').innerText = hero.name || "Roadside Hero";
-            document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
-            document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is here!" : `ETA: ${myActiveSOS.eta || '...'}`;
-            updateSeekerMiniMap(myActiveSOS, hero);
-        }
-    }
-
-    // Hero Panel
-    const tCard = document.getElementById('activeTask');
-    const ind = document.getElementById('statusIndicator');
-    if (currentTask) {
-        ind.style.background = currentTask.status === 'canceled' ? "var(--danger)" : "var(--success)";
-        tCard.style.display = 'block';
-        tCard.innerHTML = `<b>${currentTask.status.toUpperCase()}</b><p>${currentTask.issue}</p><button onclick="window.markArrived()" class="submit-btn">Update</button>`;
-    } else if (nearbySOS.length > 0) {
-        ind.style.background = "var(--danger)";
-        tCard.style.display = 'block';
-        tCard.innerHTML = `<b>${nearbySOS.length} Nearby SOS</b>`;
-    } else {
-        ind.style.background = "#94a3b8";
-        tCard.style.display = 'none';
-    }
-
-    document.getElementById('footerChatBtn').style.display = jobActive ? 'block' : 'none';
-    document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
-}
-
-function updateSeekerMiniMap(sos, hero) {
-    if (typeof google === 'undefined') return;
-    const container = document.getElementById('seekerMap');
-    if (!container) return;
-
-    if (!seekerMiniMap) {
-        seekerMiniMap = new google.maps.Map(container, { zoom: 14, disableDefaultUI: true });
-        seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 7, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }});
-        seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: { url: 'heromapicon.png', scaledSize: new google.maps.Size(32, 32) }});
-    }
-    
-    const userPos = {lat: sos.lat, lng: sos.lng};
-    seekerUserMarker.setPosition(userPos);
-    if (hero && hero.lat) {
-        seekerHeroMarker.setPosition({lat: hero.lat, lng: hero.lng});
-        const bounds = new google.maps.LatLngBounds();
-        bounds.extend(userPos); bounds.extend({lat: hero.lat, lng: hero.lng});
-        seekerMiniMap.fitBounds(bounds);
-    } else {
-        seekerMiniMap.setCenter(userPos);
-    }
-}
-
-// Map helpers
-function initMap() { 
-    map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true }); 
-}
-
-window.enterHeroMode = () => { 
-    window.switchView('heroUI'); 
-    if(!map) initMap(); 
-};
-
-// Listeners
-onValue(ref(db, "sosRequests"), (snap) => {
-    sosCache = snap.val() || {};
-    syncUI();
-});
-
-onValue(ref(db, "profiles"), (snap) => {
-    profilesCache = snap.val() || {};
-    syncUI();
-});
-
-// Modal Actions
+// --- Global Functions ---
 window.openModal = (id) => document.getElementById(id).style.display = "flex";
 window.closeModal = (id) => document.getElementById(id).style.display = "none";
 
-window.selectVehicle = (type, el) => {
-    selectedVehicle = type;
-    document.querySelectorAll(".v-type").forEach(b => b.classList.remove("active"));
-    el.classList.add("active");
+window.toggleTaskCard = () => {
+    const card = document.getElementById('activeTask');
+    card.classList.toggle('expanded');
 };
 
-window.toggleTowTruckRequest = (btn) => {
-    isTowTruckRequestActive = !isTowTruckRequestActive;
-    btn.classList.toggle('active', isTowTruckRequestActive);
-    document.getElementById('towTruckContact').style.display = isTowTruckRequestActive ? 'block' : 'none';
+window.viewRequest = (id) => {
+    const r = sosCache[id];
+    if(!r) return;
+    document.getElementById('detIssue').innerText = r.issue;
+    const dist = (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1);
+    document.getElementById('detDist').innerText = dist + " miles away";
+    document.getElementById('detAcceptBtn').onclick = () => window.confirmHelp(id);
+    window.openModal('detailsModal');
+};
+
+window.confirmHelp = (id) => {
+    const eta = document.getElementById('detETA').value;
+    update(ref(db, `sosRequests/${id}`), { status: 'accepted', helperId: myId, eta: eta });
+    window.closeModal('detailsModal');
+    document.getElementById('activeTask').classList.add('expanded');
+};
+
+window.markArrived = () => {
+    const active = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'accepted');
+    if(active) update(ref(db, `sosRequests/${active[0]}`), { status: 'arrived' });
+};
+
+window.completeTask = () => {
+    const active = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived');
+    if(active) update(ref(db, `sosRequests/${active[0]}`), { status: 'completed' });
 };
 
 window.submitSOS = () => {
     const issue = document.getElementById('reqIssue').value;
-    if(!issue || !userLocation) return alert("Please describe the issue.");
-    
+    if(!issue || !userLocation) return alert("Missing info");
     push(ref(db, "sosRequests"), {
         ownerId: myId, issue, vehicle: selectedVehicle,
         lat: userLocation.lat, lng: userLocation.lng,
@@ -586,30 +257,121 @@ window.submitSOS = () => {
     window.closeModal('requestModal');
 };
 
-function startTowTruckAnimation() {
-    if (towTruckAnimationInterval) return;
+// --- Core Logic ---
+window.onload = () => {
+    navigator.geolocation.watchPosition(p => {
+        userLocation = { lat: p.coords.latitude, lng: p.coords.longitude };
+        update(ref(db, `profiles/${myId}`), { ...userLocation, id: myId });
+        syncUI();
+    });
+};
+
+function syncUI() {
+    if (!userLocation || typeof google === 'undefined' || !google.maps.geometry) return;
+
+    let nearbyCount = 0;
+    let currentTask = null;
+    let myActiveSOS = null;
+    let hasTowTruck = false;
+
+    Object.entries(sosCache).forEach(([id, r]) => {
+        const dist = (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34);
+        
+        if (r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) myActiveSOS = r;
+
+        if (r.status === 'open' && r.ownerId !== myId) {
+            if (r.isTowTruckRequest) hasTowTruck = true;
+            if (dist <= myRadius) nearbyCount++;
+            
+            if (map) {
+                if (!markers[id]) {
+                    const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map });
+                    marker.addListener('click', () => window.viewRequest(id));
+                    markers[id] = marker;
+                }
+                const icon = r.isTowTruckRequest ? getTowTruckIcon(currentTowTruckIconState) : getNormalIcon();
+                markers[id].setIcon(icon);
+            }
+        } else if (markers[id]) {
+            markers[id].setMap(null);
+            delete markers[id];
+        }
+
+        if (r.helperId === myId && ['accepted', 'arrived'].includes(r.status)) currentTask = r;
+    });
+
+    // Color Indicator logic
+    const ind = document.getElementById('statusIndicator');
+    if (currentTask) ind.style.background = "#22c55e"; // Green for active job
+    else if (nearbyCount > 0) ind.style.background = "#EE611C"; // Orange for nearby
+    else ind.style.background = "#94a3b8"; // Grey for quiet
+
+    // Task Card Content
+    const tCard = document.getElementById('activeTask');
+    if (currentTask) {
+        tCard.style.display = 'block';
+        tCard.innerHTML = `<b>ACTIVE JOB</b><p>${currentTask.issue}</p>
+        <button class="submit-btn" onclick="window.${currentTask.status === 'accepted' ? 'markArrived' : 'completeTask'}()">${currentTask.status === 'accepted' ? 'I HAVE ARRIVED' : 'JOB FINISHED'}</button>`;
+    } else if (nearbyCount > 0) {
+        tCard.style.display = 'block';
+        tCard.innerHTML = `<b>${nearbyCount} SOS NEARBY</b><p>Click markers on map to view details.</p>`;
+    } else {
+        tCard.style.display = 'none';
+        tCard.classList.remove('expanded');
+    }
+
+    // Seeker View Persistence
+    if (myActiveSOS) {
+        if (!document.getElementById('seekerUI').classList.contains('view-active')) window.switchView('seekerUI');
+        document.getElementById('searchingState').style.display = myActiveSOS.status === 'open' ? 'block' : 'none';
+        document.getElementById('matchedState').style.display = ['accepted', 'arrived'].includes(myActiveSOS.status) ? 'block' : 'none';
+        document.getElementById('completionConfirmState').style.display = myActiveSOS.status === 'completed' ? 'block' : 'none';
+        if (['accepted', 'arrived'].includes(myActiveSOS.status)) {
+            const hero = profilesCache[myActiveSOS.helperId] || {};
+            document.getElementById('matchName').innerText = hero.name || "Hero";
+            document.getElementById('matchPic').src = hero.pic || "usericon.png";
+            document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is here!" : "ETA: " + myActiveSOS.eta;
+            updateSeekerMap(myActiveSOS, hero);
+        }
+    }
+
+    if (hasTowTruck && !towTruckAnimationInterval) startAnimation();
+    if (!hasTowTruck && towTruckAnimationInterval) stopAnimation();
+}
+
+function getNormalIcon() {
+    return { path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, scale: 5, fillColor: "#EE611C", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 };
+}
+
+function getTowTruckIcon(state) {
+    const colors = state ? ["#ef4444", "#2563eb"] : ["#2563eb", "#ef4444"];
+    return {
+        url: 'data:image/svg+xml;utf-8,' + encodeURIComponent(`<svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="12" fill="${colors[0]}" stroke="white" stroke-width="2"/><path d="M15 3 A12 12 0 0 1 15 27" fill="${colors[1]}"/></svg>`),
+        scaledSize: new google.maps.Size(30, 30), anchor: new google.maps.Point(15, 15)
+    };
+}
+
+function startAnimation() {
     towTruckAnimationInterval = setInterval(() => {
         currentTowTruckIconState = 1 - currentTowTruckIconState;
-        Object.keys(markers).forEach(id => {
-            const r = sosCache[id];
-            if (r && r.isTowTruckRequest && r.status === 'open') {
-                markers[id].setIcon(currentTowTruckIconState ? getTowTruckSplitIcon("#2563eb", "#ef4444") : getTowTruckSplitIcon("#ef4444", "#2563eb"));
-            }
-        });
+        syncUI();
     }, 500);
 }
 
-function stopTowTruckAnimation() {
-    clearInterval(towTruckAnimationInterval);
-    towTruckAnimationInterval = null;
-}
+function stopAnimation() { clearInterval(towTruckAnimationInterval); towTruckAnimationInterval = null; }
 
-window.toggleSeekerMapExpansion = () => {
-    const container = document.getElementById('seekerMapContainer');
-    container.classList.toggle('expanded');
-    document.querySelector('.map-close-btn').style.display = container.classList.contains('expanded') ? 'flex' : 'none';
-    google.maps.event.trigger(seekerMiniMap, 'resize');
+window.enterHeroMode = () => {
+    window.switchView('heroUI');
+    if (!map) map = new google.maps.Map(document.getElementById("map"), { center: userLocation, zoom: 14, disableDefaultUI: true });
 };
+
+window.switchView = (id) => {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('view-active'));
+    document.getElementById(id).classList.add('view-active');
+};
+
+onValue(ref(db, "sosRequests"), s => { sosCache = s.val() || {}; syncUI(); });
+onValue(ref(db, "profiles"), s => { profilesCache = s.val() || {}; syncUI(); });
 
 </script>
 </body>
