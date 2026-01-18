@@ -23,7 +23,7 @@ body, button, input, div:not(#map):not(#seekerMap) {
 }
 
 body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; color: var(--text); background: white; overflow: hidden; }
-h3{ text-align: center; }
+h3{ text-align: center; font-size:30px; margin-top:-60px;}
 .view { display: none; width: 100vw; height: 100vh; position: fixed; inset: 0; z-index: 10; background: white; overflow-y: auto; }
 .view-active { display: flex; flex-direction: column; }
 
@@ -167,10 +167,10 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 .modal-header-row h3 { margin: 0; color: var(--accent); flex: 1; text-align: center; }
 .close-x-btn { background: var(--accent); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 .comm-btn-row { display: flex; justify-content: center; gap: 20px; margin: 15px 0 20px 0; }
-.comm-icon-btn { background: var(--warning); border: none; border-radius: 16px; padding: 12px 25px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+.comm-icon-btn { background: var(--accent); border: none; border-radius: 16px; padding: 12px 25px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
 .comm-icon-btn:active { background: var(--accent); transform: scale(0.95); }
 .comm-icon-btn img { width: 32px; height: 32px; }
-
+#detDist{ padding-top:15%;}
 #detIssue { word-break: break-all; }
 .det-img-scroller { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 10px; }
 .det-img-scroller img { width: 100%; height: 90%; object-fit: cover; border-radius: 15px; flex-shrink: 0; cursor: pointer; border: 1px solid #e2e8f0; }
@@ -758,6 +758,7 @@ window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, 
 </script>
 </body>
 </html>
+
 
 
 
