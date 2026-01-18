@@ -17,7 +17,7 @@
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-/* Global smoothness - excluding map tiles to prevent performance issues */
+/* Global smoothness */
 body, button, input, div:not(#map):not(#seekerMap) {
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
 }
@@ -71,12 +71,11 @@ h3{ text-align: center; }
 }
 .task-card.expanded { display: block; transform: translateX(0); }
 
-/* Updated SOS List Item Styling for Hero Panel */
 .sos-list-item { 
     padding: 15px; 
     border-radius: 12px;
     background: #fff;
-    border: 3px solid #e2e8f0; /* Default border */
+    border: 3px solid #e2e8f0; 
     cursor: pointer; 
     display: flex; 
     justify-content: space-between; 
@@ -89,12 +88,7 @@ h3{ text-align: center; }
 .sos-list-item.status-tow { border-color: var(--tow-blue); }
 .sos-list-item.status-roadside { border-color: var(--accent); }
 
-.sos-info-left {
-    flex: 1;
-    margin-right: 10px;
-    word-break: break-word; 
-    min-width: 0;
-}
+.sos-info-left { flex: 1; margin-right: 10px; word-break: break-word; min-width: 0; }
 
 /* NEW STYLES FOR SEEKER MESSAGES LIST */
 #seekerMessagesList {
@@ -102,6 +96,7 @@ h3{ text-align: center; }
     max-width: 450px;
     margin-top: 20px;
     display: none; /* Hidden by default */
+    z-index: 50;
 }
 .msg-thread-card {
     background: white;
@@ -116,16 +111,10 @@ h3{ text-align: center; }
     cursor: pointer;
     text-align: left;
     position: relative;
+    width: 100%;
 }
-.msg-thread-info {
-    flex: 1;
-}
-.msg-thread-time {
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 8px;
-    font-weight: 600;
-}
+.msg-thread-info { flex: 1; padding-right: 10px; }
+.msg-thread-time { font-size: 10px; color: var(--muted); margin-top: 8px; font-weight: 600; }
 
 .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
 .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 95vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); }
@@ -139,10 +128,7 @@ h3{ text-align: center; }
     background-position: center 40%;
     background-size: 100px;
 }
-.chat-empty-bg::after {
-    content: "Send a message to start communicating";
-    position: absolute; top: 65%; left: 0; width: 100%; text-align: center; color: var(--muted); font-weight: 600; font-size: 14px; opacity: 0.6;
-}
+.chat-empty-bg::after { content: "Send a message to start communicating"; position: absolute; top: 65%; left: 0; width: 100%; text-align: center; color: var(--muted); font-weight: 600; font-size: 14px; opacity: 0.6; }
 
 .msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 14px; line-height: 1.4; z-index: 2; }
 .msg-me { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
@@ -218,7 +204,7 @@ input:checked + .slider:before { transform: translateX(22px); }
         <p>Your request is live. Waiting for a Hero to accept...</p>
     </div>
 
-    <!-- NEW: Seeker Messages List (Pre-acceptance) -->
+    <!-- Seeker Messages List -->
     <div id="seekerMessagesList"></div>
 
     <div id="matchedState" class="status-card" style="display:none; border-color: var(--success);">
@@ -250,7 +236,6 @@ input:checked + .slider:before { transform: translateX(22px); }
     <div class="footer">
         <div class="footer-icons">
             <div id="footerChatBtn" style="position:relative; display:none;">
-                <!-- Clicking this now scrolls to message list if pre-acceptance, or opens chat if post-acceptance -->
                 <img src="Chaticon.png" class="icon-btn" onclick="window.handleSeekerChatClick()">
                 <span id="chatBadge">0</span>
             </div>
@@ -264,9 +249,7 @@ input:checked + .slider:before { transform: translateX(22px); }
     <div id="statusIndicator" style="background: #94a3b8;" onclick="window.toggleTaskCard()">!</div>
     <div id="map"></div>
     <div id="heroPanel">
-        <div id="activeTask" class="task-card">
-            <!-- DYNAMIC HERO CONTENT -->
-        </div>
+        <div id="activeTask" class="task-card"></div>
     </div>
     <div class="footer">
         <div class="footer-icons">
@@ -286,23 +269,18 @@ input:checked + .slider:before { transform: translateX(22px); }
 <!-- MODALS -->
 <div id="detailsModal" class="modal">
     <div class="modal-content">
-        <!-- Header -->
         <div class="modal-header-row">
             <span id="detDist" style="color:var(--muted); font-size:14px; font-weight:700;"></span>
             <h3>SOS DETAILS</h3>
             <button class="close-x-btn" onclick="window.closeModal('detailsModal')">✕</button>
         </div>
-
         <div id="detImgContainer" style="display:none;">
             <p style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:4px;">PHOTOS</p>
             <div id="detImgScroller" class="det-img-scroller"></div>
         </div>
-        
         <p style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:4px;">ISSUE DESCRIPTION</p>
         <div id="detIssue" style="font-weight:500; margin-bottom:15px; background:#f8fafc; padding:15px; border-radius:12px; border:1px solid #e2e8f0;"></div>
-
         <p id="detTowDestination" style="font-size:14px; margin-bottom:10px; font-weight:600; display:none; color: var(--text);"></p>
-
         <div class="comm-btn-row">
             <a id="detPhoneBtn" href="#" class="comm-icon-btn" style="display:none;">
                <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png" alt="Call">
@@ -311,12 +289,10 @@ input:checked + .slider:before { transform: translateX(22px); }
                 <img src="Chaticon.png" alt="Chat">
             </button>
         </div>
-
         <div id="detActionBtns" style="display:none; gap:10px; margin-bottom: 20px;">
             <a id="detNavBtn" href="#" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:15px; border-radius:16px; text-decoration:none; font-weight:700; font-size:14px; display:block;">NAVIGATE</a>
             <button id="detStatusBtn" style="flex:1; background:var(--warning); color:white; border:none; border-radius:16px; font-weight:700; font-size:14px;">HERE</button>
         </div>
-
         <div id="detETAGroup">
             <label style="font-size:11px; font-weight:bold; color:var(--muted);">ETA TO ARRIVAL</label>
             <select id="detETA">
@@ -330,7 +306,6 @@ input:checked + .slider:before { transform: translateX(22px); }
                 <option value="3 hours+">3 hours+</option>
             </select>
         </div>
-
         <button id="detAcceptBtn" class="submit-btn" style="margin-top:20px;">ACCEPT & HELP</button>
         <span id="detInProgressText" style="display:none; color:var(--success); font-weight:bold; text-align:center; margin-top:20px;">JOB IN PROGRESS...</span>
     </div>
@@ -374,22 +349,17 @@ input:checked + .slider:before { transform: translateX(22px); }
             <div class="tip-btn" onclick="window.setTip(20, this)">$20</div>
         </div>
         <input type="number" id="customTip" placeholder="Other Tip Amount ($)" style="margin-bottom:15px;">
-        
         <div id="damagePreviewList" style="display:flex; gap:5px; overflow-x:auto; margin-bottom:10px;"></div>
         <input type="file" id="damageInput" accept="image/*" multiple style="display:none" onchange="window.handleImageUpload(this, 'damage')">
         <button onclick="document.getElementById('damageInput').click()" style="width:100%; padding:15px; border-radius:16px; border:2px dashed #cbd5e1; background:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--muted);">📷 Add Damage Photos</button>
-        
         <textarea id="reqIssue" placeholder="What's the problem?" rows="2"></textarea>
-        
         <button id="towTruckBtn" class="btn-towtruck" onclick="window.toggleTowTruckRequest(this)">I NEED A TOW TRUCK!</button>
-        
         <div id="towTruckContact" class="phone-input-group">
             <label>REQUIRED</label>
             <input type="tel" id="phoneNumberInput" placeholder="Enter your phone number">
             <label style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:8px; display:block; margin-top:15px;"></label>
             <input type="text" id="towDestinationInput" placeholder="Enter destination address or landmark">
         </div>
-
         <button class="submit-btn" id="submitSosBtn" onclick="window.submitSOS()">FIND HERO</button>
         <p onclick="window.closeModal('requestModal')" class="cancel-link">Cancel</p>
     </div>
@@ -409,52 +379,20 @@ input:checked + .slider:before { transform: translateX(22px); }
         </div>
         <input id="profileName" placeholder="Hero Name">
         <textarea id="profileBio" placeholder="Bio / Tools Available..." rows="2"></textarea>
-        
         <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
             <label style="font-size:11px; font-weight:900; color:var(--muted);">SERVICE RADIUS: <span id="radiusVal" style="color:var(--accent);">25</span> miles</label>
             <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="margin: 15px 0 0 0;" oninput="window.updateRadiusLive(this.value)">
         </div>
-
-        <div class="toggle-wrapper">
-            <span class="toggle-label">Show Roadside SOS</span>
-            <label class="toggle-switch">
-                <input type="checkbox" id="prefersRoadsideRequests" checked>
-                <span class="slider"></span>
-            </label>
-        </div>
-        
-        <div class="toggle-wrapper">
-            <span class="toggle-label">Show Tow Truck Requests</span>
-            <label class="toggle-switch">
-                <input type="checkbox" id="prefersTowTruckRequests">
-                <span class="slider"></span>
-            </label>
-        </div>
-
+        <div class="toggle-wrapper"><span class="toggle-label">Show Roadside SOS</span><label class="toggle-switch"><input type="checkbox" id="prefersRoadsideRequests" checked><span class="slider"></span></label></div>
+        <div class="toggle-wrapper"><span class="toggle-label">Show Tow Truck Requests</span><label class="toggle-switch"><input type="checkbox" id="prefersTowTruckRequests"><span class="slider"></span></label></div>
         <button class="submit-btn" onclick="window.saveProfile()">Save Settings</button>
         <span class="cancel-link" onclick="window.closeModal('profileModal')">Close</span>
     </div>
 </div>
 
 <div id="notifModal" class="modal"><div class="modal-content"><h3>Activity History</h3><div id="notifHistory"></div><button class="submit-btn" style="background:#f1f5f9; color:var(--text); margin-top:20px;" onclick="window.closeModal('notifModal')">CLOSE</button></div></div>
-<div id="deleteConfirmModal" class="modal">
-    <div class="modal-content">
-        <h3>Confirm Deletion</h3>
-        <p>Are you sure you want to delete this activity?</p>
-        <button class="submit-btn" style="background:var(--danger); margin-bottom:10px;" onclick="window.confirmDeleteActivity()">Delete</button>
-        <span class="cancel-link" onclick="window.closeModal('deleteConfirmModal')">Cancel</span>
-    </div>
-</div>
-
-<!-- Reuse delete modal for chats -->
-<div id="deleteChatConfirmModal" class="modal">
-    <div class="modal-content">
-        <h3>Delete Chat?</h3>
-        <p>This will remove the conversation thread.</p>
-        <button class="submit-btn" style="background:var(--danger); margin-bottom:10px;" onclick="window.confirmDeleteChat()">Delete</button>
-        <span class="cancel-link" onclick="window.closeModal('deleteChatConfirmModal')">Cancel</span>
-    </div>
-</div>
+<div id="deleteConfirmModal" class="modal"><div class="modal-content"><h3>Confirm Deletion</h3><p>Are you sure you want to delete this activity?</p><button class="submit-btn" style="background:var(--danger); margin-bottom:10px;" onclick="window.confirmDeleteActivity()">Delete</button><span class="cancel-link" onclick="window.closeModal('deleteConfirmModal')">Cancel</span></div></div>
+<div id="deleteChatConfirmModal" class="modal"><div class="modal-content"><h3>Delete Chat?</h3><p>This will remove the conversation thread.</p><button class="submit-btn" style="background:var(--danger); margin-bottom:10px;" onclick="window.confirmDeleteChat()">Delete</button><span class="cancel-link" onclick="window.closeModal('deleteChatConfirmModal')">Cancel</span></div></div>
 
 <audio id="notificationSound" src="Roadwatchero.mp3" preload="auto" style="display:none;"></audio>
 
@@ -462,14 +400,7 @@ input:checked + .slider:before { transform: translateX(22px); }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, push, onValue, set, get, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
-  authDomain: "roadsidehero-104ea.firebaseapp.com",
-  databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
-  projectId: "roadsidehero-104ea",
-  storageBucket: "roadsidehero-104ea.firebaseapp.com"
-};
-
+const firebaseConfig = { apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o", authDomain: "roadsidehero-104ea.firebaseapp.com", databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com", projectId: "roadsidehero-104ea", storageBucket: "roadsidehero-104ea.firebaseapp.com" };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
@@ -478,45 +409,16 @@ const myId = localStorage.getItem('heroUserId');
 
 let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgList = [], myRadius = 25, heroMarker, profileRadiusCircle;
 let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUserMarker, chatCache = {};
-let activeChatId = null, lastMsgCount = 0;
-let activityToDeleteId = null; 
-let chatToDeleteId = null; // For thread deletion
-let currentUnreadCount = 0; 
-let lastProcessedMessageTimestamp = 0; 
-let isInitialLoadForChatListener = true; 
-let towTruckAnimationInterval = null; 
-let currentTowTruckIconState = 0; 
-let isTowTruckRequestActive = false; 
+let activeChatId = null, lastMsgCount = 0, activityToDeleteId = null, chatToDeleteId = null;
+let currentUnreadCount = 0, lastProcessedMessageTimestamp = 0, isInitialLoadForChatListener = true;
+let towTruckAnimationInterval = null, currentTowTruckIconState = 0, isTowTruckRequestActive = false; 
 
-// Retrieve persistent radius from localStorage if available
-const savedRadius = localStorage.getItem('heroRadius');
-if(savedRadius) {
-    myRadius = parseInt(savedRadius);
-}
+if(localStorage.getItem('heroRadius')) myRadius = parseInt(localStorage.getItem('heroRadius'));
 
-const getMarkerIcon = (color) => ({
-    path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z",
-    fillColor: color, fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff", scale: 1.5, anchor: new google.maps.Point(12, 12)
-});
-
+const getMarkerIcon = (color) => ({ path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z", fillColor: color, fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff", scale: 1.5, anchor: new google.maps.Point(12, 12) });
 const seekerOwnIcon = { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 };
 const seekerHeroCustomIcon = { url: 'heromapicon.png', scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(0, 32) };
-
-function getTowTruckSplitIcon(leftColor, rightColor) {
-    return {
-        url: 'data:image/svg+xml;utf-8,' + encodeURIComponent(`
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs><clipPath id="clipLeft"><rect x="0" y="0" width="12" height="24"/></clipPath><clipPath id="clipRight"><rect x="12" y="0" width="12" height="24"/></clipPath></defs>
-                <circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none"/>
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${leftColor}" clip-path="url(#clipLeft)"/>
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${rightColor}" clip-path="url(#clipRight)"/>
-                <rect x="11" y="7" width="2" height="8" fill="#ffffff"/>
-                <circle cx="12" cy="17" r="1.5" fill="#ffffff"/>
-            </svg>
-        `),
-        scaledSize: new google.maps.Size(24, 24), anchor: new google.maps.Point(12, 12)
-    };
-}
+function getTowTruckSplitIcon(leftColor, rightColor) { return { url: 'data:image/svg+xml;utf-8,' + encodeURIComponent(`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="clipLeft"><rect x="0" y="0" width="12" height="24"/></clipPath><clipPath id="clipRight"><rect x="12" y="0" width="12" height="24"/></clipPath></defs><circle cx="12" cy="12" r="10" stroke="#ffffff" stroke-width="2" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${leftColor}" clip-path="url(#clipLeft)"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="${rightColor}" clip-path="url(#clipRight)"/><rect x="11" y="7" width="2" height="8" fill="#ffffff"/><circle cx="12" cy="17" r="1.5" fill="#ffffff"/></svg>`), scaledSize: new google.maps.Size(24, 24), anchor: new google.maps.Point(12, 12) }; }
 
 window.onload = () => {
     if (navigator.geolocation) {
@@ -526,10 +428,9 @@ window.onload = () => {
             userLocation = freshLoc;
             update(ref(db, `profiles/${myId}`), { ...userLocation, id: myId });
             if (map) {
-                if (!heroMarker) {
-                    heroMarker = new google.maps.Marker({ position: userLocation, map: map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 } });
-                } else { heroMarker.setPosition(userLocation); }
-                if (isFirstLoad && document.getElementById('heroUI').classList.contains('view-active')) { map.setCenter(userLocation); }
+                if (!heroMarker) heroMarker = new google.maps.Marker({ position: userLocation, map: map, icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 } });
+                else heroMarker.setPosition(userLocation);
+                if (isFirstLoad && document.getElementById('heroUI').classList.contains('view-active')) map.setCenter(userLocation);
             }
             syncUI();
         }, (err) => console.error(err), { enableHighAccuracy: true });
@@ -542,14 +443,8 @@ window.updateRadiusLive = (val) => {
     myRadius = parseInt(val);
     document.getElementById('radiusVal').innerText = val;
     if (map && userLocation) {
-        if (profileRadiusCircle) {
-            profileRadiusCircle.setRadius(myRadius * 1609.34);
-            profileRadiusCircle.setCenter(userLocation);
-        } else {
-            profileRadiusCircle = new google.maps.Circle({
-                map: map, center: userLocation, radius: myRadius * 1609.34, fillColor: '#EE611C', fillOpacity: 0.1, strokeColor: '#EE611C', strokeWeight: 1
-            });
-        }
+        if (profileRadiusCircle) { profileRadiusCircle.setRadius(myRadius * 1609.34); profileRadiusCircle.setCenter(userLocation); } 
+        else { profileRadiusCircle = new google.maps.Circle({ map: map, center: userLocation, radius: myRadius * 1609.34, fillColor: '#EE611C', fillOpacity: 0.1, strokeColor: '#EE611C', strokeWeight: 1 }); }
         map.fitBounds(profileRadiusCircle.getBounds());
     }
     syncUI();
@@ -557,27 +452,16 @@ window.updateRadiusLive = (val) => {
 
 window.centerOnMe = () => { if (map && userLocation) map.setCenter(userLocation); };
 window.openModal = (id) => document.getElementById(id).style.display = "flex";
-
 window.closeModal = (id) => {
     document.getElementById(id).style.display = "none";
-    if (id === 'detailsModal' || id === 'imageEnlargeModal') {
-        const enlargedImage = document.getElementById('enlargedImage');
-        enlargedImage.src = ''; 
-        enlargedImage.style.display = 'none';
-        document.getElementById('imageEnlargeModal').style.display = 'none';
-    }
-    if (id === 'profileModal' && profileRadiusCircle) {
-        profileRadiusCircle.setMap(null);
-        profileRadiusCircle = null;
-    }
+    if (id === 'detailsModal' || id === 'imageEnlargeModal') { document.getElementById('enlargedImage').src = ''; document.getElementById('enlargedImage').style.display = 'none'; document.getElementById('imageEnlargeModal').style.display = 'none'; }
+    if (id === 'profileModal' && profileRadiusCircle) { profileRadiusCircle.setMap(null); profileRadiusCircle = null; }
 };
-
 window.switchView = (id) => {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('view-active'));
     document.getElementById(id).classList.add('view-active');
     if (id === 'heroUI' && map && userLocation) { google.maps.event.trigger(map, 'resize'); map.setCenter(userLocation); }
-    document.getElementById('imageEnlargeModal').style.display = 'none';
-    document.getElementById('enlargedImage').src = '';
+    document.getElementById('imageEnlargeModal').style.display = 'none'; document.getElementById('enlargedImage').src = '';
 };
 
 window.selectVehicle = (type, el) => { 
@@ -585,39 +469,25 @@ window.selectVehicle = (type, el) => {
     document.querySelectorAll(".v-type").forEach(b => b.classList.remove("active")); 
     el.classList.add("active"); 
     isTowTruckRequestActive = false;
-    document.getElementById('towTruckBtn').classList.remove('active');
-    document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!';
-    document.getElementById('towTruckContact').style.display = 'none';
-    document.getElementById('phoneNumberInput').removeAttribute('required');
-    document.getElementById('phoneNumberInput').value = '';
-    document.getElementById('towDestinationInput').removeAttribute('required');
-    document.getElementById('towDestinationInput').value = '';
+    document.getElementById('towTruckBtn').classList.remove('active'); document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!'; document.getElementById('towTruckContact').style.display = 'none'; document.getElementById('phoneNumberInput').removeAttribute('required'); document.getElementById('phoneNumberInput').value = ''; document.getElementById('towDestinationInput').removeAttribute('required'); document.getElementById('towDestinationInput').value = '';
 };
 
 window.handleImageUpload = (input, target) => {
     if(target === 'damage') {
         const files = input.files;
         if(files.length > 0) {
-            damageImgList = []; // Reset for new selection
-            document.getElementById('damagePreviewList').innerHTML = "";
+            damageImgList = []; document.getElementById('damagePreviewList').innerHTML = "";
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
-                        const canvas = document.createElement('canvas'); const MAX_WIDTH = 600; const scaleSize = MAX_WIDTH / img.width;
-                        canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+                        const canvas = document.createElement('canvas'); const MAX_WIDTH = 600; const scaleSize = MAX_WIDTH / img.width; canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
                         const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                        const compressedData = canvas.toDataURL('image/jpeg', 0.7);
-                        damageImgList.push(compressedData);
-                        const pv = document.createElement('img');
-                        pv.src = compressedData;
-                        pv.style.width = '80px'; pv.style.height = '80px'; pv.style.objectFit = 'cover'; pv.style.borderRadius = '10px'; pv.style.flexShrink = '0';
-                        document.getElementById('damagePreviewList').appendChild(pv);
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
+                        const compressedData = canvas.toDataURL('image/jpeg', 0.7); damageImgList.push(compressedData);
+                        const pv = document.createElement('img'); pv.src = compressedData; pv.style.width = '80px'; pv.style.height = '80px'; pv.style.objectFit = 'cover'; pv.style.borderRadius = '10px'; pv.style.flexShrink = '0'; document.getElementById('damagePreviewList').appendChild(pv);
+                    }; img.src = e.target.result;
+                }; reader.readAsDataURL(file);
             });
         }
     } else if(target === 'profile') {
@@ -626,105 +496,55 @@ window.handleImageUpload = (input, target) => {
         reader.onload = (e) => {
             const img = new Image();
             img.onload = () => {
-                const canvas = document.createElement('canvas'); const MAX_WIDTH = 600; const scaleSize = MAX_WIDTH / img.width;
-                canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
+                const canvas = document.createElement('canvas'); const MAX_WIDTH = 600; const scaleSize = MAX_WIDTH / img.width; canvas.width = MAX_WIDTH; canvas.height = img.height * scaleSize;
                 const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 document.getElementById('profileDisplayPic').src = canvas.toDataURL('image/jpeg', 0.7);
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+            }; img.src = e.target.result;
+        }; reader.readAsDataURL(file);
     }
 };
 
 window.openChat = async (targetChatId = null) => {
-    if (targetChatId) {
-        activeChatId = targetChatId;
-    } else {
-        // Fallback for Hero in Active Job
-        const currentActiveSOS = Object.values(sosCache).find(r => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
-        if (currentActiveSOS) {
-            // If job is accepted, chatID is sosID + helperID
-             activeChatId = `${Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS)}_${currentActiveSOS.helperId}`;
-        }
-    }
-    
+    if (targetChatId) activeChatId = targetChatId;
+    else { const currentActiveSOS = Object.values(sosCache).find(r => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived')); if (currentActiveSOS) activeChatId = `${Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS)}_${currentActiveSOS.helperId}`; }
     if (!activeChatId) return;
-
     window.openModal('chatModal');
     const chatSnap = await get(ref(db, `chats/${activeChatId}`));
     if (chatSnap.exists()) {
-        const messages = chatSnap.val();
-        const updates = {};
-        for (const msgId in messages) {
-            if (messages[msgId].sender !== myId && messages[msgId].read === false) {
-                updates[`chats/${activeChatId}/${msgId}/read`] = true;
-            }
-        }
+        const messages = chatSnap.val(); const updates = {};
+        for (const msgId in messages) { if (messages[msgId].sender !== myId && messages[msgId].read === false) updates[`chats/${activeChatId}/${msgId}/read`] = true; }
         if (Object.keys(updates).length > 0) await update(ref(db), updates);
     }
     updateChatBadges(0); 
-
     onValue(ref(db, `chats/${activeChatId}`), (snap) => {
-        const box = document.getElementById('chatBox'); 
-        box.innerHTML = "";
-        const data = snap.val() || {};
-        const msgs = Object.values(data);
-        
-        if(msgs.length === 0) {
-            box.classList.add('chat-empty-bg');
-        } else {
-            box.classList.remove('chat-empty-bg');
-        }
-
+        const box = document.getElementById('chatBox'); box.innerHTML = "";
+        const data = snap.val() || {}; const msgs = Object.values(data);
+        if(msgs.length === 0) box.classList.add('chat-empty-bg'); else box.classList.remove('chat-empty-bg');
         msgs.forEach(m => {
             const side = m.sender === myId ? 'msg-me' : 'msg-them';
             let content = m.text ? `<div>${m.text}</div>` : "";
             if(m.img) content += `<img src="${m.img}" style="max-width:100%; border-radius:10px; margin-top:5px;">`;
             box.innerHTML += `<div class="msg ${side}">${content}</div>`;
         });
-        box.scrollTop = box.scrollHeight;
-        lastMsgCount = msgs.length;
+        box.scrollTop = box.scrollHeight; lastMsgCount = msgs.length;
     });
 };
 
-window.sendTextMsg = () => {
-    const input = document.getElementById('chatInput'); if(!input.value.trim() || !activeChatId) return;
-    push(ref(db, `chats/${activeChatId}`), { sender: myId, text: input.value, timestamp: Date.now(), read: false });
-    input.value = "";
-};
-
-window.sendChatImg = (input) => {
-    const file = input.files[0]; if(!file || !activeChatId) return;
-    const reader = new FileReader();
-    reader.onload = (e) => push(ref(db, `chats/${activeChatId}`), { sender: myId, img: e.target.result, timestamp: Date.now(), read: false });
-    reader.readAsDataURL(file);
-};
+window.sendTextMsg = () => { const input = document.getElementById('chatInput'); if(!input.value.trim() || !activeChatId) return; push(ref(db, `chats/${activeChatId}`), { sender: myId, text: input.value, timestamp: Date.now(), read: false }); input.value = ""; };
+window.sendChatImg = (input) => { const file = input.files[0]; if(!file || !activeChatId) return; const reader = new FileReader(); reader.onload = (e) => push(ref(db, `chats/${activeChatId}`), { sender: myId, img: e.target.result, timestamp: Date.now(), read: false }); reader.readAsDataURL(file); };
 
 function updateChatBadges(count) {
-    const sB = document.getElementById('chatBadge');
-    const hB = document.getElementById('chatBadgeHero');
+    const sB = document.getElementById('chatBadge'); const hB = document.getElementById('chatBadgeHero');
     if(sB) { sB.innerText = count; sB.style.display = count > 0 ? 'flex' : 'none'; }
     if(hB) { hB.innerText = count; hB.style.display = count > 0 ? 'flex' : 'none'; }
 }
 
-// Global Chat Listener for Notifications and Seeker Message List
 onValue(ref(db, 'chats'), (snapshot) => {
     chatCache = snapshot.val() || {};
-    let unreadCount = 0;
-    let latestMessageTimestampInActiveChat = 0;
-    
-    // Logic to find unread messages in ANY chat relevant to user
-    // For Seeker: chats starting with their sosID
-    // For Hero: chats ending with their ID
-    
+    let unreadCount = 0; let latestMessageTimestampInActiveChat = 0;
     Object.keys(chatCache).forEach(chatId => {
         const messages = chatCache[chatId];
-        const lastMsg = Object.values(messages).pop();
-        
-        // Basic check if this chat involves me
         const involvesMe = chatId.includes(myId) || (Object.values(sosCache).some(r => r.ownerId === myId && chatId.startsWith(Object.keys(sosCache).find(k => sosCache[k] === r) + '_')));
-        
         if (involvesMe) {
              Object.values(messages).forEach(message => {
                 if (message.sender !== myId && message.read === false) unreadCount++;
@@ -732,327 +552,103 @@ onValue(ref(db, 'chats'), (snapshot) => {
             });
         }
     });
-
     const chatModalOpen = document.getElementById('chatModal').style.display === 'flex';
     if (!isInitialLoadForChatListener && unreadCount > 0 && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp && !chatModalOpen) {
-        const sound = document.getElementById('notificationSound');
-        if (sound) sound.play().catch(e => console.error("Error playing sound:", e));
+        const sound = document.getElementById('notificationSound'); if (sound) sound.play().catch(e => console.error(e));
     }
-    
     if (latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
-    currentUnreadCount = unreadCount; 
-    updateChatBadges(currentUnreadCount);
+    currentUnreadCount = unreadCount; updateChatBadges(currentUnreadCount);
     if (isInitialLoadForChatListener) isInitialLoadForChatListener = false;
-    
-    // Refresh UI to update message list if on Seeker screen
+    // CRITICAL FIX: Ensure UI updates immediately when chats change
     if(document.getElementById('seekerUI').classList.contains('view-active')) syncUI();
-
 }, (error) => console.error("Error fetching chats:", error));
 
 window.viewRequest = (id) => {
     const r = sosCache[id]; if(!r) return;
-    const isOwner = r.ownerId === myId;
     const isHelper = r.helperId === myId;
-    
-    const detImgContainer = document.getElementById('detImgContainer');
-    const detImgScroller = document.getElementById('detImgScroller');
-    detImgScroller.innerHTML = "";
-    
-    let imagesToDisplay = [];
-    if(r.damagePic) imagesToDisplay.push(r.damagePic);
-    if(r.damagePics && Array.isArray(r.damagePics)) imagesToDisplay = r.damagePics;
-    
-    if(imagesToDisplay.length > 0) { 
-        detImgContainer.style.display = "block"; 
-        imagesToDisplay.forEach(src => {
-            const img = document.createElement('img');
-            img.src = src;
-            img.onclick = () => window.enlargeImage(src);
-            detImgScroller.appendChild(img);
-        });
-    } else { 
-        detImgContainer.style.display = "none"; 
-    }
-
+    const detImgContainer = document.getElementById('detImgContainer'); const detImgScroller = document.getElementById('detImgScroller'); detImgScroller.innerHTML = "";
+    let imagesToDisplay = []; if(r.damagePic) imagesToDisplay.push(r.damagePic); if(r.damagePics && Array.isArray(r.damagePics)) imagesToDisplay = r.damagePics;
+    if(imagesToDisplay.length > 0) { detImgContainer.style.display = "block"; imagesToDisplay.forEach(src => { const img = document.createElement('img'); img.src = src; img.onclick = () => window.enlargeImage(src); detImgScroller.appendChild(img); }); } else { detImgContainer.style.display = "none"; }
     document.getElementById('detIssue').innerText = r.issue;
-    
     const dist = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609).toFixed(1) : "?";
     document.getElementById('detDist').innerText = "" + dist + " miles away";
-
-    const detPhoneBtn = document.getElementById('detPhoneBtn');
-    const detChatBtn = document.getElementById('detChatBtn');
-
-    if (r.isTowTruckRequest && r.phoneNumber) {
-        detPhoneBtn.href = `tel:${r.phoneNumber}`;
-        detPhoneBtn.style.display = 'flex'; 
-    } else {
-        detPhoneBtn.style.display = 'none';
-    }
-    
-    // HERO VIEWING PRE-ACCEPTANCE CHAT
-    detChatBtn.onclick = () => {
-        // Unique chat ID: SOSID_HEROID
-        activeChatId = `${id}_${myId}`;
-        window.openChat(activeChatId);
-    };
-
+    const detPhoneBtn = document.getElementById('detPhoneBtn'); const detChatBtn = document.getElementById('detChatBtn');
+    if (r.isTowTruckRequest && r.phoneNumber) { detPhoneBtn.href = `tel:${r.phoneNumber}`; detPhoneBtn.style.display = 'flex'; } else { detPhoneBtn.style.display = 'none'; }
+    detChatBtn.onclick = () => { activeChatId = `${id}_${myId}`; window.openChat(activeChatId); };
     const detTowDestinationElement = document.getElementById('detTowDestination');
-    if (r.isTowTruckRequest && r.towDestination) {
-        detTowDestinationElement.innerText = `Tow Destination: ${r.towDestination}`;
-        detTowDestinationElement.style.display = 'block';
-    } else {
-        detTowDestinationElement.style.display = 'none';
-    }
-
-    const detActionBtns = document.getElementById('detActionBtns');
-    const detNavBtn = document.getElementById('detNavBtn');
-    const detStatusBtn = document.getElementById('detStatusBtn');
-    const detETAGroup = document.getElementById('detETAGroup');
-    const acceptBtn = document.getElementById('detAcceptBtn');
-    const progressText = document.getElementById('detInProgressText');
-
+    if (r.isTowTruckRequest && r.towDestination) { detTowDestinationElement.innerText = `Tow Destination: ${r.towDestination}`; detTowDestinationElement.style.display = 'block'; } else { detTowDestinationElement.style.display = 'none'; }
+    const detActionBtns = document.getElementById('detActionBtns'); const detNavBtn = document.getElementById('detNavBtn'); const detStatusBtn = document.getElementById('detStatusBtn'); const detETAGroup = document.getElementById('detETAGroup'); const acceptBtn = document.getElementById('detAcceptBtn'); const progressText = document.getElementById('detInProgressText');
     if(isHelper && (r.status === 'accepted' || r.status === 'arrived')) {
-        detActionBtns.style.display = 'flex';
-        detETAGroup.style.display = 'none';
-        acceptBtn.style.display = 'none';
-        progressText.style.display = 'block';
-
-        let navLink = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
-        if(r.isTowTruckRequest && r.towDestination) {
-            navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(r.towDestination)}`;
-        }
+        detActionBtns.style.display = 'flex'; detETAGroup.style.display = 'none'; acceptBtn.style.display = 'none'; progressText.style.display = 'block';
+        let navLink = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`; if(r.isTowTruckRequest && r.towDestination) navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(r.towDestination)}`;
         detNavBtn.href = navLink;
-
-        if(r.status === 'accepted') {
-            detStatusBtn.innerText = "I'M HERE";
-            detStatusBtn.style.background = "var(--warning)";
-            detStatusBtn.onclick = () => { window.markArrived(); window.closeModal('detailsModal'); };
-        } else {
-            detStatusBtn.innerText = "JOB DONE";
-            detStatusBtn.style.background = "var(--success)";
-            detStatusBtn.onclick = () => { window.completeTask(); window.closeModal('detailsModal'); };
-        }
-
+        if(r.status === 'accepted') { detStatusBtn.innerText = "I'M HERE"; detStatusBtn.style.background = "var(--warning)"; detStatusBtn.onclick = () => { window.markArrived(); window.closeModal('detailsModal'); }; } 
+        else { detStatusBtn.innerText = "JOB DONE"; detStatusBtn.style.background = "var(--success)"; detStatusBtn.onclick = () => { window.completeTask(); window.closeModal('detailsModal'); }; }
     } else {
         detActionBtns.style.display = 'none';
-        if(r.status === 'open') {
-             detETAGroup.style.display = 'block';
-             acceptBtn.style.display = 'block';
-             progressText.style.display = 'none';
-             acceptBtn.onclick = () => window.confirmHelp(id);
-        } else {
-             detETAGroup.style.display = 'none';
-             acceptBtn.style.display = 'none';
-             progressText.style.display = 'block';
-             progressText.innerText = "REQUEST " + r.status.toUpperCase();
-        }
+        if(r.status === 'open') { detETAGroup.style.display = 'block'; acceptBtn.style.display = 'block'; progressText.style.display = 'none'; acceptBtn.onclick = () => window.confirmHelp(id); } 
+        else { detETAGroup.style.display = 'none'; acceptBtn.style.display = 'none'; progressText.style.display = 'block'; progressText.innerText = "REQUEST " + r.status.toUpperCase(); }
     }
-
     window.openModal('detailsModal');
 };
 
-window.enlargeImage = (src) => {
-    const enlargedImage = document.getElementById('enlargedImage');
-    enlargedImage.style.display = 'none'; 
-    enlargedImage.src = src;
-    enlargedImage.onload = () => { 
-        enlargedImage.style.display = 'block';
-        window.openModal('imageEnlargeModal');
-    };
-    enlargedImage.onerror = () => {
-        enlargedImage.style.display = 'none'; 
-        window.openModal('imageEnlargeModal');
-    };
-};
-
+window.enlargeImage = (src) => { const enlargedImage = document.getElementById('enlargedImage'); enlargedImage.style.display = 'none'; enlargedImage.src = src; enlargedImage.onload = () => { enlargedImage.style.display = 'block'; window.openModal('imageEnlargeModal'); }; enlargedImage.onerror = () => { enlargedImage.style.display = 'none'; window.openModal('imageEnlargeModal'); }; };
 window.enterHeroMode = () => { window.switchView('heroUI'); if(!map) initMap(); };
-window.confirmHelp = (sosId) => {
-    const eta = document.getElementById('detETA').value;
-    update(ref(db, `sosRequests/${sosId}`), { status: 'accepted', helperId: myId, helperAcknowledged: false, eta: eta });
-    window.closeModal('detailsModal');
-    document.getElementById('activeTask').classList.add('expanded');
-};
+window.confirmHelp = (sosId) => { const eta = document.getElementById('detETA').value; update(ref(db, `sosRequests/${sosId}`), { status: 'accepted', helperId: myId, helperAcknowledged: false, eta: eta }); window.closeModal('detailsModal'); document.getElementById('activeTask').classList.add('expanded'); };
 window.markArrived = () => { const active = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'accepted'); if(active) update(ref(db, `sosRequests/${active[0]}`), { status: 'arrived' }); };
 window.completeTask = () => { const active = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'arrived'); if(active) update(ref(db, `sosRequests/${active[0]}`), { status: 'completed' }); };
-
-window.acknowledgeCancel = () => {
-    const canceledTask = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'canceled' && r.helperAcknowledged !== true);
-    if(canceledTask) {
-        update(ref(db, `sosRequests/${canceledTask[0]}`), { helperAcknowledged: true });
-        const tCard = document.getElementById('activeTask');
-        tCard.classList.remove('expanded');
-        setTimeout(() => { tCard.style.display = 'none'; }, 400);
-    }
-};
-
-window.toggleTowTruckRequest = (button) => {
-    isTowTruckRequestActive = !isTowTruckRequestActive;
-    const towTruckContactDiv = document.getElementById('towTruckContact');
-    const phoneNumberInput = document.getElementById('phoneNumberInput');
-    const towDestinationInput = document.getElementById('towDestinationInput');
-
-    if (isTowTruckRequestActive) {
-        button.classList.add('active');
-        button.innerText = 'TOW TRUCK REQUEST ACTIVE';
-        towTruckContactDiv.style.display = 'block';
-        phoneNumberInput.setAttribute('required', 'required');
-        towDestinationInput.setAttribute('required', 'required');
-    } else {
-        button.classList.remove('active');
-        button.innerText = 'I NEED A TOW TRUCK!';
-        towTruckContactDiv.style.display = 'none';
-        phoneNumberInput.removeAttribute('required');
-        phoneNumberInput.value = '';
-        towDestinationInput.removeAttribute('required');
-        towDestinationInput.value = '';
-    }
-};
-
+window.acknowledgeCancel = () => { const canceledTask = Object.entries(sosCache).find(([id, r]) => r.helperId === myId && r.status === 'canceled' && r.helperAcknowledged !== true); if(canceledTask) { update(ref(db, `sosRequests/${canceledTask[0]}`), { helperAcknowledged: true }); const tCard = document.getElementById('activeTask'); tCard.classList.remove('expanded'); setTimeout(() => { tCard.style.display = 'none'; }, 400); } };
+window.toggleTowTruckRequest = (button) => { isTowTruckRequestActive = !isTowTruckRequestActive; const towTruckContactDiv = document.getElementById('towTruckContact'); const phoneNumberInput = document.getElementById('phoneNumberInput'); const towDestinationInput = document.getElementById('towDestinationInput'); if (isTowTruckRequestActive) { button.classList.add('active'); button.innerText = 'TOW TRUCK REQUEST ACTIVE'; towTruckContactDiv.style.display = 'block'; phoneNumberInput.setAttribute('required', 'required'); towDestinationInput.setAttribute('required', 'required'); } else { button.classList.remove('active'); button.innerText = 'I NEED A TOW TRUCK!'; towTruckContactDiv.style.display = 'none'; phoneNumberInput.removeAttribute('required'); phoneNumberInput.value = ''; towDestinationInput.removeAttribute('required'); towDestinationInput.value = ''; } };
 window.submitSOS = () => { 
-    const issue = document.getElementById('reqIssue').value; 
-    const tip = document.getElementById('customTip').value || 0;
-    const phoneNumber = document.getElementById('phoneNumberInput').value;
-    const towDestination = document.getElementById('towDestinationInput').value;
-
+    const issue = document.getElementById('reqIssue').value; const tip = document.getElementById('customTip').value || 0; const phoneNumber = document.getElementById('phoneNumberInput').value; const towDestination = document.getElementById('towDestinationInput').value;
     const existingReq = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
-    if (existingReq) {
-        window.switchView('seekerUI'); 
-        window.closeModal('requestModal');
-        return; 
-    }
-
+    if (existingReq) { window.switchView('seekerUI'); window.closeModal('requestModal'); return; }
     if(!issue || !userLocation) return alert("Please describe the issue.");
-    
-    if (isTowTruckRequestActive) {
-        if (!phoneNumber.trim()) return alert("Please enter your phone number.");
-        if (!towDestination.trim()) return alert("Please enter your tow destination.");
-    }
-
-    push(ref(db, "sosRequests"), { 
-        ownerId: myId, userName: "Driver", issue, vehicle: selectedVehicle, 
-        damagePics: damageImgList,
-        tip: tip, lat: userLocation.lat, lng: userLocation.lng, status: 'open', 
-        isTowTruckRequest: isTowTruckRequestActive, 
-        phoneNumber: isTowTruckRequestActive ? phoneNumber : null, 
-        towDestination: isTowTruckRequestActive ? towDestination : null,
-        timestamp: Date.now() 
-    });
-    window.closeModal('requestModal'); 
-    window.switchView('seekerUI');
-    isTowTruckRequestActive = false;
-    document.getElementById('towTruckBtn').classList.remove('active');
-    document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!';
-    document.getElementById('towTruckContact').style.display = 'none';
-    damageImgList = [];
-    document.getElementById('damagePreviewList').innerHTML = "";
+    if (isTowTruckRequestActive) { if (!phoneNumber.trim()) return alert("Please enter your phone number."); if (!towDestination.trim()) return alert("Please enter your tow destination."); }
+    push(ref(db, "sosRequests"), { ownerId: myId, userName: "Driver", issue, vehicle: selectedVehicle, damagePics: damageImgList, tip: tip, lat: userLocation.lat, lng: userLocation.lng, status: 'open', isTowTruckRequest: isTowTruckRequestActive, phoneNumber: isTowTruckRequestActive ? phoneNumber : null, towDestination: isTowTruckRequestActive ? towDestination : null, timestamp: Date.now() });
+    window.closeModal('requestModal'); window.switchView('seekerUI'); isTowTruckRequestActive = false; document.getElementById('towTruckBtn').classList.remove('active'); document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!'; document.getElementById('towTruckContact').style.display = 'none'; damageImgList = []; document.getElementById('damagePreviewList').innerHTML = "";
 };
-
-window.submitCancellation = (reason) => {
-    const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && (sosCache[k].status === 'open' || sosCache[k].status === 'accepted' || sosCache[k].status === 'arrived'));
-    if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'canceled', cancelReason: reason });
-    window.closeModal('cancelConfirmModal'); window.switchView('landingPage'); damageImgList = [];
-};
-
-window.finalSeekerConfirm = () => {
-    const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === 'completed');
-    if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'finalized' });
-    damageImgList = [];
-    window.switchView('landingPage');
-};
-
+window.submitCancellation = (reason) => { const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && (sosCache[k].status === 'open' || sosCache[k].status === 'accepted' || sosCache[k].status === 'arrived')); if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'canceled', cancelReason: reason }); window.closeModal('cancelConfirmModal'); window.switchView('landingPage'); damageImgList = []; };
+window.finalSeekerConfirm = () => { const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === 'completed'); if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'finalized' }); damageImgList = []; window.switchView('landingPage'); };
 function initMap() { map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true, styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] }); }
 
 function syncUI() {
     const history = document.getElementById('notifHistory'); history.innerHTML = "";
-    let nearbySOS = [];
-    let activeTasks = []; 
-    let myActiveSOS = null;
-    let jobActive = false;
-    let towTruckRequestsOnMap = false; 
-
+    let nearbySOS = [], activeTasks = [], myActiveSOS = null, jobActive = false, towTruckRequestsOnMap = false; 
     const currentHeroProfile = profilesCache[myId] || {};
     const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
     const prefersRoadside = currentHeroProfile.prefersRoadsideRequests !== false; 
 
-    // MAP LOOP
     Object.entries(sosCache).forEach(([id, r]) => {
         const isTowTruck = r.isTowTruckRequest === true;
-        
-        if (isTowTruck && !prefersTowTruck) {
-            if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
-            return;
-        }
-        if (!isTowTruck && !prefersRoadside) {
-             if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
-             return;
-        }
-
+        if (isTowTruck && !prefersTowTruck) { if (markers[id]) { markers[id].setMap(null); delete markers[id]; } return; }
+        if (!isTowTruck && !prefersRoadside) { if (markers[id]) { markers[id].setMap(null); delete markers[id]; } return; }
         if (r.status === 'open' && r.ownerId !== myId) {
             if (isTowTruck) towTruckRequestsOnMap = true;
             const iconToUse = isTowTruck ? getTowTruckSplitIcon("#2563eb", "#60a5fa") : getMarkerIcon("#EE611C");
-            if (!markers[id] && map) {
-                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: iconToUse });
-                marker.addListener('click', () => window.viewRequest(id));
-                markers[id] = marker;
-            } else if (markers[id]) {
-                markers[id].setIcon(iconToUse);
-                markers[id].setMap(map); 
-            }
-        }
-        else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
-            if(!markers[id] && map) {
-                const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e") });
-                marker.addListener('click', () => window.viewRequest(id));
-                markers[id] = marker;
-            } else if (markers[id]) {
-                markers[id].setIcon(getMarkerIcon("#22c55e"));
-                markers[id].setMap(map);
-            }
-        }
-        else if (markers[id]) {
-            markers[id].setMap(null);
-            delete markers[id];
-        }
+            if (!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: iconToUse }); marker.addListener('click', () => window.viewRequest(id)); markers[id] = marker; } 
+            else if (markers[id]) { markers[id].setIcon(iconToUse); markers[id].setMap(map); }
+        } else if (r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived')) {
+            if(!markers[id] && map) { const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: getMarkerIcon("#22c55e") }); marker.addListener('click', () => window.viewRequest(id)); markers[id] = marker; } 
+            else if (markers[id]) { markers[id].setIcon(getMarkerIcon("#22c55e")); markers[id].setMap(map); }
+        } else if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
     });
+    if (towTruckRequestsOnMap && !towTruckAnimationInterval) startTowTruckAnimation(); else if (!towTruckRequestsOnMap && towTruckAnimationInterval) stopTowTruckAnimation();
 
-    if (towTruckRequestsOnMap && !towTruckAnimationInterval) startTowTruckAnimation();
-    else if (!towTruckRequestsOnMap && towTruckAnimationInterval) stopTowTruckAnimation();
-
-    // LIST LOOP
     Object.entries(sosCache).forEach(([id, r]) => {
         const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
         const isTowTruck = r.isTowTruckRequest === true;
-
-        if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) {
-            activeTasks.push({id, ...r});
-            jobActive = true; 
-        }
-
+        if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) { activeTasks.push({id, ...r}); jobActive = true; }
         if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
             if (isTowTruck && prefersTowTruck) nearbySOS.push({id, ...r, dist: distMiles});
             if (!isTowTruck && prefersRoadside) nearbySOS.push({id, ...r, dist: distMiles});
         }
-        
-        if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) {
-            if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = r;
-        }
-
+        if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) { if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = r; }
         const lastKnownSOS = window._lastSosCacheState_ ? window._lastSosCacheState_[id] : null;
-        if (r.helperId === myId && r.status === 'canceled' && lastKnownSOS && lastKnownSOS.status === 'accepted') {
-            const sound = document.getElementById('notificationSound');
-            if (sound) sound.play().catch(e => console.error("Error playing sound:", e));
-        }
-
+        if (r.helperId === myId && r.status === 'canceled' && lastKnownSOS && lastKnownSOS.status === 'accepted') { const sound = document.getElementById('notificationSound'); if (sound) sound.play().catch(e => console.error(e)); }
         if (r.ownerId === myId || r.helperId === myId) {
             let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
-            history.innerHTML += `
-                <div class="history-item" style="padding:15px; background:#f8fafc; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; background:${sCol};">${r.status}</span>
-                        <b>${r.vehicle}${isTowTruck ? ' (Tow)' : ''}</b><br><small>${r.issue}</small>
-                    </div>
-                    <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="window.confirmDeleteActivityPrompt('${id}')">
-                </div>`;
+            history.innerHTML += `<div class="history-item" style="padding:15px; background:#f8fafc; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;"><div><span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; background:${sCol};">${r.status}</span><b>${r.vehicle}${isTowTruck ? ' (Tow)' : ''}</b><br><small>${r.issue}</small></div><img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="window.confirmDeleteActivityPrompt('${id}')"></div>`;
         }
     });
 
@@ -1061,294 +657,79 @@ function syncUI() {
     document.getElementById('cancelSosBtn').style.display = myActiveSOS ? 'block' : 'none';
 
     const ind = document.getElementById('statusIndicator');
-    if(activeTasks.some(t => t.status === 'canceled')) ind.style.background = "var(--danger)";
-    else if(activeTasks.length > 0) ind.style.background = "var(--success)";
-    else if (nearbySOS.length > 0) ind.style.background = "var(--danger)";
-    else ind.style.background = "#94a3b8"; 
+    if(activeTasks.some(t => t.status === 'canceled')) ind.style.background = "var(--danger)"; else if(activeTasks.length > 0) ind.style.background = "var(--success)"; else if (nearbySOS.length > 0) ind.style.background = "var(--danger)"; else ind.style.background = "#94a3b8"; 
     
-    // HERO TASK PANEL
-    const tCard = document.getElementById('activeTask');
-    tCard.innerHTML = ""; 
-    let panelContent = "";
-
+    const tCard = document.getElementById('activeTask'); tCard.innerHTML = ""; let panelContent = "";
     if(activeTasks.length > 0) {
         panelContent += `<div style="margin-bottom:10px; font-weight:900; color:var(--success); text-transform:uppercase; font-size:12px;">Active Jobs (${activeTasks.length})</div>`;
         activeTasks.forEach(task => {
-            if(task.status === 'canceled') {
-                panelContent += `<div class="sos-list-item" style="border-color:var(--danger); display:block; text-align:center;">
-                    <b style="color:var(--danger)">JOB CANCELED</b><br>Reason: ${task.cancelReason || 'None'}
-                    <button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:8px; font-size:12px; margin-top:5px;">CLOSE</button>
-                </div>`;
-            } else {
-                // Determine Chat ID for active job
-                const chatID = `${task.id}_${myId}`;
-                panelContent += `
-                <div class="sos-list-item status-active">
-                    <div class="sos-info-left">
-                        <b style="color:var(--success);">IN PROGRESS</b><br>
-                        <b>${task.vehicle}</b>${task.isTowTruckRequest ? ' (Tow)' : ''}<br>
-                        <small>${task.issue}</small>
-                    </div>
-                    <div style="display:flex; flex-direction:column; gap:5px;">
-                        <button onclick="window.viewRequest('${task.id}')" style="background:var(--success); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">DETAILS</button>
-                         <button onclick="window.openChat('${chatID}')" style="background:var(--accent); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">CHAT</button>
-                    </div>
-                </div>`;
-            }
+            if(task.status === 'canceled') { panelContent += `<div class="sos-list-item" style="border-color:var(--danger); display:block; text-align:center;"><b style="color:var(--danger)">JOB CANCELED</b><br>Reason: ${task.cancelReason || 'None'}<button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:8px; font-size:12px; margin-top:5px;">CLOSE</button></div>`; } 
+            else { const chatID = `${task.id}_${myId}`; panelContent += `<div class="sos-list-item status-active"><div class="sos-info-left"><b style="color:var(--success);">IN PROGRESS</b><br><b>${task.vehicle}</b>${task.isTowTruckRequest ? ' (Tow)' : ''}<br><small>${task.issue}</small></div><div style="display:flex; flex-direction:column; gap:5px;"><button onclick="window.viewRequest('${task.id}')" style="background:var(--success); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">DETAILS</button><button onclick="window.openChat('${chatID}')" style="background:var(--accent); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">CHAT</button></div></div>`; }
         });
     }
-
     if (nearbySOS.length > 0) {
         panelContent += `<div style="margin:10px 0 5px 0; font-weight:900; color:var(--text); text-transform:uppercase; font-size:12px;">Nearby Requests (${nearbySOS.length})</div>`;
-        nearbySOS.forEach(s => {
-            const borderClass = s.isTowTruckRequest ? 'status-tow' : 'status-roadside';
-            panelContent += `
-            <div class="sos-list-item ${borderClass}" onclick="window.viewRequest('${s.id}')">
-                <div class="sos-info-left">
-                    <b>${s.vehicle}${s.isTowTruckRequest ? ' (Tow)' : ''}</b><br>
-                    <small>${s.dist.toFixed(1)} mi • ${s.issue}</small><br>
-                    <span style="color:var(--success); font-weight:800;">${s.tip > 0 ? '$'+s.tip + ' Tip' : 'No Tip'}</span>
-                </div>
-                <button style="background:var(--text); color:white; padding:10px 15px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">VIEW DETAILS</button>
-            </div>`;
-        });
+        nearbySOS.forEach(s => { const borderClass = s.isTowTruckRequest ? 'status-tow' : 'status-roadside'; panelContent += `<div class="sos-list-item ${borderClass}" onclick="window.viewRequest('${s.id}')"><div class="sos-info-left"><b>${s.vehicle}${s.isTowTruckRequest ? ' (Tow)' : ''}</b><br><small>${s.dist.toFixed(1)} mi • ${s.issue}</small><br><span style="color:var(--success); font-weight:800;">${s.tip > 0 ? '$'+s.tip + ' Tip' : 'No Tip'}</span></div><button style="background:var(--text); color:white; padding:10px 15px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">VIEW DETAILS</button></div>`; });
     }
-
-    if (activeTasks.length === 0 && nearbySOS.length === 0) {
-        panelContent = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone inside your ${myRadius} mile radius needs help.</p></div>`;
-    }
-
-    tCard.innerHTML = panelContent;
-    tCard.style.display = 'block';
+    if (activeTasks.length === 0 && nearbySOS.length === 0) panelContent = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone inside your ${myRadius} mile radius needs help.</p></div>`;
+    tCard.innerHTML = panelContent; tCard.style.display = 'block';
 
     if(myActiveSOS) {
         if (document.getElementById('landingPage').classList.contains('view-active')) window.switchView('seekerUI');
-
-        const searching = document.getElementById('searchingState');
-        const matched = document.getElementById('matchedState');
-        const completed = document.getElementById('completionConfirmState');
-        const cancelBtn = document.getElementById('cancelSosBtn');
-        const msgList = document.getElementById('seekerMessagesList');
+        const searching = document.getElementById('searchingState'); const matched = document.getElementById('matchedState'); const completed = document.getElementById('completionConfirmState'); const cancelBtn = document.getElementById('cancelSosBtn'); const msgList = document.getElementById('seekerMessagesList');
         
-        // Populate Pre-acceptance messages for Seeker
         if (myActiveSOS.status === 'open') {
-             msgList.innerHTML = "";
-             let hasMessages = false;
-             
-             // Look for chats starting with this SOS ID
+             msgList.innerHTML = ""; let hasMessages = false;
              Object.keys(chatCache).forEach(chatId => {
                  if(chatId.startsWith(myActiveSOS.id + '_')) {
-                     // Found a thread!
                      hasMessages = true;
-                     const heroId = chatId.split('_')[1];
-                     const msgs = Object.values(chatCache[chatId]);
-                     const lastMsg = msgs[msgs.length - 1];
-                     const heroProfile = profilesCache[heroId] || { name: 'Hero' };
-                     const date = new Date(lastMsg.timestamp);
-                     const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' + date.toLocaleDateString();
-                     
-                     // Use SOS description as requested in prompt, plus Last msg preview
-                     const threadHTML = `
-                     <div class="msg-thread-card" onclick="window.openChat('${chatId}')">
-                        <div class="msg-thread-info">
-                            <b style="color:var(--accent);">${heroProfile.name}</b>
-                            <div style="font-size:13px; margin-top:4px; font-weight:600;">Re: ${myActiveSOS.issue}</div>
-                            <div style="font-size:13px; color:var(--text); margin-top:2px; font-style:italic;">"${lastMsg.text || 'Image'}"</div>
-                            <div class="msg-thread-time">${timeString}</div>
-                        </div>
-                        <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="event.stopPropagation(); window.confirmDeleteChatPrompt('${chatId}')">
-                     </div>`;
-                     msgList.innerHTML += threadHTML;
+                     const heroId = chatId.split('_')[1]; const msgs = Object.values(chatCache[chatId]); const lastMsg = msgs[msgs.length - 1]; const heroProfile = profilesCache[heroId] || { name: 'Hero' };
+                     const date = new Date(lastMsg.timestamp || Date.now()); const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' + date.toLocaleDateString();
+                     msgList.innerHTML += `<div class="msg-thread-card" onclick="window.openChat('${chatId}')"><div class="msg-thread-info"><b style="color:var(--accent);">${heroProfile.name}</b><div style="font-size:13px; margin-top:4px; font-weight:600;">Re: ${myActiveSOS.issue}</div><div style="font-size:13px; color:var(--text); margin-top:2px; font-style:italic;">"${lastMsg.text || 'Image'}"</div><div class="msg-thread-time">${timeString}</div></div><img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="event.stopPropagation(); window.confirmDeleteChatPrompt('${chatId}')"></div>`;
                  }
              });
-             
-             if(hasMessages) {
-                 msgList.style.display = 'block';
-                 // Ensure footer chat icon shows if messages exist
-                 document.getElementById('footerChatBtn').style.display = 'block';
-             } else {
-                 msgList.style.display = 'none';
-                 document.getElementById('footerChatBtn').style.display = 'none';
-             }
-
+             if(hasMessages) { msgList.style.display = 'flex'; msgList.style.flexDirection = 'column'; document.getElementById('footerChatBtn').style.display = 'block'; } else { msgList.style.display = 'none'; document.getElementById('footerChatBtn').style.display = 'none'; }
             searching.style.display = 'block'; matched.style.display = 'none'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
         } else if(myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') {
-            msgList.style.display = 'none'; // Hide pre-acceptance messages
-            searching.style.display = 'none'; matched.style.display = 'block'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
-            
+            msgList.style.display = 'none'; searching.style.display = 'none'; matched.style.display = 'block'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
             const hero = profilesCache[myActiveSOS.helperId] || {};
-            document.getElementById('matchName').innerText = hero.name || "Roadside Hero";
-            document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65";
-            document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is at your location!" : `Arriving in ${myActiveSOS.eta || '...'}`;
-            
-            const matchHeroPhone = document.getElementById('matchHeroPhone');
-            if (myActiveSOS.isTowTruckRequest && myActiveSOS.phoneNumber) {
-                matchHeroPhone.innerHTML = `📞 Contact: <a href="tel:${myActiveSOS.phoneNumber}" style="color:var(--text); text-decoration: underline;">${myActiveSOS.phoneNumber}</a>`;
-                matchHeroPhone.style.display = 'block';
-            } else { matchHeroPhone.style.display = 'none'; }
-
-            const matchTowDestination = document.getElementById('matchTowDestination');
-            if (myActiveSOS.isTowTruckRequest && myActiveSOS.towDestination) {
-                matchTowDestination.innerText = `Destination: ${myActiveSOS.towDestination}`;
-                matchTowDestination.style.display = 'block';
-            } else { matchTowDestination.style.display = 'none'; }
-
+            document.getElementById('matchName').innerText = hero.name || "Roadside Hero"; document.getElementById('matchPic').src = hero.pic || "https://via.placeholder.com/65"; document.getElementById('matchETA').innerText = myActiveSOS.status === 'arrived' ? "Hero is at your location!" : `Arriving in ${myActiveSOS.eta || '...'}`;
+            const matchHeroPhone = document.getElementById('matchHeroPhone'); if (myActiveSOS.isTowTruckRequest && myActiveSOS.phoneNumber) { matchHeroPhone.innerHTML = `📞 Contact: <a href="tel:${myActiveSOS.phoneNumber}" style="color:var(--text); text-decoration: underline;">${myActiveSOS.phoneNumber}</a>`; matchHeroPhone.style.display = 'block'; } else { matchHeroPhone.style.display = 'none'; }
+            const matchTowDestination = document.getElementById('matchTowDestination'); if (myActiveSOS.isTowTruckRequest && myActiveSOS.towDestination) { matchTowDestination.innerText = `Destination: ${myActiveSOS.towDestination}`; matchTowDestination.style.display = 'block'; } else { matchTowDestination.style.display = 'none'; }
             updateSeekerMiniMap(myActiveSOS, hero);
-        } else if(myActiveSOS.status === 'completed') {
-            msgList.style.display = 'none';
-            searching.style.display = 'none'; matched.style.display = 'none'; completed.style.display = 'block'; cancelBtn.style.display = 'none';
-        }
-    } else {
-        document.getElementById('seekerMessagesList').style.display = 'none';
-        document.getElementById('searchingState').style.display = 'none'; 
-        document.getElementById('matchedState').style.display = 'none'; 
-        document.getElementById('completionConfirmState').style.display = 'none'; 
-        document.getElementById('cancelSosBtn').style.display = 'none';
-    }
+        } else if(myActiveSOS.status === 'completed') { msgList.style.display = 'none'; searching.style.display = 'none'; matched.style.display = 'none'; completed.style.display = 'block'; cancelBtn.style.display = 'none'; }
+    } else { document.getElementById('seekerMessagesList').style.display = 'none'; document.getElementById('searchingState').style.display = 'none'; document.getElementById('matchedState').style.display = 'none'; document.getElementById('completionConfirmState').style.display = 'none'; document.getElementById('cancelSosBtn').style.display = 'none'; }
 }
 
-// Function to handle Seeker footer click
-window.handleSeekerChatClick = () => {
-    // If messages list is visible (pre-acceptance), scroll to it
-    const msgList = document.getElementById('seekerMessagesList');
-    if (msgList.style.display === 'block') {
-        msgList.scrollIntoView({ behavior: 'smooth' });
-    } else {
-        // Otherwise try to open active chat (post-acceptance)
-        window.openChat();
-    }
-};
-
+window.handleSeekerChatClick = () => { const msgList = document.getElementById('seekerMessagesList'); if (msgList.style.display === 'flex' || msgList.style.display === 'block') msgList.scrollIntoView({ behavior: 'smooth' }); else window.openChat(); };
 window.confirmDeleteChatPrompt = (id) => { chatToDeleteId = id; window.openModal('deleteChatConfirmModal'); };
-window.confirmDeleteChat = () => {
-    if (chatToDeleteId) {
-        remove(ref(db, `chats/${chatToDeleteId}`))
-            .then(() => { chatToDeleteId = null; window.closeModal('deleteChatConfirmModal'); })
-            .catch((error) => { console.error("Error deleting chat:", error); alert("Failed to delete chat."); });
-    }
-};
+window.confirmDeleteChat = () => { if (chatToDeleteId) { remove(ref(db, `chats/${chatToDeleteId}`)).then(() => { chatToDeleteId = null; window.closeModal('deleteChatConfirmModal'); }).catch((error) => { console.error("Error deleting chat:", error); alert("Failed to delete chat."); }); } };
 
 function updateSeekerMiniMap(sos, hero) {
-    if(!seekerMiniMap) { 
-        seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); 
-        seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: seekerOwnIcon }); 
-        seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: seekerHeroCustomIcon }); 
-    }
-    const userPos = {lat: sos.lat, lng: sos.lng}; 
-    seekerUserMarker.setPosition(userPos);
-    if(hero && hero.lat && hero.lng) { 
-        const heroPos = {lat: hero.lat, lng: hero.lng}; 
-        seekerHeroMarker.setPosition(heroPos); 
-        const bounds = new google.maps.LatLngBounds(); 
-        bounds.extend(userPos); bounds.extend(heroPos); 
-        seekerMiniMap.fitBounds(bounds); 
-    } else { seekerMiniMap.setCenter(userPos); }
+    if(!seekerMiniMap) { seekerMiniMap = new google.maps.Map(document.getElementById('seekerMap'), { zoom: 14, disableDefaultUI: true }); seekerUserMarker = new google.maps.Marker({ map: seekerMiniMap, icon: seekerOwnIcon }); seekerHeroMarker = new google.maps.Marker({ map: seekerMiniMap, icon: seekerHeroCustomIcon }); }
+    const userPos = {lat: sos.lat, lng: sos.lng}; seekerUserMarker.setPosition(userPos);
+    if(hero && hero.lat && hero.lng) { const heroPos = {lat: hero.lat, lng: hero.lng}; seekerHeroMarker.setPosition(heroPos); const bounds = new google.maps.LatLngBounds(); bounds.extend(userPos); bounds.extend(heroPos); seekerMiniMap.fitBounds(bounds); } else { seekerMiniMap.setCenter(userPos); }
     google.maps.event.trigger(seekerMiniMap, 'resize');
 }
 
 window.toggleSeekerMapExpansion = () => {
-    const container = document.getElementById('seekerMapContainer');
-    const expandBtn = container.querySelector('.map-expand-btn');
-    const closeBtn = container.querySelector('.map-close-btn');
-    container.classList.toggle('expanded');
-    if (container.classList.contains('expanded')) {
-        expandBtn.style.display = 'none'; closeBtn.style.display = 'flex';
-        google.maps.event.trigger(seekerMiniMap, 'resize');
-        if (seekerMiniMap && seekerUserMarker && seekerHeroMarker) {
-             const bounds = new google.maps.LatLngBounds();
-             bounds.extend(seekerUserMarker.getPosition()); bounds.extend(seekerHeroMarker.getPosition());
-             seekerMiniMap.fitBounds(bounds);
-        }
-    } else {
-        expandBtn.style.display = 'block'; closeBtn.style.display = 'none';
-        google.maps.event.trigger(seekerMiniMap, 'resize');
-        if (seekerMiniMap && seekerUserMarker && seekerHeroMarker) {
-             const bounds = new google.maps.LatLngBounds();
-             bounds.extend(seekerUserMarker.getPosition()); bounds.extend(seekerHeroMarker.getPosition());
-             seekerMiniMap.fitBounds(bounds);
-        }
-    }
+    const container = document.getElementById('seekerMapContainer'); const expandBtn = container.querySelector('.map-expand-btn'); const closeBtn = container.querySelector('.map-close-btn'); container.classList.toggle('expanded');
+    if (container.classList.contains('expanded')) { expandBtn.style.display = 'none'; closeBtn.style.display = 'flex'; google.maps.event.trigger(seekerMiniMap, 'resize'); if (seekerMiniMap && seekerUserMarker && seekerHeroMarker) { const bounds = new google.maps.LatLngBounds(); bounds.extend(seekerUserMarker.getPosition()); bounds.extend(seekerHeroMarker.getPosition()); seekerMiniMap.fitBounds(bounds); } } 
+    else { expandBtn.style.display = 'block'; closeBtn.style.display = 'none'; google.maps.event.trigger(seekerMiniMap, 'resize'); if (seekerMiniMap && seekerUserMarker && seekerHeroMarker) { const bounds = new google.maps.LatLngBounds(); bounds.extend(seekerUserMarker.getPosition()); bounds.extend(seekerHeroMarker.getPosition()); seekerMiniMap.fitBounds(bounds); } }
 };
 
-function startTowTruckAnimation() {
-    if (towTruckAnimationInterval) return; 
-    towTruckAnimationInterval = setInterval(() => {
-        currentTowTruckIconState = 1 - currentTowTruckIconState; 
-        Object.values(markers).forEach(marker => {
-            const sosId = Object.keys(markers).find(key => markers[key] === marker);
-            const sos = sosCache[sosId]; 
-            if (sos && sos.isTowTruckRequest && sos.status === 'open') {
-                const icon = currentTowTruckIconState === 0 ? getTowTruckSplitIcon("#2563eb", "#60a5fa") : getTowTruckSplitIcon("#60a5fa", "#2563eb"); 
-                marker.setIcon(icon);
-            }
-        });
-    }, 200); 
-}
+function startTowTruckAnimation() { if (towTruckAnimationInterval) return; towTruckAnimationInterval = setInterval(() => { currentTowTruckIconState = 1 - currentTowTruckIconState; Object.values(markers).forEach(marker => { const sosId = Object.keys(markers).find(key => markers[key] === marker); const sos = sosCache[sosId]; if (sos && sos.isTowTruckRequest && sos.status === 'open') { const icon = currentTowTruckIconState === 0 ? getTowTruckSplitIcon("#2563eb", "#60a5fa") : getTowTruckSplitIcon("#60a5fa", "#2563eb"); marker.setIcon(icon); } }); }, 200); }
+function stopTowTruckAnimation() { if (towTruckAnimationInterval) { clearInterval(towTruckAnimationInterval); towTruckAnimationInterval = null; } Object.values(markers).forEach(marker => { const sosId = Object.keys(markers).find(key => markers[key] === marker); const sos = sosCache[sosId]; if (sos && sos.isTowTruckRequest && sos.status === 'open') marker.setIcon(getTowTruckSplitIcon("#2563eb", "#60a5fa")); }); }
 
-function stopTowTruckAnimation() {
-    if (towTruckAnimationInterval) { clearInterval(towTruckAnimationInterval); towTruckAnimationInterval = null; }
-    Object.values(markers).forEach(marker => {
-        const sosId = Object.keys(markers).find(key => markers[key] === marker);
-        const sos = sosCache[sosId];
-        if (sos && sos.isTowTruckRequest && sos.status === 'open') marker.setIcon(getTowTruckSplitIcon("#2563eb", "#60a5fa"));
-    });
-}
-
-onValue(ref(db, "sosRequests"), (snap) => { 
-    window._lastSosCacheState_ = { ...sosCache }; 
-    sosCache = snap.val() || {}; 
-    syncUI(); 
-    
-    const myActive = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status));
-    if (myActive && document.getElementById('landingPage').classList.contains('view-active')) {
-        window.switchView('seekerUI');
-        if (myActive.isTowTruckRequest) {
-            isTowTruckRequestActive = true;
-            document.getElementById('towTruckBtn').classList.add('active');
-            document.getElementById('towTruckBtn').innerText = 'TOW TRUCK REQUEST ACTIVE';
-            document.getElementById('towTruckContact').style.display = 'block';
-            if (myActive.phoneNumber) { document.getElementById('phoneNumberInput').value = myActive.phoneNumber; document.getElementById('phoneNumberInput').setAttribute('required', 'required'); }
-            if (myActive.towDestination) { document.getElementById('towDestinationInput').value = myActive.towDestination; document.getElementById('towDestinationInput').setAttribute('required', 'required'); }
-        } else {
-            isTowTruckRequestActive = false;
-            document.getElementById('towTruckBtn').classList.remove('active');
-            document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!';
-            document.getElementById('towTruckContact').style.display = 'none';
-        }
-    }
-});
-
-onValue(ref(db, "profiles"), (snap) => { 
-    profilesCache = snap.val() || {}; 
-    syncUI(); 
-    const myActiveSOS = Object.values(sosCache).find(r => r.ownerId === myId && (r.status === 'accepted' || r.status === 'arrived'));
-    if (myActiveSOS && myActiveSOS.helperId && profilesCache[myActiveSOS.helperId]) updateSeekerMiniMap(myActiveSOS, profilesCache[myActiveSOS.helperId]);
-});
+onValue(ref(db, "sosRequests"), (snap) => { window._lastSosCacheState_ = { ...sosCache }; sosCache = snap.val() || {}; syncUI(); const myActive = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)); if (myActive && document.getElementById('landingPage').classList.contains('view-active')) { window.switchView('seekerUI'); if (myActive.isTowTruckRequest) { isTowTruckRequestActive = true; document.getElementById('towTruckBtn').classList.add('active'); document.getElementById('towTruckBtn').innerText = 'TOW TRUCK REQUEST ACTIVE'; document.getElementById('towTruckContact').style.display = 'block'; if (myActive.phoneNumber) { document.getElementById('phoneNumberInput').value = myActive.phoneNumber; document.getElementById('phoneNumberInput').setAttribute('required', 'required'); } if (myActive.towDestination) { document.getElementById('towDestinationInput').value = myActive.towDestination; document.getElementById('towDestinationInput').setAttribute('required', 'required'); } } else { isTowTruckRequestActive = false; document.getElementById('towTruckBtn').classList.remove('active'); document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!'; document.getElementById('towTruckContact').style.display = 'none'; } } });
+onValue(ref(db, "profiles"), (snap) => { profilesCache = snap.val() || {}; syncUI(); const myActiveSOS = Object.values(sosCache).find(r => r.ownerId === myId && (r.status === 'accepted' || r.status === 'arrived')); if (myActiveSOS && myActiveSOS.helperId && profilesCache[myActiveSOS.helperId]) updateSeekerMiniMap(myActiveSOS, profilesCache[myActiveSOS.helperId]); });
 
 window.saveProfile = () => {
-    myRadius = parseInt(document.getElementById("profileRadius").value);
-    localStorage.setItem('heroRadius', myRadius); 
-
-    const prefersTowTruckRequests = document.getElementById("prefersTowTruckRequests").checked;
-    const prefersRoadsideRequests = document.getElementById("prefersRoadsideRequests").checked;
-
-    update(ref(db, `profiles/${myId}`), { 
-        name: document.getElementById("profileName").value, 
-        bio: document.getElementById("profileBio").value, 
-        pic: document.getElementById("profileDisplayPic").src, 
-        radius: myRadius,
-        prefersTowTruckRequests: prefersTowTruckRequests,
-        prefersRoadsideRequests: prefersRoadsideRequests
-    });
-    
-    if (profileRadiusCircle) {
-        profileRadiusCircle.setMap(null);
-        profileRadiusCircle = null;
-    }
-
-    if(map && userLocation) { 
-        map.setCenter(userLocation);
-    }
+    myRadius = parseInt(document.getElementById("profileRadius").value); localStorage.setItem('heroRadius', myRadius); 
+    const prefersTowTruckRequests = document.getElementById("prefersTowTruckRequests").checked; const prefersRoadsideRequests = document.getElementById("prefersRoadsideRequests").checked;
+    update(ref(db, `profiles/${myId}`), { name: document.getElementById("profileName").value, bio: document.getElementById("profileBio").value, pic: document.getElementById("profileDisplayPic").src, radius: myRadius, prefersTowTruckRequests: prefersTowTruckRequests, prefersRoadsideRequests: prefersRoadsideRequests });
+    if (profileRadiusCircle) { profileRadiusCircle.setMap(null); profileRadiusCircle = null; }
+    if(map && userLocation) map.setCenter(userLocation);
     window.closeModal("profileModal");
 };
 
@@ -1356,30 +737,14 @@ window.openProfile = async () => {
     window.openModal("profileModal");
     const snap = await get(ref(db, `profiles/${myId}`));
     if(snap.exists()) {
-        const d = snap.val(); 
-        document.getElementById("profileName").value = d.name || ""; 
-        document.getElementById("profileBio").value = d.bio || ""; 
-        if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; 
-        
-        const currentRadius = d.radius || myRadius;
-        myRadius = currentRadius;
-        document.getElementById("profileRadius").value = currentRadius; 
-        document.getElementById("radiusVal").innerText = currentRadius;
-        
-        document.getElementById("prefersTowTruckRequests").checked = d.prefersTowTruckRequests === true; 
-        document.getElementById("prefersRoadsideRequests").checked = d.prefersRoadsideRequests !== false; 
+        const d = snap.val(); document.getElementById("profileName").value = d.name || ""; document.getElementById("profileBio").value = d.bio || ""; if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; 
+        const currentRadius = d.radius || myRadius; myRadius = currentRadius; document.getElementById("profileRadius").value = currentRadius; document.getElementById("radiusVal").innerText = currentRadius;
+        document.getElementById("prefersTowTruckRequests").checked = d.prefersTowTruckRequests === true; document.getElementById("prefersRoadsideRequests").checked = d.prefersRoadsideRequests !== false; 
     }
 };
 
 window.confirmDeleteActivityPrompt = (id) => { activityToDeleteId = id; window.openModal('deleteConfirmModal'); };
-
-window.confirmDeleteActivity = () => {
-    if (activityToDeleteId) {
-        remove(ref(db, `sosRequests/${activityToDeleteId}`))
-            .then(() => { activityToDeleteId = null; window.closeModal('deleteConfirmModal'); })
-            .catch((error) => { console.error("Error deleting activity:", error); alert("Failed to delete activity."); });
-    }
-};
+window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, `sosRequests/${activityToDeleteId}`)).then(() => { activityToDeleteId = null; window.closeModal('deleteConfirmModal'); }).catch((error) => { console.error("Error deleting activity:", error); alert("Failed to delete activity."); }); } };
 </script>
 </body>
 </html>
