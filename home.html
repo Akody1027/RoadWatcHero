@@ -63,7 +63,6 @@ h3{ text-align: center; }
     padding: 20px; 
     border-radius: 24px; 
     box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); 
-    /* removed border-left logic here, moving to individual items */
     display: none; 
     transform: translateX(-110%); 
     transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
@@ -93,9 +92,39 @@ h3{ text-align: center; }
 .sos-info-left {
     flex: 1;
     margin-right: 10px;
-    /* Prevent horizontal scroll */
     word-break: break-word; 
-    min-width: 0; /* Flexbox text wrap fix */
+    min-width: 0;
+}
+
+/* NEW STYLES FOR SEEKER MESSAGES LIST */
+#seekerMessagesList {
+    width: 100%;
+    max-width: 450px;
+    margin-top: 20px;
+    display: none; /* Hidden by default */
+}
+.msg-thread-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    text-align: left;
+    position: relative;
+}
+.msg-thread-info {
+    flex: 1;
+}
+.msg-thread-time {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 8px;
+    font-weight: 600;
 }
 
 .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
@@ -158,22 +187,13 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 .det-img-scroller { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 10px; }
 .det-img-scroller img { width: 120px; height: 120px; object-fit: cover; border-radius: 15px; flex-shrink: 0; cursor: pointer; border: 1px solid #e2e8f0; }
 
-/* Custom Switch Toggle Styles */
 .toggle-wrapper { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 15px; }
 .toggle-label { font-weight: 700; font-size: 14px; }
-.toggle-switch {
-  position: relative; width: 50px; height: 28px;
-}
+.toggle-switch { position: relative; width: 50px; height: 28px; }
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
-.slider {
-  position: absolute; cursor: pointer; inset: 0; background-color: var(--accent); /* Orange/Off */
-  transition: .4s; border-radius: 34px;
-}
-.slider:before {
-  position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white;
-  transition: .4s; border-radius: 50%;
-}
-input:checked + .slider { background-color: var(--success); /* Green/On */ }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--accent); transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--success); }
 input:checked + .slider:before { transform: translateX(22px); }
 
 </style>
@@ -197,6 +217,9 @@ input:checked + .slider:before { transform: translateX(22px); }
         <h3>Broadcasting SOS...</h3>
         <p>Your request is live. Waiting for a Hero to accept...</p>
     </div>
+
+    <!-- NEW: Seeker Messages List (Pre-acceptance) -->
+    <div id="seekerMessagesList"></div>
 
     <div id="matchedState" class="status-card" style="display:none; border-color: var(--success);">
         <div id="seekerStatusPill" style="background: var(--success); color: white; padding: 6px 16px; border-radius: 20px; display: inline-block; font-size: 12px; font-weight: 800; margin-bottom: 15px;">HERO CONNECTED</div>
@@ -227,7 +250,8 @@ input:checked + .slider:before { transform: translateX(22px); }
     <div class="footer">
         <div class="footer-icons">
             <div id="footerChatBtn" style="position:relative; display:none;">
-                <img src="Chaticon.png" class="icon-btn" onclick="window.openChat()">
+                <!-- Clicking this now scrolls to message list if pre-acceptance, or opens chat if post-acceptance -->
+                <img src="Chaticon.png" class="icon-btn" onclick="window.handleSeekerChatClick()">
                 <span id="chatBadge">0</span>
             </div>
         </div>
@@ -388,11 +412,9 @@ input:checked + .slider:before { transform: translateX(22px); }
         
         <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
             <label style="font-size:11px; font-weight:900; color:var(--muted);">SERVICE RADIUS: <span id="radiusVal" style="color:var(--accent);">25</span> miles</label>
-            <!-- Added live update logic to oninput -->
             <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="margin: 15px 0 0 0;" oninput="window.updateRadiusLive(this.value)">
         </div>
 
-        <!-- Sleek Toggles -->
         <div class="toggle-wrapper">
             <span class="toggle-label">Show Roadside SOS</span>
             <label class="toggle-switch">
@@ -424,6 +446,16 @@ input:checked + .slider:before { transform: translateX(22px); }
     </div>
 </div>
 
+<!-- Reuse delete modal for chats -->
+<div id="deleteChatConfirmModal" class="modal">
+    <div class="modal-content">
+        <h3>Delete Chat?</h3>
+        <p>This will remove the conversation thread.</p>
+        <button class="submit-btn" style="background:var(--danger); margin-bottom:10px;" onclick="window.confirmDeleteChat()">Delete</button>
+        <span class="cancel-link" onclick="window.closeModal('deleteChatConfirmModal')">Cancel</span>
+    </div>
+</div>
+
 <audio id="notificationSound" src="Roadwatchero.mp3" preload="auto" style="display:none;"></audio>
 
 <script type="module">
@@ -445,9 +477,10 @@ if(!localStorage.getItem('heroUserId')) localStorage.setItem('heroUserId', 'u_' 
 const myId = localStorage.getItem('heroUserId');
 
 let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgList = [], myRadius = 25, heroMarker, profileRadiusCircle;
-let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUserMarker;
+let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUserMarker, chatCache = {};
 let activeChatId = null, lastMsgCount = 0;
 let activityToDeleteId = null; 
+let chatToDeleteId = null; // For thread deletion
 let currentUnreadCount = 0; 
 let lastProcessedMessageTimestamp = 0; 
 let isInitialLoadForChatListener = true; 
@@ -469,7 +502,6 @@ const getMarkerIcon = (color) => ({
 const seekerOwnIcon = { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 };
 const seekerHeroCustomIcon = { url: 'heromapicon.png', scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(0, 32) };
 
-// Updated to alternate between Standard Blue (#2563eb) and Light Blue (#60a5fa)
 function getTowTruckSplitIcon(leftColor, rightColor) {
     return {
         url: 'data:image/svg+xml;utf-8,' + encodeURIComponent(`
@@ -506,25 +538,16 @@ window.onload = () => {
 
 window.toggleTaskCard = () => { document.getElementById('activeTask').classList.toggle('expanded'); };
 window.setTip = (amt, el) => { document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); document.getElementById('customTip').value = amt; };
-// New Function to update radius circle in real-time
 window.updateRadiusLive = (val) => {
     myRadius = parseInt(val);
     document.getElementById('radiusVal').innerText = val;
-    
     if (map && userLocation) {
-        // If circle exists, just update radius. If not, create it.
         if (profileRadiusCircle) {
             profileRadiusCircle.setRadius(myRadius * 1609.34);
             profileRadiusCircle.setCenter(userLocation);
         } else {
             profileRadiusCircle = new google.maps.Circle({
-                map: map,
-                center: userLocation,
-                radius: myRadius * 1609.34,
-                fillColor: '#EE611C',
-                fillOpacity: 0.1,
-                strokeColor: '#EE611C',
-                strokeWeight: 1
+                map: map, center: userLocation, radius: myRadius * 1609.34, fillColor: '#EE611C', fillOpacity: 0.1, strokeColor: '#EE611C', strokeWeight: 1
             });
         }
         map.fitBounds(profileRadiusCircle.getBounds());
@@ -543,7 +566,6 @@ window.closeModal = (id) => {
         enlargedImage.style.display = 'none';
         document.getElementById('imageEnlargeModal').style.display = 'none';
     }
-    // Remove profile circle preview when closing modal to clean up map
     if (id === 'profileModal' && profileRadiusCircle) {
         profileRadiusCircle.setMap(null);
         profileRadiusCircle = null;
@@ -578,7 +600,6 @@ window.handleImageUpload = (input, target) => {
         if(files.length > 0) {
             damageImgList = []; // Reset for new selection
             document.getElementById('damagePreviewList').innerHTML = "";
-            
             Array.from(files).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -589,7 +610,6 @@ window.handleImageUpload = (input, target) => {
                         const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                         const compressedData = canvas.toDataURL('image/jpeg', 0.7);
                         damageImgList.push(compressedData);
-                        
                         const pv = document.createElement('img');
                         pv.src = compressedData;
                         pv.style.width = '80px'; pv.style.height = '80px'; pv.style.objectFit = 'cover'; pv.style.borderRadius = '10px'; pv.style.flexShrink = '0';
@@ -617,9 +637,18 @@ window.handleImageUpload = (input, target) => {
     }
 };
 
-window.openChat = async () => {
-    const currentActiveSOS = Object.values(sosCache).find(r => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
-    if (currentActiveSOS) activeChatId = Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS); 
+window.openChat = async (targetChatId = null) => {
+    if (targetChatId) {
+        activeChatId = targetChatId;
+    } else {
+        // Fallback for Hero in Active Job
+        const currentActiveSOS = Object.values(sosCache).find(r => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
+        if (currentActiveSOS) {
+            // If job is accepted, chatID is sosID + helperID
+             activeChatId = `${Object.keys(sosCache).find(key => sosCache[key] === currentActiveSOS)}_${currentActiveSOS.helperId}`;
+        }
+    }
+    
     if (!activeChatId) return;
 
     window.openModal('chatModal');
@@ -679,22 +708,30 @@ function updateChatBadges(count) {
     if(hB) { hB.innerText = count; hB.style.display = count > 0 ? 'flex' : 'none'; }
 }
 
+// Global Chat Listener for Notifications and Seeker Message List
 onValue(ref(db, 'chats'), (snapshot) => {
+    chatCache = snapshot.val() || {};
     let unreadCount = 0;
     let latestMessageTimestampInActiveChat = 0;
-    const myActiveSOSRequest = Object.entries(sosCache).find(([id, r]) => (r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived'));
-    let currentActiveChatIdForBadge = myActiveSOSRequest ? myActiveSOSRequest[0] : null;
-
-    if (currentActiveChatIdForBadge) {
-        const messages = snapshot.val() ? snapshot.val()[currentActiveChatIdForBadge] : null;
-        if (messages) {
-            for (const msgId in messages) {
-                const message = messages[msgId];
+    
+    // Logic to find unread messages in ANY chat relevant to user
+    // For Seeker: chats starting with their sosID
+    // For Hero: chats ending with their ID
+    
+    Object.keys(chatCache).forEach(chatId => {
+        const messages = chatCache[chatId];
+        const lastMsg = Object.values(messages).pop();
+        
+        // Basic check if this chat involves me
+        const involvesMe = chatId.includes(myId) || (Object.values(sosCache).some(r => r.ownerId === myId && chatId.startsWith(Object.keys(sosCache).find(k => sosCache[k] === r) + '_')));
+        
+        if (involvesMe) {
+             Object.values(messages).forEach(message => {
                 if (message.sender !== myId && message.read === false) unreadCount++;
                 if (message.timestamp && message.timestamp > latestMessageTimestampInActiveChat) latestMessageTimestampInActiveChat = message.timestamp;
-            }
+            });
         }
-    }
+    });
 
     const chatModalOpen = document.getElementById('chatModal').style.display === 'flex';
     if (!isInitialLoadForChatListener && unreadCount > 0 && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp && !chatModalOpen) {
@@ -706,6 +743,10 @@ onValue(ref(db, 'chats'), (snapshot) => {
     currentUnreadCount = unreadCount; 
     updateChatBadges(currentUnreadCount);
     if (isInitialLoadForChatListener) isInitialLoadForChatListener = false;
+    
+    // Refresh UI to update message list if on Seeker screen
+    if(document.getElementById('seekerUI').classList.contains('view-active')) syncUI();
+
 }, (error) => console.error("Error fetching chats:", error));
 
 window.viewRequest = (id) => {
@@ -748,9 +789,11 @@ window.viewRequest = (id) => {
         detPhoneBtn.style.display = 'none';
     }
     
+    // HERO VIEWING PRE-ACCEPTANCE CHAT
     detChatBtn.onclick = () => {
-        activeChatId = id; 
-        window.openChat();
+        // Unique chat ID: SOSID_HEROID
+        activeChatId = `${id}_${myId}`;
+        window.openChat(activeChatId);
     };
 
     const detTowDestinationElement = document.getElementById('detTowDestination');
@@ -922,21 +965,19 @@ function initMap() { map = new google.maps.Map(document.getElementById("map"), {
 function syncUI() {
     const history = document.getElementById('notifHistory'); history.innerHTML = "";
     let nearbySOS = [];
-    let activeTasks = []; // Array for multiple active tasks
+    let activeTasks = []; 
     let myActiveSOS = null;
     let jobActive = false;
     let towTruckRequestsOnMap = false; 
 
     const currentHeroProfile = profilesCache[myId] || {};
     const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
-    // Default to true if undefined so we don't hide everything by default
     const prefersRoadside = currentHeroProfile.prefersRoadsideRequests !== false; 
 
-    // MAP LOOP: Displays ALL active requests globally (No radius check) based on filters
+    // MAP LOOP
     Object.entries(sosCache).forEach(([id, r]) => {
         const isTowTruck = r.isTowTruckRequest === true;
         
-        // Filter Logic for Map
         if (isTowTruck && !prefersTowTruck) {
             if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
             return;
@@ -948,7 +989,6 @@ function syncUI() {
 
         if (r.status === 'open' && r.ownerId !== myId) {
             if (isTowTruck) towTruckRequestsOnMap = true;
-
             const iconToUse = isTowTruck ? getTowTruckSplitIcon("#2563eb", "#60a5fa") : getMarkerIcon("#EE611C");
             if (!markers[id] && map) {
                 const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: iconToUse });
@@ -978,24 +1018,21 @@ function syncUI() {
     if (towTruckRequestsOnMap && !towTruckAnimationInterval) startTowTruckAnimation();
     else if (!towTruckRequestsOnMap && towTruckAnimationInterval) stopTowTruckAnimation();
 
-    // LIST/ALERT LOOP: Nearby requests (Radius Check) & Active Tasks
+    // LIST LOOP
     Object.entries(sosCache).forEach(([id, r]) => {
         const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
         const isTowTruck = r.isTowTruckRequest === true;
 
-        // Active Tasks (No radius or preference filter, you accepted it)
         if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) {
             activeTasks.push({id, ...r});
             jobActive = true; 
         }
 
-        // Available Nearby Tasks (Apply Filters)
         if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
             if (isTowTruck && prefersTowTruck) nearbySOS.push({id, ...r, dist: distMiles});
             if (!isTowTruck && prefersRoadside) nearbySOS.push({id, ...r, dist: distMiles});
         }
         
-        // My Own Request
         if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) {
             if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = r;
         }
@@ -1006,7 +1043,6 @@ function syncUI() {
             if (sound) sound.play().catch(e => console.error("Error playing sound:", e));
         }
 
-        // History
         if (r.ownerId === myId || r.helperId === myId) {
             let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
             history.innerHTML += `
@@ -1020,23 +1056,21 @@ function syncUI() {
         }
     });
 
-    document.getElementById('footerChatBtn').style.display = jobActive ? 'block' : 'none';
+    document.getElementById('footerChatBtn').style.display = (jobActive || (myActiveSOS && myActiveSOS.status !== 'completed')) ? 'block' : 'none';
     document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
     document.getElementById('cancelSosBtn').style.display = myActiveSOS ? 'block' : 'none';
 
-    // Status Indicator Logic
     const ind = document.getElementById('statusIndicator');
     if(activeTasks.some(t => t.status === 'canceled')) ind.style.background = "var(--danger)";
     else if(activeTasks.length > 0) ind.style.background = "var(--success)";
     else if (nearbySOS.length > 0) ind.style.background = "var(--danger)";
     else ind.style.background = "#94a3b8"; 
     
-    // HERO TASK PANEL RENDER (Scrollable List)
+    // HERO TASK PANEL
     const tCard = document.getElementById('activeTask');
     tCard.innerHTML = ""; 
     let panelContent = "";
 
-    // 1. Render Active Tasks first
     if(activeTasks.length > 0) {
         panelContent += `<div style="margin-bottom:10px; font-weight:900; color:var(--success); text-transform:uppercase; font-size:12px;">Active Jobs (${activeTasks.length})</div>`;
         activeTasks.forEach(task => {
@@ -1046,6 +1080,8 @@ function syncUI() {
                     <button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:8px; font-size:12px; margin-top:5px;">CLOSE</button>
                 </div>`;
             } else {
+                // Determine Chat ID for active job
+                const chatID = `${task.id}_${myId}`;
                 panelContent += `
                 <div class="sos-list-item status-active">
                     <div class="sos-info-left">
@@ -1055,14 +1091,13 @@ function syncUI() {
                     </div>
                     <div style="display:flex; flex-direction:column; gap:5px;">
                         <button onclick="window.viewRequest('${task.id}')" style="background:var(--success); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">DETAILS</button>
-                         <button onclick="window.openChat()" style="background:var(--accent); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">CHAT</button>
+                         <button onclick="window.openChat('${chatID}')" style="background:var(--accent); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">CHAT</button>
                     </div>
                 </div>`;
             }
         });
     }
 
-    // 2. Render Nearby Available Requests
     if (nearbySOS.length > 0) {
         panelContent += `<div style="margin:10px 0 5px 0; font-weight:900; color:var(--text); text-transform:uppercase; font-size:12px;">Nearby Requests (${nearbySOS.length})</div>`;
         nearbySOS.forEach(s => {
@@ -1093,10 +1128,52 @@ function syncUI() {
         const matched = document.getElementById('matchedState');
         const completed = document.getElementById('completionConfirmState');
         const cancelBtn = document.getElementById('cancelSosBtn');
+        const msgList = document.getElementById('seekerMessagesList');
+        
+        // Populate Pre-acceptance messages for Seeker
+        if (myActiveSOS.status === 'open') {
+             msgList.innerHTML = "";
+             let hasMessages = false;
+             
+             // Look for chats starting with this SOS ID
+             Object.keys(chatCache).forEach(chatId => {
+                 if(chatId.startsWith(myActiveSOS.id + '_')) {
+                     // Found a thread!
+                     hasMessages = true;
+                     const heroId = chatId.split('_')[1];
+                     const msgs = Object.values(chatCache[chatId]);
+                     const lastMsg = msgs[msgs.length - 1];
+                     const heroProfile = profilesCache[heroId] || { name: 'Hero' };
+                     const date = new Date(lastMsg.timestamp);
+                     const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' + date.toLocaleDateString();
+                     
+                     // Use SOS description as requested in prompt, plus Last msg preview
+                     const threadHTML = `
+                     <div class="msg-thread-card" onclick="window.openChat('${chatId}')">
+                        <div class="msg-thread-info">
+                            <b style="color:var(--accent);">${heroProfile.name}</b>
+                            <div style="font-size:13px; margin-top:4px; font-weight:600;">Re: ${myActiveSOS.issue}</div>
+                            <div style="font-size:13px; color:var(--text); margin-top:2px; font-style:italic;">"${lastMsg.text || 'Image'}"</div>
+                            <div class="msg-thread-time">${timeString}</div>
+                        </div>
+                        <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="event.stopPropagation(); window.confirmDeleteChatPrompt('${chatId}')">
+                     </div>`;
+                     msgList.innerHTML += threadHTML;
+                 }
+             });
+             
+             if(hasMessages) {
+                 msgList.style.display = 'block';
+                 // Ensure footer chat icon shows if messages exist
+                 document.getElementById('footerChatBtn').style.display = 'block';
+             } else {
+                 msgList.style.display = 'none';
+                 document.getElementById('footerChatBtn').style.display = 'none';
+             }
 
-        if(myActiveSOS.status === 'open') {
             searching.style.display = 'block'; matched.style.display = 'none'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
         } else if(myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') {
+            msgList.style.display = 'none'; // Hide pre-acceptance messages
             searching.style.display = 'none'; matched.style.display = 'block'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
             
             const hero = profilesCache[myActiveSOS.helperId] || {};
@@ -1118,15 +1195,38 @@ function syncUI() {
 
             updateSeekerMiniMap(myActiveSOS, hero);
         } else if(myActiveSOS.status === 'completed') {
+            msgList.style.display = 'none';
             searching.style.display = 'none'; matched.style.display = 'none'; completed.style.display = 'block'; cancelBtn.style.display = 'none';
         }
     } else {
+        document.getElementById('seekerMessagesList').style.display = 'none';
         document.getElementById('searchingState').style.display = 'none'; 
         document.getElementById('matchedState').style.display = 'none'; 
         document.getElementById('completionConfirmState').style.display = 'none'; 
         document.getElementById('cancelSosBtn').style.display = 'none';
     }
 }
+
+// Function to handle Seeker footer click
+window.handleSeekerChatClick = () => {
+    // If messages list is visible (pre-acceptance), scroll to it
+    const msgList = document.getElementById('seekerMessagesList');
+    if (msgList.style.display === 'block') {
+        msgList.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        // Otherwise try to open active chat (post-acceptance)
+        window.openChat();
+    }
+};
+
+window.confirmDeleteChatPrompt = (id) => { chatToDeleteId = id; window.openModal('deleteChatConfirmModal'); };
+window.confirmDeleteChat = () => {
+    if (chatToDeleteId) {
+        remove(ref(db, `chats/${chatToDeleteId}`))
+            .then(() => { chatToDeleteId = null; window.closeModal('deleteChatConfirmModal'); })
+            .catch((error) => { console.error("Error deleting chat:", error); alert("Failed to delete chat."); });
+    }
+};
 
 function updateSeekerMiniMap(sos, hero) {
     if(!seekerMiniMap) { 
@@ -1178,12 +1278,11 @@ function startTowTruckAnimation() {
             const sosId = Object.keys(markers).find(key => markers[key] === marker);
             const sos = sosCache[sosId]; 
             if (sos && sos.isTowTruckRequest && sos.status === 'open') {
-                // Alternating between Standard Blue (#2563eb) and Lighter Blue (#60a5fa)
                 const icon = currentTowTruckIconState === 0 ? getTowTruckSplitIcon("#2563eb", "#60a5fa") : getTowTruckSplitIcon("#60a5fa", "#2563eb"); 
                 marker.setIcon(icon);
             }
         });
-    }, 200); // Slowed slightly for smoother feel
+    }, 200); 
 }
 
 function stopTowTruckAnimation() {
@@ -1242,7 +1341,6 @@ window.saveProfile = () => {
         prefersRoadsideRequests: prefersRoadsideRequests
     });
     
-    // Clear the visual map circle helper on save/exit
     if (profileRadiusCircle) {
         profileRadiusCircle.setMap(null);
         profileRadiusCircle = null;
@@ -1269,7 +1367,6 @@ window.openProfile = async () => {
         document.getElementById("radiusVal").innerText = currentRadius;
         
         document.getElementById("prefersTowTruckRequests").checked = d.prefersTowTruckRequests === true; 
-        // Default to true if not set
         document.getElementById("prefersRoadsideRequests").checked = d.prefersRoadsideRequests !== false; 
     }
 };
