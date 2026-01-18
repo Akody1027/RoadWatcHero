@@ -97,6 +97,7 @@ h3{ text-align: center; }
     margin-top: 20px;
     display: none; /* Hidden by default */
     z-index: 50;
+    flex-direction: column;
 }
 .msg-thread-card {
     background: white;
@@ -559,7 +560,6 @@ onValue(ref(db, 'chats'), (snapshot) => {
     if (latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
     currentUnreadCount = unreadCount; updateChatBadges(currentUnreadCount);
     if (isInitialLoadForChatListener) isInitialLoadForChatListener = false;
-    // CRITICAL FIX: Ensure UI updates immediately when chats change
     if(document.getElementById('seekerUI').classList.contains('view-active')) syncUI();
 }, (error) => console.error("Error fetching chats:", error));
 
@@ -643,7 +643,12 @@ function syncUI() {
             if (isTowTruck && prefersTowTruck) nearbySOS.push({id, ...r, dist: distMiles});
             if (!isTowTruck && prefersRoadside) nearbySOS.push({id, ...r, dist: distMiles});
         }
-        if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) { if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = r; }
+        if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) { 
+             if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) {
+                 // IMPORTANT: Capture the ID in the object
+                 myActiveSOS = { id: id, ...r }; 
+             }
+        }
         const lastKnownSOS = window._lastSosCacheState_ ? window._lastSosCacheState_[id] : null;
         if (r.helperId === myId && r.status === 'canceled' && lastKnownSOS && lastKnownSOS.status === 'accepted') { const sound = document.getElementById('notificationSound'); if (sound) sound.play().catch(e => console.error(e)); }
         if (r.ownerId === myId || r.helperId === myId) {
@@ -680,15 +685,19 @@ function syncUI() {
         
         if (myActiveSOS.status === 'open') {
              msgList.innerHTML = ""; let hasMessages = false;
-             Object.keys(chatCache).forEach(chatId => {
-                 if(chatId.startsWith(myActiveSOS.id + '_')) {
-                     hasMessages = true;
-                     const heroId = chatId.split('_')[1]; const msgs = Object.values(chatCache[chatId]); const lastMsg = msgs[msgs.length - 1]; const heroProfile = profilesCache[heroId] || { name: 'Hero' };
-                     const date = new Date(lastMsg.timestamp || Date.now()); const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' + date.toLocaleDateString();
-                     msgList.innerHTML += `<div class="msg-thread-card" onclick="window.openChat('${chatId}')"><div class="msg-thread-info"><b style="color:var(--accent);">${heroProfile.name}</b><div style="font-size:13px; margin-top:4px; font-weight:600;">Re: ${myActiveSOS.issue}</div><div style="font-size:13px; color:var(--text); margin-top:2px; font-style:italic;">"${lastMsg.text || 'Image'}"</div><div class="msg-thread-time">${timeString}</div></div><img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="event.stopPropagation(); window.confirmDeleteChatPrompt('${chatId}')"></div>`;
-                 }
-             });
-             if(hasMessages) { msgList.style.display = 'flex'; msgList.style.flexDirection = 'column'; document.getElementById('footerChatBtn').style.display = 'block'; } else { msgList.style.display = 'none'; document.getElementById('footerChatBtn').style.display = 'none'; }
+             // Ensure myActiveSOS.id exists (captured above) before filtering
+             if(myActiveSOS.id) {
+                 Object.keys(chatCache).forEach(chatId => {
+                     // Check if chat starts with SOS ID + '_'
+                     if(chatId.startsWith(myActiveSOS.id + '_')) {
+                         hasMessages = true;
+                         const heroId = chatId.split('_')[1]; const msgs = Object.values(chatCache[chatId]); const lastMsg = msgs[msgs.length - 1]; const heroProfile = profilesCache[heroId] || { name: 'Hero' };
+                         const date = new Date(lastMsg.timestamp || Date.now()); const timeString = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' ' + date.toLocaleDateString();
+                         msgList.innerHTML += `<div class="msg-thread-card" onclick="window.openChat('${chatId}')"><div class="msg-thread-info"><b style="color:var(--accent);">${heroProfile.name}</b><div style="font-size:13px; margin-top:4px; font-weight:600;">Re: ${myActiveSOS.issue}</div><div style="font-size:13px; color:var(--text); margin-top:2px; font-style:italic;">"${lastMsg.text || 'Image'}"</div><div class="msg-thread-time">${timeString}</div></div><img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="event.stopPropagation(); window.confirmDeleteChatPrompt('${chatId}')"></div>`;
+                     }
+                 });
+             }
+             if(hasMessages) { msgList.style.display = 'flex'; document.getElementById('footerChatBtn').style.display = 'block'; } else { msgList.style.display = 'none'; document.getElementById('footerChatBtn').style.display = 'none'; }
             searching.style.display = 'block'; matched.style.display = 'none'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
         } else if(myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived') {
             msgList.style.display = 'none'; searching.style.display = 'none'; matched.style.display = 'block'; completed.style.display = 'none'; cancelBtn.style.display = 'block';
