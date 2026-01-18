@@ -173,7 +173,7 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 
 #detIssue { word-break: break-all; }
 .det-img-scroller { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 10px; }
-.det-img-scroller img { width: 120px; height: 120px; object-fit: cover; border-radius: 15px; flex-shrink: 0; cursor: pointer; border: 1px solid #e2e8f0; }
+.det-img-scroller img { width: 100%; height: 90%; object-fit: cover; border-radius: 15px; flex-shrink: 0; cursor: pointer; border: 1px solid #e2e8f0; }
 
 .toggle-wrapper { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 15px; }
 .toggle-label { font-weight: 700; font-size: 14px; }
@@ -758,4 +758,5 @@ window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, 
 </script>
 </body>
 </html>
+
 
