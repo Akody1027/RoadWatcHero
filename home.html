@@ -11,11 +11,17 @@
 <style>
 :root {
   --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: black;
-  --accent: #EE611C; --danger: #EE611C; --success: #22c55e; --warning: #f59e0b;
+  --accent: #EE611C; --danger: #EE611C; --success: #22c55e; --warning: #f59e0b; --tow-blue: #2563eb;
   --shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* Global smoothness - excluding map tiles to prevent performance issues */
+body, button, input, div:not(#map):not(#seekerMap) {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+}
+
 body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; color: var(--text); background: white; overflow: hidden; }
 h3{ text-align: center; }
 .view { display: none; width: 100vw; height: 100vh; position: fixed; inset: 0; z-index: 10; background: white; overflow-y: auto; }
@@ -51,11 +57,46 @@ h3{ text-align: center; }
 #heroPanel { width:100%; max-width: 400px; position: fixed; bottom: 85px; left: 0; z-index: 100; display: flex; flex-direction: column; padding: 0 15px; pointer-events: none; }
 #heroPanel > * { pointer-events: auto; }
 
-.task-card { background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); padding: 20px; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-left: 6px solid var(--accent); display: none; transform: translateX(-110%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); max-height: 400px; overflow-y: auto; }
+.task-card { 
+    background: rgba(255,255,255,0.98); 
+    backdrop-filter: blur(10px); 
+    padding: 20px; 
+    border-radius: 24px; 
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); 
+    /* removed border-left logic here, moving to individual items */
+    display: none; 
+    transform: translateX(-110%); 
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+    max-height: 400px; 
+    overflow-y: auto; 
+}
 .task-card.expanded { display: block; transform: translateX(0); }
 
-.sos-list-item { padding: 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; display: flex; justify-content: space-between; align-items: center; text-align: left; }
-.sos-list-item:active { background: #f8fafc; }
+/* Updated SOS List Item Styling for Hero Panel */
+.sos-list-item { 
+    padding: 15px; 
+    border-radius: 12px;
+    background: #fff;
+    border: 3px solid #e2e8f0; /* Default border */
+    cursor: pointer; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    text-align: left; 
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.sos-list-item.status-active { border-color: var(--success); }
+.sos-list-item.status-tow { border-color: var(--tow-blue); }
+.sos-list-item.status-roadside { border-color: var(--accent); }
+
+.sos-info-left {
+    flex: 1;
+    margin-right: 10px;
+    /* Prevent horizontal scroll */
+    word-break: break-word; 
+    min-width: 0; /* Flexbox text wrap fix */
+}
 
 .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
 .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 95vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); }
@@ -63,7 +104,6 @@ h3{ text-align: center; }
 
 #chatBox { height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 20px; margin-bottom: 12px; border: 1px solid #e2e8f0; position: relative; }
 
-/* Empty Chat Background State */
 .chat-empty-bg {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="%23CBD5E1" d="M100,40 C60,40 20,70 20,110 C20,130 30,145 50,155 L50,180 L80,165 C86,166 93,167 100,167 C140,167 180,137 180,97 C180,57 140,40 100,40 Z" opacity="0.3"/></svg>');
     background-repeat: no-repeat;
@@ -72,15 +112,7 @@ h3{ text-align: center; }
 }
 .chat-empty-bg::after {
     content: "Send a message to start communicating";
-    position: absolute;
-    top: 65%;
-    left: 0;
-    width: 100%;
-    text-align: center;
-    color: var(--muted);
-    font-weight: 600;
-    font-size: 14px;
-    opacity: 0.6;
+    position: absolute; top: 65%; left: 0; width: 100%; text-align: center; color: var(--muted); font-weight: 600; font-size: 14px; opacity: 0.6;
 }
 
 .msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 14px; line-height: 1.4; z-index: 2; }
@@ -123,10 +155,26 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 .comm-icon-btn img { width: 32px; height: 32px; }
 
 #detIssue { word-break: break-all; }
-
-/* Horizontal scrolling for multiple images */
 .det-img-scroller { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 15px; padding-bottom: 10px; }
 .det-img-scroller img { width: 120px; height: 120px; object-fit: cover; border-radius: 15px; flex-shrink: 0; cursor: pointer; border: 1px solid #e2e8f0; }
+
+/* Custom Switch Toggle Styles */
+.toggle-wrapper { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 15px; }
+.toggle-label { font-weight: 700; font-size: 14px; }
+.toggle-switch {
+  position: relative; width: 50px; height: 28px;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; inset: 0; background-color: var(--accent); /* Orange/Off */
+  transition: .4s; border-radius: 34px;
+}
+.slider:before {
+  position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white;
+  transition: .4s; border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--success); /* Green/On */ }
+input:checked + .slider:before { transform: translateX(22px); }
 
 </style>
 </head>
@@ -221,22 +269,16 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
             <button class="close-x-btn" onclick="window.closeModal('detailsModal')">✕</button>
         </div>
 
-        <!-- Multiple Damage Photos Scroller -->
         <div id="detImgContainer" style="display:none;">
             <p style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:4px;">PHOTOS</p>
-            <div id="detImgScroller" class="det-img-scroller">
-                <!-- Images injected here -->
-            </div>
+            <div id="detImgScroller" class="det-img-scroller"></div>
         </div>
         
-        <!-- Description -->
         <p style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:4px;">ISSUE DESCRIPTION</p>
         <div id="detIssue" style="font-weight:500; margin-bottom:15px; background:#f8fafc; padding:15px; border-radius:12px; border:1px solid #e2e8f0;"></div>
 
-        <!-- Tow Destination -->
         <p id="detTowDestination" style="font-size:14px; margin-bottom:10px; font-weight:600; display:none; color: var(--text);"></p>
 
-        <!-- Communication Row -->
         <div class="comm-btn-row">
             <a id="detPhoneBtn" href="#" class="comm-icon-btn" style="display:none;">
                <img src="https://cdn-icons-png.flaticon.com/512/724/724664.png" alt="Call">
@@ -246,13 +288,11 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
             </button>
         </div>
 
-        <!-- NAVIGATE & ACTION BUTTONS (Added here) -->
         <div id="detActionBtns" style="display:none; gap:10px; margin-bottom: 20px;">
             <a id="detNavBtn" href="#" target="_blank" style="flex:1; background:var(--success); color:white; text-align:center; padding:15px; border-radius:16px; text-decoration:none; font-weight:700; font-size:14px; display:block;">NAVIGATE</a>
             <button id="detStatusBtn" style="flex:1; background:var(--warning); color:white; border:none; border-radius:16px; font-weight:700; font-size:14px;">HERE</button>
         </div>
 
-        <!-- ETA to Arrival -->
         <div id="detETAGroup">
             <label style="font-size:11px; font-weight:bold; color:var(--muted);">ETA TO ARRIVAL</label>
             <select id="detETA">
@@ -284,9 +324,7 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
             <h3>Messages</h3>
             <button class="close-x-btn" onclick="window.closeModal('chatModal')">✕</button>
         </div>
-        
         <div id="chatBox"></div>
-        
         <div style="display:flex; gap:10px;">
             <button onclick="document.getElementById('chatImgInput').click()" style="padding:15px; background:#f1f5f9; border:none; border-radius:15px;">📷</button>
             <input type="file" id="chatImgInput" accept="image/*" style="display:none" onchange="window.sendChatImg(this)">
@@ -313,7 +351,6 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
         </div>
         <input type="number" id="customTip" placeholder="Other Tip Amount ($)" style="margin-bottom:15px;">
         
-        <!-- Multiple Images Logic -->
         <div id="damagePreviewList" style="display:flex; gap:5px; overflow-x:auto; margin-bottom:10px;"></div>
         <input type="file" id="damageInput" accept="image/*" multiple style="display:none" onchange="window.handleImageUpload(this, 'damage')">
         <button onclick="document.getElementById('damageInput').click()" style="width:100%; padding:15px; border-radius:16px; border:2px dashed #cbd5e1; background:none; margin-bottom:15px; cursor:pointer; font-weight:bold; color:var(--muted);">📷 Add Damage Photos</button>
@@ -348,16 +385,30 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
         </div>
         <input id="profileName" placeholder="Hero Name">
         <textarea id="profileBio" placeholder="Bio / Tools Available..." rows="2"></textarea>
+        
         <div style="background: #f8fafc; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
             <label style="font-size:11px; font-weight:900; color:var(--muted);">SERVICE RADIUS: <span id="radiusVal" style="color:var(--accent);">25</span> miles</label>
-            <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="margin: 15px 0 0 0;" oninput="document.getElementById('radiusVal').innerText = this.value">
+            <!-- Added live update logic to oninput -->
+            <input type="range" id="profileRadius" min="5" max="100" step="5" value="25" style="margin: 15px 0 0 0;" oninput="window.updateRadiusLive(this.value)">
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; background: #f8fafc; padding: 15px 20px; border-radius: 20px; margin-bottom: 20px;">
-            <label for="prefersTowTruckRequests" style="font-weight: 700;">Only show Tow Truck requests</label>
-            <input type="checkbox" id="prefersTowTruckRequests" style="width: auto; margin: 0;">
+
+        <!-- Sleek Toggles -->
+        <div class="toggle-wrapper">
+            <span class="toggle-label">Show Roadside SOS</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="prefersRoadsideRequests" checked>
+                <span class="slider"></span>
+            </label>
         </div>
-        <!-- Removed Tow Rates Input Section -->
         
+        <div class="toggle-wrapper">
+            <span class="toggle-label">Show Tow Truck Requests</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="prefersTowTruckRequests">
+                <span class="slider"></span>
+            </label>
+        </div>
+
         <button class="submit-btn" onclick="window.saveProfile()">Save Settings</button>
         <span class="cancel-link" onclick="window.closeModal('profileModal')">Close</span>
     </div>
@@ -393,7 +444,7 @@ const db = getDatabase(app);
 if(!localStorage.getItem('heroUserId')) localStorage.setItem('heroUserId', 'u_' + Math.random().toString(36).substr(2, 9));
 const myId = localStorage.getItem('heroUserId');
 
-let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgList = [], myRadius = 25, heroMarker;
+let map, seekerMiniMap, userLocation, selectedVehicle = "Car", damageImgList = [], myRadius = 25, heroMarker, profileRadiusCircle;
 let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUserMarker;
 let activeChatId = null, lastMsgCount = 0;
 let activityToDeleteId = null; 
@@ -418,6 +469,7 @@ const getMarkerIcon = (color) => ({
 const seekerOwnIcon = { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 };
 const seekerHeroCustomIcon = { url: 'heromapicon.png', scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(0, 32) };
 
+// Updated to alternate between Standard Blue (#2563eb) and Light Blue (#60a5fa)
 function getTowTruckSplitIcon(leftColor, rightColor) {
     return {
         url: 'data:image/svg+xml;utf-8,' + encodeURIComponent(`
@@ -454,7 +506,32 @@ window.onload = () => {
 
 window.toggleTaskCard = () => { document.getElementById('activeTask').classList.toggle('expanded'); };
 window.setTip = (amt, el) => { document.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); document.getElementById('customTip').value = amt; };
-window.updateRadius = (val) => { myRadius = parseInt(val); document.getElementById('radiusVal').innerText = val; syncUI(); };
+// New Function to update radius circle in real-time
+window.updateRadiusLive = (val) => {
+    myRadius = parseInt(val);
+    document.getElementById('radiusVal').innerText = val;
+    
+    if (map && userLocation) {
+        // If circle exists, just update radius. If not, create it.
+        if (profileRadiusCircle) {
+            profileRadiusCircle.setRadius(myRadius * 1609.34);
+            profileRadiusCircle.setCenter(userLocation);
+        } else {
+            profileRadiusCircle = new google.maps.Circle({
+                map: map,
+                center: userLocation,
+                radius: myRadius * 1609.34,
+                fillColor: '#EE611C',
+                fillOpacity: 0.1,
+                strokeColor: '#EE611C',
+                strokeWeight: 1
+            });
+        }
+        map.fitBounds(profileRadiusCircle.getBounds());
+    }
+    syncUI();
+};
+
 window.centerOnMe = () => { if (map && userLocation) map.setCenter(userLocation); };
 window.openModal = (id) => document.getElementById(id).style.display = "flex";
 
@@ -465,6 +542,11 @@ window.closeModal = (id) => {
         enlargedImage.src = ''; 
         enlargedImage.style.display = 'none';
         document.getElementById('imageEnlargeModal').style.display = 'none';
+    }
+    // Remove profile circle preview when closing modal to clean up map
+    if (id === 'profileModal' && profileRadiusCircle) {
+        profileRadiusCircle.setMap(null);
+        profileRadiusCircle = null;
     }
 };
 
@@ -508,7 +590,6 @@ window.handleImageUpload = (input, target) => {
                         const compressedData = canvas.toDataURL('image/jpeg', 0.7);
                         damageImgList.push(compressedData);
                         
-                        // Add to preview list
                         const pv = document.createElement('img');
                         pv.src = compressedData;
                         pv.style.width = '80px'; pv.style.height = '80px'; pv.style.objectFit = 'cover'; pv.style.borderRadius = '10px'; pv.style.flexShrink = '0';
@@ -561,7 +642,6 @@ window.openChat = async () => {
         const data = snap.val() || {};
         const msgs = Object.values(data);
         
-        // Handle empty state background
         if(msgs.length === 0) {
             box.classList.add('chat-empty-bg');
         } else {
@@ -633,12 +713,10 @@ window.viewRequest = (id) => {
     const isOwner = r.ownerId === myId;
     const isHelper = r.helperId === myId;
     
-    // Multiple Images Handling
     const detImgContainer = document.getElementById('detImgContainer');
     const detImgScroller = document.getElementById('detImgScroller');
     detImgScroller.innerHTML = "";
     
-    // Check for legacy single image or new array
     let imagesToDisplay = [];
     if(r.damagePic) imagesToDisplay.push(r.damagePic);
     if(r.damagePics && Array.isArray(r.damagePics)) imagesToDisplay = r.damagePics;
@@ -683,7 +761,6 @@ window.viewRequest = (id) => {
         detTowDestinationElement.style.display = 'none';
     }
 
-    // Action Buttons Logic (Navigate, Here, Done)
     const detActionBtns = document.getElementById('detActionBtns');
     const detNavBtn = document.getElementById('detNavBtn');
     const detStatusBtn = document.getElementById('detStatusBtn');
@@ -692,20 +769,17 @@ window.viewRequest = (id) => {
     const progressText = document.getElementById('detInProgressText');
 
     if(isHelper && (r.status === 'accepted' || r.status === 'arrived')) {
-        // Show Navigation and Status Buttons
         detActionBtns.style.display = 'flex';
         detETAGroup.style.display = 'none';
         acceptBtn.style.display = 'none';
         progressText.style.display = 'block';
 
-        // Set Navigation Link
         let navLink = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
         if(r.isTowTruckRequest && r.towDestination) {
             navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(r.towDestination)}`;
         }
         detNavBtn.href = navLink;
 
-        // Set Status Button Text/Action
         if(r.status === 'accepted') {
             detStatusBtn.innerText = "I'M HERE";
             detStatusBtn.style.background = "var(--warning)";
@@ -717,7 +791,6 @@ window.viewRequest = (id) => {
         }
 
     } else {
-        // Not helper or not active yet
         detActionBtns.style.display = 'none';
         if(r.status === 'open') {
              detETAGroup.style.display = 'block';
@@ -814,7 +887,7 @@ window.submitSOS = () => {
 
     push(ref(db, "sosRequests"), { 
         ownerId: myId, userName: "Driver", issue, vehicle: selectedVehicle, 
-        damagePics: damageImgList, // Use the list now
+        damagePics: damageImgList,
         tip: tip, lat: userLocation.lat, lng: userLocation.lng, status: 'open', 
         isTowTruckRequest: isTowTruckRequestActive, 
         phoneNumber: isTowTruckRequestActive ? phoneNumber : null, 
@@ -849,32 +922,39 @@ function initMap() { map = new google.maps.Map(document.getElementById("map"), {
 function syncUI() {
     const history = document.getElementById('notifHistory'); history.innerHTML = "";
     let nearbySOS = [];
-    let currentTask = null; 
+    let activeTasks = []; // Array for multiple active tasks
     let myActiveSOS = null;
     let jobActive = false;
     let towTruckRequestsOnMap = false; 
 
     const currentHeroProfile = profilesCache[myId] || {};
     const prefersTowTruck = currentHeroProfile.prefersTowTruckRequests === true;
+    // Default to true if undefined so we don't hide everything by default
+    const prefersRoadside = currentHeroProfile.prefersRoadsideRequests !== false; 
 
-    // MAP LOOP: Displays ALL active requests globally (No radius check)
+    // MAP LOOP: Displays ALL active requests globally (No radius check) based on filters
     Object.entries(sosCache).forEach(([id, r]) => {
         const isTowTruck = r.isTowTruckRequest === true;
-        if (prefersTowTruck && !isTowTruck) {
+        
+        // Filter Logic for Map
+        if (isTowTruck && !prefersTowTruck) {
             if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
             return;
+        }
+        if (!isTowTruck && !prefersRoadside) {
+             if (markers[id]) { markers[id].setMap(null); delete markers[id]; }
+             return;
         }
 
         if (r.status === 'open' && r.ownerId !== myId) {
             if (isTowTruck) towTruckRequestsOnMap = true;
 
+            const iconToUse = isTowTruck ? getTowTruckSplitIcon("#2563eb", "#60a5fa") : getMarkerIcon("#EE611C");
             if (!markers[id] && map) {
-                const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C");
                 const marker = new google.maps.Marker({ position: {lat: r.lat, lng: r.lng}, map, icon: iconToUse });
                 marker.addListener('click', () => window.viewRequest(id));
                 markers[id] = marker;
             } else if (markers[id]) {
-                const iconToUse = isTowTruck ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getMarkerIcon("#EE611C");
                 markers[id].setIcon(iconToUse);
                 markers[id].setMap(map); 
             }
@@ -898,25 +978,27 @@ function syncUI() {
     if (towTruckRequestsOnMap && !towTruckAnimationInterval) startTowTruckAnimation();
     else if (!towTruckRequestsOnMap && towTruckAnimationInterval) stopTowTruckAnimation();
 
-    // LIST/ALERT LOOP: Only nearby requests (Radius Check)
+    // LIST/ALERT LOOP: Nearby requests (Radius Check) & Active Tasks
     Object.entries(sosCache).forEach(([id, r]) => {
         const distMiles = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(r.lat, r.lng)) / 1609.34) : 999;
         const isTowTruck = r.isTowTruckRequest === true;
 
-        if (prefersTowTruck && !isTowTruck) return;
-
-        // ALERT LOGIC: Only add to nearbySOS if within Radius
-        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
-            nearbySOS.push({id, ...r, dist: distMiles});
+        // Active Tasks (No radius or preference filter, you accepted it)
+        if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) {
+            activeTasks.push({id, ...r});
+            jobActive = true; 
         }
 
-        if(r.helperId === myId && (r.status === 'accepted' || r.status === 'arrived' || (r.status === 'canceled' && r.helperAcknowledged !== true))) currentTask = {id, ...r};
+        // Available Nearby Tasks (Apply Filters)
+        if (r.status === 'open' && r.ownerId !== myId && distMiles <= myRadius) {
+            if (isTowTruck && prefersTowTruck) nearbySOS.push({id, ...r, dist: distMiles});
+            if (!isTowTruck && prefersRoadside) nearbySOS.push({id, ...r, dist: distMiles});
+        }
         
+        // My Own Request
         if(r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)) {
             if (!myActiveSOS || r.timestamp > myActiveSOS.timestamp) myActiveSOS = r;
         }
-        
-        if((r.ownerId === myId || r.helperId === myId) && (r.status === 'accepted' || r.status === 'arrived')) jobActive = true; 
 
         const lastKnownSOS = window._lastSosCacheState_ ? window._lastSosCacheState_[id] : null;
         if (r.helperId === myId && r.status === 'canceled' && lastKnownSOS && lastKnownSOS.status === 'accepted') {
@@ -924,6 +1006,7 @@ function syncUI() {
             if (sound) sound.play().catch(e => console.error("Error playing sound:", e));
         }
 
+        // History
         if (r.ownerId === myId || r.helperId === myId) {
             let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
             history.innerHTML += `
@@ -941,44 +1024,67 @@ function syncUI() {
     document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
     document.getElementById('cancelSosBtn').style.display = myActiveSOS ? 'block' : 'none';
 
+    // Status Indicator Logic
     const ind = document.getElementById('statusIndicator');
-    if(currentTask && currentTask.status === 'canceled') ind.style.background = "var(--danger)";
-    else if(currentTask) ind.style.background = "var(--success)";
+    if(activeTasks.some(t => t.status === 'canceled')) ind.style.background = "var(--danger)";
+    else if(activeTasks.length > 0) ind.style.background = "var(--success)";
     else if (nearbySOS.length > 0) ind.style.background = "var(--danger)";
     else ind.style.background = "#94a3b8"; 
     
-    // HERO TASK PANEL (Updated to remove specific buttons and just show View Details)
+    // HERO TASK PANEL RENDER (Scrollable List)
     const tCard = document.getElementById('activeTask');
     tCard.innerHTML = ""; 
+    let panelContent = "";
 
-    if(currentTask) {
-        tCard.style.display = 'block';
-        if(currentTask.status === 'canceled') {
-            tCard.innerHTML = `<div style="text-align:center;"><b style="color:var(--danger)">SOS CANCELED</b><p style="font-size:13px; margin:10px 0;">Reason: ${currentTask.cancelReason || 'None'}</p><button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:10px; font-size:13px;">CLOSE</button></div>`;
-        } else {
-            tCard.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <b style="color:${currentTask.status === 'arrived' ? 'var(--warning)' : 'var(--accent)'};">${currentTask.status.toUpperCase()} JOB</b>
-                    <button onclick="window.openChat()" style="background:var(--accent); color:white; border:none; padding:10px 18px; border-radius:12px; font-weight:bold; font-size:12px;">CHAT</button>
-                </div>
-                <p style="margin:10px 0; font-weight:700; font-size:15px;">${currentTask.vehicle}${currentTask.isTowTruckRequest ? ' (Tow Truck)' : ''}: ${currentTask.issue}</p>
-                ${(currentTask.tip > 0) ? `<p style="margin: 0 0 10px 0; font-weight: 800; color: var(--success); font-size: 14px;">💰 Tip: $${currentTask.tip}</p>` : ''}
-                <button onclick="window.viewRequest('${currentTask.id}')" style="width:100%; background:var(--text); color:white; padding:12px; border-radius:12px; border:none; font-weight:700; font-size:14px; margin-top:5px;">VIEW DETAILS</button>`;
-        }
-    } else if (nearbySOS.length > 0) {
-        tCard.style.display = 'block';
-        let listHtml = `<b style="color:var(--danger); display:block; margin-bottom:10px;">${nearbySOS.length} SOS NEARBY (in Radius)</b>`;
+    // 1. Render Active Tasks first
+    if(activeTasks.length > 0) {
+        panelContent += `<div style="margin-bottom:10px; font-weight:900; color:var(--success); text-transform:uppercase; font-size:12px;">Active Jobs (${activeTasks.length})</div>`;
+        activeTasks.forEach(task => {
+            if(task.status === 'canceled') {
+                panelContent += `<div class="sos-list-item" style="border-color:var(--danger); display:block; text-align:center;">
+                    <b style="color:var(--danger)">JOB CANCELED</b><br>Reason: ${task.cancelReason || 'None'}
+                    <button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:8px; font-size:12px; margin-top:5px;">CLOSE</button>
+                </div>`;
+            } else {
+                panelContent += `
+                <div class="sos-list-item status-active">
+                    <div class="sos-info-left">
+                        <b style="color:var(--success);">IN PROGRESS</b><br>
+                        <b>${task.vehicle}</b>${task.isTowTruckRequest ? ' (Tow)' : ''}<br>
+                        <small>${task.issue}</small>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <button onclick="window.viewRequest('${task.id}')" style="background:var(--success); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">DETAILS</button>
+                         <button onclick="window.openChat()" style="background:var(--accent); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">CHAT</button>
+                    </div>
+                </div>`;
+            }
+        });
+    }
+
+    // 2. Render Nearby Available Requests
+    if (nearbySOS.length > 0) {
+        panelContent += `<div style="margin:10px 0 5px 0; font-weight:900; color:var(--text); text-transform:uppercase; font-size:12px;">Nearby Requests (${nearbySOS.length})</div>`;
         nearbySOS.forEach(s => {
-            listHtml += `<div class="sos-list-item" onclick="window.viewRequest('${s.id}')">
-                <div><b>${s.vehicle}${s.isTowTruckRequest ? ' (Tow)' : ''}</b><br><small>${s.dist.toFixed(1)} miles away</small></div>
-                <div style="color:var(--success); font-weight:bold;">${s.tip > 0 ? '$'+s.tip : 'HELP'}</div>
+            const borderClass = s.isTowTruckRequest ? 'status-tow' : 'status-roadside';
+            panelContent += `
+            <div class="sos-list-item ${borderClass}" onclick="window.viewRequest('${s.id}')">
+                <div class="sos-info-left">
+                    <b>${s.vehicle}${s.isTowTruckRequest ? ' (Tow)' : ''}</b><br>
+                    <small>${s.dist.toFixed(1)} mi • ${s.issue}</small><br>
+                    <span style="color:var(--success); font-weight:800;">${s.tip > 0 ? '$'+s.tip + ' Tip' : 'No Tip'}</span>
+                </div>
+                <button style="background:var(--text); color:white; padding:10px 15px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">VIEW DETAILS</button>
             </div>`;
         });
-        tCard.innerHTML = listHtml;
-    } else {
-        tCard.style.display = 'block';
-        tCard.innerHTML = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone inside your ${myRadius} mile radius needs help.</p></div>`;
     }
+
+    if (activeTasks.length === 0 && nearbySOS.length === 0) {
+        panelContent = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone inside your ${myRadius} mile radius needs help.</p></div>`;
+    }
+
+    tCard.innerHTML = panelContent;
+    tCard.style.display = 'block';
 
     if(myActiveSOS) {
         if (document.getElementById('landingPage').classList.contains('view-active')) window.switchView('seekerUI');
@@ -1072,11 +1178,12 @@ function startTowTruckAnimation() {
             const sosId = Object.keys(markers).find(key => markers[key] === marker);
             const sos = sosCache[sosId]; 
             if (sos && sos.isTowTruckRequest && sos.status === 'open') {
-                const icon = currentTowTruckIconState === 0 ? getTowTruckSplitIcon("#ef4444", "#2563eb") : getTowTruckSplitIcon("#2563eb", "#ef4444"); 
+                // Alternating between Standard Blue (#2563eb) and Lighter Blue (#60a5fa)
+                const icon = currentTowTruckIconState === 0 ? getTowTruckSplitIcon("#2563eb", "#60a5fa") : getTowTruckSplitIcon("#60a5fa", "#2563eb"); 
                 marker.setIcon(icon);
             }
         });
-    }, 100); 
+    }, 200); // Slowed slightly for smoother feel
 }
 
 function stopTowTruckAnimation() {
@@ -1084,7 +1191,7 @@ function stopTowTruckAnimation() {
     Object.values(markers).forEach(marker => {
         const sosId = Object.keys(markers).find(key => markers[key] === marker);
         const sos = sosCache[sosId];
-        if (sos && sos.isTowTruckRequest && sos.status === 'open') marker.setIcon(getTowTruckSplitIcon("#ef4444", "#2563eb"));
+        if (sos && sos.isTowTruckRequest && sos.status === 'open') marker.setIcon(getTowTruckSplitIcon("#2563eb", "#60a5fa"));
     });
 }
 
@@ -1121,17 +1228,26 @@ onValue(ref(db, "profiles"), (snap) => {
 
 window.saveProfile = () => {
     myRadius = parseInt(document.getElementById("profileRadius").value);
-    localStorage.setItem('heroRadius', myRadius); // Save radius to localStorage
+    localStorage.setItem('heroRadius', myRadius); 
 
     const prefersTowTruckRequests = document.getElementById("prefersTowTruckRequests").checked;
+    const prefersRoadsideRequests = document.getElementById("prefersRoadsideRequests").checked;
 
     update(ref(db, `profiles/${myId}`), { 
         name: document.getElementById("profileName").value, 
         bio: document.getElementById("profileBio").value, 
         pic: document.getElementById("profileDisplayPic").src, 
         radius: myRadius,
-        prefersTowTruckRequests: prefersTowTruckRequests
+        prefersTowTruckRequests: prefersTowTruckRequests,
+        prefersRoadsideRequests: prefersRoadsideRequests
     });
+    
+    // Clear the visual map circle helper on save/exit
+    if (profileRadiusCircle) {
+        profileRadiusCircle.setMap(null);
+        profileRadiusCircle = null;
+    }
+
     if(map && userLocation) { 
         map.setCenter(userLocation);
     }
@@ -1147,13 +1263,14 @@ window.openProfile = async () => {
         document.getElementById("profileBio").value = d.bio || ""; 
         if(d.pic) document.getElementById("profileDisplayPic").src = d.pic; 
         
-        // Use persistence if DB is empty, otherwise use DB, otherwise default 25
         const currentRadius = d.radius || myRadius;
         myRadius = currentRadius;
         document.getElementById("profileRadius").value = currentRadius; 
         document.getElementById("radiusVal").innerText = currentRadius;
         
         document.getElementById("prefersTowTruckRequests").checked = d.prefersTowTruckRequests === true; 
+        // Default to true if not set
+        document.getElementById("prefersRoadsideRequests").checked = d.prefersRoadsideRequests !== false; 
     }
 };
 
