@@ -703,17 +703,37 @@ window.submitSOS = () => {
 };
 window.submitCancellation = (reason) => { const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && (sosCache[k].status === 'open' || sosCache[k].status === 'accepted' || sosCache[k].status === 'arrived')); if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'canceled', cancelReason: reason }); window.closeModal('cancelConfirmModal'); window.switchView('landingPage'); damageImgList = []; };
 window.finalSeekerConfirm = () => { const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === 'completed'); if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'finalized' }); damageImgList = []; window.switchView('landingPage'); };
-function initMap() 
 
-map.addListener('dragstart', () => {
-    isManualMapControl = true;
-    clearTimeout(manualMapTimeout);
-});
+  
+  
 
-map.addListener('idle', () => {
-    // Wait 2 seconds after you stop moving before snapping back
-    manualMapTimeout = setTimeout(() => { isManualMapControl = false; }, 2000);
-});
+
+function initMap() { 
+    const mapElement = document.getElementById("map");
+    if (!mapElement) return;
+
+    // 1. Initialize the map
+    map = new google.maps.Map(mapElement, { 
+        center: userLocation || {lat: 40, lng: -74}, 
+        zoom: 14, 
+        disableDefaultUI: true,
+        gestureHandling: 'greedy', 
+        isFractionalZoomEnabled: true, 
+        styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] 
+    });
+
+    // 2. Add listeners INSIDE the function after map is created
+    map.addListener('dragstart', () => {
+        isManualMapControl = true;
+        if (manualMapTimeout) clearTimeout(manualMapTimeout);
+    });
+
+    map.addListener('idle', () => {
+        // Wait 2 seconds after move stops before allowing auto-snap
+        manualMapTimeout = setTimeout(() => { isManualMapControl = false; }, 2000);
+    });
+}
+
 
 
 
@@ -870,6 +890,7 @@ window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, 
 </script>
 </body>
 </html>
+
 
 
 
