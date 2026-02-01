@@ -684,7 +684,7 @@ window.submitSOS = () => {
 };
 window.submitCancellation = (reason) => { const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && (sosCache[k].status === 'open' || sosCache[k].status === 'accepted' || sosCache[k].status === 'arrived')); if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'canceled', cancelReason: reason }); window.closeModal('cancelConfirmModal'); window.switchView('landingPage'); damageImgList = []; };
 window.finalSeekerConfirm = () => { const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === 'completed'); if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'finalized' }); damageImgList = []; window.switchView('landingPage'); };
-function initMap() { map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true, styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] }); }
+function initMap() { map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true,gestureHandling: 'greedy', isFractionalZoomEnabled: true, styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] }); }
 
 function syncUI() {
     const history = document.getElementById('notifHistory'); history.innerHTML = "";
@@ -837,6 +837,7 @@ window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, 
 </script>
 </body>
 </html>
+
 
 
 
