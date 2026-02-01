@@ -37,7 +37,7 @@ body, button, input, div:not(#map):not(#seekerMap) {
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.4s ease, visibility 0.4s;
+    transition: opacity 0.4s ease, visibility 2s;
 }
 
 .spinner {
@@ -46,7 +46,7 @@ body, button, input, div:not(#map):not(#seekerMap) {
     border: 6px solid rgba(238, 97, 28, 0.2); /* Light orange track */
     border-top: 6px solid #EE611C; /* ACCENT ORANGE spinner */
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 3s linear infinite;
 }
 
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -997,6 +997,7 @@ window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, 
 </script>
 </body>
 </html>
+
 
 
 
