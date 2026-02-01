@@ -467,6 +467,9 @@ let sosCache = {}, profilesCache = {}, markers = {}, seekerHeroMarker, seekerUse
 let activeChatId = null, lastMsgCount = 0, activityToDeleteId = null, chatToDeleteId = null;
 let currentUnreadCount = 0, lastProcessedMessageTimestamp = 0, isInitialLoadForChatListener = true;
 let towTruckAnimationInterval = null, currentTowTruckIconState = 0, isTowTruckRequestActive = false; 
+let isManualMapControl = false, manualMapTimeout = null;
+
+  
 
 if(localStorage.getItem('heroRadius')) myRadius = parseInt(localStorage.getItem('heroRadius'));
 
@@ -497,10 +500,26 @@ window.setTip = (amt, el) => { document.querySelectorAll('.tip-btn').forEach(b =
 window.updateRadiusLive = (val) => {
     myRadius = parseInt(val);
     document.getElementById('radiusVal').innerText = val;
-    if (map && userLocation) {
-        if (profileRadiusCircle) { profileRadiusCircle.setRadius(myRadius * 1609.34); profileRadiusCircle.setCenter(userLocation); } 
-        else { profileRadiusCircle = new google.maps.Circle({ map: map, center: userLocation, radius: myRadius * 1609.34, fillColor: '#EE611C', fillOpacity: 0.1, strokeColor: '#EE611C', strokeWeight: 1 }); }
-        map.fitBounds(profileRadiusCircle.getBounds());
+if (map && userLocation) {
+        if (profileRadiusCircle) { 
+            profileRadiusCircle.setRadius(myRadius * 1609.34); 
+            profileRadiusCircle.setCenter(userLocation); 
+        } else { 
+            profileRadiusCircle = new google.maps.Circle({ 
+                map: map, 
+                center: userLocation, 
+                radius: myRadius * 1609.34, 
+                fillColor: '#EE611C', 
+                fillOpacity: 0.1, 
+                strokeColor: '#EE611C', 
+                strokeWeight: 1 
+            }); 
+        }
+
+        // Only snap the map to the circle if the user isn't currently moving it
+        if (!isManualMapControl) {
+            map.fitBounds(profileRadiusCircle.getBounds());
+        }
     }
     syncUI();
 };
@@ -684,7 +703,21 @@ window.submitSOS = () => {
 };
 window.submitCancellation = (reason) => { const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && (sosCache[k].status === 'open' || sosCache[k].status === 'accepted' || sosCache[k].status === 'arrived')); if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'canceled', cancelReason: reason }); window.closeModal('cancelConfirmModal'); window.switchView('landingPage'); damageImgList = []; };
 window.finalSeekerConfirm = () => { const myReqId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === 'completed'); if(myReqId) update(ref(db, `sosRequests/${myReqId}`), { status: 'finalized' }); damageImgList = []; window.switchView('landingPage'); };
-function initMap() { map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true,gestureHandling: 'greedy', isFractionalZoomEnabled: true, styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] }); }
+function initMap() 
+
+map.addListener('dragstart', () => {
+    isManualMapControl = true;
+    clearTimeout(manualMapTimeout);
+});
+
+map.addListener('idle', () => {
+    // Wait 2 seconds after you stop moving before snapping back
+    manualMapTimeout = setTimeout(() => { isManualMapControl = false; }, 2000);
+});
+
+
+
+{ map = new google.maps.Map(document.getElementById("map"), { center: userLocation || {lat: 40, lng: -74}, zoom: 14, disableDefaultUI: true,gestureHandling: 'greedy', isFractionalZoomEnabled: true, styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }] }); }
 
 function syncUI() {
     const history = document.getElementById('notifHistory'); history.innerHTML = "";
@@ -837,6 +870,7 @@ window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, 
 </script>
 </body>
 </html>
+
 
 
 
