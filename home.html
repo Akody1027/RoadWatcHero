@@ -22,6 +22,49 @@ body, button, input, div:not(#map):not(#seekerMap) {
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
 }
 
+
+
+
+
+/* GLASS LOADING OVERLAY */
+#loadingOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.4); /* Semi-transparent white */
+    backdrop-filter: blur(8px); /* The Blur Effect */
+    -webkit-backdrop-filter: blur(8px); /* Safari support */
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.4s ease, visibility 0.4s;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(238, 97, 28, 0.2); /* Light orange track */
+    border-top: 6px solid #EE611C; /* ACCENT ORANGE spinner */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Utility class to hide it */
+.loader-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+
+
+
+
+
+
+
+  
 body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; color: var(--text); background: white; overflow: hidden; }
 h3{ text-align: center; }
 .view { display: none; width: 100vw; height: 100vh; position: fixed; inset: 0; z-index: 10; background: white; overflow-y: auto; }
@@ -198,6 +241,21 @@ input:checked + .slider:before { transform: translateX(22px); }
 </style>
 </head>
 <body>
+
+
+
+<body>
+
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+</div>
+
+
+
+
+
+
+  
 
 <!-- APP CONTENT -->
 <div id="landingPage" class="view view-active">
@@ -866,7 +924,53 @@ window.toggleSeekerMapExpansion = () => {
 function startTowTruckAnimation() { if (towTruckAnimationInterval) return; towTruckAnimationInterval = setInterval(() => { currentTowTruckIconState = 1 - currentTowTruckIconState; Object.values(markers).forEach(marker => { const sosId = Object.keys(markers).find(key => markers[key] === marker); const sos = sosCache[sosId]; if (sos && sos.isTowTruckRequest && sos.status === 'open') { const icon = currentTowTruckIconState === 0 ? getTowTruckSplitIcon("#2563eb", "#60a5fa") : getTowTruckSplitIcon("#60a5fa", "#2563eb"); marker.setIcon(icon); } }); }, 200); }
 function stopTowTruckAnimation() { if (towTruckAnimationInterval) { clearInterval(towTruckAnimationInterval); towTruckAnimationInterval = null; } Object.values(markers).forEach(marker => { const sosId = Object.keys(markers).find(key => markers[key] === marker); const sos = sosCache[sosId]; if (sos && sos.isTowTruckRequest && sos.status === 'open') marker.setIcon(getTowTruckSplitIcon("#2563eb", "#60a5fa")); }); }
 
-onValue(ref(db, "sosRequests"), (snap) => { window._lastSosCacheState_ = { ...sosCache }; sosCache = snap.val() || {}; syncUI(); const myActive = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)); if (myActive && document.getElementById('landingPage').classList.contains('view-active')) { window.switchView('seekerUI'); if (myActive.isTowTruckRequest) { isTowTruckRequestActive = true; document.getElementById('towTruckBtn').classList.add('active'); document.getElementById('towTruckBtn').innerText = 'TOW TRUCK REQUEST ACTIVE'; document.getElementById('towTruckContact').style.display = 'block'; if (myActive.phoneNumber) { document.getElementById('phoneNumberInput').value = myActive.phoneNumber; document.getElementById('phoneNumberInput').setAttribute('required', 'required'); } if (myActive.towDestination) { document.getElementById('towDestinationInput').value = myActive.towDestination; document.getElementById('towDestinationInput').setAttribute('required', 'required'); } } else { isTowTruckRequestActive = false; document.getElementById('towTruckBtn').classList.remove('active'); document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!'; document.getElementById('towTruckContact').style.display = 'none'; } } });
+
+
+
+onValue(ref(db, "sosRequests"), (snap) => { 
+    window._lastSosCacheState_ = { ...sosCache }; 
+    sosCache = snap.val() || {}; 
+    syncUI(); 
+    
+    const myActive = Object.values(sosCache).find(r => r.ownerId === myId && ['open', 'accepted', 'arrived', 'completed'].includes(r.status)); 
+    
+    // 1. If active session exists, switch view immediately behind the blur
+    if (myActive && document.getElementById('landingPage').classList.contains('view-active')) { 
+        window.switchView('seekerUI'); 
+        
+        if (myActive.isTowTruckRequest) { 
+            isTowTruckRequestActive = true; 
+            document.getElementById('towTruckBtn').classList.add('active'); 
+            document.getElementById('towTruckBtn').innerText = 'TOW TRUCK REQUEST ACTIVE'; 
+            document.getElementById('towTruckContact').style.display = 'block'; 
+            
+            if (myActive.phoneNumber) { 
+                document.getElementById('phoneNumberInput').value = myActive.phoneNumber; 
+                document.getElementById('phoneNumberInput').setAttribute('required', 'required'); 
+            } 
+            if (myActive.towDestination) { 
+                document.getElementById('towDestinationInput').value = myActive.towDestination; 
+                document.getElementById('towDestinationInput').setAttribute('required', 'required'); 
+            } 
+        } else { 
+            isTowTruckRequestActive = false; 
+            document.getElementById('towTruckBtn').classList.remove('active'); 
+            document.getElementById('towTruckBtn').innerText = 'I NEED A TOW TRUCK!'; 
+            document.getElementById('towTruckContact').style.display = 'none'; 
+        } 
+    } 
+
+    // 2. Fade out the Glass Overlay (whether we stayed on Home or switched to Seeker)
+    const loader = document.getElementById('loadingOverlay');
+    if (loader && !loader.classList.contains('loader-hidden')) {
+        setTimeout(() => {
+            loader.classList.add('loader-hidden');
+        }, 500); // 0.5s delay to ensure smoother transition
+    }
+});
+
+
+  
 onValue(ref(db, "profiles"), (snap) => { profilesCache = snap.val() || {}; syncUI(); const myActiveSOS = Object.values(sosCache).find(r => r.ownerId === myId && (r.status === 'accepted' || r.status === 'arrived')); if (myActiveSOS && myActiveSOS.helperId && profilesCache[myActiveSOS.helperId]) updateSeekerMiniMap(myActiveSOS, profilesCache[myActiveSOS.helperId]); });
 
 window.saveProfile = () => {
@@ -893,6 +997,7 @@ window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, 
 </script>
 </body>
 </html>
+
 
 
 
