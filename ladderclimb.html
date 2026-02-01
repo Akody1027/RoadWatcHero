@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Donkey Kong Lite - Robust</title>
+    <style>
+        body {
+            background-color: #111;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            touch-action: none; /* Crucial for mobile */
+            user-select: none;  /* Prevent text highlighting */
+            -webkit-user-select: none;
+        }
+
+        canvas {
+            background-color: #000;
+            border: 4px solid #880000;
+            box-shadow: 0 0 20px rgba(200, 0, 0, 0.3);
+            /* Responsive Sizing */
+            width: 95%;
+            max-width: 800px;
+            height: auto; 
+            max-height: 60vh;
+        }
+
+        /* --- CONTROLS UI --- */
+        #controls {
+            display: flex; /* Always visible now */
+            width: 95%;
+            max-width: 800px;
+            height: 20vh;
+            margin-top: 15px;
+            justify-content: space-between;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            width: 48%;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex: 1; /* Stretch to fill space */
+            height: 100%;
+        }
+
+        /* Visual feedback when pressed */
+        .btn.active {
+            background: rgba(50, 255, 50, 0.4); /* Turns Green when touched */
+            transform: scale(0.95);
+        }
+
+        .instructions {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="instructions">Use Arrow Keys or Touch Buttons Below</div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <div id="controls">
+        <div class="btn-group">
+            <div class="btn" id="btnLeft">←</div>
+            <div class="btn" id="btnRight">→</div>
+        </div>
+        <div class="btn-group">
+            <div class="btn" id="btnDown" style="flex: 0.5;">↓</div>
+            <div class="btn" id="btnUp" style="flex: 1.5;">JUMP</div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const GAME_WIDTH = 800;
+        const GAME_HEIGHT = 600;
+
+        // --- GAME VARIABLES ---
+        let gameActive = true;
+        let didWin = false;
+        let score = 0;
+        let frameCount = 0;
+        let autoRestartTimer = null; // Stores the timer ID
+        let restartCountdown = 0;    // Visual countdown number
+
+        // Constants
+        const GRAVITY = 0.6;
+        const JUMP_STRENGTH = -8.5;
+        const MOVE_SPEED = 5;
+        const CLIMB_SPEED = 3;
+
+        // Input State
+        const keys = {
+            Left: false,
+            Right: false,
+            Up: false,
+            Down: false
+        };
+
+        // --- LEVEL DATA ---
+        const platforms = [
+            { x: 0, y: 580, w: 800, h: 20 },      
+            { x: 0, y: 480, w: 700, h: 20 },      
+            { x: 100, y: 380, w: 700, h: 20 },    
+            { x: 0, y: 280, w: 700, h: 20 },      
+            { x: 100, y: 180, w: 700, h: 20 },    
+            { x: 350, y: 80, w: 100, h: 20 }      
+        ];
+
+        const ladders = [
+            { x: 600, y: 480, w: 40, h: 100 },    
+            { x: 150, y: 380, w: 40, h: 100 },    
+            { x: 600, y: 280, w: 40, h: 100 },    
+            { x: 150, y: 180, w: 40, h: 100 },    
+            { x: 380, y: 80, w: 40, h: 100 }      
+        ];
+
+        const goal = { x: 370, y: 40, w: 60, h: 40 };
+
+        // --- ENTITIES ---
+        const player = {
+            x: 50, y: 540, w: 30, h: 40, vx: 0, vy: 0,
+            color: '#00ff00', onGround: false, climbing: false
+        };
+
+        let barrels = [];
+
+        // --- CORE FUNCTIONS ---
+        function initGame() {
+            // Clear any existing restart timers
+            if (autoRestartTimer) clearTimeout(autoRestartTimer);
+            
+            gameActive = true;
+            didWin = false;
+            score = 0;
+            barrels = [];
+            
+            // Reset Player
+            player.x = 50;
+            player.y = 540;
+            player.vx = 0;
+            player.vy = 0;
+            
+            frameCount = 0;
+        }
+
+        function endGame(win) {
+            gameActive = false;
+            didWin = win;
+            if(win) score += 1000;
+
+            // Start 10 Second Auto-Restart
+            restartCountdown = 10;
+            
+            // We use an interval to show the countdown number
+            // and a timeout to actually reset the game
+            const countdownInterval = setInterval(() => {
+                restartCountdown--;
+                if (restartCountdown <= 0) clearInterval(countdownInterval);
+            }, 1000);
+
+            autoRestartTimer = setTimeout(() => {
+                initGame();
+                clearInterval(countdownInterval); // cleanup
+            }, 10000);
+        }
+
+        // --- INPUT HANDLING (KEYBOARD) ---
+        document.addEventListener('keydown', e => {
+            if (e.code === 'ArrowLeft') keys.Left = true;
+            if (e.code === 'ArrowRight') keys.Right = true;
+            if (e.code === 'ArrowUp') keys.Up = true;
+            if (e.code === 'ArrowDown') keys.Down = true;
+            if (e.code === 'Enter' && !gameActive) initGame();
+        });
+
+        document.addEventListener('keyup', e => {
+            if (e.code === 'ArrowLeft') keys.Left = false;
+            if (e.code === 'ArrowRight') keys.Right = false;
+            if (e.code === 'ArrowUp') keys.Up = false;
+            if (e.code === 'ArrowDown') keys.Down = false;
+        });
+
+        // --- INPUT HANDLING (TOUCH) ---
+        // Helper to attach robust listeners
+        function attachTouch(id, key) {
+            const btn = document.getElementById(id);
+            
+            // Touch Start (Press)
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Stop zoom/scroll
+                keys[key] = true;
+                btn.classList.add('active'); // Visual feedback
+                
+                // If game is over, restart immediately on tap
+                if (!gameActive && key === 'Up') initGame();
+            }, { passive: false });
+
+            // Touch End (Release)
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys[key] = false;
+                btn.classList.remove('active');
+            }, { passive: false });
+
+            // Mouse Support (for testing on desktop with mouse)
+            btn.addEventListener('mousedown', (e) => {
+                keys[key] = true;
+                btn.classList.add('active');
+            });
+            btn.addEventListener('mouseup', (e) => {
+                keys[key] = false;
+                btn.classList.remove('active');
+            });
+        }
+
+        attachTouch('btnLeft', 'Left');
+        attachTouch('btnRight', 'Right');
+        attachTouch('btnUp', 'Up');
+        attachTouch('btnDown', 'Down');
+
+        // --- PHYSICS & LOGIC ---
+        function checkRectCollide(r1, r2) {
+            return r1.x < r2.x + r2.w && r1.x + r1.w > r2.x &&
+                   r1.y < r2.y + r2.h && r1.y + r1.h > r2.y;
+        }
+
+        function update() {
+            if (!gameActive) return;
+            frameCount++;
+
+            // Movement
+            player.vx = 0;
+            if (keys.Left) player.vx = -MOVE_SPEED;
+            if (keys.Right) player.vx = MOVE_SPEED;
+            player.x += player.vx;
+
+            // Boundaries
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.w > GAME_WIDTH) player.x = GAME_WIDTH - player.w;
+
+            // Ladders
+            let touchingLadder = false;
+            const px = player.x + player.w / 2;
+            for (let l of ladders) {
+                if (px >= l.x && px <= l.x + l.w && 
+                    player.y + player.h >= l.y && player.y <= l.y + l.h) {
+                    touchingLadder = true;
+                }
+            }
+
+            if (touchingLadder && (keys.Up || keys.Down)) {
+                player.climbing = true;
+                player.onGround = false;
+            } else if (!touchingLadder) {
+                player.climbing = false;
+            }
+
+            if (player.climbing) {
+                player.vy = 0;
+                if (keys.Up) player.vy = -CLIMB_SPEED;
+                if (keys.Down) player.vy = CLIMB_SPEED;
+                player.y += player.vy;
+            } else {
+                player.vy += GRAVITY;
+                player.y += player.vy;
+
+                if (keys.Up && player.onGround) {
+                    player.vy = JUMP_STRENGTH;
+                    player.onGround = false;
+                }
+            }
+
+            // Platform Collision
+            player.onGround = false;
+            if (player.vy >= 0 && !player.climbing) {
+                for (let p of platforms) {
+                    if (
+                        player.x < p.x + p.w &&
+                        player.x + player.w > p.x &&
+                        player.y + player.h >= p.y &&
+                        player.y + player.h <= p.y + p.h + player.vy
+                    ) {
+                        player.y = p.y - player.h;
+                        player.vy = 0;
+                        player.onGround = true;
+                    }
+                }
+            }
+
+            // Barrels
+            if (frameCount % 120 === 0) {
+                barrels.push({ x: 50, y: 140, w: 25, h: 25, vx: 3, vy: 0 });
+            }
+
+            for (let i = barrels.length - 1; i >= 0; i--) {
+                let b = barrels[i];
+                b.vy += GRAVITY;
+                b.y += b.vy;
+                b.x += b.vx;
+
+                for (let p of platforms) {
+                    if (b.x < p.x + p.w && b.x + b.w > p.x &&
+                        b.y + b.h >= p.y && b.y + b.h <= p.y + p.h + b.vy) {
+                        b.y = p.y - b.h;
+                        b.vy = 0;
+                    }
+                }
+
+                if (b.x <= 0) { b.x = 0; b.vx *= -1; }
+                if (b.x + b.w >= GAME_WIDTH) { b.x = GAME_WIDTH - b.w; b.vx *= -1; }
+
+                if (b.y > GAME_HEIGHT) {
+                    barrels.splice(i, 1);
+                    score += 10;
+                    continue;
+                }
+
+                if (checkRectCollide(player, b)) endGame(false);
+            }
+
+            if (checkRectCollide(player, goal)) endGame(true);
+        }
+
+        // --- DRAWING ---
+        function draw() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            ctx.fillStyle = '#b5651d';
+            platforms.forEach(p => ctx.fillRect(p.x, p.y, p.w, p.h));
+
+            ctx.fillStyle = '#00aaff';
+            ladders.forEach(l => {
+                ctx.fillRect(l.x, l.y, 4, l.h);
+                ctx.fillRect(l.x + l.w - 4, l.y, 4, l.h);
+                for(let y = l.y; y < l.y + l.h; y += 20) ctx.fillRect(l.x, y, l.w, 4);
+            });
+
+            ctx.fillStyle = '#ff69b4';
+            ctx.fillRect(goal.x, goal.y, goal.w, goal.h);
+            ctx.fillStyle = '#fff';
+            ctx.fillText("GOAL", goal.x + 10, goal.y + 25);
+
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+
+            ctx.fillStyle = '#ff9900';
+            barrels.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x + b.w/2, b.y + b.h/2, b.w/2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Courier New';
+            ctx.fillText("Score: " + score, 10, 30);
+
+            if (!gameActive) {
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+                ctx.fillStyle = didWin ? '#00ff00' : '#ff0000';
+                ctx.font = '50px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText(didWin ? "YOU WIN!" : "GAME OVER", GAME_WIDTH/2, GAME_HEIGHT/2);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '24px Courier New';
+                ctx.fillText("Auto-restart in " + restartCountdown + "...", GAME_WIDTH/2, GAME_HEIGHT/2 + 50);
+                
+                ctx.textAlign = 'left';
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        initGame();
+        loop();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fruit Slicer - Optimized</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #222;
+            overflow: hidden;
+            touch-action: none; 
+            font-family: 'Segoe UI', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        canvas {
+            display: block;
+            background: radial-gradient(circle, #333 0%, #111 100%);
+        }
+
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none; 
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        #lives-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .life { color: #ff0055; font-size: 30px; }
+        .lost { color: #555; }
+
+        #game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            display: none;
+            z-index: 10;
+        }
+
+        button {
+            background: #ff0055;
+            border: none;
+            padding: 15px 30px;
+            color: white;
+            font-size: 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 0, 85, 0.4);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui">Score: <span id="score">0</span></div>
+    
+    <div id="lives-container">
+        <span class="life" id="life1">❤</span>
+        <span class="life" id="life2">❤</span>
+        <span class="life" id="life3">❤</span>
+    </div>
+
+    <div id="game-over">
+        <h1 style="font-size: 50px; margin: 0;">GAME OVER</h1>
+        <p id="final-msg">You dropped 3 fruits!</p>
+        <button onclick="startGame()">Try Again</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const gameOverEl = document.getElementById('game-over');
+        const livesEls = [document.getElementById('life1'), document.getElementById('life2'), document.getElementById('life3')];
+
+        // Resize canvas
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // --- GAME VARIABLES ---
+        let score = 0;
+        let lives = 3;
+        let gameActive = false;
+        let difficultyMultiplier = 1;
+        let spawnTimer = null; // Store timer ID to prevent double loops
+
+        let fruits = [];
+        let particles = [];
+        let trail = [];
+
+        const GRAVITY = 0.25;
+        const FRUIT_TYPES = [
+            { color: '#ff4444', radius: 30, points: 10 }, 
+            { color: '#ffaa00', radius: 35, points: 15 }, 
+            { color: '#ffff00', radius: 30, points: 20 }, 
+            { color: '#44ff44', radius: 25, points: 25 }, 
+            { color: '#aa00ff', radius: 20, points: 50 }  
+        ];
+
+        // --- INPUT HANDLING ---
+        let isDragging = false;
+        
+        function handleInput(x, y) {
+            if (!gameActive) return;
+            // Add to trail
+            trail.push({ x, y, life: 1.0 });
+            if (trail.length > 8) trail.shift(); // Keep trail short
+            
+            // Check Collision
+            checkCollision(x, y);
+        }
+
+        // Mouse
+        window.addEventListener('mousedown', () => isDragging = true);
+        window.addEventListener('mouseup', () => { isDragging = false; trail = []; });
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging) handleInput(e.clientX, e.clientY);
+        });
+
+        // Touch
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            handleInput(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (isDragging) handleInput(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isDragging = false;
+            trail = [];
+        });
+
+        // --- LOGIC ---
+        function checkCollision(mx, my) {
+            for (let i = fruits.length - 1; i >= 0; i--) {
+                const f = fruits[i];
+                const dx = mx - f.x;
+                const dy = my - f.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+
+                if (dist < f.radius) {
+                    sliceFruit(i);
+                }
+            }
+        }
+
+        function sliceFruit(index) {
+            const f = fruits[index];
+            createExplosion(f.x, f.y, f.color);
+            score += f.points;
+            scoreEl.innerText = score;
+            fruits.splice(index, 1);
+            
+            // Speed up every 100 points
+            if (score > 0 && score % 100 === 0) difficultyMultiplier += 0.2;
+        }
+
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 12; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 12,
+                    vy: (Math.random() - 0.5) * 12,
+                    life: 1.0,
+                    color: color,
+                    size: Math.random() * 6 + 3
+                });
+            }
+        }
+
+        function spawnFruit() {
+            if (!gameActive) return;
+
+            const type = FRUIT_TYPES[Math.floor(Math.random() * FRUIT_TYPES.length)];
+            const speedY = -(Math.random() * 5 + 10 + difficultyMultiplier);
+            
+            fruits.push({
+                x: Math.random() * (canvas.width - 100) + 50,
+                y: canvas.height + 50,
+                vx: (Math.random() - 0.5) * 4,
+                vy: speedY,
+                radius: type.radius,
+                color: type.color,
+                points: type.points
+            });
+
+            // Random delay for next fruit
+            let delay = Math.random() * 1500 + 500;
+            // Cap minimum delay so it doesn't get impossible
+            if (delay < 400) delay = 400; 
+            
+            spawnTimer = setTimeout(spawnFruit, delay);
+        }
+
+        function loseLife() {
+            lives--;
+            updateLivesUI();
+            if (lives <= 0) gameOver();
+        }
+
+        function updateLivesUI() {
+            livesEls.forEach((el, index) => {
+                el.className = index < lives ? 'life' : 'life lost';
+            });
+        }
+
+        // --- MAIN LOOP ---
+        function update() {
+            if (!gameActive) return;
+
+            // Update Fruits
+            for (let i = fruits.length - 1; i >= 0; i--) {
+                let f = fruits[i];
+                f.x += f.vx;
+                f.y += f.vy;
+                f.vy += GRAVITY;
+
+                if (f.y > canvas.height + 60 && f.vy > 0) {
+                    loseLife();
+                    fruits.splice(i, 1);
+                }
+            }
+
+            // Update Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += GRAVITY * 0.5;
+                p.life -= 0.03;
+
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+
+            // Update Trail
+            for (let i = 0; i < trail.length; i++) {
+                trail[i].life -= 0.15;
+            }
+            // Clean up dead trail points
+            if (trail.length > 0 && trail[0].life <= 0) trail.shift();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Fruits
+            fruits.forEach(f => {
+                ctx.beginPath();
+                ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
+                ctx.fillStyle = f.color;
+                ctx.fill();
+                // Simple white border instead of complex shine
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            });
+
+            // Particles
+            particles.forEach(p => {
+                // FIXED: Safety check for opacity to prevent crash
+                let alpha = p.life;
+                if (alpha < 0) alpha = 0;
+                if (alpha > 1) alpha = 1;
+                
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            ctx.globalAlpha = 1.0; // Reset
+
+            // Blade Trail
+            if (trail.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(trail[0].x, trail[0].y);
+                for (let i = 1; i < trail.length; i++) {
+                    ctx.lineTo(trail[i].x, trail[i].y);
+                }
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                // REMOVED: ShadowBlur (caused lag on mobile)
+                ctx.stroke();
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        function startGame() {
+            // Reset everything
+            score = 0;
+            lives = 3;
+            difficultyMultiplier = 0; // Starts easy
+            fruits = [];
+            particles = [];
+            trail = [];
+            scoreEl.innerText = score;
+            updateLivesUI();
+            
+            // Clear any existing timer so we don't get double spawning
+            if (spawnTimer) clearTimeout(spawnTimer);
+            
+            gameActive = true;
+            gameOverEl.style.display = 'none';
+            spawnFruit();
+        }
+
+        function gameOver() {
+            gameActive = false;
+            gameOverEl.style.display = 'block';
+            if (spawnTimer) clearTimeout(spawnTimer);
+        }
+
+        // Init
+        loop();
+        gameOverEl.style.display = 'block';
+        document.getElementById('final-msg').innerText = "Swipe to slice!";
+        document.querySelector('button').innerText = "Start Game";
+
+    </script>
+</body>
+</html>

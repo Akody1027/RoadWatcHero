@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duck Hunt: Assault</title>
+    <style>
+        /* --- CSS STYLES --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #87CEEB; 
+            overflow: hidden; 
+            user-select: none; 
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            cursor: crosshair; 
+            z-index: 1;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            display: flex;
+            gap: 20px;
+            pointer-events: none; 
+        }
+
+        .stat-box {
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid #fff;
+        }
+
+        #start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 20;
+        }
+
+        h1 {
+            font-size: 60px;
+            margin-bottom: 10px;
+            text-shadow: 4px 4px #000;
+            color: #ffcc00;
+        }
+
+        p {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 28px;
+            background-color: #ff4757;
+            color: white;
+            border: 4px solid #fff;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: transform 0.1s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background-color: #ff6b81;
+        }
+
+        .duck {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-color: #ff4757; 
+            border: 3px solid #fff;
+            border-radius: 10px;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+            cursor: crosshair;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .duck::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 10px;
+            background: white;
+            top: -15px;
+            animation: flap 0.2s infinite alternate;
+        }
+
+        @keyframes flap {
+            from { transform: translateY(0); }
+            to { transform: translateY(5px); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div class="stat-box">Score: <span id="score">0</span></div>
+        <div class="stat-box">Time: <span id="time-left">30</span>s</div>
+    </div>
+
+    <div id="start-screen">
+        <h1 id="title-text">Duck Hunt</h1>
+        <p id="instruction-text">Targets now attack from the TOP and LEFT!</p>
+        <button id="start-btn">Start Game</button>
+    </div>
+
+    <div id="game-container"></div>
+
+    <script>
+        /* --- JAVASCRIPT LOGIC --- */
+
+        const scoreDisplay = document.getElementById('score');
+        const timeDisplay = document.getElementById('time-left');
+        const startScreen = document.getElementById('start-screen');
+        const startBtn = document.getElementById('start-btn');
+        const titleText = document.getElementById('title-text');
+        const gameContainer = document.getElementById('game-container');
+
+        let score = 0;
+        let timeLeft = 30;
+        let gameActive = false;
+        let spawnTimer;
+        let countdownTimer;
+        let activeTimers = [];
+
+        startBtn.addEventListener('click', () => {
+            score = 0;
+            timeLeft = 30;
+            gameActive = true;
+            scoreDisplay.textContent = score;
+            timeDisplay.textContent = timeLeft;
+            gameContainer.innerHTML = ''; 
+            activeTimers = []; 
+
+            startScreen.style.display = 'none';
+
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                timeDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            spawnTimer = setInterval(spawnDuck, 800); 
+            spawnDuck();
+        });
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(countdownTimer);
+            clearInterval(spawnTimer);
+            activeTimers.forEach(timer => clearInterval(timer));
+            
+            startScreen.style.display = 'flex';
+            titleText.textContent = "Time's Up!";
+            document.getElementById('instruction-text').textContent = `Final Score: ${score}`;
+            startBtn.textContent = "Play Again";
+        }
+
+        function spawnDuck() {
+            if (!gameActive) return;
+
+            const duck = document.createElement('div');
+            duck.classList.add('duck');
+            
+            // --- DIRECTION LOGIC ---
+            // 50% chance to come from Side (Left -> Right)
+            // 50% chance to come from Top (Top -> Down)
+            const isSideSpawner = Math.random() > 0.5;
+
+            let posX, posY;
+            let speed = Math.random() * 3 + 2; // Base speed
+            
+            // Wavy Logic Properties
+            const movementType = Math.random() > 0.5 ? 1 : 0; // 0=Linear, 1=Wavy
+            const amplitude = Math.random() * 80 + 20; 
+            const frequency = Math.random() * 0.05 + 0.01;
+
+            if (isSideSpawner) {
+                // SPAWN ON LEFT
+                posX = -70;
+                posY = Math.random() * (window.innerHeight - 150) + 50;
+            } else {
+                // SPAWN ON TOP
+                posX = Math.random() * (window.innerWidth - 100) + 50;
+                posY = -70;
+            }
+
+            duck.style.left = posX + 'px';
+            duck.style.top = posY + 'px';
+
+            // Click Handler
+            duck.addEventListener('mousedown', (e) => {
+                e.stopPropagation(); 
+                score++;
+                scoreDisplay.textContent = score;
+                duck.remove();
+                clearInterval(moveInterval);
+            });
+
+            gameContainer.appendChild(duck);
+
+            // --- MOVEMENT LOOP ---
+            const moveInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(moveInterval);
+                    return;
+                }
+
+                // Random acceleration
+                speed += (Math.random() - 0.5) * 0.2;
+                if (speed < 1) speed = 1;
+                if (speed > 9) speed = 9;
+
+                if (isSideSpawner) {
+                    // --- SIDE MOVEMENT (Left to Right) ---
+                    posX += speed;
+                    duck.style.left = posX + 'px';
+
+                    if (movementType === 1) {
+                        // Wiggle up and down based on X position
+                        const waveOffset = Math.sin(posX * frequency) * amplitude;
+                        // Use original posY as the anchor
+                        duck.style.top = (posY + waveOffset) + 'px';
+                    } else {
+                        // Just drift slightly
+                        posY += (Math.random() - 0.5) * 2;
+                        duck.style.top = posY + 'px';
+                    }
+
+                    // Despawn check
+                    if (posX > window.innerWidth) {
+                        duck.remove();
+                        clearInterval(moveInterval);
+                    }
+
+                } else {
+                    // --- TOP MOVEMENT (Top to Bottom) ---
+                    posY += speed;
+                    duck.style.top = posY + 'px';
+
+                    if (movementType === 1) {
+                        // Wiggle left and right based on Y position
+                        const waveOffset = Math.sin(posY * frequency) * amplitude;
+                        // Use original posX as the anchor
+                        duck.style.left = (posX + waveOffset) + 'px';
+                    } else {
+                        posX += (Math.random() - 0.5) * 2;
+                        duck.style.left = posX + 'px';
+                    }
+
+                    // Despawn check
+                    if (posY > window.innerHeight) {
+                        duck.remove();
+                        clearInterval(moveInterval);
+                    }
+                }
+
+            }, 20); 
+
+            activeTimers.push(moveInterval);
+        }
+    </script>
+</body>
+</html>

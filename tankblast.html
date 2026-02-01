@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Battle Tank - Arcade</title>
+    <style>
+        body {
+            background-color: #333;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        canvas {
+            background-color: #000;
+            display: block;
+        }
+
+        /* --- CONTROLS UI --- */
+        #controls {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            height: 180px;
+            margin-top: 10px;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .dpad {
+            position: relative;
+            width: 160px;
+            height: 160px;
+        }
+
+        .d-btn {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            width: 50px;
+            height: 50px;
+        }
+        .d-btn:active, .d-btn.active { background: rgba(0, 255, 0, 0.4); }
+
+        #btnUp { top: 0; left: 55px; }
+        #btnDown { bottom: 0; left: 55px; }
+        #btnLeft { top: 55px; left: 0; }
+        #btnRight { top: 55px; right: 0; }
+
+        .action-btn {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 50, 50, 0.3);
+            border: 2px solid rgba(255, 50, 50, 0.6);
+            border-radius: 50%;
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .action-btn:active, .action-btn.active { background: rgba(255, 50, 50, 0.7); transform: scale(0.95); }
+
+        /* Game Over Overlay */
+        #overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+        }
+        .restart-btn {
+            padding: 15px 30px;
+            background: #0f0;
+            color: black;
+            font-weight: bold;
+            border: none;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="600" height="600"></canvas>
+        <div id="overlay">
+            <h1 id="statusText">GAME OVER</h1>
+            <button class="restart-btn" onclick="initGame()">RESTART</button>
+        </div>
+    </div>
+
+    <div id="controls">
+        <div class="dpad">
+            <div class="d-btn" id="btnUp"></div>
+            <div class="d-btn" id="btnLeft"></div>
+            <div class="d-btn" id="btnRight"></div>
+            <div class="d-btn" id="btnDown"></div>
+        </div>
+        <div class="action-btn" id="btnShoot">FIRE</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const overlay = document.getElementById('overlay');
+        const statusText = document.getElementById('statusText');
+
+        // Scale canvas for mobile screens
+        function resize() {
+            const size = Math.min(window.innerWidth - 20, 600);
+            canvas.style.width = size + 'px';
+            canvas.style.height = size + 'px';
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // --- CONFIG ---
+        const TILE_SIZE = 40;
+        const ROWS = 15;
+        const COLS = 15;
+        const SPEED = 3;
+        const BULLET_SPEED = 7;
+
+        // Map Codes: 0=Empty, 1=Brick(Breakable), 2=Steel(Hard), 9=Base
+        // Simple visual map design
+        let initialMap = [
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,1,1,0,0,1,1,1,1,1,0,0,1,1,0],
+            [0,1,1,0,0,1,1,1,1,1,0,0,1,1,0],
+            [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+            [0,1,0,1,1,1,0,1,0,1,1,1,0,1,0],
+            [0,1,0,1,0,0,0,0,0,0,0,1,0,1,0],
+            [0,1,0,1,0,2,2,0,2,2,0,1,0,1,0],
+            [0,0,0,0,0,2,0,0,0,2,0,0,0,0,0],
+            [0,1,0,1,0,2,2,0,2,2,0,1,0,1,0],
+            [0,1,0,1,0,0,0,0,0,0,0,1,0,1,0],
+            [0,1,0,1,1,1,0,0,0,1,1,1,0,1,0],
+            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+            [0,1,1,0,0,1,1,1,1,1,0,0,1,1,0],
+            [0,1,1,0,0,1,9,9,9,1,0,0,1,1,0],
+            [0,0,0,0,0,1,9,9,9,1,0,0,0,0,0]
+        ];
+
+        let map = []; // Active map array
+        let gameActive = false;
+        let bullets = [];
+        let enemies = [];
+        let enemySpawnTimer = 0;
+
+        // Player
+        const player = {
+            x: 0, y: 0, w: 30, h: 30,
+            dir: 0, // 0:Up, 1:Right, 2:Down, 3:Left
+            color: '#00ff00',
+            moving: false
+        };
+
+        // Inputs
+        const keys = { Up: false, Down: false, Left: false, Right: false, Shoot: false };
+
+        // --- INIT ---
+        function initGame() {
+            // Deep copy map so we can destroy walls
+            map = initialMap.map(row => [...row]);
+            
+            // Spawn Player at bottom center
+            player.x = 7 * TILE_SIZE + 5;
+            player.y = 12 * TILE_SIZE + 5;
+            player.dir = 0;
+            
+            bullets = [];
+            enemies = [];
+            gameActive = true;
+            overlay.style.display = 'none';
+        }
+
+        // --- INPUT HANDLERS ---
+        function attach(id, key) {
+            const btn = document.getElementById(id);
+            const setKey = (v) => {
+                keys[key] = v;
+                if(v) btn.classList.add('active'); else btn.classList.remove('active');
+            };
+            
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); setKey(true); });
+            btn.addEventListener('touchend', (e) => { e.preventDefault(); setKey(false); });
+            btn.addEventListener('mousedown', () => setKey(true));
+            btn.addEventListener('mouseup', () => setKey(false));
+        }
+        attach('btnUp', 'Up');
+        attach('btnDown', 'Down');
+        attach('btnLeft', 'Left');
+        attach('btnRight', 'Right');
+        
+        // Shooting Logic (One tap = one shot)
+        const btnShoot = document.getElementById('btnShoot');
+        const shoot = (e) => {
+            if(e) e.preventDefault();
+            btnShoot.classList.add('active');
+            setTimeout(() => btnShoot.classList.remove('active'), 100);
+            if(gameActive) fireBullet(player);
+            else if(!gameActive && overlay.style.display !== 'none') initGame();
+        };
+        btnShoot.addEventListener('touchstart', shoot);
+        btnShoot.addEventListener('mousedown', shoot);
+
+        // Keyboard support
+        document.addEventListener('keydown', e => {
+            if(e.code === 'ArrowUp') keys.Up = true;
+            if(e.code === 'ArrowDown') keys.Down = true;
+            if(e.code === 'ArrowLeft') keys.Left = true;
+            if(e.code === 'ArrowRight') keys.Right = true;
+            if(e.code === 'Space') fireBullet(player);
+        });
+        document.addEventListener('keyup', e => {
+            if(e.code === 'ArrowUp') keys.Up = false;
+            if(e.code === 'ArrowDown') keys.Down = false;
+            if(e.code === 'ArrowLeft') keys.Left = false;
+            if(e.code === 'ArrowRight') keys.Right = false;
+        });
+
+        // --- PHYSICS ---
+        function getMapTile(x, y) {
+            const col = Math.floor(x / TILE_SIZE);
+            const row = Math.floor(y / TILE_SIZE);
+            if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return 2; // Treat out of bounds as Steel
+            return map[row][col];
+        }
+
+        function checkWallCollision(rect) {
+            // Check all 4 corners of the entity against the map
+            // We shrink the check slightly so you can slide through gaps
+            const buffer = 2; 
+            const points = [
+                {x: rect.x + buffer, y: rect.y + buffer},
+                {x: rect.x + rect.w - buffer, y: rect.y + buffer},
+                {x: rect.x + rect.w - buffer, y: rect.y + rect.h - buffer},
+                {x: rect.x + buffer, y: rect.y + rect.h - buffer}
+            ];
+
+            for (let p of points) {
+                const tile = getMapTile(p.x, p.y);
+                if (tile === 1 || tile === 2 || tile === 9) return true; // Hit Wall or Base
+            }
+            return false;
+        }
+
+        function moveEntity(ent, speed) {
+            let nextX = ent.x;
+            let nextY = ent.y;
+
+            if (ent.dir === 0) nextY -= speed; // Up
+            if (ent.dir === 2) nextY += speed; // Down
+            if (ent.dir === 3) nextX -= speed; // Left
+            if (ent.dir === 1) nextX += speed; // Right
+
+            // Check Collision before moving
+            if (!checkWallCollision({x: nextX, y: nextY, w: ent.w, h: ent.h})) {
+                ent.x = nextX;
+                ent.y = nextY;
+                return true; // Moved successfully
+            }
+            return false; // Hit wall
+        }
+
+        function fireBullet(shooter) {
+            // Spawn bullet at center of shooter face
+            let bx = shooter.x + shooter.w/2 - 4;
+            let by = shooter.y + shooter.h/2 - 4;
+            
+            bullets.push({
+                x: bx, y: by, w: 8, h: 8,
+                dir: shooter.dir,
+                owner: shooter === player ? 'player' : 'enemy'
+            });
+        }
+
+        function spawnEnemy() {
+            // Try 3 spawn points
+            const spawns = [{r:0,c:0}, {r:0,c:7}, {r:0,c:14}];
+            const s = spawns[Math.floor(Math.random()*spawns.length)];
+            
+            enemies.push({
+                x: s.c * TILE_SIZE + 5,
+                y: s.r * TILE_SIZE + 5,
+                w: 30, h: 30,
+                dir: 2,
+                moveTimer: 0,
+                color: '#ff4444'
+            });
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            // 1. Player Move
+            let moving = false;
+            if (keys.Up) { player.dir = 0; moving = true; }
+            else if (keys.Down) { player.dir = 2; moving = true; }
+            else if (keys.Left) { player.dir = 3; moving = true; }
+            else if (keys.Right) { player.dir = 1; moving = true; }
+            
+            if (moving) moveEntity(player, SPEED);
+
+            // 2. Enemy Logic
+            if (enemies.length < 4) {
+                enemySpawnTimer++;
+                if (enemySpawnTimer > 120) { spawnEnemy(); enemySpawnTimer = 0; }
+            }
+
+            enemies.forEach((en, i) => {
+                // AI: Move forward, if hit wall or random chance, turn
+                en.moveTimer++;
+                const moved = moveEntity(en, SPEED * 0.5); // Enemies are slower
+                
+                if (!moved || en.moveTimer > 60) {
+                    en.dir = Math.floor(Math.random() * 4); // Random turn
+                    en.moveTimer = 0;
+                    // Chance to shoot
+                    if(Math.random() < 0.5) fireBullet(en);
+                }
+
+                // Collision with Player
+                if (Math.abs(en.x - player.x) < 30 && Math.abs(en.y - player.y) < 30) {
+                    gameActive = false;
+                    statusText.innerText = "CRASHED!";
+                    overlay.style.display = 'flex';
+                }
+            });
+
+            // 3. Bullets
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                
+                // Move Bullet
+                if (b.dir === 0) b.y -= BULLET_SPEED;
+                if (b.dir === 2) b.y += BULLET_SPEED;
+                if (b.dir === 3) b.x -= BULLET_SPEED;
+                if (b.dir === 1) b.x += BULLET_SPEED;
+
+                let hit = false;
+
+                // Check Map Hit (Center of bullet)
+                let cx = b.x + 4;
+                let cy = b.y + 4;
+                let c = Math.floor(cx / TILE_SIZE);
+                let r = Math.floor(cy / TILE_SIZE);
+
+                if (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+                    let tile = map[r][c];
+                    if (tile === 1) { // Hit Brick
+                        map[r][c] = 0; // Destroy!
+                        hit = true;
+                    } else if (tile === 2) { // Hit Steel
+                        hit = true; // Ding!
+                    } else if (tile === 9) { // Hit Base
+                        hit = true;
+                        gameActive = false;
+                        statusText.innerText = "BASE DESTROYED";
+                        overlay.style.display = 'flex';
+                    }
+                } else {
+                    hit = true; // Off screen
+                }
+
+                // Check Entity Hit
+                if (!hit) {
+                    if (b.owner === 'player') {
+                        // Check enemies
+                        for (let j = enemies.length - 1; j >= 0; j--) {
+                            let en = enemies[j];
+                            if (cx > en.x && cx < en.x + en.w && cy > en.y && cy < en.y + en.h) {
+                                enemies.splice(j, 1);
+                                hit = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        // Check player
+                        if (cx > player.x && cx < player.x + player.w && cy > player.y && cy < player.y + player.h) {
+                            hit = true;
+                            gameActive = false;
+                            statusText.innerText = "YOU DIED";
+                            overlay.style.display = 'flex';
+                        }
+                    }
+                }
+
+                if (hit) bullets.splice(i, 1);
+            }
+        }
+
+        // --- DRAW ---
+        function draw() {
+            // Draw Map
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0,0, canvas.width, canvas.height);
+
+            for(let r=0; r<ROWS; r++) {
+                for(let c=0; c<COLS; c++) {
+                    let tile = map[r][c];
+                    let x = c * TILE_SIZE;
+                    let y = r * TILE_SIZE;
+                    
+                    if (tile === 1) { // Brick
+                        ctx.fillStyle = '#b74900';
+                        ctx.fillRect(x+1, y+1, TILE_SIZE-2, TILE_SIZE-2);
+                        // Detail
+                        ctx.fillStyle = '#8e3800';
+                        ctx.fillRect(x+4, y+15, TILE_SIZE-8, 4);
+                    } else if (tile === 2) { // Steel
+                        ctx.fillStyle = '#aaaaaa';
+                        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(x+10, y+10, 20, 20);
+                    } else if (tile === 9) { // Base (Eagle)
+                        ctx.fillStyle = '#ffff00'; // Gold
+                        ctx.beginPath();
+                        ctx.arc(x + TILE_SIZE/2, y + TILE_SIZE/2, 15, 0, Math.PI*2);
+                        ctx.fill();
+                        ctx.fillStyle = '#000';
+                        ctx.fillText("HQ", x+10, y+25);
+                    }
+                }
+            }
+
+            // Draw Player
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.w, player.h);
+            // Barrel
+            ctx.fillStyle = '#005500';
+            if(player.dir===0) ctx.fillRect(player.x+12, player.y-8, 6, 10);
+            if(player.dir===2) ctx.fillRect(player.x+12, player.y+30, 6, 10);
+            if(player.dir===3) ctx.fillRect(player.x-8, player.y+12, 10, 6);
+            if(player.dir===1) ctx.fillRect(player.x+30, player.y+12, 10, 6);
+
+            // Draw Enemies
+            enemies.forEach(en => {
+                ctx.fillStyle = en.color;
+                ctx.fillRect(en.x, en.y, en.w, en.h);
+                // Enemy Barrel
+                ctx.fillStyle = '#550000';
+                if(en.dir===0) ctx.fillRect(en.x+12, en.y-8, 6, 10);
+                if(en.dir===2) ctx.fillRect(en.x+12, en.y+30, 6, 10);
+                if(en.dir===3) ctx.fillRect(en.x-8, en.y+12, 10, 6);
+                if(en.dir===1) ctx.fillRect(en.x+30, en.y+12, 10, 6);
+            });
+
+            // Draw Bullets
+            ctx.fillStyle = '#fff';
+            bullets.forEach(b => {
+                ctx.fillRect(b.x, b.y, b.w, b.h);
+            });
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        initGame();
+        loop();
+    </script>
+</body>
+</html>
