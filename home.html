@@ -184,7 +184,10 @@ input, textarea, select { width: 100%; padding: 15px; border-radius: 14px; borde
 input:checked + .slider { background-color: var(--success); }
 input:checked + .slider:before { transform: translateX(22px); }
 
-
+.gamenail{
+    height:15%;
+  
+}
 
   #notifHistory{
 
@@ -419,19 +422,19 @@ input:checked + .slider:before { transform: translateX(22px); }
             <button class="close-x-btn" onclick="window.closeModal('arcadeModal')">✕</button>
         </div>
         <div id="arcadeGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 10px; padding-bottom: 40px;">
-            <div onclick="window.launchGame('Simplepong.html')" style="cursor:pointer;"><img src="simplepong.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Simple Pong</p></div>
-            <div onclick="window.launchGame('Speedjump.html')" style="cursor:pointer;"><img src="speedjump.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Speed Jump</p></div>
-            <div onclick="window.launchGame('Ghostpoke.html')" style="cursor:pointer;"><img src="ghostpoke.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Ghost Poke</p></div>
-            <div onclick="window.launchGame('caosracer.html')" style="cursor:pointer;"><img src="caosracer.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Chaos Racer</p></div>
-            <div onclick="window.launchGame('bigshot.html')" style="cursor:pointer;"><img src="bigshot.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Big Shot</p></div>
-            <div onclick="window.launchGame('flapdodge.html')" style="cursor:pointer;"><img src="flapdodge.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Flap Dodge</p></div>
-            <div onclick="window.launchGame('memory.html')" style="cursor:pointer;"><img src="memory.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Memory</p></div>
-            <div onclick="window.launchGame('blockcrush.html')" style="cursor:pointer;"><img src="blockcrush.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Block Crush</p></div>
-            <div onclick="window.launchGame('flocksmash.html')" style="cursor:pointer;"><img src="flocksmash.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Flock Smash</p></div>
-            <div onclick="window.launchGame('tankblast.html')" style="cursor:pointer;"><img src="tankblast.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Tank Blast</p></div>
-            <div onclick="window.launchGame('sliceninja.html')" style="cursor:pointer;"><img src="sliceninja.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Slice Ninja</p></div>
-            <div onclick="window.launchGame('ladderclimb.html')" style="cursor:pointer;"><img src="ladderclimb.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Ladder Climb</p></div>
-            <div onclick="window.launchGame('spaceblast.html')" style="cursor:pointer;"><img src="spaceblast.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Space Blast</p></div>
+            <div onclick="window.launchGame('Simplepong.html')" style="cursor:pointer;"><img class="gamenail" src="simplepong.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Simple Pong</p></div>
+            <div onclick="window.launchGame('Speedjump.html')" style="cursor:pointer;"><img class="gamenail" src="speedjump.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Speed Jump</p></div>
+            <div onclick="window.launchGame('Ghostpoke.html')" style="cursor:pointer;"><img class="gamenail" src="ghostpoke.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Ghost Poke</p></div>
+            <div onclick="window.launchGame('caosracer.html')" style="cursor:pointer;"><img class="gamenail" src="caosracer.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Chaos Racer</p></div>
+            <div onclick="window.launchGame('bigshot.html')" style="cursor:pointer;"><img class="gamenail" src="bigshot.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Big Shot</p></div>
+            <div onclick="window.launchGame('flapdodge.html')" style="cursor:pointer;"><img class="gamenail" src="flapdodge.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Flap Dodge</p></div>
+            <div onclick="window.launchGame('memory.html')" style="cursor:pointer;"><img class="gamenail" src="memory.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Memory</p></div>
+            <div onclick="window.launchGame('blockcrush.html')" style="cursor:pointer;"><img class="gamenail" src="blockcrush.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Block Crush</p></div>
+            <div onclick="window.launchGame('flocksmash.html')" style="cursor:pointer;"><img class="gamenail" src="flocksmash.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Flock Smash</p></div>
+            <div onclick="window.launchGame('tankblast.html')" style="cursor:pointer;"><img class="gamenail" src="tankblast.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Tank Blast</p></div>
+            <div onclick="window.launchGame('sliceninja.html')" style="cursor:pointer;"><img class="gamenail" src="sliceninja.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Slice Ninja</p></div>
+            <div onclick="window.launchGame('ladderclimb.html')" style="cursor:pointer;"><img class="gamenail" src="ladderclimb.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Ladder Climb</p></div>
+            <div onclick="window.launchGame('spaceblast.html')" style="cursor:pointer;"><img class="gamenail" src="spaceblast.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Space Blast</p></div>
         </div>
     </div>
 </div>
@@ -890,6 +893,7 @@ window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, 
 </script>
 </body>
 </html>
+
 
 
 
