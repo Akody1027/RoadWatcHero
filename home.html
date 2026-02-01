@@ -245,6 +245,12 @@ input:checked + .slider:before { transform: translateX(22px); }
 
     <div class="footer">
         <div class="footer-icons">
+
+            <div class="footer-icons">
+               <div id="footerArcadeBtn" style="position:relative; display:none;">
+                 <img src="controlicon.png" class="icon-btn" onclick="window.openModal('arcadeModal')">
+              </div>
+              
             <div id="footerChatBtn" style="position:relative; display:none;">
                 <img src="Chaticon.png" class="icon-btn" onclick="window.handleSeekerChatClick()">
                 <span id="chatBadge">0</span>
@@ -404,6 +410,46 @@ input:checked + .slider:before { transform: translateX(22px); }
 <div id="deleteConfirmModal" class="modal"><div class="modal-content"><h3>Confirm Deletion</h3><p>Are you sure you want to delete this activity?</p><button class="submit-btn" style="background:var(--danger); margin-bottom:10px;" onclick="window.confirmDeleteActivity()">Delete</button><span class="cancel-link" onclick="window.closeModal('deleteConfirmModal')">Cancel</span></div></div>
 <div id="deleteChatConfirmModal" class="modal"><div class="modal-content"><h3>Delete Chat?</h3><p>This will remove the conversation thread.</p><button class="submit-btn" style="background:var(--danger); margin-bottom:10px;" onclick="window.confirmDeleteChat()">Delete</button><span class="cancel-link" onclick="window.closeModal('deleteChatConfirmModal')">Cancel</span></div></div>
 
+
+
+         <div id="arcadeModal" class="modal">
+    <div class="modal-content" style="height:85vh">
+        <div class="modal-header-row">
+            <div style="flex:1"></div>
+            <h3>Arcade</h3>
+            <button class="close-x-btn" onclick="window.closeModal('arcadeModal')">✕</button>
+        </div>
+        <div id="arcadeGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 10px; padding-bottom: 40px;">
+            <div onclick="window.launchGame('Simplepong.html')" style="cursor:pointer;"><img src="simplepong.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Simple Pong</p></div>
+            <div onclick="window.launchGame('Speedjump.html')" style="cursor:pointer;"><img src="speedjump.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Speed Jump</p></div>
+            <div onclick="window.launchGame('Ghostpoke.html')" style="cursor:pointer;"><img src="ghostpoke.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Ghost Poke</p></div>
+            <div onclick="window.launchGame('caosracer.html')" style="cursor:pointer;"><img src="caosracer.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Chaos Racer</p></div>
+            <div onclick="window.launchGame('bigshot.html')" style="cursor:pointer;"><img src="bigshot.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Big Shot</p></div>
+            <div onclick="window.launchGame('flapdodge.html')" style="cursor:pointer;"><img src="flapdodge.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Flap Dodge</p></div>
+            <div onclick="window.launchGame('memory.html')" style="cursor:pointer;"><img src="memory.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Memory</p></div>
+            <div onclick="window.launchGame('blockcrush.html')" style="cursor:pointer;"><img src="blockcrush.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Block Crush</p></div>
+            <div onclick="window.launchGame('flocksmash.html')" style="cursor:pointer;"><img src="flocksmash.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Flock Smash</p></div>
+            <div onclick="window.launchGame('tankblast.html')" style="cursor:pointer;"><img src="tankblast.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Tank Blast</p></div>
+            <div onclick="window.launchGame('sliceninja.html')" style="cursor:pointer;"><img src="sliceninja.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Slice Ninja</p></div>
+            <div onclick="window.launchGame('ladderclimb.html')" style="cursor:pointer;"><img src="ladderclimb.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Ladder Climb</p></div>
+            <div onclick="window.launchGame('spaceblast.html')" style="cursor:pointer;"><img src="spaceblast.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Space Blast</p></div>
+        </div>
+    </div>
+</div>
+
+<div id="gamePlayerModal" class="modal" style="background: black;">
+    <button onclick="window.closeGame()" style="position:fixed; top:20px; right:20px; z-index:2000; background:rgba(0,0,0,0.5); color:white; border:2px solid white; border-radius:50%; width:40px; height:40px; font-weight:bold; cursor:pointer;">✕</button>
+    <iframe id="gameIframe" src="" style="width:100vw; height:100vh; border:none; background:white;"></iframe>
+</div>
+
+
+
+
+
+
+
+
+  
 <audio id="notificationSound" src="Roadwatchero.mp3" preload="auto" style="display:none;"></audio>
 
 <script type="module">
@@ -467,6 +513,26 @@ window.closeModal = (id) => {
     if (id === 'detailsModal' || id === 'imageEnlargeModal') { document.getElementById('enlargedImage').src = ''; document.getElementById('enlargedImage').style.display = 'none'; document.getElementById('imageEnlargeModal').style.display = 'none'; }
     if (id === 'profileModal' && profileRadiusCircle) { profileRadiusCircle.setMap(null); profileRadiusCircle = null; }
 };
+
+
+
+window.launchGame = (url) => {
+    const iframe = document.getElementById('gameIframe');
+    if(iframe) {
+        iframe.src = url;
+        window.openModal('gamePlayerModal');
+    }
+};
+
+window.closeGame = () => {
+    const iframe = document.getElementById('gameIframe');
+    if(iframe) iframe.src = ""; // Stop audio/logic
+    window.closeModal('gamePlayerModal');
+};
+
+
+
+  
 window.switchView = (id) => {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('view-active'));
     document.getElementById(id).classList.add('view-active');
@@ -662,11 +728,17 @@ function syncUI() {
         if (r.helperId === myId && r.status === 'canceled' && lastKnownSOS && lastKnownSOS.status === 'accepted') { const sound = document.getElementById('notificationSound'); if (sound) sound.play().catch(e => console.error(e)); }
         if (r.ownerId === myId || r.helperId === myId) {
             let sCol = r.status === 'completed' || r.status === 'finalized' ? '#22c55e' : (r.status === 'canceled' ? '#ef4444' : '#2563eb');
-            history.innerHTML += `<div class="history-item" style="padding:15px; background:#f8fafc; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;"><div><span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; background:${sCol};">${r.status}</span><b>${r.vehicle}${isTowTruck ? ' (Tow)' : ''}</b><br><small>${r.issue}</small></div><img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="window.confirmDeleteActivityPrompt('${id}')"></div>`;
+            history.innerHTML += `<div class="history-item" style="padding:15px; background:#f8fafc; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;"><div><span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; background:${sCol};">${r.status}</span><b>${r.vehicle}${isTowTruck ? ' (Tow)' : ''}</b><br><small>${r.issue}</small>
+            </div>         ${(r.status === 'open' || r.status === 'completed' || r.status === 'finalized' || r.status === 'canceled') ? 
+          `<img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="window.confirmDeleteActivityPrompt('${id}')">`: ''}   </div>`;
         }
     });
 
     document.getElementById('footerChatBtn').style.display = (jobActive || (myActiveSOS && myActiveSOS.status !== 'completed')) ? 'block' : 'none';
+     const arcadeBtn = document.getElementById('footerArcadeBtn');
+     if(arcadeBtn) {
+    arcadeBtn.style.display = (myActiveSOS && (myActiveSOS.status === 'open' || myActiveSOS.status === 'accepted' || myActiveSOS.status === 'arrived')) ? 'block' : 'none';
+     }
     document.getElementById('heroFooterChatBtn').style.display = jobActive ? 'block' : 'none';
     document.getElementById('cancelSosBtn').style.display = myActiveSOS ? 'block' : 'none';
 
@@ -766,6 +838,7 @@ window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, 
 </script>
 </body>
 </html>
+
 
 
 
