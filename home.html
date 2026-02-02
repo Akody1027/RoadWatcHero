@@ -480,7 +480,7 @@ input:checked + .slider:before { transform: translateX(22px); }
             <button class="close-x-btn" onclick="window.closeModal('arcadeModal')">✕</button>
         </div>
         <div id="arcadeGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 10px; padding-bottom: 40px;">
-            <div onclick="window.launchGame('Simplepong.html')" style="cursor:pointer;"><img class="gamenail" src="simplepong.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Simple Pong</p></div>
+            <div onclick="window.launchGame('Simplepong.html')" style="cursor:pointer; width:95vh;"><img class="gamenail" src="simplepong.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Simple Pong</p></div>
             <div onclick="window.launchGame('Speedjump.html')" style="cursor:pointer;"><img class="gamenail" src="speedjump.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Speed Jump</p></div>
             <div onclick="window.launchGame('Ghostpoke.html')" style="cursor:pointer;"><img class="gamenail" src="ghostpoke.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Ghost Poke</p></div>
             <div onclick="window.launchGame('caosracer.html')" style="cursor:pointer;"><img class="gamenail" src="caosracer.jpg" style="width:100%; border-radius:12px; box-shadow:var(--shadow);"><p style="font-size:12px; font-weight:700; text-align:center; margin-top:5px;">Chaos Racer</p></div>
@@ -997,6 +997,7 @@ window.confirmDeleteActivity = () => { if (activityToDeleteId) { remove(ref(db, 
 </script>
 </body>
 </html>
+
 
 
 
