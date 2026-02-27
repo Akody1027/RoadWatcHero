@@ -412,7 +412,7 @@
       }
 
       #chatBox {
-        height: 320px;
+        height: 80%;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
@@ -1277,6 +1277,7 @@
               "
               >YOUR TOTAL BID ($)</label
             >
+
             <input
               type="number"
               id="detBidAmount"
@@ -1288,6 +1289,27 @@
               "
               placeholder="0.00"
             />
+
+            <label
+              style="
+                font-size: 11px;
+                font-weight: bold;
+                color: var(--muted);
+                display: block;
+                margin-bottom: 8px;
+              "
+              >ETA TO ARRIVAL</label
+            >
+            <select id="detBidETA" style="margin-bottom: 15px">
+              <option value="5-10 mins">5-10 mins</option>
+              <option value="15-20 mins">15-20 mins</option>
+              <option value="30-45 mins">30-45 mins</option>
+              <option value="45-60 mins">45-60 mins</option>
+              <option value="1h - 1.5h">1h - 1.5h</option>
+              <option value="1.5h - 2h">1.5h - 2h</option>
+              <option value="2h - 3h">2h - 3h</option>
+              <option value="3 hours+">3 hours+</option>
+            </select>
 
             <button
               id="detSubmitBidBtn"
@@ -1330,8 +1352,8 @@
       </div>
 
       <div id="chatModal" class="modal">
-        <div class="modal-content" style="height: 85vh">
-          <div class="modal-header-row">
+        <div class="modal-content" style="height: 95vh">
+          <div class="modal-header-row" style="padding-top: 10px">
             <div style="flex: 1"></div>
             <h3>Messages</h3>
             <button
@@ -1349,7 +1371,7 @@
                 padding: 15px;
                 background: #f1f5f9;
                 border: none;
-                border-radius: 15px;
+                border-radius: 10px;
               "
             >
               📷
@@ -1655,6 +1677,7 @@
               placeholder="e.g. 75"
               style="margin-bottom: 15px"
             />
+
             <label
               style="
                 font-size: 11px;
@@ -1669,6 +1692,23 @@
               type="number"
               id="profilePerMile"
               placeholder="e.g. 4"
+              style="margin-bottom: 15px"
+            />
+
+            <label
+              style="
+                font-size: 11px;
+                font-weight: bold;
+                color: var(--muted);
+                margin-bottom: 5px;
+                display: block;
+              "
+              >DISPATCH PHONE NUMBER</label
+            >
+            <input
+              type="tel"
+              id="profileDispatchPhone"
+              placeholder="e.g. 555-0199"
               style="margin-bottom: 0"
             />
           </div>
@@ -2399,16 +2439,20 @@
         };
 
         // NEW: Submit or Update a Bid for a Tow Request
+        
+        
         window.submitBid = (sosId) => {
           const bidAmount = document.getElementById("detBidAmount").value;
+          const etaVal = document.getElementById("detBidETA").value; // NEW
+
           if (!bidAmount || bidAmount <= 0)
             return alert("Please enter a valid bid amount.");
 
           const myProfile = profilesCache[myId] || { name: "Tow Hero" };
 
-          // Write the bid to this specific SOS request in Firebase
           update(ref(db, `sosRequests/${sosId}/bids/${myId}`), {
             amount: Number(bidAmount),
+            eta: etaVal, // NEW
             heroName: myProfile.name,
             timestamp: Date.now(),
           });
@@ -2417,6 +2461,15 @@
           window.closeModal("detailsModal");
         };
 
+        
+
+        
+        
+        
+        
+        
+        
+        
         // NEW: Withdraw an active bid
         window.withdrawBid = (sosId) => {
           remove(ref(db, `sosRequests/${sosId}/bids/${myId}`));
@@ -2425,20 +2478,21 @@
         };
 
         // NEW: Seeker accepts a specific tow truck bid
-        window.acceptBid = (sosId, winningHeroId, agreedAmount) => {
-          // 1. Update the SOS status to accepted
-          // 2. Assign the winning helper
-          // 3. Lock in the price so it's on record
+        
+       window.acceptBid = (sosId, winningHeroId, agreedAmount, agreedEta) => {
           update(ref(db, `sosRequests/${sosId}`), {
             status: "accepted",
             helperId: winningHeroId,
             acceptedPrice: agreedAmount,
+            eta: agreedEta, // NEW: Locks in the ETA!
             helperAcknowledged: false,
           });
-
           alert("Bid accepted! Connecting you to your Tow Hero now.");
-          // The existing syncUI() listener will automatically handle switching the screen to the Live Map!
         };
+
+        
+        
+        
 
         window.launchGame = (url) => {
           const iframe = document.getElementById("gameIframe");
@@ -2712,7 +2766,7 @@
               img.onclick = () => window.enlargeImage(src);
               detImgScroller.appendChild(img);
             });
-          } else {
+          } else { 
             detImgContainer.style.display = "none";
           }
           document.getElementById("detIssue").innerText = r.issue;
@@ -2757,6 +2811,9 @@
             detETAGroup.style.display = "none";
             acceptBtn.style.display = "none";
             progressText.style.display = "block";
+            
+            document.getElementById("detBidSection").style.display = "none";
+            
             let navLink = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
             if (r.isTowTruckRequest && r.towDestination)
               navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(
@@ -3369,15 +3426,24 @@
                   Object.keys(myActiveSOS.bids).length > 0
                 ) {
                   Object.entries(myActiveSOS.bids).forEach(([heroId, bid]) => {
-                    bidContainer.innerHTML += `
+                    
+                    
+                    
+                                        bidContainer.innerHTML += `
                               <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:15px; border-radius:16px; margin-bottom:10px; border:1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                                   <div>
                                       <div style="font-weight:900; font-size:15px; color:var(--text);">${bid.heroName}</div>
                                       <div style="color:var(--success); font-weight:900; font-size:20px; margin-top:2px;">$${bid.amount}</div>
+                                      <div style="font-size:12px; color:var(--muted); font-weight:700; margin-top:4px;">⏱️ ETA: ${bid.eta || "TBD"}</div>
                                   </div>
-                                  <button onclick="window.acceptBid('${myActiveSOS.id}', '${heroId}', ${bid.amount})" style="background:var(--text); color:white; border:none; padding:12px 20px; border-radius:12px; font-weight:800; font-size:12px; cursor:pointer; transition:0.2s;">ACCEPT</button>
+                                  <button onclick="window.acceptBid('${myActiveSOS.id}', '${heroId}', ${bid.amount}, '${bid.eta}')" style="background:var(--text); color:white; border:none; padding:12px 20px; border-radius:12px; font-weight:800; font-size:12px; cursor:pointer; transition:0.2s;">ACCEPT</button>
                               </div>
                           `;
+
+                    
+                    
+                    
+                    
                   });
                 } else {
                   bidContainer.innerHTML = `<p style="font-size:13px; color:var(--muted); font-style:italic; text-align:center; padding:10px;">Waiting for local heroes to send quotes...</p>`;
@@ -3408,13 +3474,21 @@
                 myActiveSOS.status === "arrived"
                   ? "Hero is at your location!"
                   : `Arriving in ${myActiveSOS.eta || "..."}`;
-              const matchHeroPhone = document.getElementById("matchHeroPhone");
-              if (myActiveSOS.isTowTruckRequest && myActiveSOS.phoneNumber) {
-                matchHeroPhone.innerHTML = `📞 Contact: <a href="tel:${myActiveSOS.phoneNumber}" style="color:var(--text); text-decoration: underline;">${myActiveSOS.phoneNumber}</a>`;
+              
+              
+              
+               const matchHeroPhone = document.getElementById("matchHeroPhone");
+              if (myActiveSOS.isTowTruckRequest && hero.dispatchPhone) {
+                matchHeroPhone.innerHTML = `📞 Dispatch: <a href="tel:${hero.dispatchPhone}" style="color:var(--text); text-decoration: underline;">${hero.dispatchPhone}</a>`;
                 matchHeroPhone.style.display = "block";
               } else {
                 matchHeroPhone.style.display = "none";
               }
+
+              
+              
+              
+              
               const matchTowDestination = document.getElementById(
                 "matchTowDestination"
               );
@@ -3660,6 +3734,8 @@
             prefersRoadsideRequests: prefersRoadsideRequests,
             baseRate: document.getElementById("profileBaseRate").value || 0,
             pricePerMile: document.getElementById("profilePerMile").value || 0,
+            dispatchPhone:
+              document.getElementById("profileDispatchPhone").value || "", // NEW
           });
 
           if (profileRadiusCircle) {
@@ -3689,6 +3765,10 @@
             document.getElementById("profileBaseRate").value = d.baseRate || "";
             document.getElementById("profilePerMile").value =
               d.pricePerMile || "";
+
+            document.getElementById("profileDispatchPhone").value =
+              d.dispatchPhone || "";
+
             document.getElementById("isProToggle").checked = d.isPro === true;
 
             // Ensure pricing fields show up if Tow Truck is already checked
