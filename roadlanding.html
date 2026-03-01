@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RoadWatcHero - Help is Just a Click Away</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --accent: #ee611c;
+      --success: #22c55e;
+      --tow-blue: #2563eb;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, system-ui, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* --- NAVIGATION --- */
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 5%;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .logo img {
+      height: 40px; /* Adjust based on your logo dimensions */
+      object-fit: contain;
+    }
+
+    .cta-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(238, 97, 28, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(238, 97, 28, 0.5);
+    }
+
+    /* --- HERO SECTION --- */
+    .hero {
+      text-align: center;
+      padding: 80px 5% 60px;
+      background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .hero h1 span {
+      color: var(--accent);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: #475569;
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+      font-weight: 500;
+    }
+
+    .hero-placeholder {
+      width: 100%;
+      max-width: 800px;
+      height: 400px;
+      background: #e2e8f0;
+      border: 2px dashed #cbd5e1;
+      border-radius: 24px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      font-weight: 700;
+      font-size: 1.2rem;
+      box-shadow: var(--shadow);
+    }
+
+    /* --- INFINITE MARQUEE --- */
+    .marquee-wrapper {
+      background: var(--text);
+      padding: 16px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .marquee-content {
+      display: inline-block;
+      animation: scrollMarquee 25s linear infinite;
+    }
+
+    /* Duplicate content for seamless loop */
+    .marquee-content span {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 30px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .marquee-content span::after {
+      content: "•";
+      color: white;
+      margin-left: 60px;
+      opacity: 0.5;
+    }
+
+    @keyframes scrollMarquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* --- CONTENT SECTIONS --- */
+    .split-section {
+      display: flex;
+      align-items: center;
+      gap: 60px;
+      padding: 100px 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .split-section.reverse {
+      flex-direction: row-reverse;
+    }
+
+    .section-text {
+      flex: 1;
+    }
+
+    .section-text h2 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .section-text h2 span {
+      color: var(--accent);
+    }
+
+    .section-text p {
+      font-size: 1.1rem;
+      color: #475569;
+      line-height: 1.7;
+      margin-bottom: 30px;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin-bottom: 30px;
+    }
+
+    .feature-list li {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feature-list li::before {
+      content: "✓";
+      color: var(--success);
+      font-size: 1.2rem;
+      background: #dcfce7;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .section-img-placeholder {
+      flex: 1;
+      height: 450px;
+      background: #e2e8f0;
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      font-weight: 700;
+      font-size: 1.2rem;
+      box-shadow: var(--shadow);
+      border: 2px dashed #cbd5e1;
+    }
+
+    /* --- FOOTER CTA --- */
+    .footer-cta {
+      text-align: center;
+      padding: 80px 5%;
+      background: var(--text);
+      color: white;
+    }
+
+    .footer-cta h2 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    .footer-cta p {
+      font-size: 1.2rem;
+      opacity: 0.8;
+      margin-bottom: 40px;
+    }
+
+    /* --- RESPONSIVE DESIGN --- */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.5rem; }
+      .split-section, .split-section.reverse {
+        flex-direction: column;
+        text-align: center;
+        padding: 60px 5%;
+        gap: 40px;
+      }
+      .feature-list li {
+        justify-content: center;
+      }
+      .section-img-placeholder {
+        width: 100%;
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <img src="1000060349.jpg" alt="RoadWatcHero Logo" />
+    </div>
+    <button class="cta-btn" onclick="redirectToApp()">Check it out</button>
+  </header>
+
+  <section class="hero">
+    <h1>Stranded? <span>Help is just a click away.</span></h1>
+    <p>The ultimate peer-to-peer roadside assistance network. Whether you have a flat tire, need a tow, or want to earn money helping drivers in your area, RoadWatcHero connects you instantly.</p>
+    <button class="cta-btn" style="padding: 18px 40px; font-size: 1.2rem;" onclick="redirectToApp()">Check it out</button>
+    
+    <div style="margin-top: 60px;">
+      <div class="hero-placeholder">
+        [ Placeholder: Image of a driver using the app / Hero arriving ]
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee-wrapper">
+    <div class="marquee-content">
+      <span>Instant SOS Broadcasting</span>
+      <span>Zero Dispatcher Fees</span>
+      <span>Live Hero Tracking</span>
+      <span>Direct Upfront Pricing</span>
+      <span>Tow Trucks on Demand</span>
+      <span>Community Driven</span>
+      
+      <span>Instant SOS Broadcasting</span>
+      <span>Zero Dispatcher Fees</span>
+      <span>Live Hero Tracking</span>
+      <span>Direct Upfront Pricing</span>
+      <span>Tow Trucks on Demand</span>
+      <span>Community Driven</span>
+    </div>
+  </div>
+
+  <section class="split-section">
+    <div class="section-text">
+      <h2>For <span>Everyday Drivers</span></h2>
+      <p>Don't wait hours on hold with traditional motor clubs. Broadcast your exact location and vehicle issue directly to local heroes and professional tow trucks already on the road.</p>
+      <ul class="feature-list">
+        <li>See bids from local pros in real-time.</li>
+        <li>Track your Hero's arrival live on the map.</li>
+        <li>Communicate securely via in-app chat.</li>
+        <li>No subscription required. Pay only when you need it.</li>
+      </ul>
+      <button class="cta-btn" onclick="redirectToApp()">Find a Hero Now</button>
+    </div>
+    <div class="section-img-placeholder">
+      [ Placeholder: Screenshot of the Seeker Map UI ]
+    </div>
+  </section>
+
+  <section class="split-section reverse" style="background: #ffffff;">
+    <div class="section-text">
+      <h2>For <span>Tow Pros & Heroes</span></h2>
+      <p>Stop relying on dispatchers taking a cut. RoadWatcHero puts you in the driver's seat. Set your own radius, choose the jobs you want, and quote your own prices.</p>
+      <ul class="feature-list">
+        <li>Set your custom service radius and base rates.</li>
+        <li>Filter between simple roadside tasks or heavy-duty towing.</li>
+        <li>Upgrade to Pro to see competing bids and win more jobs.</li>
+        <li>Keep 100% of what you earn on the road.</li>
+      </ul>
+      <button class="cta-btn" onclick="redirectToApp()" style="background: var(--text);">Become a Hero</button>
+    </div>
+    <div class="section-img-placeholder">
+      [ Placeholder: Screenshot of the Hero Task Card / Tow Truck ]
+    </div>
+  </section>
+
+  <footer class="footer-cta">
+    <h2>Ready to hit the road with confidence?</h2>
+    <p>Join thousands of drivers and pros already using the RoadWatcHero network.</p>
+    <button class="cta-btn" style="padding: 18px 50px; font-size: 1.3rem; margin-top: 20px;" onclick="redirectToApp()">Check it out</button>
+  </footer>
+
+  <script>
+    function redirectToApp() {
+      // Directs the user to your main application file
+      window.location.href = 'home.html';
+    }
+  </script>
+
+</body>
+</html>
