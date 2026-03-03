@@ -1,7 +1,4 @@
 
-
-
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -42,6 +39,14 @@
         transition: background-color 0.2s ease, color 0.2s ease,
           border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
       }
+      
+      
+            /* STRICT FIX: Prevent Google Maps internals from glitching during zoom/pan */
+      #map *, #seekerMapContainer * {
+        transition: none !important;
+      }
+
+            
 
       /* GLASS LOADING OVERLAY */
       #loadingOverlay {
@@ -2448,8 +2453,7 @@
         
         
         
-         
-                // SECURE: Submits the Pro Login using Firebase Auth
+                 // SECURE & MIGRATED: Submits the Pro Login and transfers data
         window.submitProLogin = () => {
           const email = document.getElementById("loginEmail").value;
           const pass = document.getElementById("loginPassword").value;
@@ -2458,13 +2462,33 @@
             return alert("Please enter your Pro email and password.");
           }
 
-          // Verify credentials with Firebase
+          // 1. Verify credentials with Firebase Auth
           signInWithEmailAndPassword(auth, email, pass)
-            .then((userCredential) => {
-              // Success! They are a real verified user. Update their database profile.
-              update(ref(db, `profiles/${myId}`), { isPro: true });
-              alert("Welcome Pro Hero! Priority dispatch and Sneak Peek unlocked.");
-              window.closeModal("proLoginModal");
+            .then(async (userCredential) => {
+              const secureUid = userCredential.user.uid;
+              const oldTempId = myId; // e.g., u_123456789
+
+              // 2. Fetch all existing profile data from the temporary guest account
+              const oldProfileSnap = await get(ref(db, `profiles/${oldTempId}`));
+              let profileData = oldProfileSnap.exists() ? oldProfileSnap.val() : {};
+
+              // 3. Ensure they get their Pro flag
+              profileData.isPro = true;
+              profileData.id = secureUid; // Update the internal ID reference
+
+              // 4. Save everything to the new, permanent secure Auth UID folder
+              await set(ref(db, `profiles/${secureUid}`), profileData);
+
+              // 5. Delete the old temporary folder to keep the database clean
+              await remove(ref(db, `profiles/${oldTempId}`));
+
+              // 6. Update the browser's Local Storage so it remembers the secure UID forever
+              localStorage.setItem("heroUserId", secureUid);
+
+              alert("Welcome Pro Hero! Your profile has been securely linked and priority dispatch is unlocked.");
+              
+              // 7. Force a page reload so the app completely re-initializes using the new secure UID
+              location.reload(); 
             })
             .catch((error) => {
               // Failed! Invalid email or password.
@@ -2475,6 +2499,7 @@
               document.getElementById("isProToggle").checked = false;
             });
         };
+
 
         
         
