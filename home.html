@@ -1,3 +1,7 @@
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -791,7 +795,7 @@
     </style>
   </head>
   <body>
-    <body>
+
       <div id="loadingOverlay">
         <div class="spinner"></div>
       </div>
@@ -2884,23 +2888,35 @@
                 const proUpsellBoard =
                   document.getElementById("proUpsellBoard");
                 const sneakPeekList = document.getElementById("sneakPeekList");
-
-                if (isPro) {
+      
+                 if (isPro) {
                   proUpsellBoard.style.display = "none";
                   if (r.bids && Object.keys(r.bids).length > 0) {
                     sneakPeekBoard.style.display = "block";
-                    sneakPeekList.innerHTML = "";
-                    Object.values(r.bids).forEach((bid) => {
-                      sneakPeekList.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>${bid.heroName}</span><span style="color:#d97706;">$${bid.amount}</span></div>`;
-                    });
-                  } else {
+                    sneakPeekList.innerHTML = ""; // Clear out old bids before rendering new ones
+                    
+                    // OPENING THE MISSING LOOP
+                    Object.values(r.bids).forEach(bid => {
+                      sneakPeekList.innerHTML += `
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+    <span style="flex:1; font-weight:700;">
+      ${bid.heroName} 
+      <span style="font-size:10px; color:var(--muted); background:#fde68a; padding:2px 6px; border-radius:8px; margin-left:5px; font-weight:600;">
+        ⏱️ ${bid.eta || 'TBD'}
+      </span>
+    </span>
+    <span style="color:#d97706; font-weight:900;">$${bid.amount}</span>
+  </div>`;
+                    }); // CORRECTLY CLOSING THE LOOP
+                    
+                  } else {   
                     sneakPeekBoard.style.display = "block";
-                    sneakPeekList.innerHTML =
+                    sneakPeekList.innerHTML = 
                       "<em>No competing bids yet. Be the first!</em>";
                   }
                 } else {
                   sneakPeekBoard.style.display = "none";
-                  proUpsellBoard.style.display = "block";
+                  proUpsellBoard.style.display = "block"; 
                 }
               } else {
                 // Standard Roadside Request Logic (Non-Tow)
@@ -3800,7 +3816,14 @@
           }
         };
       </script>
-    </body>
+      
   </body>
 </html>
+
+
+
+
+
+
+
 
