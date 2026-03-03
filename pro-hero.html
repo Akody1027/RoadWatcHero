@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -242,8 +243,30 @@ input:focus {
     <a href="Appindex.html" class="cancel-link">← Back to Map</a>
 </div>
 
-<script>
-    function goToPayment() {
+  
+  
+  <script type="module">
+    // 1. Import Firebase tools
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+        getAuth, 
+        createUserWithEmailAndPassword 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    // 2. Initialize your specific Firebase project
+    const firebaseConfig = {
+        apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
+        authDomain: "roadsidehero-104ea.firebaseapp.com",
+        databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
+        projectId: "roadsidehero-104ea",
+        storageBucket: "roadsidehero-104ea.firebaseapp.com",
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 3. Attach the function to the window so the HTML button can click it
+    window.goToPayment = () => {
         const email = document.getElementById('proEmail').value;
         const pass = document.getElementById('proPassword').value;
 
@@ -252,13 +275,46 @@ input:focus {
             return;
         }
 
-        // Future Logic: 
-        // 1. Create User in Firebase Auth with email & pass
-        // 2. Redirect to Stripe Checkout with the new Firebase UID
-        alert("This will eventually route to Stripe to process the $49/mo subscription for: " + email);
-    }
+        // Change button text to show loading state
+        const btn = document.querySelector('.submit-btn');
+        const originalText = btn.innerText; 
+        btn.innerText = "CREATING ACCOUNT...";
+        btn.disabled = true;
+ 
+        // 4. Create the secure user in Firebase Authentication
+        createUserWithEmailAndPassword(auth, email, pass)
+            .then((userCredential) => {
+                // Success! The secure UID has been generated.
+                const user = userCredential.user;
+                
+                alert("Account successfully created for " + user.email + "!\n\n(In the future, this will instantly redirect to Stripe)");
+                
+                // TODO: window.location.href = "YOUR_STRIPE_CHECKOUT_URL";
+                
+                btn.innerText = originalText;
+                btn.disabled = false;
+            })
+            .catch((error) => {
+                // Failed! (e.g., password too short, email already exists)
+                console.error("Account Creation Error:", error.message);
+                
+                // Clean up Firebase's error message to be more user-friendly
+                let friendlyError = error.message;
+                if(error.code === 'auth/email-already-in-use') friendlyError = "That email is already registered.";
+                if(error.code === 'auth/weak-password') friendlyError = "Password should be at least 6 characters.";
+                
+                alert(friendlyError);
+                
+                btn.innerText = originalText;
+                btn.disabled = false;
+            });
+    };
 </script>
+
+  
+  
+  
+  
 
 </body>
 </html>
-
