@@ -794,8 +794,8 @@
       }
     </style>
   </head>
-  <body>
-
+  
+    <body>
       <div id="loadingOverlay">
         <div class="spinner"></div>
       </div>
@@ -2201,6 +2201,12 @@
         style="display: none"
       ></audio>
 
+      
+      
+      
+      
+      
+      
       <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import {
@@ -2213,6 +2219,12 @@
           update,
           remove,
         } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+        
+        // NEW: Import Firebase Authentication
+        import { 
+          getAuth, 
+          signInWithEmailAndPassword 
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
@@ -2223,6 +2235,9 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        
+        // NEW: Initialize Auth
+        const auth = getAuth(app);    
 
         if (!localStorage.getItem("heroUserId"))
           localStorage.setItem(
@@ -2421,29 +2436,51 @@
           }
         };
 
+        
+        
         // NEW: Cancels the login attempt and resets the toggle
         window.cancelProLogin = () => {
           document.getElementById("isProToggle").checked = false;
           window.closeModal("proLoginModal");
         };
 
-        // NEW: Submits the Pro Login
+        
+        
+        
+        
+         
+                // SECURE: Submits the Pro Login using Firebase Auth
         window.submitProLogin = () => {
           const email = document.getElementById("loginEmail").value;
           const pass = document.getElementById("loginPassword").value;
-          if (!email || !pass)
+          
+          if (!email || !pass) {
             return alert("Please enter your Pro email and password.");
+          }
 
-          // NOTE: This currently simulates a successful login for the MVP.
-          // Later, we will wrap this in real Firebase Authentication.
-          update(ref(db, `profiles/${myId}`), { isPro: true });
-
-          alert("Welcome Pro Hero! Priority dispatch and Sneak Peek unlocked.");
-          window.closeModal("proLoginModal");
-          // The toggle remains checked!
+          // Verify credentials with Firebase
+          signInWithEmailAndPassword(auth, email, pass)
+            .then((userCredential) => {
+              // Success! They are a real verified user. Update their database profile.
+              update(ref(db, `profiles/${myId}`), { isPro: true });
+              alert("Welcome Pro Hero! Priority dispatch and Sneak Peek unlocked.");
+              window.closeModal("proLoginModal");
+            })
+            .catch((error) => {
+              // Failed! Invalid email or password.
+              alert("Invalid credentials. Access denied.");
+              console.error("Login Error:", error.message);
+              
+              // Uncheck the Pro toggle in the UI since they failed
+              document.getElementById("isProToggle").checked = false;
+            });
         };
 
-        // NEW: Submit or Update a Bid for a Tow Request
+        
+        
+        
+        
+        
         
         
         window.submitBid = (sosId) => {
