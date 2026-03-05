@@ -251,10 +251,24 @@
 
     let isInspectMode = false;
 
+        let isInspectMode = false;
+
     function toggleInspectMode() {
         isInspectMode = !isInspectMode;
-        const btn = document.getElementById('inspect-btn');
-        btn.style.background = isInspectMode ? '#28a745' : '#3e3e3e';
+        let btn = document.getElementById('inspect-btn');
+        
+        // If the button doesn't exist yet, make sure you added it to your <div id="toolbar">
+        if (!btn) return; 
+
+        if (isInspectMode) {
+            btn.style.background = '#28a745';
+            btn.style.color = '#fff';
+            btn.innerHTML = '🔍 Inspecting (Live CSS)';
+        } else {
+            btn.style.background = '#3e3e3e';
+            btn.style.color = '#ddd';
+            btn.innerHTML = '🔍 Inspect';
+        }
         
         // Broadcast the state change to the iframe preview
         const frame = document.getElementById('preview-frame');
@@ -262,6 +276,7 @@
             frame.contentWindow.postMessage({ type: 'toggle-inspect', state: isInspectMode }, '*');
         }
     }
+
 
 
 
@@ -280,6 +295,11 @@
 </body>
 </html>`;
 
+
+
+
+
+    
     window.onload = function() {
         editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
             mode: "htmlmixed",
@@ -293,21 +313,30 @@
         const saved = localStorage.getItem(STORAGE_KEY);
         editor.setValue(saved ? saved : defaultCode);
 
+        
+
+
+        
         let timeout;
+        
         editor.on("change", () => {
             clearTimeout(timeout);
             timeout = setTimeout(() => {
-                updatePreview();
+                
+                // If Inspect Mode is active, ONLY update CSS to prevent layout resets.
+                // If it is off, perform a full standard HTML page rebuild.
+                if (isInspectMode) {
+                    updateCssOnly();
+                } else {
+                    updatePreview();
+                }
+                
                 localStorage.setItem(STORAGE_KEY, editor.getValue());
             }, 500); 
         });
 
-        updatePreview();
-        
-        window.onbeforeunload = function() {
-            return "You have unsaved changes. Are you sure?";
-        };
-    };
+
+    
 
     // --- 2. HOT UPDATE LOGIC ---
     function updatePreview() {
@@ -380,8 +409,11 @@
                         }, '*');
                         
                         // Turn off inspect mode automatically after making a selection
-                        window.parent.postMessage({type: 'turn-off-inspect'}, '*');
+                    
                     }, true); // 'true' uses the capture phase to ensure we intercept the click first
+
+
+                    
                 })();
             <\/script>
         `;
@@ -406,6 +438,45 @@
 
 
 
+
+
+
+    function updateCssOnly() {
+        const code = editor.getValue();
+        let cssContent = "";
+        
+        // Extract all content between <style> and </style> tags
+        const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+        let match;
+        while ((match = styleRegex.exec(code)) !== null) {
+            cssContent += match[1] + "\n";
+        }
+
+        const frame = document.getElementById('preview-frame');
+        const doc = frame.contentDocument || frame.contentWindow.document;
+
+        // Find or create a dedicated style tag just for hot-reloading
+        let hotStyle = doc.getElementById('devpip-hot-css');
+        if (!hotStyle) {
+            hotStyle = doc.createElement('style');
+            hotStyle.id = 'devpip-hot-css';
+            // Append to the head to override previous styles cleanly
+            if (doc.head) {
+                doc.head.appendChild(hotStyle);
+            } else {
+                doc.body.appendChild(hotStyle);
+            }
+        }
+        
+        // Inject the freshly typed CSS
+        hotStyle.innerHTML = cssContent;
+    }
+    
+
+
+
+
+    
     
 
     window.addEventListener('message', (event) => {
@@ -806,6 +877,7 @@ let searchCursor = null;
 
 </body>
 </html>
+
 
 
 
