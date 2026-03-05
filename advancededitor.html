@@ -181,6 +181,7 @@
         </div>
 
         <div class="tool-group">
+            <button id="inspect-btn" onclick="toggleInspectMode()">🔍 Inspect</button>
             <button onclick="toggleConsole()">Console</button>
             <button onclick="togglePiP()">Toggle Preview</button>
         </div>
@@ -245,6 +246,26 @@
 <script>
     // --- 1. INITIALIZATION ---
     let editor;
+
+
+    let isInspectMode = false;
+
+    function toggleInspectMode() {
+        isInspectMode = !isInspectMode;
+        const btn = document.getElementById('inspect-btn');
+        btn.style.background = isInspectMode ? '#28a745' : '#3e3e3e';
+        
+        // Broadcast the state change to the iframe preview
+        const frame = document.getElementById('preview-frame');
+        if (frame.contentWindow) {
+            frame.contentWindow.postMessage({ type: 'toggle-inspect', state: isInspectMode }, '*');
+        }
+    }
+
+
+
+
+    
     const STORAGE_KEY = 'devpip_content';
     
     const defaultCode = `<!DOCTYPE html>
@@ -296,24 +317,74 @@
         const baseTag = `<base href="${currentPath}">`;
         
         const consoleScript = `
+            <style>
+                #devpip-highlighter {
+                    position: fixed; pointer-events: none; z-index: 999999;
+                    background: rgba(0, 123, 255, 0.3); border: 2px solid #007bff;
+                    display: none; transition: all 0.05s ease; border-radius: 2px;
+                }
+            </style>
+            <div id="devpip-highlighter"></div>
             <script>
                 (function(){
+                    // --- 1. EXISTING CONSOLE HIJACK ---
                     const oldLog = console.log;
                     const oldError = console.error;
-                    console.log = function(...args){
-                        window.parent.postMessage({type: 'log', msg: args.join(' ')}, '*');
-                        oldLog.apply(console, args);
-                    };
-                    console.error = function(...args){
-                        window.parent.postMessage({type: 'error', msg: args.join(' ')}, '*');
-                        oldError.apply(console, args);
-                    };
-                    window.onerror = function(msg, url, line) {
-                        console.error("Line " + line + ": " + msg);
-                    };
+                    console.log = function(...args){ window.parent.postMessage({type: 'log', msg: args.join(' ')}, '*'); oldLog.apply(console, args); };
+                    console.error = function(...args){ window.parent.postMessage({type: 'error', msg: args.join(' ')}, '*'); oldError.apply(console, args); };
+                    window.onerror = function(msg, url, line) { console.error("Line " + line + ": " + msg); };
+
+                    // --- 2. NEW INSPECTOR ENGINE ---
+                    let inspecting = ${isInspectMode}; // Maintain state during hot reloads
+                    const highlighter = document.getElementById('devpip-highlighter');
+                    
+                    window.addEventListener('message', (e) => {
+                        if(e.data.type === 'toggle-inspect') {
+                            inspecting = e.data.state;
+                            if(!inspecting) highlighter.style.display = 'none';
+                        }
+                    });
+
+                    document.addEventListener('mousemove', (e) => {
+                        if(!inspecting) return;
+                        const target = e.target;
+                        // Ignore the highlighter itself and the base document
+                        if(target.id === 'devpip-highlighter' || target.nodeName === 'HTML' || target.nodeName === 'BODY') {
+                            highlighter.style.display = 'none';
+                            return;
+                        }
+                        
+                        // Map the highlighter box to the element
+                        const rect = target.getBoundingClientRect();
+                        highlighter.style.display = 'block';
+                        highlighter.style.top = rect.top + 'px';
+                        highlighter.style.left = rect.left + 'px';
+                        highlighter.style.width = rect.width + 'px';
+                        highlighter.style.height = rect.height + 'px';
+                    });
+
+                    document.addEventListener('click', (e) => {
+                        if(!inspecting) return;
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const target = e.target;
+                        
+                        // Send the clicked element's data back to the parent CodeMirror
+                        window.parent.postMessage({
+                            type: 'inspect-click',
+                            tag: target.nodeName.toLowerCase(),
+                            id: target.id,
+                            className: typeof target.className === 'string' ? target.className : ''
+                        }, '*');
+                        
+                        // Turn off inspect mode automatically after making a selection
+                        window.parent.postMessage({type: 'turn-off-inspect'}, '*');
+                    }, true); // 'true' uses the capture phase to ensure we intercept the click first
                 })();
             <\/script>
         `;
+
 
         let finalCode = code;
         if (finalCode.includes('<head>')) {
@@ -331,17 +402,62 @@
     // --- 3. CONSOLE LOGIC & DRAGGING ---
     let savedConsoleHeight = '150px';
 
+
+
+
+    
+
     window.addEventListener('message', (event) => {
         const logs = document.getElementById('console-logs');
+        
         if (event.data.type === 'log') {
             logs.innerHTML += `<div class="log-entry log-info">> ${escapeHtml(event.data.msg)}</div>`;
         } else if (event.data.type === 'error') {
             logs.innerHTML += `<div class="log-entry log-error">! ${escapeHtml(event.data.msg)}</div>`;
             const panel = document.getElementById('console-panel');
             if(panel.style.height === '40px') panel.style.height = savedConsoleHeight;
+        } else if (event.data.type === 'turn-off-inspect') {
+            toggleInspectMode(); 
+        } else if (event.data.type === 'inspect-click') {
+            findAndHighlightCode(event.data.tag, event.data.id, event.data.className);
         }
-        logs.scrollTop = logs.scrollHeight;
+        
+        if (logs) logs.scrollTop = logs.scrollHeight;
     });
+
+    function findAndHighlightCode(tag, id, className) {
+        // Build a highly specific search query based on the clicked element
+        let query = `<${tag}`;
+        if (id) {
+            query += ` id="${id}"`;
+        } else if (className) {
+            // Grab the first class name to ensure a strong match
+            const firstClass = className.split(' ')[0];
+            if (firstClass) query += ` class="${firstClass}`;
+        }
+
+        let cursor = editor.getSearchCursor(query);
+        
+        // If exact match found (tag + id/class), highlight it
+        if (cursor.findNext()) {
+            editor.setSelection(cursor.from(), cursor.to());
+            editor.scrollIntoView(cursor.from(), 200);
+            editor.focus();
+        } else {
+            // Fallback: Just look for the tag itself
+            cursor = editor.getSearchCursor(`<${tag}`);
+            if (cursor.findNext()) {
+                editor.setSelection(cursor.from(), cursor.to());
+                editor.scrollIntoView(cursor.from(), 200);
+                editor.focus();
+            }
+        }
+    }
+
+
+
+
+    
 
     function escapeHtml(text) {
         return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -689,6 +805,7 @@ let searchCursor = null;
 
 </body>
 </html>
+
 
 
 
