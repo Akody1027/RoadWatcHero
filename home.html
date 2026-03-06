@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -2201,6 +2202,20 @@
         getAuth,
         signInWithEmailAndPassword,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+      
+      
+      
+         // NEW: Import Firebase Storage
+   import {
+     getStorage,
+     ref as storageRef,
+     uploadBytes,
+     getDownloadURL,
+   } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+
+      
+      
+      
 
       const firebaseConfig = {
         apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
@@ -2211,6 +2226,9 @@
       };
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
+      
+      const storage = getStorage(app);
+
 
       // NEW: Initialize Auth
       const auth = getAuth(app);
@@ -2583,13 +2601,18 @@
           .removeAttribute("required");
         document.getElementById("towDestinationInput").value = "";
       };
-
-      window.handleImageUpload = (input, target) => {
+      
+      
+      
+      
+      
+            window.handleImageUpload = (input, target) => {
         if (target === "damage") {
           const files = input.files;
           if (files.length > 0) {
             damageImgList = [];
             document.getElementById("damagePreviewList").innerHTML = "";
+            
             Array.from(files).forEach((file) => {
               const reader = new FileReader();
               reader.onload = (e) => {
@@ -2602,16 +2625,32 @@
                   canvas.height = img.height * scaleSize;
                   const ctx = canvas.getContext("2d");
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                  const compressedData = canvas.toDataURL("image/jpeg", 0.7);
-                  damageImgList.push(compressedData);
-                  const pv = document.createElement("img");
-                  pv.src = compressedData;
-                  pv.style.width = "80px";
-                  pv.style.height = "80px";
-                  pv.style.objectFit = "cover";
-                  pv.style.borderRadius = "10px";
-                  pv.style.flexShrink = "0";
-                  document.getElementById("damagePreviewList").appendChild(pv);
+                  
+                  // NEW: Convert to Blob and Upload to Storage
+                  canvas.toBlob(async (blob) => {
+                    try {
+                      document.getElementById('loadingOverlay').classList.remove('loader-hidden');
+                      const fileRef = storageRef(storage, `damage-reports/${myId}_${Date.now()}_${Math.floor(Math.random()*1000)}.jpg`);
+                      await uploadBytes(fileRef, blob);
+                      const downloadURL = await getDownloadURL(fileRef);
+                      
+                      damageImgList.push(downloadURL);
+                      
+                      const pv = document.createElement("img");
+                      pv.src = downloadURL;
+                      pv.style.width = "80px";
+                      pv.style.height = "80px";
+                      pv.style.objectFit = "cover";
+                      pv.style.borderRadius = "10px";
+                      pv.style.flexShrink = "0";
+                      document.getElementById("damagePreviewList").appendChild(pv);
+                    } catch (error) {
+                      console.error("Storage Upload Error:", error);
+                      alert("Failed to upload image. Please try again.");
+                    } finally {
+                      document.getElementById('loadingOverlay').classList.add('loader-hidden');
+                    }
+                  }, "image/jpeg", 0.7);
                 };
                 img.src = e.target.result;
               };
@@ -2632,8 +2671,23 @@
               canvas.height = img.height * scaleSize;
               const ctx = canvas.getContext("2d");
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-              document.getElementById("profileDisplayPic").src =
-                canvas.toDataURL("image/jpeg", 0.7);
+              
+              // NEW: Convert to Blob and Upload to Storage
+              canvas.toBlob(async (blob) => {
+                try {
+                  document.getElementById('loadingOverlay').classList.remove('loader-hidden');
+                  const fileRef = storageRef(storage, `profile-pics/${myId}.jpg`);
+                  await uploadBytes(fileRef, blob);
+                  const downloadURL = await getDownloadURL(fileRef);
+                  
+                  document.getElementById("profileDisplayPic").src = downloadURL;
+                } catch (error) {
+                  console.error("Storage Upload Error:", error);
+                  alert("Failed to upload profile picture.");
+                } finally {
+                  document.getElementById('loadingOverlay').classList.add('loader-hidden');
+                }
+              }, "image/jpeg", 0.7);
             };
             img.src = e.target.result;
           };
@@ -2641,6 +2695,11 @@
         }
       };
 
+
+      
+      
+      
+      
       window.openChat = async (targetChatId = null) => {
         if (targetChatId) activeChatId = targetChatId;
         else {
@@ -2700,19 +2759,39 @@
         });
         input.value = "";
       };
-      window.sendChatImg = (input) => {
+      
+      
+      
+      
+       window.sendChatImg = async (input) => {
         const file = input.files[0];
         if (!file || !activeChatId) return;
-        const reader = new FileReader();
-        reader.onload = (e) =>
+        
+        try {
+          document.getElementById('loadingOverlay').classList.remove('loader-hidden');
+          const fileRef = storageRef(storage, `chat-images/${activeChatId}_${Date.now()}.jpg`);
+          await uploadBytes(fileRef, file);
+          const downloadURL = await getDownloadURL(fileRef);
+          
           push(ref(db, `chats/${activeChatId}`), {
             sender: myId,
-            img: e.target.result,
+            img: downloadURL,
             timestamp: Date.now(),
             read: false,
           });
-        reader.readAsDataURL(file);
+        } catch(error) {
+          console.error("Chat Image Upload Error:", error);
+          alert("Failed to send image.");
+        } finally {
+          document.getElementById('loadingOverlay').classList.add('loader-hidden');
+        }
       };
+ 
+      
+      
+      
+      
+      
 
       function updateChatBadges(count) {
         const sB = document.getElementById("chatBadge");
@@ -3876,4 +3955,3 @@
     </script>
   </body>
 </html>
-
