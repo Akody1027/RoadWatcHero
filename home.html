@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -801,14 +800,11 @@
         word-break: break-all;
       }
 
-
-
-      @media(max-width:1000px){
-      
-      #landingPage {
-        transform: scale(1);}
+      @media (max-width: 1000px) {
+        #landingPage {
+          transform: scale(1);
+        }
       }
-      
     </style>
   </head>
 
@@ -2211,33 +2207,26 @@
         getAuth,
         signInWithEmailAndPassword,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-      
-      
-      
-         // NEW: Import Firebase Storage
-   import {
-     getStorage,
-     ref as storageRef,
-     uploadBytes,
-     getDownloadURL,
-   } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
 
-      
-      
-      
+      // NEW: Import Firebase Storage
+      import {
+        getStorage,
+        ref as storageRef,
+        uploadBytes,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
         authDomain: "roadsidehero-104ea.firebaseapp.com",
         databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
         projectId: "roadsidehero-104ea",
-        storageBucket: "roadsidehero-104ea.firebasestorage.app",
+        storageBucket: "roadsidehero-104ea.firebaseapp.com",
       };
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
-      
-      const storage = getStorage(app);
 
+      const storage = getStorage(app);
 
       // NEW: Initialize Auth
       const auth = getAuth(app);
@@ -2427,20 +2416,51 @@
       window.centerOnMe = () => {
         if (map && userLocation) map.setCenter(userLocation);
       };
-      window.openModal = (id) =>
-        (document.getElementById(id).style.display = "flex");
+      
+      
+      
+      
+      
+      
+         window.openModal = (id) => {
+        document.getElementById(id).style.display = "flex";
+        
+        // NEW: Inject a "fake" history step so the phone knows we opened a view
+        history.pushState({ modalOpen: id }, "", "");
+        
+        // Aggressively scrub the form's memory and visuals every time it is opened
+        if (id === 'requestModal') {
+          damageImgList = []; 
+          document.getElementById("damagePreviewList").innerHTML = ""; 
+          document.getElementById("reqIssue").value = "";
+          document.getElementById("customTip").value = "";
+          
+          isTowTruckRequestActive = false;
+          
+          const towBtn = document.getElementById("towTruckBtn");
+          if(towBtn) {
+              towBtn.classList.remove("active");
+              towBtn.innerText = "I NEED A TOW TRUCK!";
+          }
+          
+          const towContact = document.getElementById("towTruckContact");
+          if(towContact) towContact.style.display = "none";
+          
+          const phoneInput = document.getElementById("phoneNumberInput");
+          if(phoneInput) phoneInput.value = "";
+          
+          const destInput = document.getElementById("towDestinationInput");
+          if(destInput) destInput.value = "";
+        }
+      };
 
       window.closeModal = (id) => {
         document.getElementById(id).style.display = "none";
 
         if (id === "detailsModal" || id === "imageEnlargeModal") {
           const enlargedImage = document.getElementById("enlargedImage");
-
-          // 1. Kill the event listeners to break the infinite loop
           enlargedImage.onload = null;
           enlargedImage.onerror = null;
-
-          // 2. Safely clear the image source and hide the overlay
           enlargedImage.src = "";
           enlargedImage.style.display = "none";
           document.getElementById("imageEnlargeModal").style.display = "none";
@@ -2450,7 +2470,43 @@
           profileRadiusCircle.setMap(null);
           profileRadiusCircle = null;
         }
+
+        // NEW: If they clicked the 'X' button manually, we must erase the fake history step
+        if (history.state && history.state.modalOpen) {
+            history.back();
+        }
       };
+
+      
+      
+      
+            // NEW: Intercept the phone's physical back button / back swipe
+      window.addEventListener('popstate', (event) => {
+        // 1. Forcefully hide all modals on the screen
+        document.querySelectorAll('.modal').forEach(modal => {
+          modal.style.display = 'none';
+        });
+
+        // 2. Shut down the arcade iframe if it was playing to stop audio
+        const iframe = document.getElementById("gameIframe");
+        if (iframe) iframe.src = "";
+
+        // 3. Clean up enlarged images
+        const enlargedImage = document.getElementById("enlargedImage");
+        if(enlargedImage) {
+            enlargedImage.src = "";
+            enlargedImage.style.display = "none";
+        }
+        
+        // 4. Clean up the profile map radius circle
+        if (profileRadiusCircle) {
+          profileRadiusCircle.setMap(null);
+          profileRadiusCircle = null;
+        }
+      });
+
+      
+      
 
       // NEW: Shows/Hides pricing fields when Tow Truck toggle is clicked
       window.togglePricingFields = (checkbox) => {
@@ -2465,7 +2521,7 @@
         } else {
           // If they turn it off, instantly remove Pro status
           update(ref(db, `profiles/${myId}`), { isPro: false });
-        }
+        } 
       };
 
       // NEW: Cancels the login attempt and resets the toggle
@@ -2610,18 +2666,14 @@
           .removeAttribute("required");
         document.getElementById("towDestinationInput").value = "";
       };
-      
-      
-      
-      
-      
-            window.handleImageUpload = (input, target) => {
+
+      window.handleImageUpload = (input, target) => {
         if (target === "damage") {
           const files = input.files;
           if (files.length > 0) {
             damageImgList = [];
             document.getElementById("damagePreviewList").innerHTML = "";
-            
+
             Array.from(files).forEach((file) => {
               const reader = new FileReader();
               reader.onload = (e) => {
@@ -2634,32 +2686,47 @@
                   canvas.height = img.height * scaleSize;
                   const ctx = canvas.getContext("2d");
                   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                  
+
                   // NEW: Convert to Blob and Upload to Storage
-                  canvas.toBlob(async (blob) => {
-                    try {
-                      document.getElementById('loadingOverlay').classList.remove('loader-hidden');
-                      const fileRef = storageRef(storage, `damage-reports/${myId}_${Date.now()}_${Math.floor(Math.random()*1000)}.jpg`);
-                      await uploadBytes(fileRef, blob);
-                      const downloadURL = await getDownloadURL(fileRef);
-                      
-                      damageImgList.push(downloadURL);
-                      
-                      const pv = document.createElement("img");
-                      pv.src = downloadURL;
-                      pv.style.width = "80px";
-                      pv.style.height = "80px";
-                      pv.style.objectFit = "cover";
-                      pv.style.borderRadius = "10px";
-                      pv.style.flexShrink = "0";
-                      document.getElementById("damagePreviewList").appendChild(pv);
-                    } catch (error) {
-                      console.error("Storage Upload Error:", error);
-                      alert("Failed to upload image. Please try again.");
-                    } finally {
-                      document.getElementById('loadingOverlay').classList.add('loader-hidden');
-                    }
-                  }, "image/jpeg", 0.7);
+                  canvas.toBlob(
+                    async (blob) => {
+                      try {
+                        document
+                          .getElementById("loadingOverlay")
+                          .classList.remove("loader-hidden");
+                        const fileRef = storageRef(
+                          storage,
+                          `damage-reports/${myId}_${Date.now()}_${Math.floor(
+                            Math.random() * 1000
+                          )}.jpg`
+                        );
+                        await uploadBytes(fileRef, blob);
+                        const downloadURL = await getDownloadURL(fileRef);
+
+                        damageImgList.push(downloadURL);
+
+                        const pv = document.createElement("img");
+                        pv.src = downloadURL;
+                        pv.style.width = "80px";
+                        pv.style.height = "80px";
+                        pv.style.objectFit = "cover";
+                        pv.style.borderRadius = "10px";
+                        pv.style.flexShrink = "0";
+                        document
+                          .getElementById("damagePreviewList")
+                          .appendChild(pv);
+                      } catch (error) {
+                        console.error("Storage Upload Error:", error);
+                        alert("Failed to upload image. Please try again.");
+                      } finally {
+                        document
+                          .getElementById("loadingOverlay")
+                          .classList.add("loader-hidden");
+                      }
+                    },
+                    "image/jpeg",
+                    0.7
+                  );
                 };
                 img.src = e.target.result;
               };
@@ -2680,23 +2747,35 @@
               canvas.height = img.height * scaleSize;
               const ctx = canvas.getContext("2d");
               ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-              
+
               // NEW: Convert to Blob and Upload to Storage
-              canvas.toBlob(async (blob) => {
-                try {
-                  document.getElementById('loadingOverlay').classList.remove('loader-hidden');
-                  const fileRef = storageRef(storage, `profile-pics/${myId}.jpg`);
-                  await uploadBytes(fileRef, blob);
-                  const downloadURL = await getDownloadURL(fileRef);
-                  
-                  document.getElementById("profileDisplayPic").src = downloadURL;
-                } catch (error) {
-                  console.error("Storage Upload Error:", error);
-                  alert("Failed to upload profile picture.");
-                } finally {
-                  document.getElementById('loadingOverlay').classList.add('loader-hidden');
-                }
-              }, "image/jpeg", 0.7);
+              canvas.toBlob(
+                async (blob) => {
+                  try {
+                    document
+                      .getElementById("loadingOverlay")
+                      .classList.remove("loader-hidden");
+                    const fileRef = storageRef(
+                      storage,
+                      `profile-pics/${myId}.jpg`
+                    );
+                    await uploadBytes(fileRef, blob);
+                    const downloadURL = await getDownloadURL(fileRef);
+
+                    document.getElementById("profileDisplayPic").src =
+                      downloadURL;
+                  } catch (error) {
+                    console.error("Storage Upload Error:", error);
+                    alert("Failed to upload profile picture.");
+                  } finally {
+                    document
+                      .getElementById("loadingOverlay")
+                      .classList.add("loader-hidden");
+                  }
+                },
+                "image/jpeg",
+                0.7
+              );
             };
             img.src = e.target.result;
           };
@@ -2704,11 +2783,6 @@
         }
       };
 
-
-      
-      
-      
-      
       window.openChat = async (targetChatId = null) => {
         if (targetChatId) activeChatId = targetChatId;
         else {
@@ -2768,39 +2842,37 @@
         });
         input.value = "";
       };
-      
-      
-      
-      
-       window.sendChatImg = async (input) => {
+
+      window.sendChatImg = async (input) => {
         const file = input.files[0];
         if (!file || !activeChatId) return;
-        
+
         try {
-          document.getElementById('loadingOverlay').classList.remove('loader-hidden');
-          const fileRef = storageRef(storage, `chat-images/${activeChatId}_${Date.now()}.jpg`);
+          document
+            .getElementById("loadingOverlay")
+            .classList.remove("loader-hidden");
+          const fileRef = storageRef(
+            storage,
+            `chat-images/${activeChatId}_${Date.now()}.jpg`
+          );
           await uploadBytes(fileRef, file);
           const downloadURL = await getDownloadURL(fileRef);
-          
+
           push(ref(db, `chats/${activeChatId}`), {
             sender: myId,
             img: downloadURL,
             timestamp: Date.now(),
             read: false,
           });
-        } catch(error) {
+        } catch (error) {
           console.error("Chat Image Upload Error:", error);
           alert("Failed to send image.");
         } finally {
-          document.getElementById('loadingOverlay').classList.add('loader-hidden');
+          document
+            .getElementById("loadingOverlay")
+            .classList.add("loader-hidden");
         }
       };
- 
-      
-      
-      
-      
-      
 
       function updateChatBadges(count) {
         const sB = document.getElementById("chatBadge");
@@ -3964,6 +4036,3 @@
     </script>
   </body>
 </html>
-
-
-
