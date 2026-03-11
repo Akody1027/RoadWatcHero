@@ -272,13 +272,16 @@
     import { getDatabase, ref, push, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
 
+
     const firebaseConfig = {
       apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
       authDomain: "roadsidehero-104ea.firebaseapp.com",
       databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
       projectId: "roadsidehero-104ea",
-      storageBucket: "roadsidehero-104ea.firebaseapp.com",
+      storageBucket: "roadsidehero-104ea.firebasestorage.app", // <-- THE EXACT PATH FROM YOUR IMAGE
     };
+
+    
     
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -691,3 +694,4 @@
   </script>
 </body>
 </html>
+
