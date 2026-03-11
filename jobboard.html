@@ -1,0 +1,693 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RoadWatcHero - Mechanic Board</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry"></script>
+
+  <style>
+    :root { 
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #ee611c;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    /* Flexbox Layout to lock Header/Toolbar and scroll the Feed */
+    body, html {
+      margin: 0; padding: 0; width: 100%; height: 100%;
+      font-family: -apple-system, system-ui, sans-serif;
+      color: var(--text); background: var(--bg); overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+
+    /* GLASS LOADING OVERLAY */
+    #loadingOverlay {
+      position: fixed; inset: 0; background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      z-index: 9999; display: flex; justify-content: center; align-items: center;
+      transition: opacity 0.4s ease, visibility 0.4s;
+    }
+    .spinner {
+      width: 60px; height: 60px; border: 6px solid rgba(238, 97, 28, 0.2);
+      border-top: 6px solid var(--accent); border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .loader-hidden { opacity: 0; visibility: hidden; }
+
+    /* Sticky Header & Toolbar Area */
+    #topWorkspace {
+      background: var(--bg); z-index: 100;
+      flex-shrink: 0; /* Prevents this section from shrinking */
+    }
+
+    .app-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px 20px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-logo { width: 32px; height: 32px; object-fit: contain; }
+    .header-title { font-weight: 900; font-size: 18px; color: var(--text); }
+    
+    .workspace-padding { padding: 15px 15px 0 15px; }
+
+    /* Search & Toolbar */
+    .search-bar {
+      width: 100%; padding: 14px 20px; border-radius: 16px; border: 1px solid #e2e8f0;
+      font-size: 15px; background: white; margin-bottom: 15px; font-weight: 600;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+    .toolbar { display: flex; gap: 8px; margin-bottom: 10px; overflow-x: auto; padding-bottom: 5px; }
+    .toolbar::-webkit-scrollbar { display: none; } /* Hide scrollbar for clean UI */
+    .tool-btn {
+      flex: 1; min-width: 80px; padding: 12px 10px; background: white; border: 1px solid #e2e8f0;
+      border-radius: 12px; font-weight: 800; font-size: 12px; color: var(--text);
+      cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex;
+      align-items: center; justify-content: center; gap: 5px; transition: 0.2s; white-space: nowrap;
+    }
+    .tool-btn:active { transform: scale(0.97); }
+    .tool-btn.active-tool { border-color: var(--accent); color: var(--accent); }
+
+    /* Dropdown Panels */
+    .drop-panel {
+      background: white; padding: 20px; border-radius: 20px; box-shadow: var(--shadow);
+      border: 1px solid #e2e8f0; margin-bottom: 15px; display: none;
+      animation: slideDown 0.3s cubic-bezier(0, 0, 0.2, 1);
+    }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Form Elements */
+    input[type="number"], textarea, input[type="range"], input[type="text"] {
+      width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0;
+      margin-bottom: 12px; font-size: 15px; background: #f8fafc; font-family: inherit;
+    }
+    .submit-btn {
+      width: 100%; padding: 16px; background: var(--accent); color: white; border: none;
+      border-radius: 16px; font-weight: 800; cursor: pointer; font-size: 14px; transition: 0.2s;
+    }
+    .submit-btn:active { transform: scale(0.97); }
+    
+    /* Image Upload UI */
+    .img-upload-btn {
+      width: 100%; padding: 15px; border-radius: 16px; border: 2px dashed #cbd5e1;
+      background: none; margin-bottom: 10px; cursor: pointer; font-weight: bold; color: var(--muted);
+    }
+    .preview-scroller { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 15px; }
+    .preview-scroller img { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; flex-shrink: 0; border: 1px solid #e2e8f0; }
+
+    /* Toggle Switch */
+    .toggle-wrapper { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; margin-bottom: 10px; }
+    .toggle-label { font-weight: 700; font-size: 14px; color: var(--text); }
+    .toggle-switch { position: relative; width: 50px; height: 28px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--danger); transition: 0.4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: 0.4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--success); }
+    input:checked + .slider:before { transform: translateX(22px); }
+
+    /* Independently Scrolling Job Feed */
+    #feedContainer {
+      flex: 1; overflow-y: auto; padding: 0 15px 40px 15px;
+    }
+    #jobFeed { display: grid; gap: 15px; }
+    .grid-view { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .list-view { grid-template-columns: 1fr; }
+
+    .job-card {
+      background: white; padding: 16px; border-radius: 20px; box-shadow: var(--shadow);
+      border: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column;
+      position: relative; /* For badges */
+    }
+    .job-card:active { transform: scale(0.98); }
+    .job-price { color: var(--success); font-weight: 900; font-size: 20px; margin-bottom: 6px; }
+    .job-title { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+    .job-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
+    .tag { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 8px; background: #f1f5f9; color: var(--muted); }
+    
+    .del-btn { background: #fee2e2; color: #ef4444; border: none; padding: 6px 10px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; margin-left: auto; }
+
+    /* Modals */
+    .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
+    .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 90vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); display: flex; flex-direction: column;}
+    @keyframes slideUp { to { transform: translateY(0); } }
+    .close-x-btn { background: #f1f5f9; color: var(--text); border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; position: absolute; top: 20px; right: 20px; z-index: 10; }
+    
+    .action-row { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-half { flex: 1; padding: 15px; border-radius: 16px; font-weight: 800; font-size: 13px; cursor: pointer; border: none; transition: 0.2s;}
+    .btn-half:active {transform: scale(0.97);}
+    .btn-msg { background: #f1f5f9; color: var(--text); }
+    .btn-accept { background: var(--success); color: white; }
+
+    /* Quotes/Bids List UI */
+    .quote-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
+    .quote-pic { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .quote-info { flex: 1; }
+
+    /* Chat UI */
+    #chatBox { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 20px; margin-bottom: 12px; border: 1px solid #e2e8f0; min-height: 300px; }
+    .msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 14px; line-height: 1.4; word-break: break-word; }
+    .msg-me { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+    .msg-them { align-self: flex-start; background: white; color: var(--text); border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body>
+
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div id="topWorkspace">
+    <header class="app-header">
+      <div class="header-left">
+        <img src="roadwatchlogo.png" class="header-logo" alt="Logo" onerror="this.src='https://via.placeholder.com/32?text=RW'">
+        <span class="header-title">RoadWatcHero</span>
+      </div>
+      <a href="home.html" style="font-weight: 800; font-size: 12px; color: var(--accent); text-decoration: none;">Map View</a>
+    </header>
+
+    <div class="workspace-padding">
+      <input type="text" id="searchBar" class="search-bar" placeholder="🔍 Search issues, makes, or keywords..." oninput="window.renderFeed()">
+
+      <div class="toolbar">
+        <button class="tool-btn" id="btnPost" onclick="window.togglePanel('postPanel', this)">➕ Add Job</button>
+        <button class="tool-btn" id="btnFilter" onclick="window.togglePanel('filterPanel', this)">🎛️ <span id="radiusLabelDisplay">10</span> mi</button>
+        <button class="tool-btn" onclick="window.toggleLayout()">🔲 View</button>
+        <button class="tool-btn" id="btnMyJobs" onclick="window.toggleMyJobs(this)">👤 My Jobs</button>
+      </div>
+
+      <div id="postPanel" class="drop-panel">
+        <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">TARGET BUDGET ($)</label>
+        <input type="number" id="reqBudget" placeholder="e.g. 250" style="color: var(--success); font-weight: 900; font-size: 20px;" />
+        
+        <div class="toggle-wrapper">
+          <span class="toggle-label">Is the vehicle drivable?</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="reqDrivable" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">ISSUE DESCRIPTION</label>
+        <textarea id="reqIssue" placeholder="What exactly needs fixing? Be descriptive." rows="3"></textarea>
+        
+        <input type="file" id="jobImgInput" accept="image/*" multiple style="display: none" onchange="window.handleJobImageUpload(this)">
+        <button class="img-upload-btn" onclick="document.getElementById('jobImgInput').click()">📸 Add Damage Photos</button>
+        <div id="jobImgPreview" class="preview-scroller"></div>
+
+        <p style="font-size: 11px; color: var(--muted); text-align: center; font-style: italic; margin-bottom: 15px;">
+          Note: Your job will remain active for local mechanics to view for 7 days before automatically expiring.
+        </p>
+        
+        <button class="submit-btn" onclick="window.submitMechanicJob()">POST JOB TO BOARD</button>
+      </div>
+
+      <div id="filterPanel" class="drop-panel">
+        <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">MAXIMUM DISTANCE: <span id="sliderValueText" style="color: var(--accent);">10</span> MILES</label>
+        <input type="range" id="radiusSlider" min="10" max="500" step="10" value="10" oninput="window.updateRadius(this.value)">
+      </div>
+    </div>
+  </div>
+
+  <div id="feedContainer">
+    <div id="jobFeed" class="grid-view">
+      </div>
+  </div>
+
+  <div id="jobDetailsModal" class="modal">
+    <div class="modal-content" style="position: relative;">
+      <button class="close-x-btn" onclick="window.closeModal('jobDetailsModal')">✕</button>
+      
+      <div style="margin-bottom: 15px; margin-top: 10px;">
+        <span id="detBudget" style="font-size: 32px; font-weight: 900; color: var(--success);">$0</span>
+        <div id="detTags" style="margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap;"></div>
+      </div>
+
+      <div id="detImgScroller" class="preview-scroller" style="display: none; padding-bottom: 10px;"></div>
+      
+      <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 4px;">ISSUE DESCRIPTION</p>
+      <div id="detIssue" style="font-weight: 500; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; word-break: break-word; font-size: 14px; line-height: 1.5;"></div>
+      
+      <div id="detDynamicArea"></div>
+    </div>
+  </div>
+
+  <div id="quoteModal" class="modal">
+    <div class="modal-content">
+      <button class="close-x-btn" onclick="window.closeModal('quoteModal')">✕</button>
+      <h3 style="margin-top:0; color: var(--accent);">Submit Your Quote</h3>
+      <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">YOUR TOTAL PRICE ($)</label>
+      <input type="number" id="quoteAmount" placeholder="e.g. 300" style="font-size: 24px; font-weight: 900; color: var(--success);" />
+      <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">NOTE TO SEEKER</label>
+      <input type="text" id="quoteNote" placeholder="e.g. Includes OEM parts and labor." />
+      <button class="submit-btn" onclick="window.finalizeQuote()">SEND QUOTE</button>
+    </div>
+  </div>
+
+  <div id="chatModal" class="modal">
+    <div class="modal-content" style="height: 90vh;">
+      <button class="close-x-btn" onclick="window.closeModal('chatModal')">✕</button>
+      <h3 id="chatHeaderTitle" style="margin-top:0; color: var(--text); text-align: center;">Messages</h3>
+      <div id="chatBox"></div>
+      <div style="display: flex; gap: 10px; margin-top: auto;">
+        <input id="chatInput" placeholder="Type message..." style="margin: 0; flex: 1;" />
+        <button onclick="window.sendChatMsg()" style="background: var(--accent); color: white; border: none; padding: 0 20px; border-radius: 15px; font-weight: bold; cursor: pointer;">SEND</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
+      authDomain: "roadsidehero-104ea.firebaseapp.com",
+      databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
+      projectId: "roadsidehero-104ea",
+      storageBucket: "roadsidehero-104ea.firebaseapp.com",
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const storage = getStorage(app);
+    
+    const myId = localStorage.getItem("heroUserId") || "u_" + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem("heroUserId", myId);
+    
+    let jobsCache = {};
+    let profilesCache = {};
+    let userLocation = null;
+    let currentRadius = 10;
+    let showMyJobsOnly = false;
+    let pendingUploadedImages = [];
+    let activeJobIdForDetails = null;
+    let activeChatId = null;
+
+    // 1. Init: Location & Failsafe & Owner Sweep
+    window.onload = () => {
+      const safetyTimer = setTimeout(() => {
+        const overlay = document.getElementById('loadingOverlay');
+        if(overlay && !overlay.classList.contains('loader-hidden')) {
+            console.warn("Location timed out. Loading feed.");
+            overlay.classList.add('loader-hidden');
+            window.renderFeed();
+        }
+      }, 4000);
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (p) => {
+            clearTimeout(safetyTimer);
+            userLocation = { lat: p.coords.latitude, lng: p.coords.longitude };
+            document.getElementById('loadingOverlay').classList.add('loader-hidden');
+            window.renderFeed();
+          },
+          (err) => {
+            clearTimeout(safetyTimer);
+            document.getElementById('loadingOverlay').classList.add('loader-hidden');
+            window.renderFeed();
+          },
+          { enableHighAccuracy: true, timeout: 3000 } 
+        );
+      } else {
+        clearTimeout(safetyTimer);
+        document.getElementById('loadingOverlay').classList.add('loader-hidden');
+        window.renderFeed();
+      }
+    };
+
+    // Auto-Sweep Expired Jobs (7 days)
+    const runOwnerSweep = () => {
+      const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+      const now = Date.now();
+      Object.entries(jobsCache).forEach(([id, job]) => {
+        if (job.ownerId === myId && job.timestamp) {
+          if (now - job.timestamp > SEVEN_DAYS_MS) {
+            console.log("Auto-Sweeping expired job:", id);
+            remove(ref(db, `mechanicRequests/${id}`));
+          }
+        }
+      });
+    };
+
+    // UI Toggles
+    window.togglePanel = (panelId, btnEl) => {
+      document.querySelectorAll('.drop-panel').forEach(p => { if(p.id !== panelId) p.style.display = 'none'; });
+      document.querySelectorAll('.tool-btn').forEach(b => { if(b !== btnEl) b.classList.remove('active-tool'); });
+      
+      const panel = document.getElementById(panelId);
+      if(panel.style.display === "block") {
+        panel.style.display = "none";
+        btnEl.classList.remove('active-tool');
+      } else {
+        panel.style.display = 'block';
+        btnEl.classList.add('active-tool');
+      }
+    };
+
+    window.toggleLayout = () => {
+      const feed = document.getElementById('jobFeed');
+      if(feed.classList.contains('grid-view')) {
+        feed.classList.remove('grid-view');
+        feed.classList.add('list-view');
+      } else {
+        feed.classList.remove('list-view');
+        feed.classList.add('grid-view');
+      }
+    };
+
+    window.toggleMyJobs = (btnEl) => {
+      showMyJobsOnly = !showMyJobsOnly;
+      if(showMyJobsOnly) btnEl.classList.add('active-tool');
+      else btnEl.classList.remove('active-tool');
+      window.renderFeed();
+    };
+
+    window.updateRadius = (val) => {
+      currentRadius = parseInt(val);
+      document.getElementById('sliderValueText').innerText = val;
+      document.getElementById('radiusLabelDisplay').innerText = val;
+      window.renderFeed();
+    };
+
+    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
+    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+
+    // Canvas Image Compression & Upload
+    window.handleJobImageUpload = (input) => {
+      const files = input.files;
+      if (files.length > 0) {
+        document.getElementById('loadingOverlay').classList.remove('loader-hidden');
+        
+        Array.from(files).forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              const MAX_WIDTH = 600;
+              const scaleSize = MAX_WIDTH / img.width;
+              canvas.width = MAX_WIDTH;
+              canvas.height = img.height * scaleSize;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+              canvas.toBlob(async (blob) => {
+                try {
+                  const fileRef = storageRef(storage, `mechanic-jobs/${myId}_${Date.now()}_${Math.floor(Math.random()*1000)}.jpg`);
+                  await uploadBytes(fileRef, blob);
+                  const downloadURL = await getDownloadURL(fileRef);
+                  
+                  pendingUploadedImages.push(downloadURL);
+                  
+                  const pv = document.createElement("img");
+                  pv.src = downloadURL;
+                  document.getElementById("jobImgPreview").appendChild(pv);
+                } catch (error) {
+                  console.error("Upload Error:", error);
+                  alert("Failed to upload image.");
+                } finally {
+                  document.getElementById('loadingOverlay').classList.add('loader-hidden');
+                }
+              }, "image/jpeg", 0.7);
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    };
+
+    // Submit Job
+    window.submitMechanicJob = () => {
+      const budget = document.getElementById('reqBudget').value;
+      const issue = document.getElementById('reqIssue').value;
+      const isDrivable = document.getElementById('reqDrivable').checked;
+
+      if(!budget || !issue) return alert("Please fill out the budget and issue description.");
+      if(!userLocation) return alert("We need your location to post this job locally.");
+
+      push(ref(db, 'mechanicRequests'), {
+        ownerId: myId,
+        budget: Number(budget),
+        issue: issue,
+        isDrivable: isDrivable,
+        lat: userLocation.lat,
+        lng: userLocation.lng,
+        images: pendingUploadedImages,
+        status: 'open',
+        timestamp: Date.now()
+      });
+
+      // Reset & Close
+      document.getElementById('reqBudget').value = '';
+      document.getElementById('reqIssue').value = '';
+      document.getElementById("jobImgPreview").innerHTML = '';
+      pendingUploadedImages = [];
+      window.togglePanel('postPanel', document.getElementById('btnPost')); 
+      alert("Job posted! It will be visible for 7 days.");
+    };
+
+    // Delete Job
+    window.deleteJob = (e, jobId) => {
+      e.stopPropagation(); // Stop card click
+      if(confirm("Are you sure you want to delete this job? This cannot be undone.")) {
+        remove(ref(db, `mechanicRequests/${jobId}`));
+      }
+    };
+
+    // Render Feed
+    window.renderFeed = () => {
+      const feed = document.getElementById('jobFeed');
+      const searchTerm = document.getElementById('searchBar').value.toLowerCase();
+      feed.innerHTML = '';
+      let jobsFound = 0;
+
+      Object.entries(jobsCache).forEach(([id, job]) => {
+        if (job.status !== 'open') return;
+
+        if (showMyJobsOnly && job.ownerId !== myId) return;
+
+        if (searchTerm && !job.issue.toLowerCase().includes(searchTerm)) return;
+
+        let distMilesStr = "?";
+        if (userLocation && job.lat && job.lng) {
+          const distRaw = (google.maps.geometry.spherical.computeDistanceBetween(
+            new google.maps.LatLng(userLocation.lat, userLocation.lng),
+            new google.maps.LatLng(job.lat, job.lng)
+          ) / 1609.34);
+          
+          if (!showMyJobsOnly && distRaw > currentRadius) return; 
+          distMilesStr = distRaw.toFixed(1);
+        }
+
+        jobsFound++;
+
+        // Quote Badges
+        let badgeHtml = '';
+        if(job.bids) {
+            const bidCount = Object.keys(job.bids).length;
+            badgeHtml = `<div style="position:absolute; top:-10px; right:-10px; background:var(--accent); color:white; font-size:11px; font-weight:900; padding:6px 12px; border-radius:15px; box-shadow:var(--shadow); z-index:2;">🔔 ${bidCount} Quotes</div>`;
+        }
+
+        const delBtnHtml = job.ownerId === myId ? `<button class="del-btn" onclick="window.deleteJob(event, '${id}')">🗑️ Delete</button>` : '';
+        const imgThumb = (job.images && job.images.length > 0) ? `<img src="${job.images[0]}" style="width:50px; height:50px; object-fit:cover; border-radius:10px; flex-shrink:0; border:1px solid #e2e8f0; margin-right:10px;">` : '';
+
+        feed.innerHTML += `
+          <div class="job-card" onclick="window.openJobDetails('${id}', '${distMilesStr}')">
+            ${badgeHtml}
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom:8px;">
+              <div style="display:flex; align-items:center;">
+                ${imgThumb}
+                <div>
+                  <div class="job-price" style="margin:0;">$${job.budget}</div>
+                  <span style="font-size:11px; font-weight:700; color:var(--muted);">${distMilesStr} mi away</span>
+                </div>
+              </div>
+              ${delBtnHtml}
+            </div>
+            <div class="job-title">${job.issue}</div>
+            <div class="job-tags">
+              ${job.isDrivable ? '<span class="tag" style="background: #dcfce7; color: #166534;">🚗 Drivable</span>' : '<span class="tag" style="background: #fee2e2; color: #991b1b;">🛻 Needs Tow</span>'}
+            </div>
+          </div>
+        `;
+      });
+
+      if (jobsFound === 0) {
+        feed.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px 20px; font-weight: 600; font-size: 14px;">No jobs found.<br>Adjust your filters or try expanding your radius!</div>`;
+      }
+    };
+
+    // Open Job Details
+    window.openJobDetails = (jobId, distStr) => {
+      const job = jobsCache[jobId];
+      if(!job) return;
+      activeJobIdForDetails = jobId;
+
+      document.getElementById('detBudget').innerText = "$" + job.budget;
+      document.getElementById('detIssue').innerText = job.issue;
+      
+      let tagsHTML = job.isDrivable 
+        ? `<span class="tag" style="background: #dcfce7; color: #166534;">🚗 Drivable</span>` 
+        : `<span class="tag" style="background: #fee2e2; color: #991b1b;">🛻 Needs Tow</span>`;
+      
+      if(distStr !== "?") tagsHTML += `<span class="tag">📍 ${distStr} mi away</span>`;
+      document.getElementById('detTags').innerHTML = tagsHTML;
+
+      // Images Gallery
+      const imgScroller = document.getElementById('detImgScroller');
+      if(job.images && job.images.length > 0) {
+          imgScroller.style.display = 'flex';
+          imgScroller.innerHTML = job.images.map(src => `<img src="${src}" onclick="window.open(this.src)" style="cursor:pointer; width:100px; height:100px;">`).join('');
+      } else {
+          imgScroller.style.display = 'none';
+      }
+
+      // Dynamic Area (Quotes list if Owner, Action buttons if Hero)
+      const dynArea = document.getElementById('detDynamicArea');
+      dynArea.innerHTML = '';
+
+      if (job.ownerId === myId) {
+        if (job.bids && Object.keys(job.bids).length > 0) {
+          dynArea.innerHTML = `<div style="font-size:12px; font-weight:900; color:var(--muted); margin-bottom:10px;">INCOMING QUOTES</div>`;
+          Object.entries(job.bids).forEach(([heroId, bid]) => {
+             const hProf = profilesCache[heroId] || {};
+             const heroPic = hProf.pic || "https://via.placeholder.com/50";
+             const heroName = hProf.name || "Local Mechanic";
+             
+             // Dynamic Review Tags
+             let tagsUI = '';
+             if(hProf.tags) {
+                tagsUI = hProf.tags.slice(0,2).map(t => `<span class="tag" style="background:#dcfce7; color:#166534; font-size:9px;">${t}</span>`).join('');
+             }
+
+             dynArea.innerHTML += `
+               <div class="quote-card">
+                 <img src="${heroPic}" class="quote-pic">
+                 <div class="quote-info">
+                   <div style="font-weight:900; color:var(--text); font-size:14px;">${heroName}</div>
+                   <div style="display:flex; gap:4px; margin-top:4px;">${tagsUI}</div>
+                   <div style="font-size:12px; color:var(--muted); margin-top:5px; font-style:italic;">"${bid.note || 'Ready to help.'}"</div>
+                 </div>
+                 <div style="text-align:right;">
+                   <div style="color:var(--success); font-weight:900; font-size:20px;">$${bid.amount}</div>
+                   <div style="display:flex; gap:5px; margin-top:5px; justify-content:flex-end;">
+                     <button onclick="window.openChat('${jobId}_${heroId}', '${heroName}')" style="background:var(--bg); border:1px solid #e2e8f0; border-radius:8px; padding:6px; cursor:pointer;">💬</button>
+                     <button onclick="window.acceptQuote('${jobId}', '${heroId}')" style="background:var(--success); color:white; border:none; border-radius:8px; font-weight:bold; padding:6px 10px; cursor:pointer;">ACCEPT</button>
+                   </div>
+                 </div>
+               </div>
+             `;
+          });
+        } else {
+          dynArea.innerHTML = `<div style="text-align:center; padding:20px; color:var(--muted); font-weight:600; font-size:13px; background:#f8fafc; border-radius:15px; border:1px dashed #cbd5e1;">Waiting for local mechanics to send quotes...</div>`;
+        }
+      } else {
+        // Hero View
+        dynArea.innerHTML = `
+          <div class="action-row">
+            <button class="btn-half btn-msg" onclick="window.openChat('${jobId}_${myId}', 'Seeker')">💬 MESSAGE</button>
+            <button class="btn-half btn-accept" onclick="window.openQuoteModal()">SUBMIT QUOTE</button>
+          </div>
+        `;
+      }
+
+      window.openModal('jobDetailsModal');
+    };
+
+    // Submitting Quotes
+    window.openQuoteModal = () => {
+      document.getElementById('quoteAmount').value = '';
+      document.getElementById('quoteNote').value = '';
+      window.openModal('quoteModal');
+    };
+
+    window.finalizeQuote = () => {
+      const amt = document.getElementById('quoteAmount').value;
+      const note = document.getElementById('quoteNote').value;
+      if(!amt) return alert("Please enter a quote amount.");
+
+      update(ref(db, `mechanicRequests/${activeJobIdForDetails}/bids/${myId}`), {
+        amount: Number(amt),
+        note: note,
+        timestamp: Date.now()
+      });
+      
+      window.closeModal('quoteModal');
+      window.closeModal('jobDetailsModal');
+      alert("Quote submitted to the Seeker!");
+    };
+
+    window.acceptQuote = (jobId, heroId) => {
+       update(ref(db, `mechanicRequests/${jobId}`), {
+          status: 'accepted',
+          helperId: heroId
+       });
+       window.closeModal('jobDetailsModal');
+       alert("Quote accepted! The mechanic has been notified.");
+    };
+
+    // Chat System Integration
+    window.openChat = async (chatId, titleName) => {
+       activeChatId = chatId;
+       document.getElementById('chatHeaderTitle').innerText = titleName ? `Chat: ${titleName}` : 'Messages';
+       window.openModal('chatModal');
+       
+       onValue(ref(db, `chats/${activeChatId}`), (snap) => {
+          const box = document.getElementById('chatBox');
+          box.innerHTML = '';
+          const data = snap.val() || {};
+          const msgs = Object.values(data);
+          msgs.forEach(m => {
+             const side = m.sender === myId ? 'msg-me' : 'msg-them';
+             box.innerHTML += `<div class="msg ${side}"><div>${m.text}</div></div>`;
+          });
+          box.scrollTop = box.scrollHeight;
+       });
+    };
+
+    window.sendChatMsg = () => {
+      const input = document.getElementById('chatInput');
+      if (!input.value.trim() || !activeChatId) return;
+      push(ref(db, `chats/${activeChatId}`), {
+        sender: myId,
+        text: input.value,
+        timestamp: Date.now()
+      });
+      input.value = '';
+    };
+
+    // DB Listeners
+    onValue(ref(db, 'mechanicRequests'), (snap) => {
+      jobsCache = snap.val() || {};
+      runOwnerSweep(); // Auto-clean 7-day old owned jobs
+      window.renderFeed();
+      
+      // Update details modal if it's currently open
+      if(activeJobIdForDetails && document.getElementById('jobDetailsModal').style.display === 'flex') {
+         // Pass "?" to preserve state since we don't recalculate distance inside the modal refresh
+         window.openJobDetails(activeJobIdForDetails, "?");
+      }
+    });
+
+    onValue(ref(db, 'profiles'), (snap) => {
+      profilesCache = snap.val() || {}; 
+    });
+
+  </script>
+</body>
+</html>
