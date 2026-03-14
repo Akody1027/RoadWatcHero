@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -16,10 +19,10 @@
         --bg: #f8fafc;
         --card: #ffffff;
         --text: #0f172a;
-        --muted: black;
+        --muted: black; 
         --accent: #ee611c;
         --danger: #ee611c;
-        --success: #22c55e;
+        --success: #22c55e; 
         --warning: #f59e0b;
         --tow-blue: #2563eb;
         --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -580,6 +583,30 @@
         font-weight: 900;
       }
 
+      
+      
+      
+      .jb-btn {
+        position: absolute;
+        top: 20px;
+        left 20px;
+        margin-left:15px;
+        background: #ee611c;
+        border: none;
+        padding: 12px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        z-index: 5;
+        font-weight: 800;
+        font-size: 11px;
+        color:white;
+      }
+      
+      
+      
+      
+      
       .center-btn {
         position: absolute;
         top: 20px;
@@ -595,6 +622,8 @@
         font-size: 11px;
         color: white;
       }
+          
+          
       .trash-icon {
         width: 20px;
         height: 20px;
@@ -805,6 +834,16 @@
           transform: scale(1);
         }
       }
+      
+      
+      .jbutton:active{
+          background: var(--accent);
+          color: white;     
+      } 
+       
+      
+       
+      
     </style>
   </head>
 
@@ -824,7 +863,7 @@
           font-size: 18px;
         "
       >
-        Help is just a click away.
+        Help is just a click away. 
       </h2>
       <button
         class="mode-btn btn-req"
@@ -1023,13 +1062,26 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> 
 
     <!-- HERO UI -->
     <div id="heroUI" class="view">
       <button class="center-btn" onclick="window.centerOnMe()">
         RE-CENTER
       </button>
+      
+
+      
+      
+    <a href="jobboard.html">
+      <button class="jb-btn"> 
+        JOB BOARD
+      </button></a>
+      
+      
+      
+      
+      
       <div
         id="statusIndicator"
         style="background: #94a3b8"
@@ -1520,7 +1572,22 @@
           onclick="window.submitSOS()"
         >
           FIND HERO
-        </button>
+        </button>  
+        
+         
+        <p style="text-align:center; margin-top:5%; color:var(--accent) ;
+                  font-size:22px; font-weight:400;">--OR--</p>
+        
+        <div style="text-align:center; margin-top:5%;" width="100%">
+        <a href="jobboard.html">
+           <button 
+             class= "jbutton" style="font-size:18px; color:var(--accent);
+             background:transparent; border:2px solid var(--accent); 
+             width:100%; border-radius:15px; padding: 15px; 
+             font-weight:600;" >POST TO JOB BOARD</button></a>   
+        </div> 
+        
+        
         <p onclick="window.closeModal('requestModal')" class="cancel-link">
           Cancel
         </p>
@@ -4044,4 +4111,3 @@
     </script>
   </body>
 </html>
-
