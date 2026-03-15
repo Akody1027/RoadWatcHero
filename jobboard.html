@@ -1,9 +1,4 @@
 
-
-
-
-
- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -179,6 +174,34 @@
     .msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 14px; line-height: 1.4; word-break: break-word; }
     .msg-me { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
     .msg-them { align-self: flex-start; background: white; color: var(--text); border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
+ 
+  
+  
+  /* Master Inbox UI */
+    .inbox-item {
+      display: flex; gap: 15px; padding: 15px; background: white;
+      border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: 0.2s;
+    }
+    .inbox-item:active { background: #f8fafc; }
+    .inbox-item:last-child { border-bottom: none; }
+    .inbox-avatar { 
+      width: 48px; height: 48px; border-radius: 50%; background: var(--accent); 
+      color: white; display: flex; align-items: center; justify-content: center; 
+      font-weight: 900; font-size: 18px; flex-shrink: 0; box-shadow: var(--shadow);
+    }
+    .inbox-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center;}
+    .inbox-header { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center;}
+    .inbox-name { font-weight: 800; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px;}
+    .inbox-time { font-size: 11px; color: var(--muted); font-weight: 700; flex-shrink: 0;}
+    .inbox-preview { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;}
+  
+  
+  
+  
+  
+  
+  
+  
   </style>
 </head>
 <body>
@@ -287,7 +310,20 @@
       
   </div>
   
-  
+
+<div id="inboxModal" class="modal">
+    <div class="modal-content" style="height: 85vh; padding: 20px 0 0 0; background: #f8fafc;">
+      <button class="close-x-btn" onclick="window.closeModal('inboxModal')">✕</button>
+      <h3 style="margin-top:0; color: var(--text); text-align: center; margin-bottom: 15px; font-weight: 900;">Master Inbox</h3>
+      
+      <div id="inboxList" style="flex: 1; overflow-y: auto; background: white; border-top: 1px solid #e2e8f0;">
+        </div>
+    </div>
+  </div>
+
+
+
+         
   
      <div class="ftr" width="100%"  height="5%" style="background-color:var(--accent); 
      display:flex; justify-content:center; text-align:center; gap:100px;">
@@ -304,7 +340,7 @@
           <img width="40px" style="padding:5px"
               src="Chaticon.png"
               class="icon-btn"
-              onclick="window.openChat()"
+              onclick="window.openInbox()"
            />
             <span id="chatBadgeHero"></span>
        </div>
@@ -711,16 +747,47 @@
        });
     };
 
-    window.sendChatMsg = () => {
+
+
+   
+
+window.sendChatMsg = () => {
       const input = document.getElementById('chatInput');
-      if (!input.value.trim() || !activeChatId) return;
+      const text = input.value.trim();
+      if (!text || !activeChatId) return;
+
+      const now = Date.now();
+
+      // 1. Write to the main chat thread
       push(ref(db, `chats/${activeChatId}`), {
         sender: myId,
-        text: input.value,
-        timestamp: Date.now()
+        text: text,
+        timestamp: now
       });
+
+      // 2. Extract IDs from the chatId (Format: jobId_heroId)
+      const parts = activeChatId.split('_');
+      const jobId = parts[0];
+      const heroId = parts[1];
+      const job = jobsCache[jobId];
+
+      if (job) {
+        // 3. Determine who the "other" person is in this conversation
+        const ownerId = job.ownerId;
+        const otherUserId = (myId === ownerId) ? heroId : ownerId;
+        const jobTitle = job.issue.substring(0, 22) + "...";
+
+        // 4. Dual-Write to userInbox for massive scalability
+        const inboxDataMe = { lastMsg: text, timestamp: now, otherUserId: otherUserId, title: jobTitle, chatId: activeChatId };
+        const inboxDataThem = { lastMsg: text, timestamp: now, otherUserId: myId, title: jobTitle, chatId: activeChatId };
+
+        update(ref(db, `userInbox/${myId}/${activeChatId}`), inboxDataMe);
+        update(ref(db, `userInbox/${otherUserId}/${activeChatId}`), inboxDataThem);
+      }
+
       input.value = '';
     };
+
 
     // DB Listeners
     onValue(ref(db, 'mechanicRequests'), (snap) => {
@@ -739,6 +806,49 @@
       profilesCache = snap.val() || {}; 
     });
 
+
+
+window.openInbox = () => {
+      window.openModal('inboxModal');
+      const inboxList = document.getElementById('inboxList');
+      inboxList.innerHTML = `<div style="padding: 40px 20px; text-align: center; color: var(--muted); font-weight: 600;">Loading messages...</div>`;
+
+      // Listen ONLY to this specific user's inbox node
+      onValue(ref(db, `userInbox/${myId}`), (snap) => {
+        inboxList.innerHTML = '';
+        const data = snap.val();
+        
+        if (!data) {
+          inboxList.innerHTML = `<div style="padding: 40px 20px; text-align: center; color: var(--muted); font-weight: 600;">No active conversations.</div>`;
+          return;
+        }
+
+        // Convert object to array and sort newest first
+        const threads = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
+
+        threads.forEach(t => {
+          const dateObj = new Date(t.timestamp);
+          const timeString = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          const avatarLetter = t.title.charAt(0).toUpperCase();
+
+          inboxList.innerHTML += `
+            <div class="inbox-item" onclick="window.closeModal('inboxModal'); window.openChat('${t.chatId}', '${t.title}')">
+              <div class="inbox-avatar">${avatarLetter}</div>
+              <div class="inbox-content">
+                <div class="inbox-header">
+                  <span class="inbox-name">${t.title}</span>
+                  <span class="inbox-time">${timeString}</span>
+                </div>
+                <div class="inbox-preview">${t.lastMsg}</div>
+              </div>
+            </div>
+          `;
+        });
+      });
+    };
+
+
+   
   </script>
 </body>
 </html>
