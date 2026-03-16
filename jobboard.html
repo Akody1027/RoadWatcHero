@@ -871,7 +871,13 @@ window.openInbox = () => {
         // Convert object to array and sort newest first
         const threads = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
 
-// Determine if this specific thread is unread to bold the text
+        // Loop through each thread to render the UI
+        threads.forEach(t => {
+          const dateObj = new Date(t.timestamp);
+          const timeString = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+          const avatarLetter = t.title.charAt(0).toUpperCase();
+
+          // Determine if this specific thread is unread to bold the text
           const isUnread = t.unread ? "font-weight: 900; color: var(--text);" : "font-weight: 500; color: var(--muted);";
           const dotHtml = t.unread ? `<div style="width: 10px; height: 10px; background: var(--accent); border-radius: 50%; margin-right: 10px; flex-shrink: 0;"></div>` : '';
 
@@ -888,24 +894,9 @@ window.openInbox = () => {
               </div>
             </div>
           `;
-
-        
-          inboxList.innerHTML += `
-            <div class="inbox-item" onclick="window.closeModal('inboxModal'); window.openChat('${t.chatId}', '${t.title}')">
-              <div class="inbox-avatar">${avatarLetter}</div>
-              <div class="inbox-content">
-                <div class="inbox-header">
-                  <span class="inbox-name">${t.title}</span>
-                  <span class="inbox-time">${timeString}</span>
-                </div>
-                <div class="inbox-preview">${t.lastMsg}</div>
-              </div>
-            </div>
-          `;
         });
       });
     };
-
 
 
 
