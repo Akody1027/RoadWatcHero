@@ -735,11 +735,18 @@
        alert("Quote accepted! The mechanic has been notified.");
     };
 
-    // Chat System Integration
-    window.openChat = async (chatId, titleName) => {
+
+
+    
+window.openChat = async (chatId, titleName) => {
        activeChatId = chatId;
        document.getElementById('chatHeaderTitle').innerText = titleName ? `Chat: ${titleName}` : 'Messages';
        window.openModal('chatModal');
+       
+       // Flip the unread flag to false in the user's inbox
+       update(ref(db, `userInbox/${myId}/${activeChatId}`), {
+         unread: false
+       });
        
        onValue(ref(db, `chats/${activeChatId}`), (snap) => {
           const box = document.getElementById('chatBox');
@@ -784,10 +791,9 @@ window.sendChatMsg = () => {
         const otherUserId = (myId === ownerId) ? heroId : ownerId;
         const jobTitle = job.issue.substring(0, 22) + "...";
 
-        // 4. Dual-Write to userInbox for massive scalability
-        const inboxDataMe = { lastMsg: text, timestamp: now, otherUserId: otherUserId, title: jobTitle, chatId: activeChatId };
-        const inboxDataThem = { lastMsg: text, timestamp: now, otherUserId: myId, title: jobTitle, chatId: activeChatId };
-
+       // 4. Dual-Write to userInbox for massive scalability (Now with unread tracking)
+        const inboxDataMe = { lastMsg: text, timestamp: now, otherUserId: otherUserId, title: jobTitle, chatId: activeChatId, unread: false };
+        const inboxDataThem = { lastMsg: text, timestamp: now, otherUserId: myId, title: jobTitle, chatId: activeChatId, unread: true };
         update(ref(db, `userInbox/${myId}/${activeChatId}`), inboxDataMe);
         update(ref(db, `userInbox/${otherUserId}/${activeChatId}`), inboxDataThem);
       }
@@ -815,6 +821,38 @@ window.sendChatMsg = () => {
 
 
 
+
+// Global Inbox Listener for the Unread Badge
+    onValue(ref(db, `userInbox/${myId}`), (snap) => {
+      const data = snap.val();
+      const badge = document.getElementById('chatBadgeHero');
+      
+      if (!data) {
+        badge.style.display = 'none';
+        return;
+      }
+
+      let unreadCount = 0;
+      Object.values(data).forEach(thread => {
+        if (thread.unread === true) {
+          unreadCount++;
+        }
+      });
+
+      if (unreadCount > 0) {
+        badge.innerText = unreadCount;
+        badge.style.display = 'flex'; // Uses flex to keep the number perfectly centered
+      } else {
+        badge.style.display = 'none'; // Hides the badge completely if 0
+      }
+    });
+
+
+
+
+
+
+    
 window.openInbox = () => {
       window.openModal('inboxModal');
       const inboxList = document.getElementById('inboxList');
@@ -833,11 +871,25 @@ window.openInbox = () => {
         // Convert object to array and sort newest first
         const threads = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
 
-        threads.forEach(t => {
-          const dateObj = new Date(t.timestamp);
-          const timeString = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-          const avatarLetter = t.title.charAt(0).toUpperCase();
+// Determine if this specific thread is unread to bold the text
+          const isUnread = t.unread ? "font-weight: 900; color: var(--text);" : "font-weight: 500; color: var(--muted);";
+          const dotHtml = t.unread ? `<div style="width: 10px; height: 10px; background: var(--accent); border-radius: 50%; margin-right: 10px; flex-shrink: 0;"></div>` : '';
 
+          inboxList.innerHTML += `
+            <div class="inbox-item" onclick="window.closeModal('inboxModal'); window.openChat('${t.chatId}', '${t.title}')">
+              ${dotHtml}
+              <div class="inbox-avatar">${avatarLetter}</div>
+              <div class="inbox-content">
+                <div class="inbox-header">
+                  <span class="inbox-name" style="${isUnread}">${t.title}</span>
+                  <span class="inbox-time">${timeString}</span>
+                </div>
+                <div class="inbox-preview" style="${isUnread}">${t.lastMsg}</div>
+              </div>
+            </div>
+          `;
+
+        
           inboxList.innerHTML += `
             <div class="inbox-item" onclick="window.closeModal('inboxModal'); window.openChat('${t.chatId}', '${t.title}')">
               <div class="inbox-avatar">${avatarLetter}</div>
@@ -855,7 +907,12 @@ window.openInbox = () => {
     };
 
 
-   
+
+
+
+
+
+    
   </script>
 </body>
 </html>
