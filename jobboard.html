@@ -529,15 +529,9 @@
     
     
     
-    // Submit Job
-// Submit Job (Now with Ghost Gate)
-    window.submitMechanicJob = () => {
-      // 1. Ghost Gate Security Check
-      const myProfile = profilesCache[myId];
-      if (!myProfile || !myProfile.name) {
-        return alert("Please set up your Hero Profile in the main app before posting a job.");
-      }
 
+    // Submit Job (Frictionless for Seekers)
+    window.submitMechanicJob = () => {
       const budget = document.getElementById('reqBudget').value;
       const issue = document.getElementById('reqIssue').value;
       const isDrivable = document.getElementById('reqDrivable').checked;
@@ -563,10 +557,8 @@
       document.getElementById("jobImgPreview").innerHTML = '';
       pendingUploadedImages = [];
       window.togglePanel('postPanel', document.getElementById('btnPost')); 
-      alert("Job posted! It will be visible for 7 days.");
+      alert("Job posted! It will be visible to local mechanics for 7 days.");
     };
-    
-    
     
     
     
