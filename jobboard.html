@@ -525,8 +525,19 @@
       }
     };
 
+    
+    
+    
+    
     // Submit Job
+// Submit Job (Now with Ghost Gate)
     window.submitMechanicJob = () => {
+      // 1. Ghost Gate Security Check
+      const myProfile = profilesCache[myId];
+      if (!myProfile || !myProfile.name) {
+        return alert("Please set up your Hero Profile in the main app before posting a job.");
+      }
+
       const budget = document.getElementById('reqBudget').value;
       const issue = document.getElementById('reqIssue').value;
       const isDrivable = document.getElementById('reqDrivable').checked;
@@ -554,7 +565,12 @@
       window.togglePanel('postPanel', document.getElementById('btnPost')); 
       alert("Job posted! It will be visible for 7 days.");
     };
-
+    
+    
+    
+    
+    
+    
     // Delete Job
     window.deleteJob = (e, jobId) => {
       e.stopPropagation(); // Stop card click
@@ -570,11 +586,22 @@
       feed.innerHTML = '';
       let jobsFound = 0;
 
+      
+      
+      
       Object.entries(jobsCache).forEach(([id, job]) => {
-        if (job.status !== 'open') return;
+        
+        // 1. My Jobs vs Global Feed Logic
+        if (showMyJobsOnly) {
+          // If viewing My Jobs, show it if I am the Seeker OR the Hero, as long as it isn't closed.
+          if (job.ownerId !== myId && job.helperId !== myId) return;
+          if (job.status === 'closed') return; 
+        } else {
+          // If viewing the global feed, ONLY show open jobs that need a mechanic.
+          if (job.status !== 'open') return;
+        }
 
-        if (showMyJobsOnly && job.ownerId !== myId) return;
-
+        const searchTerm = document.getElementById('searchBar').value.toLowerCase();
         if (searchTerm && !job.issue.toLowerCase().includes(searchTerm)) return;
 
         let distMilesStr = "?";
@@ -590,18 +617,27 @@
 
         jobsFound++;
 
+        // 2. Status Badges for the "My Jobs" view
+        let statusBanner = '';
+        if (job.status === 'accepted') {
+           statusBanner = `<div style="background:var(--warning); color:white; font-size:11px; font-weight:900; padding:8px; text-align:center; border-radius:18px 18px 0 0; margin: -16px -16px 10px -16px;">⏳ IN PROGRESS</div>`;
+        } else if (job.status === 'completed') {
+           statusBanner = `<div style="background:var(--success); color:white; font-size:11px; font-weight:900; padding:8px; text-align:center; border-radius:18px 18px 0 0; margin: -16px -16px 10px -16px;">✅ PENDING CONFIRMATION</div>`;
+        }
+
         // Quote Badges
         let badgeHtml = '';
-        if(job.bids) {
+        if(job.bids && job.status === 'open') {
             const bidCount = Object.keys(job.bids).length;
             badgeHtml = `<div style="position:absolute; top:-10px; right:-10px; background:var(--accent); color:white; font-size:11px; font-weight:900; padding:6px 12px; border-radius:15px; box-shadow:var(--shadow); z-index:2;">🔔 ${bidCount} Quotes</div>`;
         }
 
-        const delBtnHtml = job.ownerId === myId ? `<button class="del-btn" onclick="window.deleteJob(event, '${id}')">🗑️ Delete</button>` : '';
+        const delBtnHtml = (job.ownerId === myId && job.status === 'open') ? `<button class="del-btn" onclick="window.deleteJob(event, '${id}')">🗑️ Cancel</button>` : '';
         const imgThumb = (job.images && job.images.length > 0) ? `<img src="${job.images[0]}" style="width:50px; height:50px; object-fit:cover; border-radius:10px; flex-shrink:0; border:1px solid #e2e8f0; margin-right:10px;">` : '';
 
         feed.innerHTML += `
           <div class="job-card" onclick="window.openJobDetails('${id}', '${distMilesStr}')">
+            ${statusBanner}
             ${badgeHtml}
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom:8px;">
               <div style="display:flex; align-items:center;">
@@ -620,11 +656,19 @@
           </div>
         `;
       });
+      
 
       if (jobsFound === 0) {
         feed.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px 20px; font-weight: 600; font-size: 14px;">No jobs found.<br>Adjust your filters or try expanding your radius!</div>`;
       }
     };
+    
+    
+    
+    
+    
+    
+    
 
     // Open Job Details
     window.openJobDetails = (jobId, distStr) => {
@@ -650,58 +694,111 @@
       } else {
           imgScroller.style.display = 'none';
       }
+      
+      
+      
+      
+      
+      
 
       // Dynamic Area (Quotes list if Owner, Action buttons if Hero)
       const dynArea = document.getElementById('detDynamicArea');
       dynArea.innerHTML = '';
 
-      if (job.ownerId === myId) {
-        if (job.bids && Object.keys(job.bids).length > 0) {
-          dynArea.innerHTML = `<div style="font-size:12px; font-weight:900; color:var(--muted); margin-bottom:10px;">INCOMING QUOTES</div>`;
-          Object.entries(job.bids).forEach(([heroId, bid]) => {
-             const hProf = profilesCache[heroId] || {};
-             const heroPic = hProf.pic || "https://via.placeholder.com/50";
-             const heroName = hProf.name || "Local Mechanic";
-             
-             // Dynamic Review Tags
-             let tagsUI = '';
-             if(hProf.tags) {
-                tagsUI = hProf.tags.slice(0,2).map(t => `<span class="tag" style="background:#dcfce7; color:#166534; font-size:9px;">${t}</span>`).join('');
-             }
+      
+      // DYNAMIC WORKFLOW ENGINE
+      if (job.status === 'open') {
+        
+        // --- PHASE 1: JOB IS OPEN (QUOTING PHASE) ---
+        if (job.ownerId === myId) {
+          if (job.bids && Object.keys(job.bids).length > 0) {
+            dynArea.innerHTML = `<div style="font-size:12px; font-weight:900; color:var(--muted); margin-bottom:10px;">INCOMING QUOTES</div>`;
+            Object.entries(job.bids).forEach(([heroId, bid]) => {
+               const heroPic = bid.heroPic || "https://via.placeholder.com/50";
+               const heroName = bid.heroName || "Local Mechanic";
+               const isPro = bid.isPro === true;
+               
+               let tagsUI = isPro ? `<span class="tag" style="background:var(--accent); color:white; font-size:9px; font-weight:900;">⭐ PRO</span>` : '';
+               const hProf = profilesCache[heroId] || {};
+               if(hProf.tags) tagsUI += hProf.tags.slice(0,2).map(t => `<span class="tag" style="background:#dcfce7; color:#166534; font-size:9px;">${t}</span>`).join('');
 
-             dynArea.innerHTML += `
-               <div class="quote-card">
-                 <img src="${heroPic}" class="quote-pic">
-                 <div class="quote-info">
-                   <div style="font-weight:900; color:var(--text); font-size:14px;">${heroName}</div>
-                   <div style="display:flex; gap:4px; margin-top:4px;">${tagsUI}</div>
-                   <div style="font-size:12px; color:var(--muted); margin-top:5px; font-style:italic;">"${bid.note || 'Ready to help.'}"</div>
-                 </div>
-                 <div style="text-align:right;">
-                   <div style="color:var(--success); font-weight:900; font-size:20px;">$${bid.amount}</div>
-                   <div style="display:flex; gap:5px; margin-top:5px; justify-content:flex-end;">
-                     <button onclick="window.openChat('${jobId}_${heroId}', '${heroName}')" style="background:var(--bg); border:1px solid #e2e8f0; border-radius:8px; padding:6px; cursor:pointer;">💬</button>
-                     <button onclick="window.acceptQuote('${jobId}', '${heroId}')" style="background:var(--success); color:white; border:none; border-radius:8px; font-weight:bold; padding:6px 10px; cursor:pointer;">ACCEPT</button>
+               dynArea.innerHTML += `
+                 <div class="quote-card">
+                   <img src="${heroPic}" class="quote-pic">
+                   <div class="quote-info">
+                     <div style="font-weight:900; color:var(--text); font-size:14px;">${heroName}</div>
+                     <div style="display:flex; gap:4px; margin-top:4px;">${tagsUI}</div>
+                     <div style="font-size:12px; color:var(--muted); margin-top:5px; font-style:italic;">"${bid.note || 'Ready to help.'}"</div>
+                   </div>
+                   <div style="text-align:right;">
+                     <div style="color:var(--success); font-weight:900; font-size:20px;">$${bid.amount}</div>
+                     <div style="display:flex; gap:5px; margin-top:5px; justify-content:flex-end;">
+                       <button onclick="window.openChat('${jobId}_${heroId}', '${heroName}')" style="background:var(--bg); border:1px solid #e2e8f0; border-radius:8px; padding:6px; cursor:pointer;">💬</button>
+                       <button onclick="window.acceptQuote('${jobId}', '${heroId}')" style="background:var(--success); color:white; border:none; border-radius:8px; font-weight:bold; padding:6px 10px; cursor:pointer;">ACCEPT</button>
+                     </div>
                    </div>
                  </div>
-               </div>
-             `;
-          });
+               `;
+            });
+          } else {
+            dynArea.innerHTML = `<div style="text-align:center; padding:20px; color:var(--muted); font-weight:600; font-size:13px; background:#f8fafc; border-radius:15px; border:1px dashed #cbd5e1;">Waiting for local mechanics to send quotes...</div>`;
+          }
         } else {
-          dynArea.innerHTML = `<div style="text-align:center; padding:20px; color:var(--muted); font-weight:600; font-size:13px; background:#f8fafc; border-radius:15px; border:1px dashed #cbd5e1;">Waiting for local mechanics to send quotes...</div>`;
+          // Hero viewing an open job
+          dynArea.innerHTML = `
+            <div class="action-row">
+              <button class="btn-half btn-msg" onclick="window.openChat('${jobId}_${myId}', 'Seeker')">💬 MESSAGE</button>
+              <button class="btn-half btn-accept" onclick="window.openQuoteModal()">SUBMIT QUOTE</button>
+            </div>
+          `;
         }
-      } else {
-        // Hero View
-        dynArea.innerHTML = `
-          <div class="action-row">
-            <button class="btn-half btn-msg" onclick="window.openChat('${jobId}_${myId}', 'Seeker')">💬 MESSAGE</button>
-            <button class="btn-half btn-accept" onclick="window.openQuoteModal()">SUBMIT QUOTE</button>
-          </div>
-        `;
+
+      } else if (job.status === 'accepted') {
+        
+        // --- PHASE 2: IN PROGRESS ---
+        if (job.helperId === myId) {
+          // The Hero's View
+          dynArea.innerHTML = `
+             <div style="text-align:center; padding:20px; background:#fffbeb; border-radius:15px; border: 2px solid var(--warning); margin-top:10px;">
+                <h4 style="margin:0 0 10px 0; color:#d97706;">🔧 You are working on this job!</h4>
+                <div class="action-row">
+                   <button class="btn-half btn-msg" onclick="window.openChat('${jobId}_${job.ownerId}', 'Seeker')">💬 MESSAGE</button>
+                   <button class="btn-half btn-accept" onclick="window.markJobCompleted('${jobId}')">MARK DONE</button>
+                </div>
+             </div>`;
+        } else if (job.ownerId === myId) {
+          // The Seeker's View
+          const hProf = profilesCache[job.helperId] || {};
+          dynArea.innerHTML = `
+             <div style="text-align:center; padding:20px; background:#fffbeb; border-radius:15px; border: 2px solid var(--warning); margin-top:10px;">
+                <h4 style="margin:0 0 5px 0; color:#d97706;">⏳ JOB IN PROGRESS</h4>
+                <p style="font-size:13px; color:var(--text); margin:0 0 15px 0;"><b>${hProf.name || 'Your Hero'}</b> is actively working on this.</p>
+                <button class="submit-btn" style="background:var(--text);" onclick="window.openChat('${jobId}_${job.helperId}', '${hProf.name || 'Hero'}')">💬 MESSAGE MECHANIC</button>
+             </div>`;
+        }
+
+      } else if (job.status === 'completed') {
+        
+        // --- PHASE 3: COMPLETED / PENDING CONFIRMATION ---
+        if (job.ownerId === myId) {
+          // The Seeker MUST confirm to release the job
+          dynArea.innerHTML = `
+             <div style="text-align:center; padding:20px; background:#dcfce7; border-radius:15px; border: 2px solid var(--success); margin-top:10px;">
+                <h4 style="margin:0 0 5px 0; color:#166534;">✅ JOB MARKED COMPLETE</h4>
+                <p style="font-size:13px; color:var(--text); margin:0 0 15px 0;">The mechanic stated they have finished the work. If everything looks good, please confirm below.</p>
+                <button class="submit-btn" style="background:var(--success);" onclick="window.closeJob('${jobId}')">CONFIRM & CLOSE JOB</button>
+             </div>`;
+        } else {
+          // The Hero waiting for the Seeker
+          dynArea.innerHTML = `<div style="text-align:center; padding:20px; color:var(--success); font-weight:800; background:#dcfce7; border-radius: 15px;">Waiting for the Seeker to confirm and close the job...</div>`;
+        }
       }
 
       window.openModal('jobDetailsModal');
     };
+      
+      
+ 
 
     // Submitting Quotes
     window.openQuoteModal = () => {
@@ -710,21 +807,43 @@
       window.openModal('quoteModal');
     };
 
+     
+    
+    
+    
+    
     window.finalizeQuote = () => {
+      // 1. Ghost Gate Security Check
+      const myProfile = profilesCache[myId];
+      if (!myProfile || !myProfile.name) {
+        return alert("Please set up your Hero Profile in the main app before submitting a quote.");
+      }
+
       const amt = document.getElementById('quoteAmount').value;
       const note = document.getElementById('quoteNote').value;
       if(!amt) return alert("Please enter a quote amount.");
 
+      // 2. Inject Identity Data into the Bid
       update(ref(db, `mechanicRequests/${activeJobIdForDetails}/bids/${myId}`), {
         amount: Number(amt),
         note: note,
+        heroName: myProfile.name,
+        heroPic: myProfile.pic || "https://via.placeholder.com/50",
+        isPro: myProfile.isPro === true, // Check for Pro status
         timestamp: Date.now()
       });
       
       window.closeModal('quoteModal');
       window.closeModal('jobDetailsModal');
-      alert("Quote submitted to the Seeker!");
+      alert("Quote submitted to the Seeker!"); 
     };
+    
+    
+
+    
+    
+    
+    
 
     window.acceptQuote = (jobId, heroId) => {
        update(ref(db, `mechanicRequests/${jobId}`), {
@@ -736,6 +855,33 @@
     };
 
 
+    
+    window.markJobCompleted = (jobId) => {
+       if(confirm("Are you sure you have finished the work for this job?")) { 
+           update(ref(db, `mechanicRequests/${jobId}`), { status: 'completed' });
+           window.closeModal('jobDetailsModal');
+           alert("Job marked as completed. The Seeker has been notified to confirm.");
+       }
+    };
+
+    window.closeJob = (jobId) => {
+       if(confirm("Are you satisfied and ready to officially close this job?")) {
+           update(ref(db, `mechanicRequests/${jobId}`), { status: 'closed' });
+           window.closeModal('jobDetailsModal');
+           alert("Job closed successfully! Thank you for using RoadWatcHero.");
+       }
+    };
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     
 window.openChat = async (chatId, titleName) => {
@@ -872,22 +1018,40 @@ window.openInbox = () => {
         const threads = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
 
         // Loop through each thread to render the UI
+        
+        
+        
+        
+        // Loop through each thread to render the UI
         threads.forEach(t => {
           const dateObj = new Date(t.timestamp);
           const timeString = dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-          const avatarLetter = t.title.charAt(0).toUpperCase();
+          
+          // 1. Pull the actual user profile from the cache
+          const otherProfile = profilesCache[t.otherUserId] || {};
+          const realName = otherProfile.name || t.title;
+          const realPic = otherProfile.pic;
+
+          // 2. Determine whether to show their photo or fallback to a letter
+          let avatarHtml = '';
+          if (realPic) { 
+             avatarHtml = `<img src="${realPic}" class="inbox-avatar" style="object-fit: cover; border: none; padding: 0;">`;
+          } else {
+             const avatarLetter = realName.charAt(0).toUpperCase();
+             avatarHtml = `<div class="inbox-avatar">${avatarLetter}</div>`;
+          }
 
           // Determine if this specific thread is unread to bold the text
           const isUnread = t.unread ? "font-weight: 900; color: var(--text);" : "font-weight: 500; color: var(--muted);";
           const dotHtml = t.unread ? `<div style="width: 10px; height: 10px; background: var(--accent); border-radius: 50%; margin-right: 10px; flex-shrink: 0;"></div>` : '';
 
           inboxList.innerHTML += `
-            <div class="inbox-item" onclick="window.closeModal('inboxModal'); window.openChat('${t.chatId}', '${t.title}')">
+            <div class="inbox-item" onclick="window.closeModal('inboxModal'); window.openChat('${t.chatId}', '${realName}')">
               ${dotHtml}
-              <div class="inbox-avatar">${avatarLetter}</div>
+              ${avatarHtml}
               <div class="inbox-content">
                 <div class="inbox-header">
-                  <span class="inbox-name" style="${isUnread}">${t.title}</span>
+                  <span class="inbox-name" style="${isUnread}">${realName}</span>
                   <span class="inbox-time">${timeString}</span>
                 </div>
                 <div class="inbox-preview" style="${isUnread}">${t.lastMsg}</div>
@@ -895,6 +1059,7 @@ window.openInbox = () => {
             </div>
           `;
         });
+ 
       });
     };
 
@@ -907,4 +1072,3 @@ window.openInbox = () => {
   </script>
 </body>
 </html>
-
