@@ -883,7 +883,7 @@
     
 window.openChat = async (chatId, titleName) => {
        activeChatId = chatId;
-       document.getElementById('chatHeaderTitle').innerText = titleName ? `Chat: ${titleName}` : 'Messages';
+       document.getElementById('chatHeaderTitle').innerText = titleName ? ` ${titleName}` : 'Messages';
        window.openModal('chatModal');
        
        // Flip the unread flag to false in the user's inbox
