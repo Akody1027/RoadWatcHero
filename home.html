@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html>
 
 
 
@@ -851,7 +853,27 @@
     <div id="loadingOverlay">
       <div class="spinner"></div>
     </div>
-
+    <div id="persistentLocationBanner" style="display: none; position: fixed; top: 0; left: 0; width: 100%; background: var(--accent); color: white; z-index: 10000; padding:       15px 20px; box-shadow: 0 4px 15px rgba(238, 97, 28, 0.4); flex-direction: column; align-items: center; text-align: center; gap: 8px; transition: transform 0.3s ease-in-     out;">
+      <div style="font-weight: 800; font-size: 15px;">
+        📍 Location Required
+      </div>
+      <div id="persistentBannerSubtext" style="font-size: 12px; font-weight: 500; line-height: 1.4;">
+        RoadWatcHero needs your location to connect you with nearby help.
+      </div>
+      <button onclick="window.triggerNativeLocation()" style="background: white; color: var(--accent); border: none; padding: 12px 24px; border-radius: 16px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: var(--shadow); margin-top: 5px; width: 100%; max-width: 300px;">
+        ENABLE LOCATION
+      </button>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <!-- APP CONTENT -->
     <div id="landingPage" class="view view-active">
       <img src="roadwatchlogo.png" alt="Logo" />
@@ -2386,6 +2408,97 @@
         };
       }
 
+      
+      
+      
+      
+      
+      // NEW: Persistent Location Banner Logic
+      window.triggerNativeLocation = () => {
+        if (navigator.permissions && navigator.permissions.query) {
+          navigator.permissions.query({ name: 'geolocation' }).then(function(result) {
+            if (result.state === 'denied') {
+              document.getElementById('persistentBannerSubtext').innerHTML = 
+                "<b>⚠️ Location Blocked.</b> Tap the lock icon 🔒 in your browser's address bar to allow it.";
+            } else {
+              window.startLocationWatch();
+            }
+          });
+        } else {
+          window.startLocationWatch();
+        }
+      };
+
+      window.evaluateBannerState = () => {
+        const banner = document.getElementById('persistentLocationBanner');
+        if (navigator.permissions && navigator.permissions.query) {
+          navigator.permissions.query({ name: 'geolocation' }).then(function(result) {
+            if (result.state === 'granted') {
+              banner.style.display = 'none';
+              window.startLocationWatch();
+            } else {
+              banner.style.display = 'flex';
+              if (result.state === 'denied') {
+                document.getElementById('persistentBannerSubtext').innerHTML = 
+                  "<b>⚠️ Location Blocked.</b> Tap the lock icon 🔒 in your browser's address bar to allow it.";
+              }
+            }
+            result.onchange = function() {
+              if (this.state === 'granted') {
+                banner.style.display = 'none';
+                window.startLocationWatch();
+              } else {
+                banner.style.display = 'flex';
+              }
+            };
+          });
+        } else {
+          banner.style.display = 'flex';
+        }
+      };
+
+      window.startLocationWatch = () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.watchPosition(
+            (p) => {
+              const freshLoc = { lat: p.coords.latitude, lng: p.coords.longitude };
+              const isFirstLoad = !userLocation;
+              userLocation = freshLoc;
+              update(ref(db, `profiles/${myId}`), { ...userLocation, id: myId });
+              
+              if (map) {
+                if (!heroMarker) {
+                  heroMarker = new google.maps.Marker({
+                    position: userLocation, map: map,
+                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }
+                  });
+                } else {
+                  heroMarker.setPosition(userLocation); 
+                }
+                if (isFirstLoad && document.getElementById("heroUI").classList.contains("view-active")) map.setCenter(userLocation);
+              }
+              syncUI();
+              // Failsafe: Hide banner if data successfully streams in
+              document.getElementById('persistentLocationBanner').style.display = 'none';
+            },
+            (err) => {
+              console.error(err);
+              document.getElementById('persistentLocationBanner').style.display = 'flex';
+              if (err.code === err.PERMISSION_DENIED) {
+                 document.getElementById('persistentBannerSubtext').innerHTML = "<b>⚠️ Location Blocked.</b> Tap the lock icon 🔒 in your browser's address bar to allow it.";
+              }
+            },
+            { enableHighAccuracy: true }
+          );
+        }
+      };
+      
+      
+      
+      
+      
+      
+      
       window.onload = () => {
         // Initialize Places Autocomplete for Tow Destination
         const inputField = document.getElementById("towDestinationInput");
@@ -2413,50 +2526,29 @@
           inputField.value = place.formatted_address;
         });
 
-        if (navigator.geolocation) {
-          navigator.geolocation.watchPosition(
-            (p) => {
-              const freshLoc = {
-                lat: p.coords.latitude,
-                lng: p.coords.longitude,
-              };
-              const isFirstLoad = !userLocation;
-              userLocation = freshLoc;
-              update(ref(db, `profiles/${myId}`), {
-                ...userLocation,
-                id: myId,
-              });
-              if (map) {
-                if (!heroMarker)
-                  heroMarker = new google.maps.Marker({
-                    position: userLocation,
-                    map: map,
-                    icon: {
-                      path: google.maps.SymbolPath.CIRCLE,
-                      scale: 8,
-                      fillColor: "#2563eb",
-                      fillOpacity: 1,
-                      strokeColor: "white",
-                      strokeWeight: 2,
-                    },
-                  });
-                else heroMarker.setPosition(userLocation);
-                if (
-                  isFirstLoad &&
-                  document
-                    .getElementById("heroUI")
-                    .classList.contains("view-active")
-                )
-                  map.setCenter(userLocation);
-              }
-              syncUI();
-            },
-            (err) => console.error(err),
-            { enableHighAccuracy: true }
-          );
-        }
+        
+        
+        
+        // 1. Fire the normal native location request immediately
+        window.startLocationWatch();
+
+        // 2. Turn on the persistent backup banner to watch the result 
+        window.evaluateBannerState();
+        
+        
+        
+
+        
+        
       };
 
+      
+      
+      
+      
+      
+      
+      
       window.toggleTaskCard = () => {
         document.getElementById("activeTask").classList.toggle("expanded");
       };
