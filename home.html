@@ -1120,6 +1120,12 @@
             class="icon-btn"
             onclick="window.openProfile()"
           />
+
+          <img
+            src="toolicon.png"
+            class="icon-btn"
+            onclick="window.openJobBoard()"
+          />
         </div>
       </div>
     </div>
@@ -2655,6 +2661,14 @@
             document.getElementById("isProToggle").checked = false;
           });
       };
+
+
+// NEW: Open the Job Board from the Nav Bar Icon
+      window.openJobBoard = () => {
+        // Directs the current window to your existing job board file
+        window.location.href = "jobboard.html";
+      };
+      
 
       window.submitBid = (sosId) => {
         const bidAmount = document.getElementById("detBidAmount").value;
