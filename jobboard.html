@@ -1,4 +1,7 @@
 
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -295,7 +298,7 @@
         <div id="detTags" style="margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap;"></div>
       </div>
 
-      <div id="detImgScroller" class="preview-scroller" style="display: none; padding-bottom: 10px;"></div>
+      <div id="detImgScroller" class="preview-scroller" style="display: none; justify-content:center; padding-bottom: 10px;"></div>
       
       <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 4px;">ISSUE DESCRIPTION</p>
       <div id="detIssue" style="font-weight: 500; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; word-break: break-word; font-size: 14px; line-height: 1.5;"></div>
@@ -359,8 +362,11 @@
   </div>
 
   
-  
-  
+  <div id="imageOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:10000; justify-content:center; align-items:center; cursor:pointer;" onclick="this.style.display='none'">
+  <span style="position:absolute; top:20px; right:20px; color:white; font-size:30px; font-weight:bold;">&times;</span>
+  <img id="overlayImg" style="max-width:95%; max-height:95%; border-radius:8px; box-shadow:0 0 20px rgba(0,0,0,0.5);">
+</div>
+   
   
 
   <script type="module">
@@ -687,7 +693,14 @@
       const imgScroller = document.getElementById('detImgScroller');
       if(job.images && job.images.length > 0) {
           imgScroller.style.display = 'flex';
-          imgScroller.innerHTML = job.images.map(src => `<img src="${src}" onclick="window.open(this.src)" style="cursor:pointer; width:100px; height:100px;">`).join('');
+          imgScroller.innerHTML = job.images.map(src => `
+            <img 
+              src="${src}" 
+              onclick="window.viewImage(this.src)" 
+              style="cursor:pointer; width:auto; height:300px; border-radius:12px; margin-right:8px;"
+             >
+           `).join('');
+
       } else {
           imgScroller.style.display = 'none';
       }
@@ -1059,7 +1072,12 @@ window.openInbox = () => {
  
       });
     };
-
+window.viewImage = (src) => {
+  const overlay = document.getElementById('imageOverlay');
+  const img = document.getElementById('overlayImg');
+  img.src = src;
+  overlay.style.display = 'flex';
+};
 
 
 
