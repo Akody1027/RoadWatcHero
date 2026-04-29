@@ -433,6 +433,49 @@
         window.renderFeed();
       }
     };
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    // 1. The Global UI Reset
+window.closeAllUI = () => {
+  // Hide all modals
+  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+  // Hide all drop-panels
+  document.querySelectorAll('.drop-panel').forEach(p => p.style.display = 'none');
+  // Reset toolbar buttons
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active-tool'));
+  // Hide the image lightbox if you added it
+  const overlay = document.getElementById('imageOverlay');
+  if(overlay) overlay.style.display = 'none';
+};
+    
+    
+    
+    
+    
+    
+    // 2. The Back Button Watcher
+window.addEventListener('popstate', (event) => {
+  // If the user goes back, we just close all open UI components
+  window.closeAllUI();
+});
+    
+    
+    
+    
+    
+    
+    
 
     // Auto-Sweep Expired Jobs (7 days)
     const runOwnerSweep = () => {
@@ -449,19 +492,23 @@
     };
 
     // UI Toggles
-    window.togglePanel = (panelId, btnEl) => {
-      document.querySelectorAll('.drop-panel').forEach(p => { if(p.id !== panelId) p.style.display = 'none'; });
-      document.querySelectorAll('.tool-btn').forEach(b => { if(b !== btnEl) b.classList.remove('active-tool'); });
-      
-      const panel = document.getElementById(panelId);
-      if(panel.style.display === "block") {
-        panel.style.display = "none";
-        btnEl.classList.remove('active-tool');
-      } else {
-        panel.style.display = 'block';
-        btnEl.classList.add('active-tool');
-      }
-    };
+window.togglePanel = (panelId, btnEl) => {
+  document.querySelectorAll('.drop-panel').forEach(p => { if(p.id !== panelId) p.style.display = 'none'; });
+  document.querySelectorAll('.tool-btn').forEach(b => { if(b !== btnEl) b.classList.remove('active-tool'); });
+  
+  const panel = document.getElementById(panelId);
+  if(panel.style.display === "block") {
+    panel.style.display = "none";
+    btnEl.classList.remove('active-tool');
+    // If user closes it manually, we go back in history to clean up
+    if(history.state && history.state.uiOpen === panelId) history.back();
+  } else {
+    panel.style.display = 'block';
+    btnEl.classList.add('active-tool');
+    // RECORD this step in history
+    history.pushState({ uiOpen: panelId }, "");
+  }
+};
 
     window.toggleLayout = () => {
       const feed = document.getElementById('jobFeed');
@@ -488,8 +535,32 @@
       window.renderFeed();
     };
 
-    window.openModal = (id) => document.getElementById(id).style.display = 'flex';
-    window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+   
+    window.openModal = (id) => {
+  const modal = document.getElementById(id);
+  modal.style.display = 'flex';
+  
+  // This 'pushes' a new entry onto the browser history stack.
+  // It doesn't change the URL, but it tricks the Back Button into 
+  // thinking we moved to a new page.
+  history.pushState({ uiOpen: id }, "");
+};
+    
+    
+    window.closeModal = (id) => {
+  document.getElementById(id).style.display = 'none';
+  
+  // If there is a recorded history state for this modal, 
+  // we go back once to 'remove' that dummy history entry.
+  if (history.state && history.state.uiOpen === id) {
+    history.back();
+  }
+};
+    
+    
+    
+    
+    
 
     // Canvas Image Compression & Upload
     window.handleJobImageUpload = (input) => {
