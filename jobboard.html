@@ -110,7 +110,7 @@
       width: 100%; padding: 15px; border-radius: 16px; border: 2px dashed #cbd5e1;
       background: none; margin-bottom: 10px; cursor: pointer; font-weight: bold; color: var(--muted);
     }
-    .preview-scroller { display: flex; gap: 8px;  margin-bottom: 15px; }
+    .preview-scroller { display: flex; gap: 8px;  margin-bottom: 15px; overflow-x:auto; overflow-y: hidden;}
     .preview-scroller img { width: 70px; height: 70px; object-fit: cover; border-radius: 10px; flex-shrink: 0; border: 1px solid #e2e8f0; }
 
     /* Toggle Switch */
@@ -148,7 +148,7 @@
 
     /* Modals */
     .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center;  z-index: 1000; }
-    .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 90vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); display: flex; flex-direction: column;}
+    .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 90vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); display:  flex-direction: column;}
     @keyframes slideUp { to { transform: translateY(0); } }
     .close-x-btn { background: #f1f5f9; color: var(--text); border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; position: absolute; top: 20px; right: 20px; z-index: 10; }
     
@@ -159,7 +159,7 @@
     .btn-accept { background: var(--success); color: white; }
 
     /* Quotes/Bids List UI */
-    .quote-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
+    .quote-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; margin-bottom: 10px;  align-items: center; gap: 15px; display:flex;}
     .quote-pic { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .quote-info { flex: 1; }
 
@@ -298,7 +298,7 @@
         <div id="detTags" style="margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap;"></div>
       </div>
 
-      <div id="detImgScroller" class="preview-scroller" style="display: none; justify-content:center; padding-bottom: 10px;"></div>
+      <div id="detImgScroller" class="preview-scroller" style="display: none;  padding-bottom: 10px;"></div>
       
       <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 4px;">ISSUE DESCRIPTION</p>
       <div id="detIssue" style="font-weight: 500; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; word-break: break-word; font-size: 14px; line-height: 1.5;"></div>
