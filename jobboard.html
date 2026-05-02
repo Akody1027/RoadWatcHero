@@ -12,13 +12,13 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry"></script>
 
   <style>
-    :root { 
+    :root {  
       --bg: #f8fafc;
       --card: #ffffff;
       --text: #0f172a;
       --muted: #64748b;
       --accent: #ee611c;
-      --danger: #ef4444;
+      --danger: #ef4444; 
       --success: #22c55e;
       --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
@@ -1019,66 +1019,73 @@ window.openChat = async (chatId, titleName) => {
     };
 
 
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+   
     window.sendChatMsg = () => {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
   if (!text || !activeChatId) return;
 
   const now = Date.now();
+  const parts = activeChatId.split('_');
+  const jobId = parts[0];
+  const heroId = parts[1];
 
-  // 1. Push message to the main chat thread
+  // 1. Push message to the main thread
   push(ref(db, `chats/${activeChatId}`), {
     sender: myId,
     text: text,
     timestamp: now
   });
 
-  // 2. Extract Job and Hero IDs from the activeChatId
-  // Format is always "jobId_heroId"
-  const parts = activeChatId.split('_');
-  const jobId = parts[0];
-  const heroId = parts[1];
+  // 2. Identify the Seeker and Hero
   const job = jobsCache[jobId];
+  let seekerId = job ? job.ownerId : null;
+  let jobTitle = job ? (job.issue.substring(0, 25) + "...") : "Mechanical Job";
 
-  if (job) {
-    // 3. Identify the Seeker and the Hero
-    const seekerId = job.ownerId;
-    
-    // Determine who is receiving this message
-    const recipientId = (myId === seekerId) ? heroId : seekerId;
-    
-    const jobTitle = job.issue.substring(0, 25) + "...";
+  // FALLBACK: If job isn't in cache, we know the heroId from the chatId parts. 
+  // If I am the heroId, then the "other" person MUST be the seeker.
+  // We can infer the recipientId even if the cache is laggy.
+  const recipientId = (myId === heroId) ? parts[0].split('-')[0] : heroId; 
+  
+  // NOTE: A better way is to simply determine recipient by splitting the activeChatId
+  // Since activeChatId is jobId_heroId, but a more reliable recipient logic is needed:
+  const determinedRecipient = (myId === heroId) ? seekerId : heroId;
 
-    // 4. Update BOTH Inboxes
-    // We update 'unread: true' for the recipient and 'unread: false' for the sender
-    const inboxUpdateSender = {
-      lastMsg: text,
-      timestamp: now,
-      otherUserId: recipientId,
-      title: jobTitle,
-      chatId: activeChatId,
-      unread: false
-    };
+  // 3. Execution of the Inbox Update
+  // If we still don't have a seekerId from cache, we use the parts logic
+  const finalRecipient = determinedRecipient || (myId === heroId ? parts[0] : heroId);
 
-    const inboxUpdateRecipient = {
-      lastMsg: text,
-      timestamp: now,
-      otherUserId: myId,
-      title: jobTitle,
-      chatId: activeChatId,
-      unread: true
-    };
+  const updates = {};
+  updates[`userInbox/${myId}/${activeChatId}`] = {
+    lastMsg: text,
+    timestamp: now,
+    otherUserId: finalRecipient,
+    title: jobTitle,
+    chatId: activeChatId,
+    unread: false
+  };
+  updates[`userInbox/${finalRecipient}/${activeChatId}`] = {
+    lastMsg: text,
+    timestamp: now,
+    otherUserId: myId,
+    title: jobTitle,
+    chatId: activeChatId,
+    unread: true
+  };
 
-    // Execute the updates
-    update(ref(db, `userInbox/${myId}/${activeChatId}`), inboxUpdateSender);
-    update(ref(db, `userInbox/${recipientId}/${activeChatId}`), inboxUpdateRecipient);
-  }
+  update(ref(db), updates).catch(err => console.error("Inbox sync failed:", err));
 
   input.value = '';
 };
-    
-    
     
     
    
