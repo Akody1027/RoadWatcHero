@@ -2538,7 +2538,7 @@
                 // Failsafe: Hide banner if data successfully streams in
                 document.getElementById(
                   "persistentLocationBanner"
-                ).style.display = "none";
+                ).style.display = "none"; 
               },
               (err) => {
                 console.error(err);
@@ -3211,9 +3211,9 @@
           const detStatusBtn = document.getElementById("detStatusBtn");
           const detETAGroup = document.getElementById("detETAGroup");
           const acceptBtn = document.getElementById("detAcceptBtn");
-          const progressText = document.getElementById("detInProgressText");
+          const progressText = document.getElementById("detInProgressText"); 
           if (isHelper && (r.status === "accepted" || r.status === "arrived")) {
-            detActionBtns.style.display = "flex";
+            detActionBtns.style.display = "flex"; 
             detETAGroup.style.display = "none";
             acceptBtn.style.display = "none";
             progressText.style.display = "block";
@@ -3378,7 +3378,22 @@
         window.enterHeroMode = () => {
           window.switchView("heroUI");
           if (!map) initMap();
+          
+          // NEW: Check for location permission as soon as they become a Hero
+           // This triggers the orange banner if location is denied or missing
+         window.evaluateBannerState(); 
+    
+          // Also trigger the native prompt immediately to try and get coordinates 
+         window.startLocationWatch();
+          
+           
+          
+          
         };
+        
+        
+        
+        
         window.confirmHelp = (sosId) => {
           const eta = document.getElementById("detETA").value;
           update(ref(db, `sosRequests/${sosId}`), {
