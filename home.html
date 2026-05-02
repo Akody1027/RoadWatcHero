@@ -844,6 +844,58 @@
             background: var(--accent);
             color: white;
         }
+        
+ 
+#verifiedMechanic {
+  width: 100%;
+  background-color: #fee2e2; /* Red bg */
+  border: 2px solid #fbbf24; /* Yellow outline */
+  margin-bottom: 12px;
+  border-radius: 14px;
+  padding: 12px;
+  display: none; /* Controlled by toggleTowTruckRequest */
+  flex-direction: column;
+}
+
+.no-pros-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #b91c1c;
+  text-align: center;
+  padding: 10px 0;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.pro-scroller {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pro-mechanic-card {
+  flex: 0 0 120px;
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid #fcd34d;
+}
+
+.pro-img-mini {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 5px;
+  border: 2px solid var(--accent);
+}
+        
+        
+        
       </style>
     </head>
 
@@ -1625,12 +1677,18 @@
                 margin-top: 15px;
               "
             ></label>
-            <input
-              type="text"
-              id="towDestinationInput"
-              placeholder="Enter destination address or landmark"
-            />
+
+             <div id="verifiedMechanic"></div>
+              
+                <input
+                  type="text"
+                  id="towDestinationInput"
+                  placeholder="Enter destination address or landmark"
+                 />
+            
           </div>
+           
+          
           <button
             class="submit-btn"
             id="submitSosBtn"
@@ -3444,29 +3502,91 @@
             }, 400);
           }
         };
-        window.toggleTowTruckRequest = (button) => {
-          isTowTruckRequestActive = !isTowTruckRequestActive;
-          const towTruckContactDiv = document.getElementById("towTruckContact");
-          const phoneNumberInput = document.getElementById("phoneNumberInput");
-          const towDestinationInput = document.getElementById(
-            "towDestinationInput"
-          );
-          if (isTowTruckRequestActive) {
-            button.classList.add("active");
-            button.innerText = "TOW TRUCK REQUEST ACTIVE";
-            towTruckContactDiv.style.display = "block";
-            phoneNumberInput.setAttribute("required", "required");
-            towDestinationInput.setAttribute("required", "required");
-          } else {
-            button.classList.remove("active");
-            button.innerText = "I NEED A TOW TRUCK!";
-            towTruckContactDiv.style.display = "none";
-            phoneNumberInput.removeAttribute("required");
-            phoneNumberInput.value = "";
-            towDestinationInput.removeAttribute("required");
-            towDestinationInput.value = "";
-          }
-        };
+        
+        
+
+          window.toggleTowTruckRequest = (button) => {
+  isTowTruckRequestActive = !isTowTruckRequestActive;
+  const towTruckContactDiv = document.getElementById("towTruckContact");
+  const verifiedBox = document.getElementById("verifiedMechanic");
+
+  if (isTowTruckRequestActive) {
+    button.classList.add("active");
+    button.innerText = "TOW TRUCK REQUEST ACTIVE";
+    towTruckContactDiv.style.display = "block";
+    
+    // Show the box as flex to align the title and list/text correctly
+    verifiedBox.style.display = "flex"; 
+    window.renderVerifiedPros(); 
+  } else {
+    button.classList.remove("active");
+    button.innerText = "I NEED A TOW TRUCK!";
+    towTruckContactDiv.style.display = "none";
+    // FIX: Hide the box when the tow section is closed
+    verifiedBox.style.display = "none"; 
+  }
+};
+          
+          
+          
+window.renderVerifiedPros = () => {
+  const container = document.getElementById('verifiedMechanic');
+  if (!container) return;
+
+  // 1. Filter for Pros within range
+  const nearbyPros = Object.values(profilesCache).filter(profile => {
+    if (!profile.isPro || !profile.lat || !userLocation) return false;
+    
+    const dist = google.maps.geometry.spherical.computeDistanceBetween(
+      new google.maps.LatLng(userLocation.lat, userLocation.lng),
+      new google.maps.LatLng(profile.lat, profile.lng)
+    ) / 1609.34;
+
+    return dist <= (profile.radius || 25);
+  });
+
+  // 2. FORCE the container to show (fixes the empty box in your screenshot)
+  container.style.display = "flex";
+
+  if (nearbyPros.length > 0) {
+    // Content when Pros are found
+    container.innerHTML = `
+      <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 8px;">⭐ SELECT A VERIFIED PRO NEARBY</div>
+      <div class="pro-scroller">
+        ${nearbyPros.map(pro => `
+          <div class="pro-mechanic-card" onclick="document.getElementById('reqIssue').value = 'Requesting service from ${pro.name}: ' + document.getElementById('reqIssue').value">
+            <img src="${pro.pic || 'https://via.placeholder.com/50'}" class="pro-img-mini" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border: 2px solid var(--accent);">
+            <div style="font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${pro.name}</div>
+            <div style="font-size: 9px; color: var(--success); font-weight: 700;">Tap to Select</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else {
+    // Content when NO Pros are found (Fixes the empty state)
+    container.innerHTML = `
+      <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 5px;">⭐ VERIFIED PROS</div>
+      <div class="no-pros-text">
+        No Verified Pros nearby yet.<br>
+        <span style="font-size: 11px; font-weight: 500; font-style: normal;">Please add your tow destination below.</span>
+      </div>
+    `;
+  }
+};
+        
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         window.submitSOS = () => {
           const issue = document.getElementById("reqIssue").value;
@@ -4218,6 +4338,9 @@
         onValue(ref(db, "profiles"), (snap) => {
           profilesCache = snap.val() || {};
           syncUI();
+          
+          if (isTowTruckRequestActive) window.renderVerifiedPros();
+          
           const myActiveSOS = Object.values(sosCache).find(
             (r) =>
               r.ownerId === myId &&
@@ -4317,6 +4440,13 @@
               });
           }
         };
+        
+        
+       
+        
+        
+        
+        
       </script>
     </body>
   </html>
