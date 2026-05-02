@@ -1201,7 +1201,18 @@ inboxList.innerHTML += `
     <div class="inbox-content">
       <div class="inbox-header">
         <span class="inbox-name" style="${isUnread}">${realName}</span>
-        <span class="inbox-time">${timeString}</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+  <span 
+    onclick="window.deleteConversation(event, '${t.chatId}')" 
+    style="filter: brightness(0) saturate(100%) invert(27%) sepia(91%) saturate(2352%) hue-rotate(346deg) brightness(104%) contrast(97%);"
+    cursor: pointer; font-size: 8px; padding: 5px;"
+    title="Delete Conversation"
+  >
+    🗑️
+  </span>
+  <span class="inbox-time">${timeString}</span>
+</div>
+        
       </div>
       <div class="inbox-preview" style="${isUnread}">${t.lastMsg}</div>
     </div>
@@ -1219,7 +1230,24 @@ window.viewImage = (src) => {
 };
 
 
+window.deleteConversation = (event, chatId) => {
+  // 1. Prevent the click from opening the chat modal
+  event.stopPropagation();
 
+  if (confirm("Are you sure you want to remove this conversation from your inbox?")) {
+    // 2. Reference only your specific inbox thread
+    const inboxRef = ref(db, `userInbox/${myId}/${chatId}`);
+    
+    remove(inboxRef)
+      .then(() => {
+        console.log("Conversation removed from inbox.");
+      })
+      .catch((error) => {
+        console.error("Delete failed:", error);
+        alert("Could not delete conversation.");
+      });
+  }
+};
 
 
     
