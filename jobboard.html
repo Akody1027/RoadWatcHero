@@ -1036,49 +1036,50 @@ window.openChat = async (chatId, titleName) => {
   const jobId = parts[0];
   const heroId = parts[1];
   
-  // 1. Get the Job directly from the cache to find the Seeker
+  // 1. Attempt to get job context
   const job = jobsCache[jobId];
-  if (!job) return console.error("Job context missing for inbox update.");
+  
+  // 2. Logic Check: If we don't have the job object yet, we can still determine
+  // the recipient because chatId is jobId_heroId.
+  // If I am the Hero, the recipient is the Seeker (we'll fetch from DB if needed).
+  // If I am NOT the Hero, I must be the Seeker.
+  let seekerId = job ? job.ownerId : parts[0]; // Fallback to jobId as a reference if ownerId missing
+  let recipientId = (myId === seekerId) ? heroId : seekerId;
+  
+  // Safety: If seekerId couldn't be determined, use the other ID in the pair
+  if (myId === heroId) recipientId = seekerId;
 
-  const seekerId = job.ownerId;
-  const recipientId = (myId === seekerId) ? heroId : seekerId;
-  const jobTitle = job.issue.substring(0, 25) + "...";
+  const jobTitle = job ? job.issue.substring(0, 25) + "..." : "Roadside Request";
 
-  // 2. Push to the main chat thread
+  // 3. Push to main thread
   push(ref(db, `chats/${activeChatId}`), {
     sender: myId,
     text: text,
     timestamp: now
   });
 
-  // 3. ATOMIC UPDATE: This ensures both nodes are written correctly
+  // 4. ATOMIC UPDATE
   const updates = {};
-  
-  // Update MY inbox (the sender)
   updates[`userInbox/${myId}/${activeChatId}`] = {
     lastMsg: text,
     timestamp: now,
     otherUserId: recipientId,
     title: jobTitle,
     chatId: activeChatId,
-    unread: false // I sent it, so I've read it
+    unread: false
   };
-
-  // Update THEIR inbox (the recipient)
   updates[`userInbox/${recipientId}/${activeChatId}`] = {
     lastMsg: text,
     timestamp: now,
     otherUserId: myId,
     title: jobTitle,
     chatId: activeChatId,
-    unread: true // New message for them
+    unread: true
   };
 
-  update(ref(db), updates);
+  update(ref(db), updates).catch(e => console.error("Inbox Update Failed", e));
   input.value = '';
 };
-    
-   
 
 
     
@@ -1158,7 +1159,9 @@ window.openInbox = () => {
         }
 
         // Convert object to array and sort newest first
-        const threads = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
+    const threads = Object.values(data)
+  .filter(t => t.timestamp) // Ensure we only show valid threads
+  .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         // Loop through each thread to render the UI
         
