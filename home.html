@@ -3528,24 +3528,29 @@
 };
           
           
-          
+
+        
 window.renderVerifiedPros = () => {
   const container = document.getElementById('verifiedMechanic');
   if (!container) return;
 
-  // 1. Filter for Pros within range
-  const nearbyPros = Object.values(profilesCache).filter(profile => {
-    if (!profile.isPro || !profile.lat || !userLocation) return false;
-    
-    const dist = google.maps.geometry.spherical.computeDistanceBetween(
-      new google.maps.LatLng(userLocation.lat, userLocation.lng),
-      new google.maps.LatLng(profile.lat, profile.lng)
-    ) / 1609.34;
+  let nearbyPros = [];
 
-    return dist <= (profile.radius || 25);
-  });
+  // Only attempt distance math if we have the user's location
+  if (userLocation) {
+    nearbyPros = Object.values(profilesCache).filter(profile => {
+      if (!profile.isPro || !profile.lat) return false;
+      
+      const dist = google.maps.geometry.spherical.computeDistanceBetween(
+        new google.maps.LatLng(userLocation.lat, userLocation.lng),
+        new google.maps.LatLng(profile.lat, profile.lng)
+      ) / 1609.34;
 
-  // 2. FORCE the container to show (fixes the empty box in your screenshot)
+      return dist <= (profile.radius || 25);
+    });
+  }
+
+  // FORCE the container to show the red/yellow box
   container.style.display = "flex";
 
   if (nearbyPros.length > 0) {
@@ -3563,7 +3568,7 @@ window.renderVerifiedPros = () => {
       </div>
     `;
   } else {
-    // Content when NO Pros are found (Fixes the empty state)
+    // Content when NO Pros are found OR Location is still loading
     container.innerHTML = `
       <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 5px;">⭐ VERIFIED PROS</div>
       <div class="no-pros-text">
@@ -3573,9 +3578,6 @@ window.renderVerifiedPros = () => {
     `;
   }
 };
-        
-        
-
         
         
         
@@ -4435,7 +4437,7 @@ window.renderVerifiedPros = () => {
                 window.closeModal("deleteConfirmModal");
               })
               .catch((error) => {
-                console.error("Error deleting activity:", error);
+                console.error("Error deleting activity:", error); 
                 alert("Failed to delete activity.");
               });
           }
