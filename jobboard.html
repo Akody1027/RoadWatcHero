@@ -144,7 +144,7 @@
     .job-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
     .tag { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 8px; background: #f1f5f9; color: var(--muted); }
     
-    .del-btn { background: #fee2e2; color: #ef4444; border: 2px solid; padding: 6px 10px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; margin-left: auto; }
+    .del-btn { background: #fee2e2; color: #ef4444; border: none; padding: 6px 10px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; margin-left: auto; }
 
     /* Modals */
     .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center;  z-index: 1000; }
@@ -152,7 +152,7 @@
     @keyframes slideUp { to { transform: translateY(0); } }
     .close-x-btn { background: #f1f5f9; color: var(--text); border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; position: absolute; top: 20px; right: 20px; z-index: 10; }
     
-    .action-row { display: flex; gap: 10px; margin-top: 20px; }
+    .action-row { display: flex; gap: 10px; margin-top: 20px;  margin-bottom: 50px;}
     .btn-half { flex: 1; padding: 15px; border-radius: 16px; font-weight: 800; font-size: 13px; cursor: pointer; border: none; transition: 0.2s;}
     .btn-half:active {transform: scale(0.97);}
     .btn-msg { background: #f1f5f9; color: var(--text); }
@@ -767,7 +767,7 @@ window.togglePanel = (panelId, btnEl) => {
         }
 
         const delBtnHtml = (job.ownerId === myId && job.status === 'open') ? `<button class="del-btn" onclick="window.deleteJob(event, '${id}')">🗑️</button>` : '';
-        const imgThumb = (job.images && job.images.length > 0) ? `<img src="${job.images[0]}" style="width:50px; height:50px; object-fit:cover; border-radius:10px; flex-shrink:0; border:1px solid #e2e8f0; margin-right:10px;">` : '';
+        const imgThumb = (job.images && job.images.length > 0) ? `<img src="${job.images[0]}" style="width:auto; height:60px; object-fit:cover; border-radius:10px; flex-shrink:0; border:1px solid #e2e8f0; margin-right:10px;">` : '';
 
         feed.innerHTML += `
           <div class="job-card" onclick="window.openJobDetails('${id}', '${distMilesStr}')">
