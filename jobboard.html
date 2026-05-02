@@ -148,7 +148,7 @@
 
     /* Modals */
     .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center;  z-index: 1000; }
-    .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 90vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); display:  flex-direction: column;}
+    .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 100vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); display:  flex-direction: column;}
     @keyframes slideUp { to { transform: translateY(0); } }
     .close-x-btn { background: #f1f5f9; color: var(--text); border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; position: absolute; top: 20px; right: 20px; z-index: 10; }
     
@@ -339,7 +339,7 @@
   </div>
 
   <div id="chatModal" class="modal">
-    <div class="modal-content" style="height: 90vh;">
+    <div class="modal-content" style="height: 100vh;">
       <button class="close-x-btn" onclick="window.closeModal('chatModal')">✕</button>
       <h3 id="chatHeaderTitle" style="margin-top:0; color: var(--text); text-align: center;">Messages</h3>
       <div id="chatBox"></div>
@@ -353,7 +353,7 @@
   
 
 <div id="inboxModal" class="modal">
-    <div class="modal-content" style="height: 85vh; padding: 20px 0 0 0; background: #f8fafc;">
+    <div class="modal-content" style="height: 100vh; padding: 20px 0 0 0; background: #f8fafc;">
       <button class="close-x-btn" onclick="window.closeModal('inboxModal')">✕</button>
       <h3 style="margin-top:0; color: var(--text); text-align: center; margin-bottom: 15px; font-weight: 900;">Master Inbox</h3>
       
