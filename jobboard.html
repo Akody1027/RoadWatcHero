@@ -220,7 +220,26 @@
   
   
   
-  
+  /* Placeholder styling for empty image states */
+.placeholder-img {
+  width: 100%;
+  height: 200px;
+  background: #f1f5f9;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #cbd5e1;
+  color: var(--muted);
+  margin-bottom: 15px;
+}
+
+.placeholder-icon {
+  font-size: 40px;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
   
   
   
@@ -760,22 +779,33 @@ window.togglePanel = (panelId, btnEl) => {
       if(distStr !== "?") tagsHTML += `<span class="tag">📍 ${distStr} mi away</span>`;
       document.getElementById('detTags').innerHTML = tagsHTML;
 
-      // Images Gallery
-      const imgScroller = document.getElementById('detImgScroller');
-      if(job.images && job.images.length > 0) {
-          imgScroller.style.display = 'flex';
-          imgScroller.innerHTML = job.images.map(src => `
-            <img 
-              src="${src}" 
-              onclick="window.viewImage(this.src)" 
-              style="cursor:pointer; width:auto; height:300px; border-radius:12px; margin-right:8px;"
-             >
-           `).join('');
-
-      } else {
-          imgScroller.style.display = 'none';
-      }
       
+      
+      // Images Gallery with Placeholder Fallback
+const imgScroller = document.getElementById('detImgScroller');
+
+if (job.images && job.images.length > 0) {
+    // Show actual uploaded images
+    imgScroller.style.display = 'flex';
+    imgScroller.innerHTML = job.images.map(src => `
+        <img 
+          src="${src}" 
+          onclick="window.viewImage(this.src)" 
+          style="cursor:pointer; width:auto; height:250px; border-radius:12px; margin-right:8px;"
+        >
+    `).join('');
+} else {
+    // Show the generic fallback placeholder
+    imgScroller.style.display = 'flex'; // Keep it flex to maintain spacing
+    imgScroller.innerHTML = `
+        <div class="placeholder-img">
+            <div class="placeholder-icon">📸</div>
+            <div style="font-weight: 700; font-size: 12px;">No Photos Uploaded</div>
+        </div>
+    `;
+}
+      
+
       
       
       
@@ -990,45 +1020,80 @@ window.openChat = async (chatId, titleName) => {
 
 
 
-   
+    window.sendChatMsg = () => {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || !activeChatId) return;
 
-window.sendChatMsg = () => {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (!text || !activeChatId) return;
+  const now = Date.now();
 
-      const now = Date.now();
+  // 1. Push message to the main chat thread
+  push(ref(db, `chats/${activeChatId}`), {
+    sender: myId,
+    text: text,
+    timestamp: now
+  });
 
-      // 1. Write to the main chat thread
-      push(ref(db, `chats/${activeChatId}`), {
-        sender: myId,
-        text: text,
-        timestamp: now
-      });
+  // 2. Extract Job and Hero IDs from the activeChatId
+  // Format is always "jobId_heroId"
+  const parts = activeChatId.split('_');
+  const jobId = parts[0];
+  const heroId = parts[1];
+  const job = jobsCache[jobId];
 
-      // 2. Extract IDs from the chatId (Format: jobId_heroId)
-      const parts = activeChatId.split('_');
-      const jobId = parts[0];
-      const heroId = parts[1];
-      const job = jobsCache[jobId];
+  if (job) {
+    // 3. Identify the Seeker and the Hero
+    const seekerId = job.ownerId;
+    
+    // Determine who is receiving this message
+    const recipientId = (myId === seekerId) ? heroId : seekerId;
+    
+    const jobTitle = job.issue.substring(0, 25) + "...";
 
-      if (job) {
-        // 3. Determine who the "other" person is in this conversation
-        const ownerId = job.ownerId;
-        const otherUserId = (myId === ownerId) ? heroId : ownerId;
-        const jobTitle = job.issue.substring(0, 22) + "...";
-
-       // 4. Dual-Write to userInbox for massive scalability (Now with unread tracking)
-        const inboxDataMe = { lastMsg: text, timestamp: now, otherUserId: otherUserId, title: jobTitle, chatId: activeChatId, unread: false };
-        const inboxDataThem = { lastMsg: text, timestamp: now, otherUserId: myId, title: jobTitle, chatId: activeChatId, unread: true };
-        update(ref(db, `userInbox/${myId}/${activeChatId}`), inboxDataMe);
-        update(ref(db, `userInbox/${otherUserId}/${activeChatId}`), inboxDataThem);
-      }
-
-      input.value = '';
+    // 4. Update BOTH Inboxes
+    // We update 'unread: true' for the recipient and 'unread: false' for the sender
+    const inboxUpdateSender = {
+      lastMsg: text,
+      timestamp: now,
+      otherUserId: recipientId,
+      title: jobTitle,
+      chatId: activeChatId,
+      unread: false
     };
 
+    const inboxUpdateRecipient = {
+      lastMsg: text,
+      timestamp: now,
+      otherUserId: myId,
+      title: jobTitle,
+      chatId: activeChatId,
+      unread: true
+    };
 
+    // Execute the updates
+    update(ref(db, `userInbox/${myId}/${activeChatId}`), inboxUpdateSender);
+    update(ref(db, `userInbox/${recipientId}/${activeChatId}`), inboxUpdateRecipient);
+  }
+
+  input.value = '';
+};
+    
+    
+    
+    
+   
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // DB Listeners
     onValue(ref(db, 'mechanicRequests'), (snap) => {
       jobsCache = snap.val() || {};
