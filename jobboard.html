@@ -1023,13 +1023,10 @@ window.openChat = async (chatId, titleName) => {
     
     
     
+     
     
     
-    
-    
-    
-   
-    window.sendChatMsg = () => {
+  window.sendChatMsg = () => {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
   if (!text || !activeChatId) return;
@@ -1038,55 +1035,48 @@ window.openChat = async (chatId, titleName) => {
   const parts = activeChatId.split('_');
   const jobId = parts[0];
   const heroId = parts[1];
+  
+  // 1. Get the Job directly from the cache to find the Seeker
+  const job = jobsCache[jobId];
+  if (!job) return console.error("Job context missing for inbox update.");
 
-  // 1. Push message to the main thread
+  const seekerId = job.ownerId;
+  const recipientId = (myId === seekerId) ? heroId : seekerId;
+  const jobTitle = job.issue.substring(0, 25) + "...";
+
+  // 2. Push to the main chat thread
   push(ref(db, `chats/${activeChatId}`), {
     sender: myId,
     text: text,
     timestamp: now
   });
 
-  // 2. Identify the Seeker and Hero
-  const job = jobsCache[jobId];
-  let seekerId = job ? job.ownerId : null;
-  let jobTitle = job ? (job.issue.substring(0, 25) + "...") : "Mechanical Job";
-
-  // FALLBACK: If job isn't in cache, we know the heroId from the chatId parts. 
-  // If I am the heroId, then the "other" person MUST be the seeker.
-  // We can infer the recipientId even if the cache is laggy.
-  const recipientId = (myId === heroId) ? parts[0].split('-')[0] : heroId; 
-  
-  // NOTE: A better way is to simply determine recipient by splitting the activeChatId
-  // Since activeChatId is jobId_heroId, but a more reliable recipient logic is needed:
-  const determinedRecipient = (myId === heroId) ? seekerId : heroId;
-
-  // 3. Execution of the Inbox Update
-  // If we still don't have a seekerId from cache, we use the parts logic
-  const finalRecipient = determinedRecipient || (myId === heroId ? parts[0] : heroId);
-
+  // 3. ATOMIC UPDATE: This ensures both nodes are written correctly
   const updates = {};
+  
+  // Update MY inbox (the sender)
   updates[`userInbox/${myId}/${activeChatId}`] = {
     lastMsg: text,
     timestamp: now,
-    otherUserId: finalRecipient,
+    otherUserId: recipientId,
     title: jobTitle,
     chatId: activeChatId,
-    unread: false
+    unread: false // I sent it, so I've read it
   };
-  updates[`userInbox/${finalRecipient}/${activeChatId}`] = {
+
+  // Update THEIR inbox (the recipient)
+  updates[`userInbox/${recipientId}/${activeChatId}`] = {
     lastMsg: text,
     timestamp: now,
     otherUserId: myId,
     title: jobTitle,
     chatId: activeChatId,
-    unread: true
+    unread: true // New message for them
   };
 
-  update(ref(db), updates).catch(err => console.error("Inbox sync failed:", err));
-
+  update(ref(db), updates);
   input.value = '';
 };
-    
     
    
 
@@ -1198,19 +1188,22 @@ window.openInbox = () => {
           const isUnread = t.unread ? "font-weight: 900; color: var(--text);" : "font-weight: 500; color: var(--muted);";
           const dotHtml = t.unread ? `<div style="width: 10px; height: 10px; background: var(--accent); border-radius: 50%; margin-right: 10px; flex-shrink: 0;"></div>` : '';
 
-          inboxList.innerHTML += `
-            <div class="inbox-item" onclick="window.closeModal('inboxModal'); window.openChat('${t.chatId}', '${realName}')">
-              ${dotHtml}
-              ${avatarHtml}
-              <div class="inbox-content">
-                <div class="inbox-header">
-                  <span class="inbox-name" style="${isUnread}">${realName}</span>
-                  <span class="inbox-time">${timeString}</span>
-                </div>
-                <div class="inbox-preview" style="${isUnread}">${t.lastMsg}</div>
-              </div>
-            </div>
-          `;
+// Locate the line inside your threads.forEach loop:
+// Change the onclick to remove the closeModal call and use a direct display flip instead.
+
+inboxList.innerHTML += `
+  <div class="inbox-item" onclick="document.getElementById('inboxModal').style.display='none'; window.openChat('${t.chatId}', '${realName}')">
+    ${dotHtml}
+    ${avatarHtml}
+    <div class="inbox-content">
+      <div class="inbox-header">
+        <span class="inbox-name" style="${isUnread}">${realName}</span>
+        <span class="inbox-time">${timeString}</span>
+      </div>
+      <div class="inbox-preview" style="${isUnread}">${t.lastMsg}</div>
+    </div>
+  </div>
+`;
         });
  
       });
