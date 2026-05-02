@@ -281,6 +281,32 @@
   opacity: 0.5;
 }
   
+    
+    
+    .my-quote-status {
+  background: #f0fdf4; /* Light success green */
+  border: 2px solid var(--success);
+  border-radius: 16px;
+  padding: 12px;
+  padding-bottom: 50px;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+.status-pic {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+}
+    
+    
+    
+    
+    
   
   
   </style>
@@ -945,6 +971,45 @@ if (job.images && job.images.length > 0) {
           dynArea.innerHTML = `<div style="text-align:center; padding:20px; color:var(--success); font-weight:800; background:#dcfce7; border-radius: 15px;">Waiting for the Seeker to confirm and close the job...</div>`;
         }
       }
+      
+      
+      
+      
+      
+      // --- MY BID STATUS SECTION ---
+      // Check if I am a Hero who has bid on this open job
+      if (job.status === 'open' && job.ownerId !== myId && job.bids && job.bids[myId]) {
+          const myBid = job.bids[myId];
+          const myProfile = profilesCache[myId] || {};
+          const bidDate = new Date(myBid.timestamp).toLocaleString([], {
+              month: 'short', 
+              day: 'numeric', 
+              hour: '2-digit', 
+              minute: '2-digit'
+          });
+
+          dynArea.innerHTML += `
+            <div class="my-quote-status">
+              <img src="${myProfile.pic || 'https://via.placeholder.com/50'}" class="status-pic">
+              <div style="flex:1;">
+                <div style="font-size: 11px; font-weight: 900; color: var(--success);">✅ YOUR ACTIVE QUOTE</div>
+                <div style="font-weight: 800; font-size: 14px; color: var(--text);">
+                  Submitted for <span style="color:var(--success);">$${myBid.amount}</span>
+                </div>
+                <div style="font-size: 10px; color: var(--muted); font-weight: 600;">${bidDate}</div>
+              </div>
+              <button class="btn-msg" onclick="window.openChat('${jobId}_${myId}', 'Seeker')" 
+                      style="padding: 8px 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-weight: 800; font-size: 11px;">
+                💬 CHAT
+              </button>
+            </div>
+          `;
+      }
+      
+      
+      
+      
+      
 
       window.openModal('jobDetailsModal');
     };
