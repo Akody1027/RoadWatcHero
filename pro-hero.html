@@ -1,572 +1,945 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>RoadWatcHero Pro</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <title>RoadWatcHero Pro</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    /> 
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+      :root {
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b; /* Softened slightly for better reading on a landing page */
+        --accent: #ee611c;
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --tow-blue: #2563eb;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
 
-<style>
-:root {
-  --bg: #f8fafc; 
-  --card: #ffffff; 
-  --text: #0f172a; 
-  --muted: #64748b; /* Softened slightly for better reading on a landing page */ 
-  --accent: #EE611C; 
-  --success: #22c55e; 
-  --warning: #f59e0b; 
-  --tow-blue: #2563eb;
-  --shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-}
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        font-family: -apple-system, system-ui, sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+      }
 
-body, html { 
-    margin: 0; padding: 0; width: 100%; min-height: 100%; 
-    font-family: -apple-system, system-ui, sans-serif; 
-    color: var(--text); 
-    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%); 
-}
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-.container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+      /* Header & Logo */
+      .logo-area {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .logo-area img {
+        width: 200px;
+        filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+      }
+      .pro-badge {
+        background: var(--accent);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 900;
+        display: inline-block;
+        margin-top: -10px;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 6px rgba(238, 97, 28, 0.3);
+      }
 
-/* Header & Logo */
-.logo-area {
-    text-align: center;
-    margin-bottom: 20px;
-}
-.logo-area img {
-    width: 200px;
-    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));
-}
-.pro-badge {
-    background: var(--accent);
-    color: white;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 900;
-    display: inline-block;
-    margin-top: -10px;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 6px rgba(238, 97, 28, 0.3);
-}
+      .headline {
+        text-align: center;
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 10px;
+        color: var(--text);
+      }
+      .subhead {
+        text-align: center;
+        font-size: 15px;
+        color: var(--muted);
+        margin-bottom: 30px;
+        line-height: 1.5;
+      }
 
-.headline {
-    text-align: center;
-    font-size: 28px;
-    font-weight: 800;
-    margin-bottom: 10px;
-    color: var(--text);
-}
-.subhead {
-    text-align: center;
-    font-size: 15px;
-    color: var(--muted);
-    margin-bottom: 30px;
-    line-height: 1.5;
-}
+      /* Benefits Section */
+      .benefits-card {
+        background: white;
+        width: 100%;
+        padding: 25px;
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 25px;
+      }
 
-/* Benefits Section */
-.benefits-card {
-    background: white;
-    width: 100%;
-    padding: 25px;
-    border-radius: 24px;
-    box-shadow: var(--shadow);
-    border: 1px solid #e2e8f0;
-    margin-bottom: 25px;
-}
+      .benefit-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+      }
+      .benefit-item:last-child {
+        margin-bottom: 0;
+      }
 
-.benefit-item {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 20px;
-}
-.benefit-item:last-child { margin-bottom: 0; }
+      .b-icon {
+        font-size: 24px;
+        margin-right: 15px;
+        background: #f1f5f9;
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+      }
+      .b-text h4 {
+        margin: 0 0 5px 0;
+        font-size: 16px;
+        color: var(--text);
+      }
+      .b-text p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
 
-.b-icon {
-    font-size: 24px;
-    margin-right: 15px;
-    background: #f1f5f9;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-}
-.b-text h4 {
-    margin: 0 0 5px 0;
-    font-size: 16px;
-    color: var(--text);
-}
-.b-text p {
-    margin: 0;
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.4;
-}
+      /* Checkout / Account Form */
+      .checkout-box {
+        width: 100%;
+        background: white;
+        padding: 25px;
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 20px;
+      }
 
-/* Checkout / Account Form */
-.checkout-box {
-    width: 100%;
-    background: white;
-    padding: 25px;
-    border-radius: 24px;
-    box-shadow: var(--shadow);
-    border: 1px solid #e2e8f0;
-    margin-bottom: 20px;
-}
+      .checkout-box h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        text-align: center;
+        color: var(--text);
+      }
 
-.checkout-box h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    text-align: center;
-    color: var(--text);
-}
+      input {
+        width: 100%;
+        padding: 15px;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 12px;
+        font-size: 15px;
+        background: #f8fafc;
+        font-family: inherit;
+        transition: border-color 0.2s;
+      }
+      input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
 
-input { 
-    width: 100%; 
-    padding: 15px; 
-    border-radius: 14px; 
-    border: 1px solid #e2e8f0; 
-    margin-bottom: 12px; 
-    font-size: 15px; 
-    background: #f8fafc;  
-    font-family: inherit;
-    transition: border-color 0.2s;
-}
-input:focus {
-    outline: none;
-    border-color: var(--accent);
-}
+      .price-tag {
+        text-align: center;
+        font-size: 24px;
+        font-weight: 900;
+        color: var(--text);
+        margin-bottom: 20px;
+      }
+      .price-tag span {
+        font-size: 14px;
+        color: var(--muted);
+        font-weight: 600;
+      }
 
-.price-tag {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 900;
-    color: var(--text);
-    margin-bottom: 20px;
-}
-.price-tag span {
-    font-size: 14px;
-    color: var(--muted);
-    font-weight: 600;
-}
+      .submit-btn {
+        width: 100%;
+        padding: 18px;
+        background: #ee611c;
+        color: white;
+        border: none;
+        border-radius: 16px;
+        font-weight: 800;
+        cursor: pointer;
+        font-size: 16px;
+        box-shadow: 0 4px 10px rgba(238, 97, 28, 0.3);
+        transition: transform 0.1s;
+      }
+      .submit-btn:active {
+        transform: scale(0.98);
+      }
 
-.submit-btn { 
-    width: 100%; 
-    padding: 18px; 
-    background: #EE611C; 
-    color: white; 
-    border: none; 
-    border-radius: 16px; 
-    font-weight: 800; 
-    cursor: pointer; 
-    font-size: 16px; 
-    box-shadow: 0 4px 10px rgba(238, 97, 28, 0.3);
-    transition: transform 0.1s;
-}
-.submit-btn:active {
-    transform: scale(0.98);
-}
+      .cancel-link {
+        display: block;
+        text-align: center;
+        padding: 15px;
+        color: var(--muted);
+        text-decoration: none;
+        font-weight: 600;
+      }
 
-.cancel-link { 
-    display: block; 
-    text-align: center; 
-    padding: 15px; 
-    color: var(--muted); 
-    text-decoration: none;
-    font-weight: 600; 
-}
+      /* --- PRO SETUP MODAL STYLES --- */
+      #setupModalOverlay {
+        display: none; /* Hidden until triggered */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
 
-  /* --- PRO SETUP MODAL STYLES --- */
-#setupModalOverlay {
-    display: none; /* Hidden until triggered */
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
+      .modal-card {
+        background: white;
+        width: 100%;
+        max-width: 450px;
+        padding: 30px;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+        border: 1px solid #e2e8f0;
+      }
 
-.modal-card {
-    background: white;
-    width: 100%;
-    max-width: 450px;
-    padding: 30px;
-    border-radius: 24px;
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-    transform: translateY(20px);
-    transition: transform 0.3s ease;
-    border: 1px solid #e2e8f0;
-}
+      .modal-header {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 15px;
+        color: var(--text);
+      }
 
-.modal-header {
-    text-align: center;
-    font-size: 22px;
-    font-weight: 800;
-    margin-bottom: 15px;
-    color: var(--text);
-}
+      .readonly-email {
+        background: #e2e8f0 !important;
+        color: #64748b;
+        cursor: not-allowed;
+        text-align: center;
+        font-weight: 600;
+      }
 
-.readonly-email {
-    background: #e2e8f0 !important;
-    color: #64748b;
-    cursor: not-allowed;
-    text-align: center;
-    font-weight: 600;
-}
+      /* Service Role Toggle */
+      .role-toggle {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+      .role-btn {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: white;
+        cursor: pointer;
+        font-weight: 700;
+        color: var(--muted);
+        transition: all 0.2s;
+        font-size: 15px;
+      }
+      .role-btn.active {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(238, 97, 28, 0.05);
+      }
 
-/* Service Role Toggle */
-.role-toggle {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-.role-btn {
-    flex: 1;
-    padding: 12px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    background: white;
-    cursor: pointer;
-    font-weight: 700;
-    color: var(--muted);
-    transition: all 0.2s;
-    font-size: 15px;
-}
-.role-btn.active {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(238, 97, 28, 0.05);
-}
+      .modal-divider {
+        height: 1px;
+        background: #e2e8f0;
+        margin: 20px 0;
+      }
 
-.modal-divider {
-    height: 1px;
-    background: #e2e8f0;
-    margin: 20px 0;
-}
+      .stripe-placeholder {
+        padding: 15px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        text-align: center;
+        color: var(--muted);
+        background: #f8fafc;
+        margin-bottom: 15px;
+        font-weight: 600;
+      }
 
-.stripe-placeholder {
-    padding: 15px;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    text-align: center;
-    color: var(--muted);
-    background: #f8fafc;
-    margin-bottom: 15px;
-    font-weight: 600;
-}
+      .spinner {
+        border: 4px solid rgba(238, 97, 28, 0.2);
+        border-top: 4px solid var(--accent);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+        display: none;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
 
-.spinner {
-    border: 4px solid rgba(238, 97, 28, 0.2);
-    border-top: 4px solid var(--accent);
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-    margin: 0 auto;
-    display: none;
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-.warning-text {
-    font-size: 11px;
-    color: var(--warning);
-    text-align: center;
-    margin-top: 15px;
-    line-height: 1.4;
-    font-weight: 600;
-}
-  
-  
-  
-  
-  
-</style>
-</head>
-<body>
-
-<div class="container">
-    <div class="logo-area">
-        <img src="roadwatchlogo.png" alt="RoadWatcHero" onerror="this.style.display='none'">
-        <br>
+      .warning-text {
+        font-size: 11px;
+        color: var(--warning);
+        text-align: center;
+        margin-top: 15px;
+        line-height: 1.4;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo-area">
+        <img
+          src="roadwatchlogo.png"
+          alt="RoadWatcHero"
+          onerror="this.style.display='none'"
+        />
+        <br />
         <div class="pro-badge">PRO HERO</div>
-    </div>
+      </div>
 
-    <div class="headline">Dominate Your Territory.</div>
-    <div class="subhead">Stop waiting for leftovers. Upgrade to Pro and get exclusive priority access to stranded drivers in your area.</div>
+      <div class="headline">Dominate Your Territory.</div>
+      <div class="subhead">
+        Stop waiting for leftovers. Upgrade to Pro and get exclusive priority
+        access to stranded drivers in your area.
+      </div>
 
-    <div class="benefits-card">
+      <div class="benefits-card">
         <div class="benefit-item">
-            <div class="b-icon">⏱️</div>
-            <div class="b-text">
-                <h4>60-Second Head Start</h4>
-                <p>Every tow request is sent to you a full minute before free users ever see it.</p>
-            </div>
+          <div class="b-icon">⏱️</div>
+          <div class="b-text">
+            <h4>60-Second Head Start</h4>
+            <p>
+              Every tow request is sent to you a full minute before free users
+              ever see it.
+            </p>
+          </div>
         </div>
         <div class="benefit-item">
-            <div class="b-icon">👀</div>
-            <div class="b-text">
-                <h4>The "Sneak Peek" Board</h4>
-                <p>See exactly what your competitors are bidding in real-time so you can adjust your price and win the job.</p>
-            </div>
+          <div class="b-icon">👀</div>
+          <div class="b-text">
+            <h4>The "Sneak Peek" Board</h4>
+            <p>
+              See exactly what your competitors are bidding in real-time so you
+              can adjust your price and win the job.
+            </p>
+          </div>
         </div>
         <div class="benefit-item">
-            <div class="b-icon">⭐</div>
-            <div class="b-text">
-                <h4>Verified Pro Badge</h4>
-                <p>Stand out to stranded drivers with a trusted badge that proves you are a certified professional.</p>
-            </div>
+          <div class="b-icon">⭐</div>
+          <div class="b-text">
+            <h4>Verified Pro Badge</h4>
+            <p>
+              Stand out to stranded drivers with a trusted badge that proves you
+              are a certified professional.
+            </p>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div class="checkout-box">
+      <div class="checkout-box">
         <h3>Create Your Pro Account</h3>
-        
-        <input type="email" id="proEmail" placeholder="Email Address" required>
-        <input type="password" id="proPassword" placeholder="Create a Password" required>
-        
+
+        <input
+          type="email"
+          id="proEmail"
+          placeholder="Email Address"
+          required
+        />
+        <input
+          type="password"
+          id="proPassword"
+          placeholder="Create a Password"
+          required
+        />
+
         <div class="price-tag">$49 <span>/ month</span></div>
 
-        <button class="submit-btn" onclick="goToPayment()">CONTINUE TO SECURE PAYMENT</button>
-        <p style="font-size:11px; text-align:center; color:var(--muted); margin-top:15px; line-height:1.4;">
-            By clicking continue, you will be securely redirected to Stripe to complete your subscription setup.
+        <button class="submit-btn" onclick="goToPayment()">
+          CONTINUE
+        </button>
+        <p
+          style="
+            font-size: 11px;
+            text-align: center;
+            color: var(--muted);
+            margin-top: 15px;
+            line-height: 1.4;
+          "
+        >
+          By clicking continue, you will be securely redirected to Stripe to
+          complete your subscription setup.
         </p>
+      </div>
+
+      <a href="home.html" class="cancel-link">← Back to Map</a>
+
+      <div id="setupModalOverlay">
+        <div class="modal-card" id="modalCard">
+          <div class="modal-header">Complete Your Pro Setup</div>
+
+          <input type="email" id="modalEmail" class="readonly-email" readonly />
+
+          <div class="role-toggle">
+            <button
+              type="button"
+              class="role-btn active"
+              id="btnTowSetup"
+              onclick="window.selectRole('tow_truck', 'setup')"
+            >
+               Towing
+            </button>
+            <button
+              type="button"
+              class="role-btn"
+              id="btnMechanicSetup"
+              onclick="window.selectRole('mechanic', 'setup')"
+            >
+               Mechanic
+            </button>
+            <button
+              type="button"
+              class="role-btn"
+              id="btnBothSetup"
+              onclick="window.selectRole('both', 'setup')"
+            >
+               Both
+            </button>
+          </div>
+
+          <input
+            type="text"
+            id="companyName"
+            placeholder="Company Name"
+            required
+          />
+          <input
+            type="tel"
+            id="businessPhone"
+            placeholder="Business Phone Number"
+            required
+          />
+
+          <div class="modal-divider"></div>
+
+          <div
+            id="stripe-container"
+            style="
+              padding: 15px;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              background: #f8fafc;
+              margin-bottom: 5px;
+            "
+          >
+            <div id="card-element"></div>
+          </div>
+          <div
+            id="card-errors"
+            role="alert"
+            style="
+              color: var(--warning);
+              font-size: 13px;
+              text-align: center;
+              margin-bottom: 15px;
+              min-height: 18px;
+            "
+          ></div>
+
+          <button
+            class="submit-btn"
+            id="finalPayBtn"
+            onclick="window.processFinalSetup()"
+          >
+            ACTIVATE PRO ACCOUNT - $49/mo
+          </button>
+          <div class="spinner" id="modalSpinner"></div>
+
+          <div class="warning-text">
+            ⚠️ Note: Incomplete setups are securely cleared from our servers
+            after 24 hours to protect your data.
+          </div>
+        </div>
+      </div>
     </div>
 
-    <a href="Appindex.html" class="cancel-link">← Back to Map</a>
-  
-  
-  
-  
-  
-  
-  <div id="setupModalOverlay">
-    <div class="modal-card" id="modalCard">
-        <div class="modal-header">Complete Your Pro Setup</div>
-        
-        <input type="email" id="modalEmail" class="readonly-email" readonly>
-        
-        <div class="role-toggle">
-            <button type="button" class="role-btn active" id="btnTow" onclick="window.selectRole('tow_truck')">🛻 Tow Truck</button>
-            <button type="button" class="role-btn" id="btnMechanic" onclick="window.selectRole('mechanic')">🔧 Mechanic</button>
+    <div
+      id="settingsModalOverlay"
+      style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      "
+    >
+      <div
+        class="modal-card"
+        id="settingsCard"
+        style="transform: translateY(20px); transition: transform 0.3s ease"
+      >
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+          "
+        >
+          <div class="modal-header" style="margin-bottom: 0">Pro Settings</div>
+          <button
+            onclick="closeSettingsModal()"
+            style="
+              background: none;
+              border: none;
+              font-size: 20px;
+              cursor: pointer;
+              color: var(--muted);
+            "
+          >
+            ✕
+          </button>
         </div>
-        
-        <input type="text" id="companyName" placeholder="Company Name" required>
-        <input type="tel" id="businessPhone" placeholder="Business Phone Number" required>
-        
-        <div class="modal-divider"></div>
-        
-        <div class="stripe-placeholder">
-            🔒 Secure Stripe Card Input Will Go Here
-        </div>
-        
-        <button class="submit-btn" id="finalPayBtn" onclick="window.processFinalSetup()">ACTIVATE PRO ACCOUNT - $49/mo</button>
-        <div class="spinner" id="modalSpinner"></div>
-        
-        <div class="warning-text">
-            ⚠️ Note: Incomplete setups are securely cleared from our servers after 24 hours to protect your data.
-        </div>
-    </div>
-</div>
-  
-  
-  
-  
-  
-  
-</div>
 
-  
-  
-  <script type="module">
-    // 1. Import Firebase tools
-  // 1. Import Firebase tools
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { 
-        getAuth, 
+        <button
+          class="submit-btn"
+          style="
+            background: white;
+            color: var(--text);
+            border: 2px solid #e2e8f0;
+            box-shadow: none;
+            padding: 12px;
+            margin-bottom: 20px;
+          "
+          onclick="alert('Stripe Portal Coming Next!')"
+        >
+          💳 Manage Billing & Card
+        </button>
+
+        
+        
+        
+        <label style="font-size:12px; font-weight:bold; color:var(--muted); margin-left:5px;">SERVICE PROVIDED</label>
+        <div class="role-toggle" style="margin-top: 5px;">
+            <button type="button" class="role-btn" id="btnTowEdit" onclick="window.selectRole('tow_truck', 'edit')">Towing</button>
+            <button type="button" class="role-btn" id="btnMechanicEdit" onclick="window.selectRole('mechanic', 'edit')">Mechanic</button>
+            <button type="button" class="role-btn" id="btnBothEdit" onclick="window.selectRole('both', 'edit')">Both</button>
+        </div>
+        
+        
+        
+        
+        
+        
+        <label
+          style="
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--muted);
+            margin-left: 5px;
+          "
+          >COMPANY NAME</label
+        >
+        <input type="text" id="editCompany" placeholder="Loading..." />
+
+        <label
+          style="
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--muted);
+            margin-left: 5px;
+          "
+          >BUSINESS PHONE</label
+        >
+        <input type="tel" id="editPhone" placeholder="Loading..." />
+
+        <button
+          class="submit-btn"
+          id="saveSettingsBtn"
+          onclick="window.saveProSettings()"
+        >
+          SAVE CHANGES
+        </button>
+        <button
+          class="submit-btn"
+          style="
+            background: transparent;
+            color: var(--warning);
+            box-shadow: none;
+            padding: 10px;
+            margin-top: 5px;
+          "
+          onclick="window.logOutUser()"
+        >
+          Sign Out
+        </button>
+      </div>
+    </div>
+
+    <script type="module">
+      // 1. Import Firebase tools
+      // 1. Import Firebase tools
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+      import {
+        getAuth,
         createUserWithEmailAndPassword,
-        signInWithEmailAndPassword
-    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        signInWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+      import {
+        getDatabase,
+        ref,
+        get,
+        update,
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    // 2. Initialize your specific Firebase project
-    const firebaseConfig = {
+      // 2. Initialize your specific Firebase project
+      const firebaseConfig = {
         apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
         authDomain: "roadsidehero-104ea.firebaseapp.com",
         databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
         projectId: "roadsidehero-104ea",
         storageBucket: "roadsidehero-104ea.firebaseapp.com",
-    };
-    
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+      };
 
-    // 3. Attach the function to the window so the HTML button can click it
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getDatabase(app);
 
-    // --- APP STATE ---
-    let selectedRole = 'tow_truck';
-    let isCheckingOut = false; // The safeguard flag
-    
-    
-    
-    
-    // --- HELPER: Trigger the Frosted Glass Modal ---
-    const triggerSetupModal = (user) => {
+      // 3. Attach the function to the window so the HTML button can click it
+      // --- APP STATE & STRIPE SETUP ---
+
+      let setupRole = 'tow_truck';
+      let editRole = 'tow_truck';
+      let isCheckingOut = false;
+
+      // Initialize Stripe
+      // IMPORTANT: Swap this pk_live key to your pk_test_ key before testing!
+      const stripe = Stripe(
+        "pk_test_51RVvRt02cjd265jF2s3k2MUATsIpYn53mpx1ONvlAl9qL9apOFtoWie5KWTjtwPzGbyqRGICHczRSdMkSn7Lbwp100d7bHtk6j"
+      );
+      const elements = stripe.elements();
+
+      // Style the Stripe input to match your app's modern look
+      const cardElement = elements.create("card", {
+        style: {
+          base: {
+            fontSize: "16px",
+            color: "#0f172a",
+            fontFamily: "-apple-system, system-ui, sans-serif",
+            "::placeholder": { color: "#64748b" },
+          },
+          invalid: { color: "#f59e0b" },
+        },
+      });
+
+      // --- HELPER: Trigger the Frosted Glass Modal ---
+      const triggerSetupModal = (user) => {
         isCheckingOut = true; // Set the trap
-        document.getElementById('modalEmail').value = user.email; // Pre-fill email
-        
-        const overlay = document.getElementById('setupModalOverlay');
-        const card = document.getElementById('modalCard');
-        
-        overlay.style.display = 'flex';
-        setTimeout(() => {
-            overlay.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, 10);
-    };
-    
-    
-    
-    
-    // --- 3. TRIGGER BACKGROUND AUTH OR RESUME SETUP ---
-    window.goToPayment = () => {
-        const email = document.getElementById('proEmail').value;
-        const pass = document.getElementById('proPassword').value;
+        document.getElementById("modalEmail").value = user.email; // Pre-fill email
 
-        if(!email || !pass) {
-            alert("Please enter an email and password to create your account.");
-            return;
+        const overlay = document.getElementById("setupModalOverlay");
+        const card = document.getElementById("modalCard");
+
+        overlay.style.display = "flex";
+
+        // Mount Stripe Elements ONLY after the modal is visible
+        cardElement.mount("#card-element");
+
+        setTimeout(() => {
+          overlay.style.opacity = "1";
+          card.style.transform = "translateY(0)";
+        }, 10);
+      };
+
+      // --- 3. TRIGGER BACKGROUND AUTH OR RESUME SETUP ---
+      window.goToPayment = () => {
+        const email = document.getElementById("proEmail").value;
+        const pass = document.getElementById("proPassword").value;
+
+        if (!email || !pass) {
+          alert("Please enter an email and password to create your account.");
+          return;
         }
 
-        const btn = document.querySelector('.submit-btn');
-        const originalText = btn.innerText; 
+        const btn = document.querySelector(".submit-btn");
+        const originalText = btn.innerText;
         btn.innerText = "SECURING ACCOUNT...";
         btn.disabled = true;
 
         // Attempt to Create the User
         createUserWithEmailAndPassword(auth, email, pass)
-            .then((userCredential) => {
-                // NEW USER: Success! Account created. Show Modal.
-                triggerSetupModal(userCredential.user);
-                btn.innerText = originalText;
-            })
-            .catch((error) => {
-                // EXISTING USER: If they already started the process but backed out
-                if (error.code === 'auth/email-already-in-use') {
-                    
-                    // Attempt to log them in to resume setup
-                    signInWithEmailAndPassword(auth, email, pass)
-                        .then((userCredential) => {
-                            console.log("Resuming abandoned setup...");
-                            triggerSetupModal(userCredential.user);
-                            btn.innerText = originalText;
-                        })
-                        .catch((signInError) => {
-                            // They used the right email but the wrong password
-                            alert("This email is already registered, but the password entered is incorrect. Please log in from the main map.");
-                            btn.innerText = originalText;
-                            btn.disabled = false;
-                        });
-                } else {
-                    // Other generic errors (like weak password)
-                    let friendlyError = error.message;
-                    if(error.code === 'auth/weak-password') friendlyError = "Password should be at least 6 characters.";
-                    
-                    alert(friendlyError);
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                }
-            });
-    };
-    
-    
+          .then((userCredential) => {
+            // NEW USER: Success! Account created. Show Stripe Setup Modal.
+            triggerSetupModal(userCredential.user);
+            btn.innerText = originalText;
+            btn.disabled = false;
+          })
+          .catch((error) => {
+            // EXISTING USER: They already have an account
+            if (error.code === "auth/email-already-in-use") {
+              // Log them in securely
+              signInWithEmailAndPassword(auth, email, pass)
+                .then(async (userCredential) => {
+                  const user = userCredential.user;
 
-  
+                  // Check the database: Did they already pay and finish setup?
+                  const userRef = ref(db, "users/" + user.uid);
+                  const snapshot = await get(userRef);
 
-    // --- 4. MODAL UI CONTROLS ---
-    window.selectRole = (role) => {
-        selectedRole = role;
-        // Update button UI
-        document.getElementById('btnTow').classList.remove('active');
-        document.getElementById('btnMechanic').classList.remove('active');
+                  if (snapshot.exists() && snapshot.val().isPro === true) {
+                    // THEY ARE A PRO! Open the Settings Modal
+                    window.openSettingsModal(user, snapshot.val());
+                  } else {
+                    // THEY ABANDONED CART BEFORE PAYING: Resume Setup
+                    console.log("Resuming abandoned setup...");
+                    triggerSetupModal(user);
+                  }
+
+                  btn.innerText = originalText;
+                  btn.disabled = false;
+                })
+                .catch((signInError) => {
+                  alert(
+                    "This email is already registered, but the password entered is incorrect."
+                  );
+                  btn.innerText = originalText;
+                  btn.disabled = false;
+                });
+            } else {
+              let friendlyError = error.message;
+              if (error.code === "auth/weak-password")
+                friendlyError = "Password should be at least 6 characters.";
+              alert(friendlyError);
+              btn.innerText = originalText;
+              btn.disabled = false;
+            }
+          });
+      };
+
+      // --- SETTINGS MODAL CONTROLS ---
+
+      window.openSettingsModal = (user, data) => {
+        // Pre-fill the inputs with their database data
+        document.getElementById("editCompany").value = data.companyName || "";
+        document.getElementById("editPhone").value = data.businessPhone || "";
+        window.selectRole(data.heroType || 'tow_truck', 'edit');
         
-        if(role === 'tow_truck') document.getElementById('btnTow').classList.add('active');
-        if(role === 'mechanic') document.getElementById('btnMechanic').classList.add('active');
+        const overlay = document.getElementById("settingsModalOverlay");
+        const card = document.getElementById("settingsCard");
+
+        overlay.style.display = "flex";
+        setTimeout(() => {
+          overlay.style.opacity = "1";
+          card.style.transform = "translateY(0)";
+        }, 10);
+      };
+
+      window.closeSettingsModal = () => {
+        const overlay = document.getElementById("settingsModalOverlay");
+        const card = document.getElementById("settingsCard");
+
+        overlay.style.opacity = "0";
+        card.style.transform = "translateY(20px)";
+        setTimeout(() => {
+          overlay.style.display = "none";
+        }, 300);
+      };
+
+      window.saveProSettings = async () => {
+        const btn = document.getElementById("saveSettingsBtn");
+        btn.innerText = "SAVING...";
+        btn.disabled = true;
+
+        const newCompany = document.getElementById("editCompany").value;
+        const newPhone = document.getElementById("editPhone").value;
+        const uid = auth.currentUser.uid;
+
+        try {
+            // Update the database
+            await update(ref(db, 'users/' + uid), {
+                companyName: newCompany,
+                businessPhone: newPhone,
+                heroType: editRole
+            });
+
+          // Show success
+          btn.style.background = "var(--success)";
+          btn.innerText = "✔ SAVED!";
+
+          setTimeout(() => {
+            btn.style.background = "var(--accent)";
+            btn.innerText = "SAVE CHANGES";
+            btn.disabled = false;
+          }, 2000);
+        } catch (error) {
+          alert("Error saving: " + error.message);
+          btn.innerText = "SAVE CHANGES";
+          btn.disabled = false;
+        }
+      };
+
+      window.logOutUser = () => {
+        auth.signOut().then(() => {
+          window.location.reload(); // Refresh the SPA cleanly
+        });
+      };
+
+// --- 4. MODAL UI CONTROLS ---
+    window.selectRole = (role, context) => {
+        // Decide which modal we are updating
+        const prefix = context === 'setup' ? 'Setup' : 'Edit';
+        
+        // Save to the correct state variable
+        if (context === 'setup') setupRole = role;
+        if (context === 'edit') editRole = role;
+        
+        // Clear all active states in that specific modal
+        document.getElementById(`btnTow${prefix}`).classList.remove('active');
+        document.getElementById(`btnMechanic${prefix}`).classList.remove('active');
+        document.getElementById(`btnBoth${prefix}`).classList.remove('active');
+        
+        // Highlight the clicked button
+        if(role === 'tow_truck') document.getElementById(`btnTow${prefix}`).classList.add('active');
+        if(role === 'mechanic') document.getElementById(`btnMechanic${prefix}`).classList.add('active');
+        if(role === 'both') document.getElementById(`btnBoth${prefix}`).classList.add('active');
     };
 
-    // --- 5. FINAL PROCESSING (Simulated Stripe & DB Sync) ---
-    window.processFinalSetup = () => {
-        const company = document.getElementById('companyName').value;
-        const phone = document.getElementById('businessPhone').value;
 
-        if(!company || !phone) {
-            alert("Please provide your company name and phone number.");
-            return;
+      // --- 5. FINAL PROCESSING (Live Stripe & Google Cloud Sync) ---
+      window.processFinalSetup = async () => {
+        const company = document.getElementById("companyName").value;
+        const phone = document.getElementById("businessPhone").value;
+        const errorDisplay = document.getElementById("card-errors");
+
+        // Clear previous errors
+        errorDisplay.textContent = "";
+
+        if (!company || !phone) {
+          alert("Please provide your company name and phone number.");
+          return;
         }
 
-        const payBtn = document.getElementById('finalPayBtn');
-        const spinner = document.getElementById('modalSpinner');
+        const payBtn = document.getElementById("finalPayBtn");
+        const spinner = document.getElementById("modalSpinner");
 
         // Swap button for spinner
-        payBtn.style.display = 'none';
-        spinner.style.display = 'block';
+        payBtn.style.display = "none";
+        spinner.style.display = "block";
 
-        // SIMULATE: Stripe Processing & Firebase DB Save (3 seconds)
-        setTimeout(() => {
-            // Remove the safeguard so they can leave the page safely
-            isCheckingOut = false; 
+        // 1. Securely request a Payment Token from Stripe
+        const { paymentMethod, error } = await stripe.createPaymentMethod({
+          type: "card",
+          card: cardElement,
+          billing_details: {
+            email: document.getElementById("modalEmail").value,
+            name: company,
+          },
+        });
 
-            spinner.style.display = 'none';
-            payBtn.style.display = 'block';
-            payBtn.style.background = 'var(--success)';
-            payBtn.innerText = "✔ PROFILE SYNCED!";
-            
-            // Redirect to map after short success delay
-            setTimeout(() => { 
-                window.location.href = "Appindex.html";
-            }, 1500);
- 
-        }, 3000);
-    }; 
-
-    // --- 6. THE ABANDONED CART SAFEGUARD ---
-    window.addEventListener('beforeunload', (event) => {
-        if (isCheckingOut) {
-            // Modern browsers require this exact syntax to trigger the warning
-            event.preventDefault(); 
-            event.returnValue = ''; 
+        if (error) {
+          // Card declined, zip code wrong, etc.
+          spinner.style.display = "none";
+          payBtn.style.display = "block";
+          errorDisplay.textContent = error.message;
+          return;
         }
-    });
-    
-    
-    
-     
-    
-    
-    
-    
-</script>
 
-  
-  
-  
-  
+        // 2. Send the secure token to your live Google Cloud Web Server
+        try {
+          // Your live Google Cloud backend URL
+          const backendUrl =
+            "https://activateprosubscription-1068443635940.us-central1.run.app";
 
-</body>
+          const response = await fetch(backendUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              uid: auth.currentUser.uid, // Secures the database update
+              email: document.getElementById("modalEmail").value,
+              paymentMethodId: paymentMethod.id,
+              companyName: company,
+              phone: phone,
+              heroType: setupRole,
+              priceId: "price_1TSrFO02cjd265jFe2pbYDuO", // <--- PASTE YOUR Stripe price_... ID HERE!
+            }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            // Unset the safeguard
+            isCheckingOut = false;
+
+            // Show Success State
+            spinner.style.display = "none";
+            payBtn.style.display = "block";
+            payBtn.style.background = "var(--success)";
+            payBtn.innerText = "✔ PROFILE SYNCED!";
+
+            // Send them to the live map
+            setTimeout(() => {
+              window.location.href = "home.html"; // Redirects to your map
+            }, 1500);
+          } else {
+            // If Stripe declines the card on the backend
+            throw new Error(result.error);
+          }
+        } catch (backendError) {
+          // Handle server or connection errors
+          spinner.style.display = "none";
+          payBtn.style.display = "block";
+          errorDisplay.textContent = backendError.message;
+        }
+      };
+
+      // --- 6. THE ABANDONED CART SAFEGUARD ---
+      window.addEventListener("beforeunload", (event) => {
+        if (isCheckingOut) {
+          // Modern browsers require this exact syntax to trigger the warning
+          event.preventDefault();
+          event.returnValue = "";
+        }
+      });
+    </script>
+  </body>
 </html>
