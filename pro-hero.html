@@ -541,7 +541,9 @@
           </button>
         </div>
 
-        <button
+
+<button
+          id="billingBtn"
           class="submit-btn"
           style="
             background: white;
@@ -551,11 +553,10 @@
             padding: 12px;
             margin-bottom: 20px;
           "
-          onclick="alert('Stripe Portal Coming Next!')"
+          onclick="window.openCustomerPortal()"
         >
           💳 Manage Billing & Card
         </button>
-
         
         
         
@@ -759,6 +760,7 @@
       // --- SETTINGS MODAL CONTROLS ---
 
       window.openSettingsModal = (user, data) => {
+        window.currentStripeCustomerId = data.stripeCustomerId;
         // Pre-fill the inputs with their database data
         document.getElementById("editCompany").value = data.companyName || "";
         document.getElementById("editPhone").value = data.businessPhone || "";
@@ -846,6 +848,55 @@
 
 
       // --- 5. FINAL PROCESSING (Live Stripe & Google Cloud Sync) ---
+      
+      
+      // --- CUSTOMER BILLING PORTAL ---
+      window.openCustomerPortal = async () => {
+        if (!window.currentStripeCustomerId) {
+          alert("No billing account found for this profile.");
+          return;
+        }
+
+        const btn = document.getElementById("billingBtn");
+        const originalText = btn.innerText;
+        btn.innerText = "⏳ Loading Secure Portal...";
+        btn.disabled = true;
+
+        try {
+          // Your exact Portal Cloud Function URL
+          const backendUrl = "https://createportalsession-1068443635940.us-central1.run.app";
+
+          const response = await fetch(backendUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              customerId: window.currentStripeCustomerId,
+              returnUrl: window.location.href, // Sends them back to your app
+            }),
+          }); 
+
+          const result = await response.json();
+
+          if (result.url) {
+            // Instantly teleport them to Stripe
+            window.location.href = result.url;
+          } else {
+            throw new Error(result.error);
+          }
+        } catch (error) {
+          alert("Could not load portal: " + error.message);
+          btn.innerText = originalText;
+          btn.disabled = false;
+        }
+      };
+      
+      
+       
+      
+      
+      
+      
+      
       window.processFinalSetup = async () => {
         const company = document.getElementById("companyName").value;
         const phone = document.getElementById("businessPhone").value;
