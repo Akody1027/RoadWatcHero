@@ -188,6 +188,116 @@ input:focus {
     font-weight: 600; 
 }
 
+  /* --- PRO SETUP MODAL STYLES --- */
+#setupModalOverlay {
+    display: none; /* Hidden until triggered */
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-card {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    padding: 30px;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.modal-header {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 15px;
+    color: var(--text);
+}
+
+.readonly-email {
+    background: #e2e8f0 !important;
+    color: #64748b;
+    cursor: not-allowed;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Service Role Toggle */
+.role-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.role-btn {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--muted);
+    transition: all 0.2s;
+    font-size: 15px;
+}
+.role-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(238, 97, 28, 0.05);
+}
+
+.modal-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 20px 0;
+}
+
+.stripe-placeholder {
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    text-align: center;
+    color: var(--muted);
+    background: #f8fafc;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.spinner {
+    border: 4px solid rgba(238, 97, 28, 0.2);
+    border-top: 4px solid var(--accent);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+    display: none;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.warning-text {
+    font-size: 11px;
+    color: var(--warning);
+    text-align: center;
+    margin-top: 15px;
+    line-height: 1.4;
+    font-weight: 600;
+}
+  
+  
+  
+  
+  
 </style>
 </head>
 <body>
@@ -241,16 +351,58 @@ input:focus {
     </div>
 
     <a href="Appindex.html" class="cancel-link">← Back to Map</a>
+  
+  
+  
+  
+  
+  
+  <div id="setupModalOverlay">
+    <div class="modal-card" id="modalCard">
+        <div class="modal-header">Complete Your Pro Setup</div>
+        
+        <input type="email" id="modalEmail" class="readonly-email" readonly>
+        
+        <div class="role-toggle">
+            <button type="button" class="role-btn active" id="btnTow" onclick="window.selectRole('tow_truck')">🛻 Tow Truck</button>
+            <button type="button" class="role-btn" id="btnMechanic" onclick="window.selectRole('mechanic')">🔧 Mechanic</button>
+        </div>
+        
+        <input type="text" id="companyName" placeholder="Company Name" required>
+        <input type="tel" id="businessPhone" placeholder="Business Phone Number" required>
+        
+        <div class="modal-divider"></div>
+        
+        <div class="stripe-placeholder">
+            🔒 Secure Stripe Card Input Will Go Here
+        </div>
+        
+        <button class="submit-btn" id="finalPayBtn" onclick="window.processFinalSetup()">ACTIVATE PRO ACCOUNT - $49/mo</button>
+        <div class="spinner" id="modalSpinner"></div>
+        
+        <div class="warning-text">
+            ⚠️ Note: Incomplete setups are securely cleared from our servers after 24 hours to protect your data.
+        </div>
+    </div>
+</div>
+  
+  
+  
+  
+  
+  
 </div>
 
   
   
   <script type="module">
     // 1. Import Firebase tools
+  // 1. Import Firebase tools
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { 
         getAuth, 
-        createUserWithEmailAndPassword 
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
     // 2. Initialize your specific Firebase project
@@ -266,6 +418,33 @@ input:focus {
     const auth = getAuth(app);
 
     // 3. Attach the function to the window so the HTML button can click it
+
+    // --- APP STATE ---
+    let selectedRole = 'tow_truck';
+    let isCheckingOut = false; // The safeguard flag
+    
+    
+    
+    
+    // --- HELPER: Trigger the Frosted Glass Modal ---
+    const triggerSetupModal = (user) => {
+        isCheckingOut = true; // Set the trap
+        document.getElementById('modalEmail').value = user.email; // Pre-fill email
+        
+        const overlay = document.getElementById('setupModalOverlay');
+        const card = document.getElementById('modalCard');
+        
+        overlay.style.display = 'flex';
+        setTimeout(() => {
+            overlay.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 10);
+    };
+    
+    
+    
+    
+    // --- 3. TRIGGER BACKGROUND AUTH OR RESUME SETUP ---
     window.goToPayment = () => {
         const email = document.getElementById('proEmail').value;
         const pass = document.getElementById('proPassword').value;
@@ -275,40 +454,113 @@ input:focus {
             return;
         }
 
-        // Change button text to show loading state
         const btn = document.querySelector('.submit-btn');
         const originalText = btn.innerText; 
-        btn.innerText = "CREATING ACCOUNT...";
+        btn.innerText = "SECURING ACCOUNT...";
         btn.disabled = true;
- 
-        // 4. Create the secure user in Firebase Authentication
+
+        // Attempt to Create the User
         createUserWithEmailAndPassword(auth, email, pass)
             .then((userCredential) => {
-                // Success! The secure UID has been generated.
-                const user = userCredential.user;
-                
-                alert("Account successfully created for " + user.email + "!\n\n(In the future, this will instantly redirect to Stripe)");
-                
-                // TODO: window.location.href = "YOUR_STRIPE_CHECKOUT_URL";
-                
+                // NEW USER: Success! Account created. Show Modal.
+                triggerSetupModal(userCredential.user);
                 btn.innerText = originalText;
-                btn.disabled = false;
             })
             .catch((error) => {
-                // Failed! (e.g., password too short, email already exists)
-                console.error("Account Creation Error:", error.message);
-                
-                // Clean up Firebase's error message to be more user-friendly
-                let friendlyError = error.message;
-                if(error.code === 'auth/email-already-in-use') friendlyError = "That email is already registered.";
-                if(error.code === 'auth/weak-password') friendlyError = "Password should be at least 6 characters.";
-                
-                alert(friendlyError);
-                
-                btn.innerText = originalText;
-                btn.disabled = false;
+                // EXISTING USER: If they already started the process but backed out
+                if (error.code === 'auth/email-already-in-use') {
+                    
+                    // Attempt to log them in to resume setup
+                    signInWithEmailAndPassword(auth, email, pass)
+                        .then((userCredential) => {
+                            console.log("Resuming abandoned setup...");
+                            triggerSetupModal(userCredential.user);
+                            btn.innerText = originalText;
+                        })
+                        .catch((signInError) => {
+                            // They used the right email but the wrong password
+                            alert("This email is already registered, but the password entered is incorrect. Please log in from the main map.");
+                            btn.innerText = originalText;
+                            btn.disabled = false;
+                        });
+                } else {
+                    // Other generic errors (like weak password)
+                    let friendlyError = error.message;
+                    if(error.code === 'auth/weak-password') friendlyError = "Password should be at least 6 characters.";
+                    
+                    alert(friendlyError);
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
             });
     };
+    
+    
+
+  
+
+    // --- 4. MODAL UI CONTROLS ---
+    window.selectRole = (role) => {
+        selectedRole = role;
+        // Update button UI
+        document.getElementById('btnTow').classList.remove('active');
+        document.getElementById('btnMechanic').classList.remove('active');
+        
+        if(role === 'tow_truck') document.getElementById('btnTow').classList.add('active');
+        if(role === 'mechanic') document.getElementById('btnMechanic').classList.add('active');
+    };
+
+    // --- 5. FINAL PROCESSING (Simulated Stripe & DB Sync) ---
+    window.processFinalSetup = () => {
+        const company = document.getElementById('companyName').value;
+        const phone = document.getElementById('businessPhone').value;
+
+        if(!company || !phone) {
+            alert("Please provide your company name and phone number.");
+            return;
+        }
+
+        const payBtn = document.getElementById('finalPayBtn');
+        const spinner = document.getElementById('modalSpinner');
+
+        // Swap button for spinner
+        payBtn.style.display = 'none';
+        spinner.style.display = 'block';
+
+        // SIMULATE: Stripe Processing & Firebase DB Save (3 seconds)
+        setTimeout(() => {
+            // Remove the safeguard so they can leave the page safely
+            isCheckingOut = false; 
+
+            spinner.style.display = 'none';
+            payBtn.style.display = 'block';
+            payBtn.style.background = 'var(--success)';
+            payBtn.innerText = "✔ PROFILE SYNCED!";
+            
+            // Redirect to map after short success delay
+            setTimeout(() => { 
+                window.location.href = "Appindex.html";
+            }, 1500);
+ 
+        }, 3000);
+    }; 
+
+    // --- 6. THE ABANDONED CART SAFEGUARD ---
+    window.addEventListener('beforeunload', (event) => {
+        if (isCheckingOut) {
+            // Modern browsers require this exact syntax to trigger the warning
+            event.preventDefault(); 
+            event.returnValue = ''; 
+        }
+    });
+    
+    
+    
+     
+    
+    
+    
+    
 </script>
 
   
