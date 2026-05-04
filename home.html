@@ -1,6 +1,8 @@
-<!DOCTYPE html>
-<html>
-  <!DOCTYPE html>
+
+
+
+
+<!DOCTYPE html> 
   <html lang="en">
     <head>
       <meta charset="UTF-8" />
@@ -1609,7 +1611,7 @@
           <input
             type="number"
             id="customTip"
-            placeholder="Other Tip Amount ($)" 
+            placeholder="Other Tip Amount ($)"
             style="margin-bottom: 15px"
           />
           <div
@@ -1913,14 +1915,6 @@
             />
           </div>
 
-          
-          
-          
-          
-          
-          
-          
-          
           <div class="toggle-wrapper" style="border: 2px solid var(--accent)">
             <span
               class="toggle-label"
@@ -1935,166 +1929,159 @@
               ></span
             ></label>
           </div>
-          <div id="proInlineVault" style="display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 15px; padding: 15px; margin-bottom: 20px;">
-            
+          <div
+            id="proInlineVault"
+            style="
+              display: none;
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 15px;
+              padding: 15px;
+              margin-bottom: 20px;
+            "
+          >
             <div id="proLoginSection">
-              <p style="text-align: center; font-size: 12px; color: var(--muted); margin-top:0; margin-bottom: 15px; font-weight: 600;">Verify your account to unlock priority dispatch and fleet management.</p>
-              <input type="email" id="loginEmail" placeholder="Pro Email Address" />
-              <input type="password" id="loginPassword" placeholder="Password" />
-              <button class="submit-btn" id="verifyProBtn" onclick="window.submitProLogin()">Verify & Unlock</button>
+              <p
+                style="
+                  text-align: center;
+                  font-size: 12px;
+                  color: var(--muted);
+                  margin-top: 0;
+                  margin-bottom: 15px;
+                  font-weight: 600;
+                "
+              >
+                Verify your account to unlock priority dispatch and fleet
+                management.
+              </p>
+              <input
+                type="email"
+                id="loginEmail"
+                placeholder="Pro Email Address"
+              />
+              <input
+                type="password"
+                id="loginPassword"
+                placeholder="Password"
+              />
+              <button
+                class="submit-btn"
+                id="verifyProBtn"
+                onclick="window.submitProLogin()"
+              >
+                Verify & Unlock
+              </button>
             </div>
 
-            <div id="proDashboardSection" style="display: none;">
-              <div style="text-align: center; color: var(--success); font-weight: 900; font-size: 14px; margin-bottom: 15px;">👑 Pro Status Active</div>
-              
-              <div class="toggle-wrapper" style="background: white; border: 1px solid #e2e8f0; margin-bottom: 10px; padding: 10px 15px;">
-                <span class="toggle-label" style="font-weight: 800;">Fleet Dispatch Mode</span>
+            <div id="proDashboardSection" style="display: none">
+              <div
+                style="
+                  text-align: center;
+                  color: var(--success);
+                  font-weight: 900;
+                  font-size: 14px;
+                  margin-bottom: 15px;
+                "
+              >
+                👑 Pro Status Active
+              </div>
+
+              <div
+                class="toggle-wrapper"
+                style="
+                  background: white;
+                  border: 1px solid #e2e8f0;
+                  margin-bottom: 10px;
+                  padding: 10px 15px;
+                "
+              >
+                <span class="toggle-label" style="font-weight: 800"
+                  >Fleet Dispatch Mode</span
+                >
                 <label class="toggle-switch">
-                  <input type="checkbox" id="fleetModeToggle" onchange="window.toggleFleetMode(this)" />
+                  <input
+                    type="checkbox"
+                    id="fleetModeToggle"
+                    onchange="window.toggleFleetMode(this)"
+                  />
                   <span class="slider"></span>
                 </label>
               </div>
 
-              <div id="fleetManagerPanel" style="display: none; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                <label style="font-size: 11px; font-weight: bold; color: var(--muted); display: block; margin-bottom: 10px;">YOUR DRIVERS</label>
-                
-                <div id="fleetDriversList" style="max-height: 150px; overflow-y: auto; margin-bottom: 15px;">
-                  </div>
+              <div
+                id="fleetManagerPanel"
+                style="
+                  display: none;
+                  background: white;
+                  padding: 15px;
+                  border-radius: 12px;
+                  border: 1px solid #e2e8f0;
+                "
+              >
+                <label
+                  style="
+                    font-size: 11px;
+                    font-weight: bold;
+                    color: var(--muted);
+                    display: block;
+                    margin-bottom: 10px;
+                  "
+                  >YOUR DRIVERS</label
+                >
 
-                <div style="display: flex; gap: 8px;">
-                  <input type="text" id="newDriverName" placeholder="Name (e.g. Dave)" style="margin-bottom: 0; padding: 10px; font-size: 13px; flex: 1;" />
-                  <input type="tel" id="newDriverPhone" placeholder="Phone" style="margin-bottom: 0; padding: 10px; font-size: 13px; flex: 1;" />
+                <div
+                  id="fleetDriversList"
+                  style="
+                    max-height: 150px;
+                    overflow-y: auto;
+                    margin-bottom: 15px;
+                  "
+                ></div>
+
+                <div style="display: flex; gap: 8px">
+                  <input
+                    type="text"
+                    id="newDriverName"
+                    placeholder="Name (e.g. Dave)"
+                    style="
+                      margin-bottom: 0;
+                      padding: 10px;
+                      font-size: 13px;
+                      flex: 1;
+                    "
+                  />
+                  <input
+                    type="tel"
+                    id="newDriverPhone"
+                    placeholder="Phone"
+                    style="
+                      margin-bottom: 0;
+                      padding: 10px;
+                      font-size: 13px;
+                      flex: 1;
+                    "
+                  />
                 </div>
-                <button onclick="window.addFleetDriver()" style="width: 100%; padding: 12px; margin-top: 10px; background: var(--text); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer;">+ Add Driver</button>
+                <button
+                  onclick="window.addFleetDriver()"
+                  style="
+                    width: 100%;
+                    padding: 12px;
+                    margin-top: 10px;
+                    background: var(--text);
+                    color: white;
+                    border: none;
+                    border-radius: 12px;
+                    font-weight: 800;
+                    font-size: 13px;
+                    cursor: pointer;
+                  "
+                >
+                  + Add Driver
+                </button>
               </div>
-
             </div>
           </div>
-          ```
-
-### Step 3: Replace the Old Login Logic (JavaScript)
-We need to rip out the old login pop-up code and give it the new inline engine, along with the logic to manage your fleet drivers.
-
-**Location:** Scroll down to your `<script type="module">`. Find `window.openProLogin = (checkbox) => {` (around line 1113).
-**Action:** Highlight that function, `window.cancelProLogin`, and `window.submitProLogin` completely. **Replace all three of them** with this new master block:
-
-```javascript
-        // --- PRO INLINE VAULT & FLEET LOGIC ---
-        window.fleetDrivers = [];
-
-        window.openProLogin = async (checkbox) => {
-          const vault = document.getElementById("proInlineVault");
-          const loginSec = document.getElementById("proLoginSection");
-          const dashSec = document.getElementById("proDashboardSection");
-
-          if (checkbox.checked) {
-            vault.style.display = "block";
-            // Check if already pro in database
-            const snap = await get(ref(db, `profiles/${myId}`));
-            if (snap.exists() && snap.val().isPro) {
-               loginSec.style.display = "none";
-               dashSec.style.display = "block";
-               window.fleetDrivers = snap.val().fleetDrivers || [];
-               window.renderFleetDrivers();
-            } else {
-               loginSec.style.display = "block";
-               dashSec.style.display = "none";
-            }
-          } else {
-            vault.style.display = "none";
-            // Instantly revoke UI pro status if toggled off
-            update(ref(db, `profiles/${myId}`), { isPro: false, fleetModeActive: false });
-          }
-        };
-
-        window.submitProLogin = () => {
-          const email = document.getElementById("loginEmail").value;
-          const pass = document.getElementById("loginPassword").value;
-          const btn = document.getElementById("verifyProBtn");
-
-          if (!email || !pass) return alert("Please enter your Pro email and password.");
-
-          btn.innerText = "Verifying...";
-          btn.disabled = true;
-
-          signInWithEmailAndPassword(auth, email, pass)
-            .then(async (userCredential) => {
-              const secureUid = userCredential.user.uid;
-              const oldTempId = myId;
-
-              // Transfer data to secure UID
-              const oldProfileSnap = await get(ref(db, `profiles/${oldTempId}`));
-              let profileData = oldProfileSnap.exists() ? oldProfileSnap.val() : {};
-              profileData.isPro = true;
-              profileData.id = secureUid;
-
-              await set(ref(db, `profiles/${secureUid}`), profileData);
-              if (oldTempId !== secureUid) await remove(ref(db, `profiles/${oldTempId}`));
-              
-              localStorage.setItem("heroUserId", secureUid);
-              myId = secureUid; // Update local variable instantly
-              
-              // Seamlessly swap to Dashboard View!
-              document.getElementById("proLoginSection").style.display = "none";
-              document.getElementById("proDashboardSection").style.display = "block";
-              
-              btn.innerText = "Verify & Unlock";
-              btn.disabled = false;
-            })
-            .catch((error) => {
-              alert("Invalid credentials. Access denied.");
-              console.error("Login Error:", error.message);
-              document.getElementById("isProToggle").checked = false;
-              document.getElementById("proInlineVault").style.display = "none";
-              btn.innerText = "Verify & Unlock";
-              btn.disabled = false;
-            });
-        };
-
-        window.toggleFleetMode = (checkbox) => {
-            document.getElementById("fleetManagerPanel").style.display = checkbox.checked ? "block" : "none";
-        };
-
-        window.renderFleetDrivers = () => {
-            const list = document.getElementById("fleetDriversList");
-            list.innerHTML = "";
-            if (window.fleetDrivers.length === 0) {
-                list.innerHTML = `<div style="font-size:12px; color:var(--muted); font-style:italic; text-align:center;">No drivers added yet.</div>`;
-                return;
-            }
-            window.fleetDrivers.forEach((d, index) => {
-                list.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #e2e8f0; font-size:13px;">
-                        <div><b style="color:var(--text);">${d.name}</b><br><span style="color:var(--muted);">${d.phone}</span></div>
-                        <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" style="width:16px; height:16px; cursor:pointer;" onclick="window.removeFleetDriver(${index})">
-                    </div>
-                `;
-            });
-        };
-
-        window.addFleetDriver = () => {
-            const name = document.getElementById("newDriverName").value;
-            const phone = document.getElementById("newDriverPhone").value;
-            if (!name || !phone) return alert("Please enter both name and phone.");
-            
-            window.fleetDrivers.push({ name, phone });
-            document.getElementById("newDriverName").value = "";
-            document.getElementById("newDriverPhone").value = "";
-            window.renderFleetDrivers();
-        };
-
-        window.removeFleetDriver = (index) => {
-            window.fleetDrivers.splice(index, 1);
-            window.renderFleetDrivers();
-        };
-          
-          
-          
-          
-          
-          
-          
-          
 
           <button class="submit-btn" onclick="window.saveProfile()">
             Save Settings
@@ -2118,19 +2105,7 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
           >
         </div>
       </div>
-      
-      
-      
-      
-      
-      
 
-      
-      
-      
-      
-      
-      
       <div id="notifModal" class="modal">
         <div class="modal-content">
           <h3>Activity History</h3>
@@ -2599,7 +2574,7 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
             "heroUserId",
             "u_" + Math.random().toString(36).substr(2, 9)
           );
-        const myId = localStorage.getItem("heroUserId");
+        let myId = localStorage.getItem("heroUserId");
 
         let map,
           seekerMiniMap,
@@ -2923,73 +2898,144 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
           fields.style.display = checkbox.checked ? "block" : "none";
         };
 
-        // NEW: Opens the Pro Login modal if toggled ON.
-        window.openProLogin = (checkbox) => {
+        // --- PRO INLINE VAULT & FLEET LOGIC ---
+        window.fleetDrivers = [];
+
+        window.openProLogin = async (checkbox) => {
+          const vault = document.getElementById("proInlineVault");
+          const loginSec = document.getElementById("proLoginSection");
+          const dashSec = document.getElementById("proDashboardSection");
+
           if (checkbox.checked) {
-            window.openModal("proLoginModal");
+            vault.style.display = "block";
+            // Check if already pro in database
+            const snap = await get(ref(db, `profiles/${myId}`));
+            if (snap.exists() && snap.val().isPro) {
+              loginSec.style.display = "none";
+              dashSec.style.display = "block";
+              window.fleetDrivers = snap.val().fleetDrivers || [];
+              window.renderFleetDrivers();
+            } else {
+              loginSec.style.display = "block";
+              dashSec.style.display = "none";
+            }
           } else {
-            // If they turn it off, instantly remove Pro status
-            update(ref(db, `profiles/${myId}`), { isPro: false });
+            vault.style.display = "none";
+            // Instantly revoke UI pro status if toggled off
+            update(ref(db, `profiles/${myId}`), {
+              isPro: false,
+              fleetModeActive: false,
+            });
           }
         };
 
-        // NEW: Cancels the login attempt and resets the toggle
-        window.cancelProLogin = () => {
-          document.getElementById("isProToggle").checked = false;
-          window.closeModal("proLoginModal");
-        };
-
-        // SECURE & MIGRATED: Submits the Pro Login and transfers data
         window.submitProLogin = () => {
           const email = document.getElementById("loginEmail").value;
           const pass = document.getElementById("loginPassword").value;
+          const btn = document.getElementById("verifyProBtn");
 
-          if (!email || !pass) {
+          if (!email || !pass)
             return alert("Please enter your Pro email and password.");
-          }
 
-          // 1. Verify credentials with Firebase Auth
+          btn.innerText = "Verifying...";
+          btn.disabled = true;
+
+          
+          
+          
+          
+          
+          
+          
           signInWithEmailAndPassword(auth, email, pass)
             .then(async (userCredential) => {
               const secureUid = userCredential.user.uid;
-              const oldTempId = myId; // e.g., u_123456789
+              const oldTempId = myId;
 
-              // 2. Fetch all existing profile data from the temporary guest account
+              // Transfer data to secure UID
               const oldProfileSnap = await get(
                 ref(db, `profiles/${oldTempId}`)
               );
               let profileData = oldProfileSnap.exists()
                 ? oldProfileSnap.val()
                 : {};
-
-              // 3. Ensure they get their Pro flag
               profileData.isPro = true;
-              profileData.id = secureUid; // Update the internal ID reference
+              profileData.id = secureUid;
 
-              // 4. Save everything to the new, permanent secure Auth UID folder
               await set(ref(db, `profiles/${secureUid}`), profileData);
+              if (oldTempId !== secureUid)
+                await remove(ref(db, `profiles/${oldTempId}`));
 
-              // 5. Delete the old temporary folder to keep the database clean
-              await remove(ref(db, `profiles/${oldTempId}`));
-
-              // 6. Update the browser's Local Storage so it remembers the secure UID forever
               localStorage.setItem("heroUserId", secureUid);
+              myId = secureUid;
 
-              alert(
-                "Welcome Pro Hero! Your profile has been securely linked and priority dispatch is unlocked."
-              );
+              // Seamlessly swap to Dashboard View!
+              document.getElementById("proLoginSection").style.display = "none";
+              document.getElementById("proDashboardSection").style.display =
+                "block";
 
-              // 7. Force a page reload so the app completely re-initializes using the new secure UID
-              location.reload();
+              btn.innerText = "Verify & Unlock";
+              btn.disabled = false;
             })
             .catch((error) => {
-              // Failed! Invalid email or password.
               alert("Invalid credentials. Access denied.");
               console.error("Login Error:", error.message);
-
-              // Uncheck the Pro toggle in the UI since they failed
               document.getElementById("isProToggle").checked = false;
+              document.getElementById("proInlineVault").style.display = "none";
+              btn.innerText = "Verify & Unlock";
+              btn.disabled = false;
             });
+        };
+        
+        
+        
+        
+        
+        
+        
+        
+
+        window.toggleFleetMode = (checkbox) => {
+          document.getElementById("fleetManagerPanel").style.display =
+            checkbox.checked ? "block" : "none";
+        };
+
+        window.renderFleetDrivers = () => {
+          const list = document.getElementById("fleetDriversList");
+          list.innerHTML = "";
+          if (!window.fleetDrivers || window.fleetDrivers.length === 0) {
+            list.innerHTML = `<div style="font-size:12px; color:var(--muted); font-style:italic; text-align:center;">No drivers added yet.</div>`;
+            return;
+          }
+          window.fleetDrivers.forEach((d, index) => {
+            list.innerHTML += `
+                          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #e2e8f0; font-size:13px;">
+                              <div><b style="color:var(--text);">${d.name}</b><br><span style="color:var(--muted);">${d.phone}</span></div>
+                              <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" style="width:16px; height:16px; cursor:pointer;" onclick="window.removeFleetDriver(${index})">
+                          </div>
+                      `;
+          });
+        };
+
+        window.addFleetDriver = () => {
+          const name = document.getElementById("newDriverName").value;
+          const phone = document.getElementById("newDriverPhone").value;
+          if (!name || !phone)
+            return alert("Please enter both name and phone.");
+          if (!window.fleetDrivers) window.fleetDrivers = [];
+          window.fleetDrivers.push({ name, phone });
+          document.getElementById("newDriverName").value = "";
+          document.getElementById("newDriverPhone").value = "";
+          window.renderFleetDrivers();
+        };
+        
+        
+        
+        
+
+        window.removeFleetDriver = (index) => {
+          window.fleetDrivers.splice(index, 1);
+          window.renderFleetDrivers();
         };
 
         // NEW: Open the Job Board from the Nav Bar Icon
@@ -3492,7 +3538,7 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
                   document.getElementById("detTowDestination");
                 detTowDestinationElement.innerHTML = `Tow Destination: ${
                   r.towDestination
-                }<br><span style="color:var(--accent); font-size:12px; font-weight:800;">🚗 Tow                 Distance: ${towDistanceMiles.toFixed(
+                }<br><span style="color:var(--accent); font-size:12px; font-weight:800;">🚗 Tow  Distance: ${towDistanceMiles.toFixed(
                   1
                 )} miles</span>`;
 
@@ -3538,15 +3584,15 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
                     // OPENING THE MISSING LOOP
                     Object.values(r.bids).forEach((bid) => {
                       sneakPeekList.innerHTML += `
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-    <span style="flex:1; font-weight:700;">
-      ${bid.heroName} 
-      <span style="font-size:10px; color:var(--muted); background:#fde68a; padding:2px 6px; border-radius:8px; margin-left:5px; font-weight:600;">
-        ⏱️ ${bid.eta || "TBD"}
-      </span>
-    </span>
-    <span style="color:#d97706; font-weight:900;">$${bid.amount}</span>
-  </div>`;
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="flex:1; font-weight:700;">
+            ${bid.heroName}
+            <span style="font-size:10px; color:var(--muted); background:#fde68a; padding:2px 6px; border-radius:8px; margin-left:5px; font-weight:600;">
+              ⏱️ ${bid.eta || "TBD"}
+            </span>
+          </span>
+          <span style="color:#d97706; font-weight:900;">$${bid.amount}</span>
+        </div>`;
                     }); // CORRECTLY CLOSING THE LOOP
                   } else {
                     sneakPeekBoard.style.display = "block";
@@ -3592,11 +3638,8 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
           window.switchView("heroUI");
           if (!map) initMap();
 
-          // NEW: Check for location permission as soon as they become a Hero
-          // This triggers the orange banner if location is denied or missing
           window.evaluateBannerState();
 
-          // Also trigger the native prompt immediately to try and get coordinates
           window.startLocationWatch();
         };
 
@@ -3695,36 +3738,36 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
           if (nearbyPros.length > 0) {
             // Content when Pros are found
             container.innerHTML = `
-      <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 8px;">⭐ SELECT A VERIFIED PRO NEARBY</div>
-      <div class="pro-scroller">
-        ${nearbyPros
-          .map(
-            (pro) => `
-          <div class="pro-mechanic-card" onclick="document.getElementById('reqIssue').value = 'Requesting service from ${
-            pro.name
-          }: ' + document.getElementById('reqIssue').value">
-            <img src="${
-              pro.pic || "https://via.placeholder.com/50"
-            }" class="pro-img-mini" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border: 2px solid var(--accent);">
-            <div style="font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${
-              pro.name
-            }</div>
-            <div style="font-size: 9px; color: var(--success); font-weight: 700;">Tap to Select</div>
-          </div>
-        `
-          )
-          .join("")}
-      </div>
-    `;
+            <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 8px;">⭐ SELECT A VERIFIED PRO NEARBY</div>
+            <div class="pro-scroller">
+              ${nearbyPros
+                .map(
+                  (pro) => `
+                <div class="pro-mechanic-card" onclick="document.getElementById('reqIssue').value = 'Requesting service from ${
+                  pro.name
+                }: ' + document.getElementById('reqIssue').value">
+                  <img src="${
+                    pro.pic || "https://via.placeholder.com/50"
+                  }" class="pro-img-mini" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border: 2px solid var(--accent);">
+                  <div style="font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${
+                    pro.name
+                  }</div>
+                  <div style="font-size: 9px; color: var(--success); font-weight: 700;">Tap to Select</div>
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          `;
           } else {
             // Content when NO Pros are found OR Location is still loading
             container.innerHTML = `
-      <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 5px;">⭐ VERIFIED PROS</div>
-      <div class="no-pros-text">
-        No Verified Pros nearby yet.<br>
-        <span style="font-size: 11px; font-weight: 500; font-style: normal;">Please add your tow destination below.</span>
-      </div>
-    `;
+            <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 5px;">⭐ VERIFIED PROS</div>
+            <div class="no-pros-text">
+              No Verified Pros nearby yet.<br>
+              <span style="font-size: 11px; font-weight: 500; font-style: normal;">Please add your tow destination below.</span>
+            </div>
+          `;
           }
         };
 
@@ -4048,14 +4091,14 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
               }</span><b>${r.vehicle}${
                 isTowTruck ? " (Tow)" : ""
               }</b><br><small>${r.issue}</small>
-                </div>         ${
-                  r.status === "open" ||
-                  r.status === "completed" ||
-                  r.status === "finalized" ||
-                  r.status === "canceled"
-                    ? `<img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="window.confirmDeleteActivityPrompt('${id}')">`
-                    : ""
-                }   </div>`;
+                      </div>         ${
+                        r.status === "open" ||
+                        r.status === "completed" ||
+                        r.status === "finalized" ||
+                        r.status === "canceled"
+                          ? `<img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="window.confirmDeleteActivityPrompt('${id}')">`
+                          : ""
+                      }   </div>`;
             }
           });
 
@@ -4210,25 +4253,25 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
                 ) {
                   Object.entries(myActiveSOS.bids).forEach(([heroId, bid]) => {
                     bidContainer.innerHTML += `
-                              <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:15px; border-radius:16px; margin-bottom:10px; border:1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                                  <div>
-                                      <div style="font-weight:900; font-size:15px; color:var(--text);">${
-                                        bid.heroName
-                                      }</div>
-                                      <div style="color:var(--success); font-weight:900; font-size:20px; margin-top:2px;">$${
-                                        bid.amount
-                                      }</div>
-                                      <div style="font-size:12px; color:var(--muted); font-weight:700; margin-top:4px;">⏱️ ETA: ${
-                                        bid.eta || "TBD"
-                                      }</div>
-                                  </div>
-                                  <button onclick="window.acceptBid('${
-                                    myActiveSOS.id
-                                  }', '${heroId}', ${bid.amount}, '${
+                                    <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:15px; border-radius:16px; margin-bottom:10px; border:1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                        <div>
+                                            <div style="font-weight:900; font-size:15px; color:var(--text);">${
+                                              bid.heroName
+                                            }</div>
+                                            <div style="color:var(--success); font-weight:900; font-size:20px; margin-top:2px;">$${
+                                              bid.amount
+                                            }</div>
+                                            <div style="font-size:12px; color:var(--muted); font-weight:700; margin-top:4px;">⏱️ ETA: ${
+                                              bid.eta || "TBD"
+                                            }</div>
+                                        </div>
+                                        <button onclick="window.acceptBid('${
+                                          myActiveSOS.id
+                                        }', '${heroId}', ${bid.amount}, '${
                       bid.eta
                     }')" style="background:var(--text); color:white; border:none; padding:12px 20px; border-radius:12px; font-weight:800; font-size:12px; cursor:pointer; transition:0.2s;">ACCEPT</button>
-                              </div>
-                          `;
+                                    </div>
+                                `;
                   });
                 } else {
                   bidContainer.innerHTML = `<p style="font-size:13px; color:var(--muted); font-style:italic; text-align:center; padding:10px;">Waiting for local heroes to send quotes...</p>`;
@@ -4517,10 +4560,11 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
             baseRate: document.getElementById("profileBaseRate").value || 0,
             pricePerMile: document.getElementById("profilePerMile").value || 0,
             dispatchPhone:
-            document.getElementById("profileDispatchPhone").value || "", // NEW
-            fleetModeActive: document.getElementById("fleetModeToggle") ? document.getElementById("fleetModeToggle").checked : false,
-            fleetDrivers: window.fleetDrivers || []
-            
+              document.getElementById("profileDispatchPhone").value || "", // NEW
+            fleetModeActive: document.getElementById("fleetModeToggle")
+              ? document.getElementById("fleetModeToggle").checked
+              : false,
+            fleetDrivers: window.fleetDrivers || [],
           });
 
           if (profileRadiusCircle) {
@@ -4557,22 +4601,20 @@ We need to rip out the old login pop-up code and give it the new inline engine, 
             document.getElementById("isProToggle").checked = d.isPro === true;
             // Auto-open the Inline Vault if they are Pro
             if (d.isPro) {
-                document.getElementById("proInlineVault").style.display = "block";
-                document.getElementById("proLoginSection").style.display = "none";
-                document.getElementById("proDashboardSection").style.display = "block";
-                
-                // Load their fleet
-                const fleetToggle = document.getElementById("fleetModeToggle");
-                fleetToggle.checked = d.fleetModeActive === true;
-                window.toggleFleetMode(fleetToggle);
-                window.fleetDrivers = d.fleetDrivers || [];
-                window.renderFleetDrivers();
+              document.getElementById("proInlineVault").style.display = "block";
+              document.getElementById("proLoginSection").style.display = "none";
+              document.getElementById("proDashboardSection").style.display =
+                "block";
+
+              // Load their fleet
+              const fleetToggle = document.getElementById("fleetModeToggle");
+              fleetToggle.checked = d.fleetModeActive === true;
+              window.toggleFleetMode(fleetToggle);
+              window.fleetDrivers = d.fleetDrivers || [];
+              window.renderFleetDrivers();
             } else {
-                document.getElementById("proInlineVault").style.display = "none";
+              document.getElementById("proInlineVault").style.display = "none";
             }
-            
-            
-            
 
             // Ensure pricing fields show up if Tow Truck is already checked
             window.togglePricingFields(
