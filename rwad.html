@@ -15,12 +15,15 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
+        /* FIXED: Prevents entire page from scrolling horizontally */
         body {
             background-color: var(--bg-base);
             color: var(--text-dark);
             height: 100vh;
             display: flex;
             flex-direction: column;
+            max-width: 100vw;
+            overflow-x: hidden; 
         }
 
         /* --- Full Screen Login Overlay --- */
@@ -49,13 +52,15 @@
         .topbar {
             width: 100%; background-color: var(--text-dark); color: white;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10;
+            padding: 15px 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10;
+            flex-wrap: wrap; /* FIXED: Allows stacking on narrow screens */
+            gap: 15px;
         }
         
         .brand { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
         .brand-indicator { width: 12px; height: 12px; background-color: var(--success); border-radius: 50%; }
         
-        .topbar-controls { display: flex; align-items: center; gap: 20px; }
+        .topbar-controls { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .maintenance-container { display: flex; align-items: center; gap: 10px; }
         .maintenance-container h3 { font-size: 0.9rem; margin: 0; display: none; } 
         
@@ -65,14 +70,14 @@
         .btn-logout:hover { background: var(--danger); color: white; }
 
         /* Main Content */
-        .main-content { flex: 1; padding: 20px 30px; overflow-y: auto; }
-        .header-title { font-size: 1.8rem; margin-bottom: 20px; }
+        .main-content { flex: 1; padding: 20px; overflow-y: auto; overflow-x: hidden; }
+        .header-title { font-size: 1.5rem; margin-bottom: 20px; word-wrap: break-word; }
         
         /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: var(--surface); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .stat-card h4 { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; }
-        .stat-card .value { font-size: 1.8rem; font-weight: 700; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--surface); padding: 15px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .stat-card h4 { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px; }
+        .stat-card .value { font-size: 1.5rem; font-weight: 700; }
         .stat-card.expense .value { color: var(--danger); }
         .stat-card.revenue .value { color: var(--success); }
         
@@ -80,34 +85,38 @@
         .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 1024px) { .dashboard-grid { grid-template-columns: 1.5fr 1fr; } }
         
-        .panel { background: var(--surface); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .panel h2 { font-size: 1.2rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        /* FIXED: Panels now contain their overflow */
+        .panel { background: var(--surface); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); max-width: 100%; overflow: hidden; }
+        .panel h2 { font-size: 1.1rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
         
         /* Search & Lists */
         .search-bar { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; font-size: 0.95rem; }
-        .contact-list { list-style: none; max-height: 400px; overflow-y: auto; }
-        .contact-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
-        .contact-info { flex: 1; min-width: 200px; }
+        .contact-list { list-style: none; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .contact-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 15px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
+        .contact-info { flex: 1; min-width: 150px; word-wrap: break-word; }
         .contact-info strong { display: block; margin-bottom: 3px; font-size: 0.95rem; }
         .contact-info span { font-size: 0.8rem; color: var(--text-muted); }
-        .contact-actions { display: flex; gap: 5px; }
-        .contact-actions button { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; color: white; font-weight: 600; }
+        /* FIXED: Buttons wrap safely */
+        .contact-actions { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-start; }
+        .contact-actions button { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; color: white; font-weight: 600; }
         .btn-msg { background-color: var(--primary); }
         .btn-ban { background-color: var(--warning); }
         .btn-delete { background-color: var(--danger); }
         
         /* Kill Switch Tabs & Table */
-        .tab-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
+        .tab-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .tab-header h2 { border: none; margin: 0; padding: 0; }
-        .tab-container { display: flex; gap: 15px; }
-        .tab-btn { padding: 6px 12px; background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-weight: 600; color: var(--text-muted); font-size: 0.9rem; transition: 0.2s; }
+        /* FIXED: Tabs wrap on small screens */
+        .tab-container { display: flex; gap: 10px; flex-wrap: wrap; }
+        .tab-btn { padding: 6px 10px; background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; transition: 0.2s; }
         .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
         .tab-btn:hover { color: var(--text-dark); }
 
-        .sos-table-wrapper { overflow-x: auto; }
-        .sos-list { width: 100%; border-collapse: collapse; min-width: 400px; }
-        .sos-list th, .sos-list td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: top; }
-        .btn-kill { background-color: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .sos-table-wrapper { overflow-x: auto; width: 100%; }
+        /* FIXED: Removed fixed minimum width */
+        .sos-list { width: 100%; border-collapse: collapse; }
+        .sos-list th, .sos-list td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 0.85rem; vertical-align: top; word-break: break-word; }
+        .btn-kill { background-color: var(--danger); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 0.75rem; }
         
         /* Janitor */
         .janitor-box { margin-top: 20px; background-color: #fff9f9; border: 1px dashed var(--danger); }
@@ -116,12 +125,8 @@
         .empty-state { padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-style: italic; }
 
         @media (max-width: 768px) {
-            .topbar { flex-direction: column; gap: 15px; padding: 15px; }
             .topbar-controls { width: 100%; justify-content: space-between; }
-            .main-content { padding: 15px; }
-            .stat-card { padding: 15px; }
-            .panel { padding: 15px; }
-            .tab-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .dashboard-grid { gap: 15px; }
         }
     </style>
 </head>
@@ -176,18 +181,17 @@
                     <h4>Active Mechanic Requests</h4>
                     <div class="value" id="mechanicCount">0</div>
                 </div>
-
                 <div class="stat-card">
                     <h4>Marketplace Balance</h4>
                     <div class="value" style="color: var(--primary);" id="marketBalance">0 : 0</div>
-                    <h4 style="margin-top: 5px; font-size: 0.7rem;">(STRANDED VS AVAILABLE)</h4>
+                    <h4 style="margin-top: 5px; font-size: 0.65rem;">(STRANDED VS AVAILABLE)</h4>
                 </div>
             </div>
 
             <div class="dashboard-grid">
                 <div class="panel">
                     <h2>Unified Contacts Hub</h2>
-                    <input type="text" id="searchInput" class="search-bar" placeholder="Search by Name, Email, or UID...">
+                    <input type="text" id="searchInput" class="search-bar" placeholder="Search Name, Email, UID...">
                     <ul class="contact-list" id="userList">
                         <div class="empty-state">Loading user database...</div>
                     </ul>
@@ -343,7 +347,6 @@
                                 </tr>
                             `;
 
-                            // Sort into correct tab based on isTowTruckRequest flag
                             if (req.isTowTruckRequest === true || String(req.isTowTruckRequest).toLowerCase() === 'true') {
                                 activeTowCount++;
                                 towBody.insertAdjacentHTML('beforeend', rowHtml);
@@ -376,7 +379,6 @@
                         const reqId = child.key;
                         const status = (req.status || 'unknown').toLowerCase();
 
-                        // Broad filter: Show EVERYTHING not explicitly finished/canceled
                         if (status !== 'canceled' && status !== 'completed' && status !== 'resolved') {
                             activeMechanicCount++;
                             mechanicBody.insertAdjacentHTML('beforeend', `
@@ -464,7 +466,6 @@
             } catch (err) { alert("Failed: " + err.message); isMaintenance = !isMaintenance; }
         });
 
-        // Unified Kill-Switch
         window.terminateRequest = async (collectionName, reqId) => {
             if(confirm(`Force terminate this broadcast?`)) {
                 try { await update(ref(db, `${collectionName}/${reqId}`), { status: 'canceled' }); } 
