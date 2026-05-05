@@ -96,7 +96,14 @@
         .btn-ban { background-color: var(--warning); }
         .btn-delete { background-color: var(--danger); }
         
-        /* Table */
+        /* Kill Switch Tabs & Table */
+        .tab-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
+        .tab-header h2 { border: none; margin: 0; padding: 0; }
+        .tab-container { display: flex; gap: 15px; }
+        .tab-btn { padding: 6px 12px; background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-weight: 600; color: var(--text-muted); font-size: 0.9rem; transition: 0.2s; }
+        .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        .tab-btn:hover { color: var(--text-dark); }
+
         .sos-table-wrapper { overflow-x: auto; }
         .sos-list { width: 100%; border-collapse: collapse; min-width: 400px; }
         .sos-list th, .sos-list td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
@@ -114,6 +121,7 @@
             .main-content { padding: 15px; }
             .stat-card { padding: 15px; }
             .panel { padding: 15px; }
+            .tab-header { flex-direction: column; align-items: flex-start; gap: 15px; }
         }
     </style>
 </head>
@@ -161,6 +169,15 @@
                     <div class="value" id="sosCount">0</div>
                 </div>
                 <div class="stat-card">
+                    <h4>Active Tow Requests</h4>
+                    <div class="value" id="towCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Active Mechanic Requests</h4>
+                    <div class="value" id="mechanicCount">0</div>
+                </div>
+
+                <div class="stat-card">
                     <h4>Marketplace Balance</h4>
                     <div class="value" style="color: var(--primary);" id="marketBalance">0 : 0</div>
                     <h4 style="margin-top: 5px; font-size: 0.7rem;">(STRANDED VS AVAILABLE)</h4>
@@ -178,7 +195,14 @@
 
                 <div>
                     <div class="panel" style="margin-bottom: 20px;">
-                        <h2>Active SOS / Kill-Switch</h2>
+                        <div class="tab-header">
+                            <h2>Kill-Switch Command</h2>
+                            <div class="tab-container">
+                                <button class="tab-btn active" id="tab-sos" onclick="window.switchTab('sos')">SOS</button>
+                                <button class="tab-btn" id="tab-tow" onclick="window.switchTab('tow')">Towing</button>
+                                <button class="tab-btn" id="tab-mechanic" onclick="window.switchTab('mechanic')">Mechanic</button>
+                            </div>
+                        </div>
                         <div class="sos-table-wrapper">
                             <table class="sos-list">
                                 <thead>
@@ -188,8 +212,9 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="sosTableBody">
-                                </tbody>
+                                <tbody id="sosTableBody"></tbody>
+                                <tbody id="towTableBody" style="display: none;"></tbody>
+                                <tbody id="mechanicTableBody" style="display: none;"></tbody>
                             </table>
                         </div>
                     </div>
@@ -206,7 +231,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        // CRITICAL CHANGE: Importing Realtime Database SDK instead of Firestore
         import { getDatabase, ref, onValue, update, remove, set, push } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
@@ -219,7 +243,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getDatabase(app); // Initializing Realtime Database
+        const db = getDatabase(app); 
 
         const loginOverlay = document.getElementById('login-overlay');
         const dashboardUI = document.getElementById('dashboard-ui');
@@ -251,76 +275,126 @@
 
         logoutBtn.addEventListener('click', () => signOut(auth));
 
+        // State trackers to calculate total combined expense and marketplace balance
         let globalUsersData = []; 
+        let currentHeroes = 0;
+        let activeSosCount = 0;
+        let activeTowCount = 0;
+        let activeMechanicCount = 0;
+
+        function updateExpenseAndBalance() {
+            const totalStranded = activeSosCount + activeTowCount + activeMechanicCount;
+            document.getElementById('expenseCalc').innerText = `$${(totalStranded * 0.05).toFixed(2)}`;
+            document.getElementById('marketBalance').innerText = `${totalStranded} : ${currentHeroes}`;
+        }
 
         function initializeRealtimeListeners() {
-            // Listen to 'users' node from your screenshot
+            // 1. Users Listener
             const usersRef = ref(db, 'users');
             onValue(usersRef, (snapshot) => {
                 let proCount = 0;
-                let availableHeroes = 0;
+                currentHeroes = 0;
                 globalUsersData = [];
 
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         const userData = childSnapshot.val();
-                        // Realtime DB doesn't automatically pack the ID, so we add it manually
                         userData.id = childSnapshot.key; 
                         globalUsersData.push(userData);
                         
-                        // Adjust these field checks based on how you actually save data!
                         if(userData.isPro || userData.accountType === 'pro') proCount++;
-                        if((userData.isPro || userData.accountType === 'pro') && userData.status === 'available') availableHeroes++;
+                        if((userData.isPro || userData.accountType === 'pro') && userData.status === 'available') currentHeroes++;
                     });
                 }
 
                 document.getElementById('proCount').innerText = proCount;
                 renderUsersList(globalUsersData);
-                updateMarketBalance(availableHeroes);
-            }, (error) => {
-                document.getElementById('userList').innerHTML = `<div class="empty-state" style="color:var(--danger)"><strong>ERROR:</strong> Realtime DB Rules blocked access. Check Firebase Rules tab.</div>`;
+                updateExpenseAndBalance();
             });
 
-            // Listen to 'sosRequests' node from your screenshot
+            // 2. SOS Requests Listener
             const sosRef = ref(db, 'sosRequests');
             onValue(sosRef, (snapshot) => {
-                let activeCount = 0;
-                const sosTableBody = document.getElementById('sosTableBody');
-                sosTableBody.innerHTML = ''; 
+                activeSosCount = 0;
+                const sosBody = document.getElementById('sosTableBody');
+                sosBody.innerHTML = ''; 
 
                 if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const req = childSnapshot.val();
-                        const reqId = childSnapshot.key;
-                        
-                        // Checking for active requests
+                    snapshot.forEach((child) => {
+                        const req = child.val();
+                        const reqId = child.key;
                         if (req.status === 'active' || req.status === 'searching' || req.status === 'pending') {
-                            activeCount++;
-                            const tr = document.createElement('tr');
-                            tr.innerHTML = `
-                                <td><strong>${req.userName || req.name || 'User ' + reqId.substring(0,6)}</strong><br><span style="font-size:0.75rem; color:#666;">${reqId}</span></td>
-                                <td><span style="background:var(--warning); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${req.status}</span></td>
-                                <td><button class="btn-kill" onclick="window.terminateSOS('${reqId}')">Terminate</button></td>
-                            `;
-                            sosTableBody.appendChild(tr);
+                            activeSosCount++;
+                            sosBody.insertAdjacentHTML('beforeend', `
+                                <tr>
+                                    <td><strong>${req.userName || req.name || 'User ' + reqId.substring(0,6)}</strong><br><span style="font-size:0.75rem; color:#666;">${reqId}</span></td>
+                                    <td><span style="background:var(--warning); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${req.status}</span></td>
+                                    <td><button class="btn-kill" onclick="window.terminateRequest('sosRequests', '${reqId}')">Terminate</button></td>
+                                </tr>
+                            `);
                         }
                     });
                 }
-
-                if (activeCount === 0) { sosTableBody.innerHTML = `<tr><td colspan="3" class="empty-state">No active broadcasts currently.</td></tr>`; }
-                document.getElementById('sosCount').innerText = activeCount;
-                document.getElementById('expenseCalc').innerText = `$${(activeCount * 0.05).toFixed(2)}`;
-                updateMarketBalance(null, activeCount);
-            }, (error) => {
-                document.getElementById('sosTableBody').innerHTML = `<tr><td colspan="3" class="empty-state" style="color:var(--danger)">Permission Denied by Firebase.</td></tr>`;
+                if (activeSosCount === 0) { sosBody.innerHTML = `<tr><td colspan="3" class="empty-state">No active SOS broadcasts.</td></tr>`; }
+                document.getElementById('sosCount').innerText = activeSosCount;
+                updateExpenseAndBalance();
             });
-        }
 
-        let currentHeroes = 0;
-        function updateMarketBalance(heroes = null, stranded = null) {
-            if(heroes !== null) currentHeroes = heroes;
-            const currentStranded = stranded !== null ? stranded : document.getElementById('sosCount').innerText;
-            document.getElementById('marketBalance').innerText = `${currentStranded} : ${currentHeroes}`;
+            // 3. Towing Requests Listener
+            const towRef = ref(db, 'towRequests'); // <-- UPDATE THIS IF YOUR DATABASE NAME IS DIFFERENT
+            onValue(towRef, (snapshot) => {
+                activeTowCount = 0;
+                const towBody = document.getElementById('towTableBody');
+                towBody.innerHTML = ''; 
+
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const req = child.val();
+                        const reqId = child.key;
+                        if (req.status === 'active' || req.status === 'searching' || req.status === 'pending') {
+                            activeTowCount++;
+                            towBody.insertAdjacentHTML('beforeend', `
+                                <tr>
+                                    <td><strong>${req.userName || req.name || 'User ' + reqId.substring(0,6)}</strong><br><span style="font-size:0.75rem; color:#666;">${reqId}</span></td>
+                                    <td><span style="background:var(--primary); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${req.status}</span></td>
+                                    <td><button class="btn-kill" onclick="window.terminateRequest('towRequests', '${reqId}')">Terminate</button></td>
+                                </tr>
+                            `);
+                        }
+                    });
+                }
+                if (activeTowCount === 0) { towBody.innerHTML = `<tr><td colspan="3" class="empty-state">No active towing requests.</td></tr>`; }
+                document.getElementById('towCount').innerText = activeTowCount;
+                updateExpenseAndBalance();
+            });
+
+            // 4. Mechanic Requests Listener
+            const mechanicRef = ref(db, 'mechanicRequests');
+            onValue(mechanicRef, (snapshot) => {
+                activeMechanicCount = 0;
+                const mechanicBody = document.getElementById('mechanicTableBody');
+                mechanicBody.innerHTML = ''; 
+
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const req = child.val();
+                        const reqId = child.key;
+                        if (req.status === 'active' || req.status === 'searching' || req.status === 'pending') {
+                            activeMechanicCount++;
+                            mechanicBody.insertAdjacentHTML('beforeend', `
+                                <tr>
+                                    <td><strong>${req.userName || req.name || 'User ' + reqId.substring(0,6)}</strong><br><span style="font-size:0.75rem; color:#666;">${reqId}</span></td>
+                                    <td><span style="background:var(--success); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${req.status}</span></td>
+                                    <td><button class="btn-kill" onclick="window.terminateRequest('mechanicRequests', '${reqId}')">Terminate</button></td>
+                                </tr>
+                            `);
+                        }
+                    });
+                }
+                if (activeMechanicCount === 0) { mechanicBody.innerHTML = `<tr><td colspan="3" class="empty-state">No active mechanic requests.</td></tr>`; }
+                document.getElementById('mechanicCount').innerText = activeMechanicCount;
+                updateExpenseAndBalance();
+            });
         }
 
         function renderUsersList(usersArray) {
@@ -362,7 +436,26 @@
             renderUsersList(filtered);
         });
 
-        /* ACTION HANDLERS UPDATED FOR REALTIME DATABASE */
+        /* --- GLOBAL UI FUNCTIONS --- */
+        
+        // Tab Switching Logic
+        window.switchTab = function(tabId) {
+            // Reset all buttons
+            document.getElementById('tab-sos').classList.remove('active');
+            document.getElementById('tab-tow').classList.remove('active');
+            document.getElementById('tab-mechanic').classList.remove('active');
+            
+            // Hide all tables
+            document.getElementById('sosTableBody').style.display = 'none';
+            document.getElementById('towTableBody').style.display = 'none';
+            document.getElementById('mechanicTableBody').style.display = 'none';
+            
+            // Activate selected tab & table
+            document.getElementById('tab-' + tabId).classList.add('active');
+            document.getElementById(tabId + 'TableBody').style.display = 'table-row-group'; // Correct display type for tbody
+        }
+
+        /* --- DATABASE ACTIONS --- */
         
         let isMaintenance = false;
         document.getElementById('maintenanceToggle').addEventListener('click', async (e) => {
@@ -375,9 +468,10 @@
             } catch (err) { alert("Failed: " + err.message); isMaintenance = !isMaintenance; }
         });
 
-        window.terminateSOS = async (sosId) => {
-            if(confirm("Force terminate this broadcast?")) {
-                try { await update(ref(db, 'sosRequests/' + sosId), { status: 'canceled_by_admin' }); } 
+        // Unified Kill-Switch Function handles SOS, Towing, and Mechanic dynamically based on the passed collection name
+        window.terminateRequest = async (collectionName, reqId) => {
+            if(confirm(`Force terminate this ${collectionName} broadcast?`)) {
+                try { await update(ref(db, `${collectionName}/${reqId}`), { status: 'canceled_by_admin' }); } 
                 catch (error) { alert("Error: " + error.message); }
             }
         };
@@ -386,7 +480,6 @@
             const msgText = prompt("Enter alert message to push to this user's inbox:");
             if(msgText) {
                 try { 
-                    // Pushing to the 'userInbox' node seen in your screenshot
                     const newMsgRef = push(ref(db, 'userInbox/' + uid));
                     await set(newMsgRef, { text: msgText, from: "System Admin", timestamp: Date.now(), read: false }); 
                     alert(`Message dispatched.`); 
