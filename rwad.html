@@ -106,7 +106,7 @@
 
         .sos-table-wrapper { overflow-x: auto; }
         .sos-list { width: 100%; border-collapse: collapse; min-width: 400px; }
-        .sos-list th, .sos-list td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .sos-list th, .sos-list td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: top; }
         .btn-kill { background-color: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; }
         
         /* Janitor */
@@ -207,7 +207,7 @@
                             <table class="sos-list">
                                 <thead>
                                     <tr>
-                                        <th>Identity</th>
+                                        <th>Identity & Issue</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -248,7 +248,6 @@
         const loginOverlay = document.getElementById('login-overlay');
         const dashboardUI = document.getElementById('dashboard-ui');
         const loginBtn = document.getElementById('loginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
         const loginError = document.getElementById('loginError');
 
         onAuthStateChanged(auth, (user) => {
@@ -273,9 +272,9 @@
                 });
         });
 
-        logoutBtn.addEventListener('click', () => signOut(auth));
+        document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
 
-        // State trackers to calculate total combined expense and marketplace balance
+        // State trackers
         let globalUsersData = []; 
         let currentHeroes = 0;
         let activeSosCount = 0;
@@ -312,63 +311,59 @@
                 updateExpenseAndBalance();
             });
 
-            // 2. SOS Requests Listener
+            // 2. SOS & Towing Requests Listener (Both from 'sosRequests' node)
             const sosRef = ref(db, 'sosRequests');
             onValue(sosRef, (snapshot) => {
                 activeSosCount = 0;
+                activeTowCount = 0;
+                
                 const sosBody = document.getElementById('sosTableBody');
+                const towBody = document.getElementById('towTableBody');
                 sosBody.innerHTML = ''; 
+                towBody.innerHTML = '';
 
                 if (snapshot.exists()) {
                     snapshot.forEach((child) => {
                         const req = child.val();
                         const reqId = child.key;
-                        if (req.status === 'active' || req.status === 'searching' || req.status === 'pending') {
-                            activeSosCount++;
-                            sosBody.insertAdjacentHTML('beforeend', `
+                        const status = (req.status || 'unknown').toLowerCase();
+                        
+                        // Show EVERYTHING that isn't canceled, completed, or resolved
+                        if (status !== 'canceled' && status !== 'completed' && status !== 'resolved') {
+                            
+                            const rowHtml = `
                                 <tr>
-                                    <td><strong>${req.userName || req.name || 'User ' + reqId.substring(0,6)}</strong><br><span style="font-size:0.75rem; color:#666;">${reqId}</span></td>
-                                    <td><span style="background:var(--warning); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${req.status}</span></td>
+                                    <td>
+                                        <strong>${req.userName || req.name || 'User ' + reqId.substring(0,6)}</strong><br>
+                                        <span style="font-size:0.75rem; color:#666;">${reqId}</span><br>
+                                        <span style="font-size:0.8rem; color:var(--text-muted); display:inline-block; margin-top:4px;">💬 "${req.issue || 'No details provided'}"</span>
+                                    </td>
+                                    <td><span style="background:var(--warning); color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold; text-transform:uppercase;">${req.status || 'ACTIVE'}</span></td>
                                     <td><button class="btn-kill" onclick="window.terminateRequest('sosRequests', '${reqId}')">Terminate</button></td>
                                 </tr>
-                            `);
+                            `;
+
+                            // Sort into correct tab based on isTowTruckRequest flag
+                            if (req.isTowTruckRequest === true || String(req.isTowTruckRequest).toLowerCase() === 'true') {
+                                activeTowCount++;
+                                towBody.insertAdjacentHTML('beforeend', rowHtml);
+                            } else {
+                                activeSosCount++;
+                                sosBody.insertAdjacentHTML('beforeend', rowHtml);
+                            }
                         }
                     });
                 }
+                
                 if (activeSosCount === 0) { sosBody.innerHTML = `<tr><td colspan="3" class="empty-state">No active SOS broadcasts.</td></tr>`; }
-                document.getElementById('sosCount').innerText = activeSosCount;
-                updateExpenseAndBalance();
-            });
-
-            // 3. Towing Requests Listener
-            const towRef = ref(db, 'towRequests'); // <-- UPDATE THIS IF YOUR DATABASE NAME IS DIFFERENT
-            onValue(towRef, (snapshot) => {
-                activeTowCount = 0;
-                const towBody = document.getElementById('towTableBody');
-                towBody.innerHTML = ''; 
-
-                if (snapshot.exists()) {
-                    snapshot.forEach((child) => {
-                        const req = child.val();
-                        const reqId = child.key;
-                        if (req.status === 'active' || req.status === 'searching' || req.status === 'pending') {
-                            activeTowCount++;
-                            towBody.insertAdjacentHTML('beforeend', `
-                                <tr>
-                                    <td><strong>${req.userName || req.name || 'User ' + reqId.substring(0,6)}</strong><br><span style="font-size:0.75rem; color:#666;">${reqId}</span></td>
-                                    <td><span style="background:var(--primary); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${req.status}</span></td>
-                                    <td><button class="btn-kill" onclick="window.terminateRequest('towRequests', '${reqId}')">Terminate</button></td>
-                                </tr>
-                            `);
-                        }
-                    });
-                }
                 if (activeTowCount === 0) { towBody.innerHTML = `<tr><td colspan="3" class="empty-state">No active towing requests.</td></tr>`; }
+                
+                document.getElementById('sosCount').innerText = activeSosCount;
                 document.getElementById('towCount').innerText = activeTowCount;
                 updateExpenseAndBalance();
             });
 
-            // 4. Mechanic Requests Listener
+            // 3. Mechanic Requests Listener
             const mechanicRef = ref(db, 'mechanicRequests');
             onValue(mechanicRef, (snapshot) => {
                 activeMechanicCount = 0;
@@ -379,12 +374,19 @@
                     snapshot.forEach((child) => {
                         const req = child.val();
                         const reqId = child.key;
-                        if (req.status === 'active' || req.status === 'searching' || req.status === 'pending') {
+                        const status = (req.status || 'unknown').toLowerCase();
+
+                        // Broad filter: Show EVERYTHING not explicitly finished/canceled
+                        if (status !== 'canceled' && status !== 'completed' && status !== 'resolved') {
                             activeMechanicCount++;
                             mechanicBody.insertAdjacentHTML('beforeend', `
                                 <tr>
-                                    <td><strong>${req.userName || req.name || 'User ' + reqId.substring(0,6)}</strong><br><span style="font-size:0.75rem; color:#666;">${reqId}</span></td>
-                                    <td><span style="background:var(--success); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${req.status}</span></td>
+                                    <td>
+                                        <strong>${req.userName || req.name || 'User ' + reqId.substring(0,6)}</strong><br>
+                                        <span style="font-size:0.75rem; color:#666;">${reqId}</span><br>
+                                        <span style="font-size:0.8rem; color:var(--text-muted); display:inline-block; margin-top:4px;">🔧 "${req.issue || req.problem || 'No details provided'}"</span>
+                                    </td>
+                                    <td><span style="background:var(--success); color:#fff; padding:3px 8px; border-radius:4px; font-size:0.75rem; font-weight:bold; text-transform:uppercase;">${req.status || 'ACTIVE'}</span></td>
                                     <td><button class="btn-kill" onclick="window.terminateRequest('mechanicRequests', '${reqId}')">Terminate</button></td>
                                 </tr>
                             `);
@@ -437,26 +439,20 @@
         });
 
         /* --- GLOBAL UI FUNCTIONS --- */
-        
-        // Tab Switching Logic
         window.switchTab = function(tabId) {
-            // Reset all buttons
             document.getElementById('tab-sos').classList.remove('active');
             document.getElementById('tab-tow').classList.remove('active');
             document.getElementById('tab-mechanic').classList.remove('active');
             
-            // Hide all tables
             document.getElementById('sosTableBody').style.display = 'none';
             document.getElementById('towTableBody').style.display = 'none';
             document.getElementById('mechanicTableBody').style.display = 'none';
             
-            // Activate selected tab & table
             document.getElementById('tab-' + tabId).classList.add('active');
-            document.getElementById(tabId + 'TableBody').style.display = 'table-row-group'; // Correct display type for tbody
+            document.getElementById(tabId + 'TableBody').style.display = 'table-row-group'; 
         }
 
         /* --- DATABASE ACTIONS --- */
-        
         let isMaintenance = false;
         document.getElementById('maintenanceToggle').addEventListener('click', async (e) => {
             isMaintenance = !isMaintenance;
@@ -468,10 +464,10 @@
             } catch (err) { alert("Failed: " + err.message); isMaintenance = !isMaintenance; }
         });
 
-        // Unified Kill-Switch Function handles SOS, Towing, and Mechanic dynamically based on the passed collection name
+        // Unified Kill-Switch
         window.terminateRequest = async (collectionName, reqId) => {
-            if(confirm(`Force terminate this ${collectionName} broadcast?`)) {
-                try { await update(ref(db, `${collectionName}/${reqId}`), { status: 'canceled_by_admin' }); } 
+            if(confirm(`Force terminate this broadcast?`)) {
+                try { await update(ref(db, `${collectionName}/${reqId}`), { status: 'canceled' }); } 
                 catch (error) { alert("Error: " + error.message); }
             }
         };
