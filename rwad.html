@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,7 +20,7 @@
             color: var(--text-dark);
             height: 100vh;
             display: flex;
-            flex-direction: column; /* Changed to stack vertically */
+            flex-direction: column;
         }
 
         /* --- Full Screen Login Overlay --- */
@@ -58,7 +57,7 @@
         
         .topbar-controls { display: flex; align-items: center; gap: 20px; }
         .maintenance-container { display: flex; align-items: center; gap: 10px; }
-        .maintenance-container h3 { font-size: 0.9rem; margin: 0; display: none; } /* Hidden on mobile */
+        .maintenance-container h3 { font-size: 0.9rem; margin: 0; display: none; } 
         
         .btn-toggle { padding: 8px 16px; background-color: var(--danger); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
         .btn-toggle.active { background-color: var(--success); }
@@ -126,7 +125,7 @@
             <input type="email" id="adminEmail" placeholder="Admin Email" required>
             <input type="password" id="adminPassword" placeholder="Password" required>
             <button id="loginBtn">Authenticate</button>
-            <div id="loginError" class="login-error">Invalid credentials or permissions.</div>
+            <div id="loginError" class="login-error">Invalid credentials.</div>
         </div>
     </div>
 
@@ -207,7 +206,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        // CRITICAL CHANGE: Importing Realtime Database SDK instead of Firestore
+        import { getDatabase, ref, onValue, update, remove, set, push } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
@@ -219,7 +219,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        const db = getDatabase(app); // Initializing Realtime Database
 
         const loginOverlay = document.getElementById('login-overlay');
         const dashboardUI = document.getElementById('dashboard-ui');
@@ -235,8 +235,6 @@
             } else {
                 loginOverlay.style.display = 'flex';
                 dashboardUI.style.display = 'none';
-                if(unsubscribeUsers) unsubscribeUsers();
-                if(unsubscribeSOS) unsubscribeSOS();
             }
         });
 
@@ -253,53 +251,61 @@
 
         logoutBtn.addEventListener('click', () => signOut(auth));
 
-        let unsubscribeUsers = null;
-        let unsubscribeSOS = null;
         let globalUsersData = []; 
 
         function initializeRealtimeListeners() {
-            // VERIFY THIS COLLECTION NAME MATCHES YOUR DATABASE EXACTLY
-            const usersRef = collection(db, "users"); 
-            unsubscribeUsers = onSnapshot(usersRef, (snapshot) => {
+            // Listen to 'users' node from your screenshot
+            const usersRef = ref(db, 'users');
+            onValue(usersRef, (snapshot) => {
                 let proCount = 0;
                 let availableHeroes = 0;
                 globalUsersData = [];
 
-                snapshot.forEach((doc) => {
-                    const userData = doc.data();
-                    userData.id = doc.id;
-                    globalUsersData.push(userData);
-                    if(userData.isPro) proCount++;
-                    if(userData.isPro && userData.status === 'available') availableHeroes++;
-                });
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const userData = childSnapshot.val();
+                        // Realtime DB doesn't automatically pack the ID, so we add it manually
+                        userData.id = childSnapshot.key; 
+                        globalUsersData.push(userData);
+                        
+                        // Adjust these field checks based on how you actually save data!
+                        if(userData.isPro || userData.accountType === 'pro') proCount++;
+                        if((userData.isPro || userData.accountType === 'pro') && userData.status === 'available') availableHeroes++;
+                    });
+                }
 
                 document.getElementById('proCount').innerText = proCount;
                 renderUsersList(globalUsersData);
                 updateMarketBalance(availableHeroes);
             }, (error) => {
-                document.getElementById('userList').innerHTML = `<div class="empty-state" style="color:var(--danger)"><strong>ERROR: Permission Denied.</strong><br>Your Firebase Security Rules are blocking the dashboard from reading the database.</div>`;
+                document.getElementById('userList').innerHTML = `<div class="empty-state" style="color:var(--danger)"><strong>ERROR:</strong> Realtime DB Rules blocked access. Check Firebase Rules tab.</div>`;
             });
 
-            // VERIFY THIS COLLECTION NAME MATCHES YOUR DATABASE EXACTLY
-            const sosRef = collection(db, "active_requests"); 
-            unsubscribeSOS = onSnapshot(sosRef, (snapshot) => {
+            // Listen to 'sosRequests' node from your screenshot
+            const sosRef = ref(db, 'sosRequests');
+            onValue(sosRef, (snapshot) => {
                 let activeCount = 0;
                 const sosTableBody = document.getElementById('sosTableBody');
                 sosTableBody.innerHTML = ''; 
 
-                snapshot.forEach((docSnap) => {
-                    const req = docSnap.data();
-                    if (req.status === 'active' || req.status === 'searching') {
-                        activeCount++;
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td><strong>${req.userName || 'Unknown'}</strong><br><span style="font-size:0.75rem; color:#666;">${docSnap.id}</span></td>
-                            <td><span style="background:var(--warning); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${req.status}</span></td>
-                            <td><button class="btn-kill" onclick="window.terminateSOS('${docSnap.id}')">Terminate</button></td>
-                        `;
-                        sosTableBody.appendChild(tr);
-                    }
-                });
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const req = childSnapshot.val();
+                        const reqId = childSnapshot.key;
+                        
+                        // Checking for active requests
+                        if (req.status === 'active' || req.status === 'searching' || req.status === 'pending') {
+                            activeCount++;
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td><strong>${req.userName || req.name || 'User ' + reqId.substring(0,6)}</strong><br><span style="font-size:0.75rem; color:#666;">${reqId}</span></td>
+                                <td><span style="background:var(--warning); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${req.status}</span></td>
+                                <td><button class="btn-kill" onclick="window.terminateSOS('${reqId}')">Terminate</button></td>
+                            `;
+                            sosTableBody.appendChild(tr);
+                        }
+                    });
+                }
 
                 if (activeCount === 0) { sosTableBody.innerHTML = `<tr><td colspan="3" class="empty-state">No active broadcasts currently.</td></tr>`; }
                 document.getElementById('sosCount').innerText = activeCount;
@@ -322,18 +328,18 @@
             userListEl.innerHTML = '';
 
             if(usersArray.length === 0) {
-                userListEl.innerHTML = `<div class="empty-state">No users found. Check your collection name.</div>`;
+                userListEl.innerHTML = `<div class="empty-state">No users found in database.</div>`;
                 return;
             }
 
             usersArray.forEach(user => {
                 const li = document.createElement('li');
                 li.className = 'contact-item';
-                const isProText = user.isPro ? '<span style="color:var(--success); font-weight:bold;">(PRO)</span>' : '';
+                const isProText = (user.isPro || user.accountType === 'pro') ? '<span style="color:var(--success); font-weight:bold;">(PRO)</span>' : '';
                 
                 li.innerHTML = `
                     <div class="contact-info">
-                        <strong>${user.name || 'Unnamed User'} ${isProText}</strong>
+                        <strong>${user.name || user.firstName || 'Unnamed User'} ${isProText}</strong>
                         <span>${user.email || 'No email provided'} • UID: ${user.id}</span>
                     </div>
                     <div class="contact-actions">
@@ -349,49 +355,56 @@
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
             const filtered = globalUsersData.filter(u => 
-                (u.name && u.name.toLowerCase().includes(term)) || 
-                (u.email && u.email.toLowerCase().includes(term)) ||
-                (u.id && u.id.toLowerCase().includes(term))
+                ((u.name || '').toLowerCase().includes(term)) || 
+                ((u.email || '').toLowerCase().includes(term)) ||
+                ((u.id || '').toLowerCase().includes(term))
             );
             renderUsersList(filtered);
         });
 
-        /* Action Handlers (Kept minimal for space) */
+        /* ACTION HANDLERS UPDATED FOR REALTIME DATABASE */
+        
         let isMaintenance = false;
         document.getElementById('maintenanceToggle').addEventListener('click', async (e) => {
             isMaintenance = !isMaintenance;
-            try { await setDoc(doc(db, "settings", "global"), { maintenance_mode: isMaintenance }, { merge: true });
-            e.target.className = isMaintenance ? 'btn-toggle' : 'btn-toggle active';
-            e.target.innerText = isMaintenance ? 'MAINTENANCE ENGAGED' : 'SYSTEM ONLINE';
-            e.target.style.backgroundColor = isMaintenance ? 'var(--warning)' : 'var(--success)';
+            try { 
+                await set(ref(db, 'settings/global/maintenance_mode'), isMaintenance);
+                e.target.className = isMaintenance ? 'btn-toggle' : 'btn-toggle active';
+                e.target.innerText = isMaintenance ? 'MAINTENANCE ENGAGED' : 'SYSTEM ONLINE';
+                e.target.style.backgroundColor = isMaintenance ? 'var(--warning)' : 'var(--success)';
             } catch (err) { alert("Failed: " + err.message); isMaintenance = !isMaintenance; }
         });
 
         window.terminateSOS = async (sosId) => {
             if(confirm("Force terminate this broadcast?")) {
-                try { await updateDoc(doc(db, "active_requests", sosId), { status: 'canceled_by_admin' }); } 
+                try { await update(ref(db, 'sosRequests/' + sosId), { status: 'canceled_by_admin' }); } 
                 catch (error) { alert("Error: " + error.message); }
             }
         };
 
         window.adminMessage = async (uid) => {
-            const msg = prompt("Enter alert message to push to this user's inbox:");
-            if(msg) {
-                try { await setDoc(doc(collection(db, "users", uid, "messages")), { text: msg, from: "System Admin", timestamp: new Date(), read: false }); alert(`Message dispatched.`); } 
+            const msgText = prompt("Enter alert message to push to this user's inbox:");
+            if(msgText) {
+                try { 
+                    // Pushing to the 'userInbox' node seen in your screenshot
+                    const newMsgRef = push(ref(db, 'userInbox/' + uid));
+                    await set(newMsgRef, { text: msgText, from: "System Admin", timestamp: Date.now(), read: false }); 
+                    alert(`Message dispatched.`); 
+                } 
                 catch (error) { alert("Error: " + error.message); }
             }
         };
 
         window.banUser = async (uid) => {
             if(confirm("Soft Ban this user?")) {
-                try { await updateDoc(doc(db, "users", uid), { isBanned: true, status: 'offline' }); } 
+                try { await update(ref(db, 'users/' + uid), { isBanned: true, status: 'offline' }); } 
                 catch (error) { alert("Error: " + error.message); }
             }
         };
 
         window.deleteUser = async (uid) => {
-            if(confirm("HARD DELETE WARNING: This wipes their Firestore database document. Proceed?")) {
-                try { await deleteDoc(doc(db, "users", uid)); } 
+            if(confirm("HARD DELETE WARNING: This wipes their database record permanently. Proceed?")) {
+                try { await remove(ref(db, 'users/' + uid)); } 
                 catch (error) { alert("Error: " + error.message); }
             }
         };
@@ -400,4 +413,3 @@
     </script>
 </body>
 </html>
-
