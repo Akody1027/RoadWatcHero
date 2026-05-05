@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control | Roadwatch Hero</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        :root {
+            --bg-base: #f4f7f6; --surface: #ffffff; --primary: #0052cc; --danger: #e63946;
+            --warning: #f4a261; --success: #2a9d8f; --text-dark: #1d3557; --text-muted: #6c757d;
+            --border: #e9ecef; --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column; /* Changed to stack vertically */
+        }
+
+        /* --- Full Screen Login Overlay --- */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--text-dark); display: flex; justify-content: center;
+            align-items: center; z-index: 9999;
+        }
+
+        .login-box {
+            background: var(--surface); padding: 40px; border-radius: var(--radius);
+            width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center;
+        }
+
+        .login-box h2 { margin-bottom: 20px; color: var(--text-dark); }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
+        .login-box button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+        .login-error { color: var(--danger); font-size: 0.85rem; margin-top: 10px; display: none; }
+
+        /* --- Dashboard Wrapper --- */
+        #dashboard-ui {
+            display: none; width: 100%; height: 100%; flex-direction: column; overflow: hidden;
+        }
+
+        /* --- Top Navigation Bar --- */
+        .topbar {
+            width: 100%; background-color: var(--text-dark); color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10;
+        }
+        
+        .brand { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .brand-indicator { width: 12px; height: 12px; background-color: var(--success); border-radius: 50%; }
+        
+        .topbar-controls { display: flex; align-items: center; gap: 20px; }
+        .maintenance-container { display: flex; align-items: center; gap: 10px; }
+        .maintenance-container h3 { font-size: 0.9rem; margin: 0; display: none; } /* Hidden on mobile */
+        
+        .btn-toggle { padding: 8px 16px; background-color: var(--danger); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+        .btn-toggle.active { background-color: var(--success); }
+        .btn-logout { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
+        .btn-logout:hover { background: var(--danger); color: white; }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 20px 30px; overflow-y: auto; }
+        .header-title { font-size: 1.8rem; margin-bottom: 20px; }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--surface); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .stat-card h4 { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 10px; }
+        .stat-card .value { font-size: 1.8rem; font-weight: 700; }
+        .stat-card.expense .value { color: var(--danger); }
+        .stat-card.revenue .value { color: var(--success); }
+        
+        /* Main Panels */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 1024px) { .dashboard-grid { grid-template-columns: 1.5fr 1fr; } }
+        
+        .panel { background: var(--surface); padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .panel h2 { font-size: 1.2rem; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        
+        /* Search & Lists */
+        .search-bar { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 15px; font-size: 0.95rem; }
+        .contact-list { list-style: none; max-height: 400px; overflow-y: auto; }
+        .contact-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
+        .contact-info { flex: 1; min-width: 200px; }
+        .contact-info strong { display: block; margin-bottom: 3px; font-size: 0.95rem; }
+        .contact-info span { font-size: 0.8rem; color: var(--text-muted); }
+        .contact-actions { display: flex; gap: 5px; }
+        .contact-actions button { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; color: white; font-weight: 600; }
+        .btn-msg { background-color: var(--primary); }
+        .btn-ban { background-color: var(--warning); }
+        .btn-delete { background-color: var(--danger); }
+        
+        /* Table */
+        .sos-table-wrapper { overflow-x: auto; }
+        .sos-list { width: 100%; border-collapse: collapse; min-width: 400px; }
+        .sos-list th, .sos-list td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .btn-kill { background-color: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        
+        /* Janitor */
+        .janitor-box { margin-top: 20px; background-color: #fff9f9; border: 1px dashed var(--danger); }
+        .btn-janitor { width: 100%; padding: 12px; background-color: var(--text-dark); color: white; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: 600; }
+        
+        .empty-state { padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.9rem; font-style: italic; }
+
+        @media (max-width: 768px) {
+            .topbar { flex-direction: column; gap: 15px; padding: 15px; }
+            .topbar-controls { width: 100%; justify-content: space-between; }
+            .main-content { padding: 15px; }
+            .stat-card { padding: 15px; }
+            .panel { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>Mission Control</h2>
+            <input type="email" id="adminEmail" placeholder="Admin Email" required>
+            <input type="password" id="adminPassword" placeholder="Password" required>
+            <button id="loginBtn">Authenticate</button>
+            <div id="loginError" class="login-error">Invalid credentials or permissions.</div>
+        </div>
+    </div>
+
+    <div id="dashboard-ui">
+        
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-indicator" id="connectionDot"></div> Roadwatch Hero
+            </div>
+            <div class="topbar-controls">
+                <div class="maintenance-container">
+                    <h3>Maintenance:</h3>
+                    <button class="btn-toggle active" id="maintenanceToggle">SYSTEM ONLINE</button>
+                </div>
+                <button class="btn-logout" id="logoutBtn">Log Out</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h1 class="header-title">System Overview</h1>
+
+            <div class="stats-grid">
+                <div class="stat-card revenue">
+                    <h4>Active Pro Subscribers</h4>
+                    <div class="value" id="proCount">0</div>
+                </div>
+                <div class="stat-card expense">
+                    <h4>Est. Hourly API Expense</h4>
+                    <div class="value" id="expenseCalc">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Active SOS Broadcasts</h4>
+                    <div class="value" id="sosCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h4>Marketplace Balance</h4>
+                    <div class="value" style="color: var(--primary);" id="marketBalance">0 : 0</div>
+                    <h4 style="margin-top: 5px; font-size: 0.7rem;">(STRANDED VS AVAILABLE)</h4>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="panel">
+                    <h2>Unified Contacts Hub</h2>
+                    <input type="text" id="searchInput" class="search-bar" placeholder="Search by Name, Email, or UID...">
+                    <ul class="contact-list" id="userList">
+                        <div class="empty-state">Loading user database...</div>
+                    </ul>
+                </div>
+
+                <div>
+                    <div class="panel" style="margin-bottom: 20px;">
+                        <h2>Active SOS / Kill-Switch</h2>
+                        <div class="sos-table-wrapper">
+                            <table class="sos-list">
+                                <thead>
+                                    <tr>
+                                        <th>Identity</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sosTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="panel janitor-box">
+                        <h2 style="border-bottom: 1px dashed var(--danger);">The Digital Janitor</h2>
+                        <button class="btn-janitor" id="janitorBtn">Purge Old Storage Images</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
+            authDomain: "roadsidehero-104ea.firebaseapp.com",
+            databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
+            projectId: "roadsidehero-104ea",
+            storageBucket: "roadsidehero-104ea.firebasestorage.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const loginOverlay = document.getElementById('login-overlay');
+        const dashboardUI = document.getElementById('dashboard-ui');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginError = document.getElementById('loginError');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginOverlay.style.display = 'none';
+                dashboardUI.style.display = 'flex';
+                initializeRealtimeListeners();
+            } else {
+                loginOverlay.style.display = 'flex';
+                dashboardUI.style.display = 'none';
+                if(unsubscribeUsers) unsubscribeUsers();
+                if(unsubscribeSOS) unsubscribeSOS();
+            }
+        });
+
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            setPersistence(auth, browserLocalPersistence)
+                .then(() => signInWithEmailAndPassword(auth, email, password))
+                .catch((error) => {
+                    loginError.style.display = 'block';
+                    loginError.innerText = error.message;
+                });
+        });
+
+        logoutBtn.addEventListener('click', () => signOut(auth));
+
+        let unsubscribeUsers = null;
+        let unsubscribeSOS = null;
+        let globalUsersData = []; 
+
+        function initializeRealtimeListeners() {
+            // VERIFY THIS COLLECTION NAME MATCHES YOUR DATABASE EXACTLY
+            const usersRef = collection(db, "users"); 
+            unsubscribeUsers = onSnapshot(usersRef, (snapshot) => {
+                let proCount = 0;
+                let availableHeroes = 0;
+                globalUsersData = [];
+
+                snapshot.forEach((doc) => {
+                    const userData = doc.data();
+                    userData.id = doc.id;
+                    globalUsersData.push(userData);
+                    if(userData.isPro) proCount++;
+                    if(userData.isPro && userData.status === 'available') availableHeroes++;
+                });
+
+                document.getElementById('proCount').innerText = proCount;
+                renderUsersList(globalUsersData);
+                updateMarketBalance(availableHeroes);
+            }, (error) => {
+                document.getElementById('userList').innerHTML = `<div class="empty-state" style="color:var(--danger)"><strong>ERROR: Permission Denied.</strong><br>Your Firebase Security Rules are blocking the dashboard from reading the database.</div>`;
+            });
+
+            // VERIFY THIS COLLECTION NAME MATCHES YOUR DATABASE EXACTLY
+            const sosRef = collection(db, "active_requests"); 
+            unsubscribeSOS = onSnapshot(sosRef, (snapshot) => {
+                let activeCount = 0;
+                const sosTableBody = document.getElementById('sosTableBody');
+                sosTableBody.innerHTML = ''; 
+
+                snapshot.forEach((docSnap) => {
+                    const req = docSnap.data();
+                    if (req.status === 'active' || req.status === 'searching') {
+                        activeCount++;
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong>${req.userName || 'Unknown'}</strong><br><span style="font-size:0.75rem; color:#666;">${docSnap.id}</span></td>
+                            <td><span style="background:var(--warning); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.75rem;">${req.status}</span></td>
+                            <td><button class="btn-kill" onclick="window.terminateSOS('${docSnap.id}')">Terminate</button></td>
+                        `;
+                        sosTableBody.appendChild(tr);
+                    }
+                });
+
+                if (activeCount === 0) { sosTableBody.innerHTML = `<tr><td colspan="3" class="empty-state">No active broadcasts currently.</td></tr>`; }
+                document.getElementById('sosCount').innerText = activeCount;
+                document.getElementById('expenseCalc').innerText = `$${(activeCount * 0.05).toFixed(2)}`;
+                updateMarketBalance(null, activeCount);
+            }, (error) => {
+                document.getElementById('sosTableBody').innerHTML = `<tr><td colspan="3" class="empty-state" style="color:var(--danger)">Permission Denied by Firebase.</td></tr>`;
+            });
+        }
+
+        let currentHeroes = 0;
+        function updateMarketBalance(heroes = null, stranded = null) {
+            if(heroes !== null) currentHeroes = heroes;
+            const currentStranded = stranded !== null ? stranded : document.getElementById('sosCount').innerText;
+            document.getElementById('marketBalance').innerText = `${currentStranded} : ${currentHeroes}`;
+        }
+
+        function renderUsersList(usersArray) {
+            const userListEl = document.getElementById('userList');
+            userListEl.innerHTML = '';
+
+            if(usersArray.length === 0) {
+                userListEl.innerHTML = `<div class="empty-state">No users found. Check your collection name.</div>`;
+                return;
+            }
+
+            usersArray.forEach(user => {
+                const li = document.createElement('li');
+                li.className = 'contact-item';
+                const isProText = user.isPro ? '<span style="color:var(--success); font-weight:bold;">(PRO)</span>' : '';
+                
+                li.innerHTML = `
+                    <div class="contact-info">
+                        <strong>${user.name || 'Unnamed User'} ${isProText}</strong>
+                        <span>${user.email || 'No email provided'} • UID: ${user.id}</span>
+                    </div>
+                    <div class="contact-actions">
+                        <button class="btn-msg" onclick="window.adminMessage('${user.id}')">Msg</button>
+                        <button class="btn-ban" onclick="window.banUser('${user.id}')">Ban</button>
+                        <button class="btn-delete" onclick="window.deleteUser('${user.id}')">Del</button>
+                    </div>
+                `;
+                userListEl.appendChild(li);
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = globalUsersData.filter(u => 
+                (u.name && u.name.toLowerCase().includes(term)) || 
+                (u.email && u.email.toLowerCase().includes(term)) ||
+                (u.id && u.id.toLowerCase().includes(term))
+            );
+            renderUsersList(filtered);
+        });
+
+        /* Action Handlers (Kept minimal for space) */
+        let isMaintenance = false;
+        document.getElementById('maintenanceToggle').addEventListener('click', async (e) => {
+            isMaintenance = !isMaintenance;
+            try { await setDoc(doc(db, "settings", "global"), { maintenance_mode: isMaintenance }, { merge: true });
+            e.target.className = isMaintenance ? 'btn-toggle' : 'btn-toggle active';
+            e.target.innerText = isMaintenance ? 'MAINTENANCE ENGAGED' : 'SYSTEM ONLINE';
+            e.target.style.backgroundColor = isMaintenance ? 'var(--warning)' : 'var(--success)';
+            } catch (err) { alert("Failed: " + err.message); isMaintenance = !isMaintenance; }
+        });
+
+        window.terminateSOS = async (sosId) => {
+            if(confirm("Force terminate this broadcast?")) {
+                try { await updateDoc(doc(db, "active_requests", sosId), { status: 'canceled_by_admin' }); } 
+                catch (error) { alert("Error: " + error.message); }
+            }
+        };
+
+        window.adminMessage = async (uid) => {
+            const msg = prompt("Enter alert message to push to this user's inbox:");
+            if(msg) {
+                try { await setDoc(doc(collection(db, "users", uid, "messages")), { text: msg, from: "System Admin", timestamp: new Date(), read: false }); alert(`Message dispatched.`); } 
+                catch (error) { alert("Error: " + error.message); }
+            }
+        };
+
+        window.banUser = async (uid) => {
+            if(confirm("Soft Ban this user?")) {
+                try { await updateDoc(doc(db, "users", uid), { isBanned: true, status: 'offline' }); } 
+                catch (error) { alert("Error: " + error.message); }
+            }
+        };
+
+        window.deleteUser = async (uid) => {
+            if(confirm("HARD DELETE WARNING: This wipes their Firestore database document. Proceed?")) {
+                try { await deleteDoc(doc(db, "users", uid)); } 
+                catch (error) { alert("Error: " + error.message); }
+            }
+        };
+
+        document.getElementById('janitorBtn').addEventListener('click', () => { alert("Pending backend function deployment."); });
+    </script>
+</body>
+</html>
+
