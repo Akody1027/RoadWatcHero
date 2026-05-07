@@ -593,6 +593,20 @@
           >BUSINESS PHONE</label
         >
         <input type="tel" id="editPhone" placeholder="Loading..." />
+        
+        
+        <label
+          style="
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--muted);
+            margin-left: 5px;
+          "
+          >BUSINESS / SHOP ADDRESS</label
+        >
+        <input type="text" id="editAddress" placeholder="123 Main St, City, ST 12345" />
+        
+        
 
         <button
           class="submit-btn"
@@ -764,6 +778,7 @@
         // Pre-fill the inputs with their database data
         document.getElementById("editCompany").value = data.companyName || "";
         document.getElementById("editPhone").value = data.businessPhone || "";
+        document.getElementById("editAddress").value = data.businessAddress || "";
         window.selectRole(data.heroType || 'tow_truck', 'edit');
         
         const overlay = document.getElementById("settingsModalOverlay");
@@ -794,6 +809,8 @@
 
         const newCompany = document.getElementById("editCompany").value;
         const newPhone = document.getElementById("editPhone").value;
+        const newAddress = document.getElementById("editAddress").value;
+        
         const uid = auth.currentUser.uid;
 
         try {
@@ -801,7 +818,8 @@
             await update(ref(db, 'users/' + uid), {
                 companyName: newCompany,
                 businessPhone: newPhone,
-                heroType: editRole
+                heroType: editRole,
+                businessAddress: newAddress
             });
 
           // Show success
