@@ -1,7 +1,4 @@
 
-
-
-
 <!DOCTYPE html> 
   <html lang="en">
     <head>
@@ -18,7 +15,7 @@
       <style>
                 :root {
                   --bg: #f8fafc;
-                  --card: #ffffff;
+                  --card: #ffffff; 
                   --text: #0f172a;
                   --muted: black;
                   --accent: #ee611c;
@@ -33,11 +30,11 @@
                   box-sizing: border-box;
                   -webkit-tap-highlight-color: transparent;
                 }
-
-                /* Global smoothness */
+ 
+                /* Global smoothness */ 
                 body,
                 button,
-                input,
+                input, 
                 div:not(#map):not(#seekerMap) {
                   transition: background-color 0.2s ease, color 0.2s ease,
                     border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
@@ -895,6 +892,45 @@
           margin-bottom: 5px;
           border: 2px solid var(--accent);
         }
+        
+        
+        
+        /* --- SUBMIT BUTTON UI STATES --- */
+#submitSosBtn:disabled {
+  background: #cbd5e1 !important; /* Muted Gray */
+  color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.pulse-ready {
+  animation: pulse-button 1.5s infinite;
+}
+
+@keyframes pulse-button {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(238, 97, 28, 0.7); }
+  50% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(238, 97, 28, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(238, 97, 28, 0); }
+}
+        
+        
+        .form-wrapper{
+          background-color:whitesmoke;
+          padding:2%;
+          border-radius:15px;
+          margin-bottom:10%;
+          
+          
+        }
+        
+        
+        
+        
+        
+        
+        
+        
       </style>
     </head>
 
@@ -1573,24 +1609,27 @@
       <div id="requestModal" class="modal">
         <div class="modal-content">
           <h3>Find Hero</h3>
+          
+          
+          <div class="form-wrapper">
           <div class="vehicle-grid">
             <div
               class="v-type active"
               onclick="window.selectVehicle('Car', this)"
             >
-              🚗 Car
+              Car
             </div>
             <div class="v-type" onclick="window.selectVehicle('Truck', this)">
-              🛻 Truck
+              ruck
             </div>
             <div class="v-type" onclick="window.selectVehicle('RV', this)">
-              🚐 RV
+              RV
             </div>
             <div
               class="v-type"
               onclick="window.selectVehicle('HeavyDuty', this)"
             >
-              🚛 Heavy Duty
+              Heavy Duty
             </div>
           </div>
           <label
@@ -1645,13 +1684,15 @@
               color: var(--muted);
             "
           >
-            📷 Add Damage Photos
+            add Damage Photos
           </button>
-          <textarea
-            id="reqIssue"
-            placeholder="What's the problem?"
-            rows="2"
-          ></textarea>
+          
+          
+          
+         <textarea id="reqIssue" placeholder="Describe your issue?" 
+                   rows="4" oninput="window.checkFormReady()"></textarea>
+          
+          
           <button
             id="towTruckBtn"
             class="btn-towtruck"
@@ -1659,13 +1700,14 @@
           >
             I NEED A TOW TRUCK!
           </button>
+          
           <div id="towTruckContact" class="phone-input-group">
             <label>REQUIRED</label>
-            <input
-              type="tel"
-              id="phoneNumberInput"
-              placeholder="Enter your phone number"
-            />
+            
+          <input type="tel" id="phoneNumberInput" placeholder="Enter your phone number"
+                 oninput="window.checkFormReady()" />
+            
+            
             <label
               style="
                 font-size: 11px;
@@ -1678,22 +1720,18 @@
             ></label>
 
             <div id="verifiedMechanic"></div>
-
-            <input
-              type="text"
-              id="towDestinationInput"
-              placeholder="Enter destination address or landmark"
-            />
+            <input type="text" id="towDestinationInput" 
+                   placeholder="Enter destination address or landmark"
+                   oninput="window.checkFormReady()" />
+    
           </div>
+            
+        </div>    
 
-          <button
-            class="submit-btn"
-            id="submitSosBtn"
-            onclick="window.submitSOS()"
-          >
-            FIND HERO
-          </button>
-
+           <button class="submit-btn" id="submitSosBtn" onclick="window.submitSOS()" disabled>
+           FIND HERO
+           </button>
+          
           <p
             style="
               text-align: center;
@@ -2605,6 +2643,43 @@
         let destinationAutocomplete = null;
         let destLat = null;
         let destLng = null;
+        
+        
+        
+        // --- DYNAMIC FORM VALIDATOR ---
+window.checkFormReady = () => {
+  const issue = document.getElementById("reqIssue").value.trim();
+  const phone = document.getElementById("phoneNumberInput").value.trim();
+  const dest = document.getElementById("towDestinationInput").value.trim();
+  const btn = document.getElementById("submitSosBtn");
+
+  let isReady = false;
+
+  // Logic splits based on the active mode
+  if (isTowTruckRequestActive) {
+    if (issue !== "" && phone !== "" && dest !== "") {
+      isReady = true;
+    }
+  } else {
+    // Standard roadside just needs the issue description
+    if (issue !== "") {
+      isReady = true;
+    }
+  }
+
+  // Apply visual changes
+  if (isReady) {
+    btn.disabled = false;
+    btn.classList.add("pulse-ready");
+  } else {
+    btn.disabled = true;
+    btn.classList.remove("pulse-ready");
+  }
+};
+        
+        
+        
+        
 
         if (localStorage.getItem("heroRadius"))
           myRadius = parseInt(localStorage.getItem("heroRadius"));
@@ -2752,6 +2827,8 @@
               types: ["address"],
               fields: ["formatted_address", "geometry"],
             }
+            
+
           );
 
           // Listen for the user to select an address from the dropdown
@@ -2768,6 +2845,8 @@
 
             // Force the input box to show the clean, formatted address
             inputField.value = place.formatted_address;
+            
+            window.checkFormReady();
           });
         };
 
@@ -2841,6 +2920,10 @@
 
             const destInput = document.getElementById("towDestinationInput");
             if (destInput) destInput.value = "";
+            
+            document.getElementById("submitSosBtn").disabled = true;
+            document.getElementById("submitSosBtn").classList.remove("pulse-ready");
+            
           }
         };
 
@@ -3709,6 +3792,9 @@
             // FIX: Hide the box when the tow section is closed
             verifiedBox.style.display = "none";
           }
+          
+          window.checkFormReady();
+          
         };
 
         window.renderVerifiedPros = () => {
@@ -3716,7 +3802,7 @@
           if (!container) return;
 
           let nearbyPros = [];
-
+ 
           // Only attempt distance math if we have the user's location
           if (userLocation) {
             nearbyPros = Object.values(profilesCache).filter((profile) => {
