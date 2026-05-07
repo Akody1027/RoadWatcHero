@@ -2697,7 +2697,8 @@ window.checkFormReady = () => {
       isReady = true;
     }
   }
-
+  
+ 
   // Apply visual changes
   if (isReady) {
     btn.disabled = false;
@@ -2707,6 +2708,37 @@ window.checkFormReady = () => {
     btn.classList.remove("pulse-ready");
   }
 };
+        
+        // --- PRO SHOP SELECTION & GEOCODING ---
+        window.selectProShop = (address, shopName, fallbackLat, fallbackLng) => {
+          const destInput = document.getElementById("towDestinationInput");
+          const issueInput = document.getElementById("reqIssue");
+
+          // 1. Visually populate the UI
+          destInput.value = address;
+          
+          // Bonus: Auto-tag the issue description so the responding Tow Hero knows where to drop it off
+          if (!issueInput.value.includes(shopName)) {
+            issueInput.value = `[Routing to ${shopName}] ` + issueInput.value;
+          }
+
+          // 2. Geocode the address behind the scenes to satisfy the submitSOS() validation
+          const geocoder = new google.maps.Geocoder();
+          geocoder.geocode({ address: address }, (results, status) => {
+            if (status === "OK") {
+              destLat = results[0].geometry.location.lat();
+              destLng = results[0].geometry.location.lng();
+            } else {
+              // Fallback to the Pro's live location if Google can't parse the typed address
+              destLat = fallbackLat;
+              destLng = fallbackLng;
+            }
+            
+            // 3. Trigger the validator to turn the button orange and pulse!
+            window.checkFormReady();
+          });
+        };
+        
         
         
         
@@ -3828,6 +3860,7 @@ window.checkFormReady = () => {
           
         };
 
+
         window.renderVerifiedPros = () => {
           const container = document.getElementById("verifiedMechanic");
           if (!container) return;
@@ -3838,6 +3871,10 @@ window.checkFormReady = () => {
           if (userLocation) {
             nearbyPros = Object.values(profilesCache).filter((profile) => {
               if (!profile.isPro || !profile.lat) return false;
+
+              // NEW: Ensure they are a mechanic AND have a business address
+              if (profile.heroType !== 'mechanic' && profile.heroType !== 'both') return false;
+              if (!profile.businessAddress) return false;
 
               const dist =
                 google.maps.geometry.spherical.computeDistanceBetween(
@@ -3855,21 +3892,19 @@ window.checkFormReady = () => {
           if (nearbyPros.length > 0) {
             // Content when Pros are found
             container.innerHTML = `
-            <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 8px;">⭐ SELECT A VERIFIED PRO NEARBY</div>
+            <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 8px;">⭐ SELECT A VERIFIED SHOP</div>
             <div class="pro-scroller">
               ${nearbyPros
                 .map(
                   (pro) => `
-                <div class="pro-mechanic-card" onclick="document.getElementById('reqIssue').value = 'Requesting service from ${
-                  pro.name
-                }: ' + document.getElementById('reqIssue').value">
+                <div class="pro-mechanic-card" onclick="window.selectProShop('${pro.businessAddress.replace(/'/g, "\\'")}', '${(pro.companyName || pro.name).replace(/'/g, "\\'")}', ${pro.lat}, ${pro.lng})">
                   <img src="${
                     pro.pic || "https://via.placeholder.com/50"
                   }" class="pro-img-mini" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border: 2px solid var(--accent);">
                   <div style="font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${
-                    pro.name
+                    pro.companyName || pro.name
                   }</div>
-                  <div style="font-size: 9px; color: var(--success); font-weight: 700;">Tap to Select</div>
+                  <div style="font-size: 9px; color: var(--success); font-weight: 700;">Tap for Tow Dest.</div>
                 </div>
               `
                 )
@@ -3879,14 +3914,26 @@ window.checkFormReady = () => {
           } else {
             // Content when NO Pros are found OR Location is still loading
             container.innerHTML = `
-            <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 5px;">⭐ VERIFIED PROS</div>
+            <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 5px;">⭐ VERIFIED SHOPS</div>
             <div class="no-pros-text">
-              No Verified Pros nearby yet.<br>
-              <span style="font-size: 11px; font-weight: 500; font-style: normal;">Please add your tow destination below.</span>
+              No Verified Shops nearby yet.<br>
+              <span style="font-size: 11px; font-weight: 500; font-style: normal;">Please manually enter your tow destination below.</span>
             </div>
           `;
           }
         };
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         window.submitSOS = () => {
           const issue = document.getElementById("reqIssue").value;
