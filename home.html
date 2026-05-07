@@ -1624,10 +1624,25 @@
         </div>
       </div>
 
-      <div id="requestModal" class="modal">
+      
+      
+      
+        <div id="requestModal" class="modal">
         <div class="modal-content">
-          <h3>Find Hero</h3>
           
+          <div class="modal-header-row" style="padding-top: 10px;">
+            <div style="flex: 1"></div>
+            
+            <h3>Find Hero</h3>
+            
+            <button
+              class="close-x-btn"
+              style="background: var(--danger);"
+              onclick="window.closeModal('requestModal')"
+            >
+              ✕
+            </button>
+          </div>
           
           <div class="form-wrapper">
           <div class="vehicle-grid">
@@ -1782,9 +1797,7 @@
             >
           </div>
 
-          <p onclick="window.closeModal('requestModal')" class="cancel-link">
-            Cancel
-          </p>
+
         </div>
       </div>
 
