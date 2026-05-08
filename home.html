@@ -200,6 +200,21 @@
                       #seekerMapContainer.expanded #seekerMap {
                         border-radius: 0;
                       }
+      
+      /* --- FULL SCREEN CSS FOR BROADCAST MAP --- */
+                #broadcastMapContainer.expanded {
+                  position: fixed;
+                  inset: 0;
+                  width: 100vw;
+                  height: 100vh;
+                  z-index: 1001;
+                  border-radius: 0;
+                  margin: 0;
+                }
+                #broadcastMapContainer.expanded #broadcastMap {
+                  border-radius: 0;
+                }
+      
 
                       .map-expand-btn {
                         position: absolute;
@@ -3026,10 +3041,18 @@
         }
       };
 
-      window.onload = () => {
-        // Initialize Places Autocomplete for Tow Destination
-        const inputField = document.getElementById("towDestinationInput");
-        destinationAutocomplete = new google.maps.places.Autocomplete(
+
+          window.onload = () => {
+          // --- FIX: FORCE THE GLASS OVERLAY TO LIFT ONCE APP LOADS ---
+          const loader = document.getElementById("loadingOverlay");
+          if (loader) loader.classList.add("loader-hidden");
+
+          // Initialize Places Autocomplete for Tow Destination
+          const inputField = document.getElementById("towDestinationInput");
+          destinationAutocomplete = new google.maps.places.Autocomplete(
+          
+          
+          
           inputField,
           {
             types: ["address"],
@@ -4560,12 +4583,29 @@
 
   
             
-            if (myActiveSOS.status === "open") {
-              // --- TRIGGER RADAR MAP ---
-              window.updateBroadcastMap(myActiveSOS);
+
+              
+              
+              
+              
+              
+              if (myActiveSOS.status === "open") {
+              
+              // 1. MAKE SURE PARENT UI IS VISIBLE FIRST!
+              searching.style.display = "block";
+              matched.style.display = "none";
+              completed.style.display = "none";
+              cancelBtn.style.display = "block";
+
+              // 2. NOW IT IS SAFE TO TRIGGER THE MAP (With a tiny delay to let the browser draw the card)
+              setTimeout(() => {
+                  window.updateBroadcastMap(myActiveSOS);
+              }, 50);
 
               msgList.innerHTML = "";
               let hasMessages = false;
+              
+              
               if (myActiveSOS.id) {
                 Object.keys(chatCache).forEach((chatId) => {
                   if (chatId.startsWith(myActiveSOS.id + "_")) {
@@ -4589,10 +4629,7 @@
                 document.getElementById("footerChatBtn").style.display = "none";
               }
 
-              searching.style.display = "block";
-              matched.style.display = "none";
-              completed.style.display = "none";
-              cancelBtn.style.display = "block";
+
 
               const bidFeed = document.getElementById("seekerBidFeed");
               const bidContainer = document.getElementById("bidContainer");
@@ -4857,15 +4894,9 @@
           }
         }
 
-        // 2. Fade out the Glass Overlay (whether we stayed on Home or switched to Seeker)
-        const loader = document.getElementById("loadingOverlay");
-        if (loader && !loader.classList.contains("loader-hidden")) {
-          setTimeout(() => {
-            loader.classList.add("loader-hidden");
-          }, 500); // 0.5s delay to ensure smoother transition
-        }
-      });
-
+ 
+      }); 
+ 
       onValue(ref(db, "profiles"), (snap) => {
         profilesCache = snap.val() || {};
         syncUI();
