@@ -3734,6 +3734,10 @@
         // FIX: Always show the container so the "PHOTOS" label is visible
           detImgContainer.style.display = "block";
 
+
+        // FIX: Always show the container so the "PHOTOS" label is visible
+          detImgContainer.style.display = "block";
+
           if (imagesToDisplay.length > 0) {
             imagesToDisplay.forEach((src) => {
               const img = document.createElement("img");
@@ -3742,13 +3746,14 @@
               detImgScroller.appendChild(img);
             });
           } else {
-            // FIX: Inject a clean placeholder if no damage images were uploaded
-            const placeholderImg = document.createElement("img");
-            placeholderImg.src = "https://via.placeholder.com/400x200?text=No+Photos+Provided";
-            placeholderImg.style.cursor = "default"; // Removes the pointer hand since it's just a placeholder
-            detImgScroller.appendChild(placeholderImg);
+            // FIX: Inject the exact styled dashed-box from the Job Board
+            detImgScroller.innerHTML = `
+              <div style="width: 100%; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 15px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box;">
+                <div style="font-size: 28px; margin-bottom: 5px;">📸</div>
+                <div style="font-size: 12px; font-weight: 700; color: #64748b;">No Photos Uploaded</div>
+              </div>
+            `;
           }
-        
    
         
         
