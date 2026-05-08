@@ -3729,17 +3729,29 @@
         if (r.damagePic) imagesToDisplay.push(r.damagePic);
         if (r.damagePics && Array.isArray(r.damagePics))
           imagesToDisplay = r.damagePics;
-        if (imagesToDisplay.length > 0) {
+        
+        
+        // FIX: Always show the container so the "PHOTOS" label is visible
           detImgContainer.style.display = "block";
-          imagesToDisplay.forEach((src) => {
-            const img = document.createElement("img");
-            img.src = src;
-            img.onclick = () => window.enlargeImage(src);
-            detImgScroller.appendChild(img);
-          });
-        } else {
-          detImgContainer.style.display = "none";
-        }
+
+          if (imagesToDisplay.length > 0) {
+            imagesToDisplay.forEach((src) => {
+              const img = document.createElement("img");
+              img.src = src;
+              img.onclick = () => window.enlargeImage(src);
+              detImgScroller.appendChild(img);
+            });
+          } else {
+            // FIX: Inject a clean placeholder if no damage images were uploaded
+            const placeholderImg = document.createElement("img");
+            placeholderImg.src = "https://via.placeholder.com/400x200?text=No+Photos+Provided";
+            placeholderImg.style.cursor = "default"; // Removes the pointer hand since it's just a placeholder
+            detImgScroller.appendChild(placeholderImg);
+          }
+        
+   
+        
+        
         document.getElementById("detIssue").innerText = r.issue;
         const dist = userLocation
           ? (
@@ -4628,7 +4640,7 @@
                 msgList.style.display = "none";
                 document.getElementById("footerChatBtn").style.display = "none";
               }
-
+ 
 
 
               const bidFeed = document.getElementById("seekerBidFeed");
