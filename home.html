@@ -5005,10 +5005,20 @@
         });
       }
 
-      onValue(ref(db, "sosRequests"), (snap) => {
+onValue(ref(db, "sosRequests"), (snap) => {
         window._lastSosCacheState_ = { ...sosCache };
         sosCache = snap.val() || {};
         syncUI();
+
+        // --- NEW: AUTO-CLOSE DETAILS MODAL IF JOB IS CANCELED ---
+        if (window.currentViewedSosId && document.getElementById("detailsModal").style.display === "flex") {
+            const viewedJob = sosCache[window.currentViewedSosId];
+            // If the job disappeared or was marked canceled while we were looking at it
+            if (!viewedJob || viewedJob.status === "canceled") {
+                window.closeModal("detailsModal");
+                alert("This request is no longer available or was canceled by the Seeker.");
+            }
+        }
 
         const myActive = Object.values(sosCache).find(
           (r) =>
