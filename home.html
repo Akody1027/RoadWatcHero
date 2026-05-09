@@ -12,178 +12,197 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry,places"></script>
 
     <style>
-                      :root {
-                        --bg: #f8fafc;
-                        --card: #ffffff;
-                        --text: #0f172a;
-                        --muted: black;
-                        --accent: #ee611c;
-                        --danger: #ee611c;
-                        --success: #22c55e;
-                        --warning: #f59e0b;
-                        --tow-blue: #2563eb;
-                        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                      }
+                            :root {
+                              --bg: #f8fafc;
+                              --card: #ffffff;
+                              --text: #0f172a;
+                              --muted: black;
+                              --accent: #ee611c;
+                              --danger: #ee611c;
+                              --success: #22c55e;
+                              --warning: #f59e0b;
+                              --tow-blue: #2563eb;
+                              --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                            }
 
-                      * {
-                        box-sizing: border-box;
-                        -webkit-tap-highlight-color: transparent;
-                      }
+                            * {
+                              box-sizing: border-box;
+                              -webkit-tap-highlight-color: transparent;
+                            }
 
-                      /* Global smoothness */
-                      body,
-                      button,
-                      input,
-                      div:not(#map):not(#seekerMap) {
-                        transition: background-color 0.2s ease, color 0.2s ease,
-                          border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
-                      }
+                            /* Global smoothness */
+                            body,
+                            button,
+                            input,
+                            div:not(#map):not(#seekerMap) {
+                              transition: background-color 0.2s ease, color 0.2s ease,
+                                border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+                            }
 
-                      /* STRICT FIX: Prevent Google Maps internals from glitching during zoom/pan */
-                      #map *,
-                      #seekerMapContainer * {
-                        transition: none !important;
-                      }
+                            /* STRICT FIX: Prevent Google Maps internals from glitching during zoom/pan */
+                            #map *,
+                            #seekerMapContainer * {
+                              transition: none !important;
+                            }
 
-                      /* GLASS LOADING OVERLAY */
-                      #loadingOverlay {
-                        position: fixed;
-                        inset: 0;
-                        background: rgba(255, 255, 255, 0.4); /* Semi-transparent white */
-                        backdrop-filter: blur(8px); /* The Blur Effect */
-                        -webkit-backdrop-filter: blur(8px); /* Safari support */
-                        z-index: 9999;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        transition: opacity 0.4s ease, visibility 2s;
-                      }
+                            /* GLASS LOADING OVERLAY */
+                            #loadingOverlay {
+                              position: fixed;
+                              inset: 0;
+                              background: rgba(255, 255, 255, 0.4); /* Semi-transparent white */
+                              backdrop-filter: blur(8px); /* The Blur Effect */
+                              -webkit-backdrop-filter: blur(8px); /* Safari support */
+                              z-index: 9999;
+                              display: flex;
+                              justify-content: center;
+                              align-items: center;
+                              transition: opacity 0.4s ease, visibility 2s;
+                            }
 
-                      .spinner {
-                        width: 60px;
-                        height: 60px;
-                        border: 6px solid rgba(238, 97, 28, 0.2); /* Light orange track */
-                        border-top: 6px solid #ee611c; /* ACCENT ORANGE spinner */
-                        border-radius: 50%;
-                        animation: spin 3s linear infinite;
-                      }
+                            .spinner {
+                              width: 60px;
+                              height: 60px;
+                              border: 6px solid rgba(238, 97, 28, 0.2); /* Light orange track */
+                              border-top: 6px solid #ee611c; /* ACCENT ORANGE spinner */
+                              border-radius: 50%;
+                              animation: spin 3s linear infinite;
+                            }
 
-                      @keyframes spin {
-                        0% {
-                          transform: rotate(0deg);
-                        }
-                        100% {
-                          transform: rotate(360deg);
-                        }
-                      }
+                            @keyframes spin {
+                              0% {
+                                transform: rotate(0deg);
+                              }
+                              100% {
+                                transform: rotate(360deg);
+                              }
+                            }
 
-                      /* Utility class to hide it */
-                      .loader-hidden {
-                        opacity: 0;
-                        visibility: hidden;
-                      }
+                            /* Utility class to hide it */
+                            .loader-hidden {
+                              opacity: 0;
+                              visibility: hidden;
+                            }
 
-                      body,
-                      html {
-                        margin: 0;
-                        padding: 0;
-                        width: 100%;
-                        height: 100%;
-                        font-family: -apple-system, system-ui, sans-serif;
-                        color: var(--text);
-                        background: white;
-                        overflow: hidden;
-                      }
-                      h3 {
-                        text-align: center;
-                        font-size:30px;
-                        font-weight:800;
-                        padding-bottom:15px;
-                      }
+                            body,
+                            html {
+                              margin: 0;
+                              padding: 0;
+                              width: 100%;
+                              height: 100%;
+                              font-family: -apple-system, system-ui, sans-serif;
+                              color: var(--text);
+                              background: white;
+                              overflow: hidden;
+                            }
+                            h3 {
+                              text-align: center;
+                              font-size:30px;
+                              font-weight:800;
+                              padding-bottom:15px;
+                            }
 
 
-                      .view {
-                        display: none;
-                        width: 100vw;
-                        height: 100vh;
-                        position: fixed;
-                        inset: 0;
-                        z-index: 10;
-                        background: white;
-                        overflow-y: auto;
-                      }
-                      .view-active {
-                        display: flex;
-                        flex-direction: column;
-                      }
+                            .view {
+                              display: none;
+                              width: 100vw;
+                              height: 100vh;
+                              position: fixed;
+                              inset: 0;
+                              z-index: 10;
+                              background: white;
+                              overflow-y: auto;
+                            }
+                            .view-active {
+                              display: flex;
+                              flex-direction: column;
+                            }
 
-                      #landingPage {
-                        transform: scale(1.25);
-                        align-items: center;
-                        justify-content: center;
-                        padding: 30px;
-                        text-align: center;
-                        z-index: 100;
-                        background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
-                      }
-                      #landingPage img {
-                        width: 240px;
-                        margin-bottom: 10px;
-                        filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
-                      }
-                      .mode-btn {
-                        width: 100%;
-                        max-width: 320px;
-                        padding: 20px;
-                        border-radius: 18px;
-                        font-size: 18px;
-                        font-weight: 700;
-                        border: none;
-                        cursor: pointer;
-                        margin-bottom: 16px;
-                        box-shadow: var(--shadow);
-                      }
-                      .mode-btn:active {
-                        transform: scale(0.98);
-                      }
-                      .btn-req {
-                        background: var(--danger);
-                        color: white;
-                      }
-                      .btn-hero {
-                        background: var(--text);
-                        color: white;
-                      }
+                            #landingPage {
+                              transform: scale(1.25);
+                              align-items: center;
+                              justify-content: center;
+                              padding: 30px;
+                              text-align: center;
+                              z-index: 100;
+                              background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+                            }
+                            #landingPage img {
+                              width: 240px;
+                              margin-bottom: 10px;
+                              filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+                            }
+                            .mode-btn {
+                              width: 100%;
+                              max-width: 320px;
+                              padding: 20px;
+                              border-radius: 18px;
+                              font-size: 18px;
+                              font-weight: 700;
+                              border: none;
+                              cursor: pointer;
+                              margin-bottom: 16px;
+                              box-shadow: var(--shadow);
+                            }
+                            .mode-btn:active {
+                              transform: scale(0.98);
+                            }
+                            .btn-req {
+                              background: var(--danger);
+                              color: white;
+                            }
+                            .btn-hero {
+                              background: var(--text);
+                              color: white;
+                            }
 
-                      #seekerUI {
-                        background: var(--bg);
-                        padding: 20px;
-                        align-items: center;
-                      }
-                      .status-card {
-                        background: white;
-                        width: 100%;
-                        max-width: 450px;
-                        padding: 25px;
-                        border-radius: 28px;
-                        box-shadow: var(--shadow);
-                        text-align: center;
-                        margin-top: 10px;
-                        border: 1px solid rgba(226, 232, 240, 0.8);
-                      }
+                            #seekerUI {
+                              background: var(--bg);
+                              padding: 20px;
+                              align-items: center;
+                            }
+                            .status-card {
+                              background: white;
+                              width: 100%;
+                              max-width: 450px;
+                              padding: 25px;
+                              border-radius: 28px;
+                              box-shadow: var(--shadow);
+                              text-align: center;
+                              margin-top: 10px;
+                              border: 1px solid rgba(226, 232, 240, 0.8);
+                            }
 
-                      #seekerMapContainer {
-                        position: relative;
-                        width: 100%;
-                        height: 220px;
-                        border-radius: 20px;
-                        margin: 15px 0;
-                        background: #eee;
-                        border: 1px solid #e2e8f0;
-                        overflow: hidden;
-                        transition: all 0.3s ease-in-out;
-                      }
-                      #seekerMapContainer.expanded {
+                            #seekerMapContainer {
+                              position: relative;
+                              width: 100%;
+                              height: 220px;
+                              border-radius: 20px;
+                              margin: 15px 0;
+                              background: #eee;
+                              border: 1px solid #e2e8f0;
+                              overflow: hidden;
+                              transition: all 0.3s ease-in-out;
+                            }
+                            #seekerMapContainer.expanded {
+                              position: fixed;
+                              inset: 0;
+                              width: 100vw;
+                              height: 100vh;
+                              z-index: 1001;
+                              border-radius: 0;
+                              margin: 0;
+                            }
+                            #seekerMap {
+                              width: 100%;
+                              height: 100%;
+                              border-radius: 20px;
+                            }
+                            #seekerMapContainer.expanded #seekerMap {
+                              border-radius: 0;
+                            }
+
+            /* --- FULL SCREEN CSS FOR BROADCAST MAP --- */
+                      #broadcastMapContainer.expanded {
                         position: fixed;
                         inset: 0;
                         width: 100vw;
@@ -192,851 +211,813 @@
                         border-radius: 0;
                         margin: 0;
                       }
-                      #seekerMap {
-                        width: 100%;
-                        height: 100%;
-                        border-radius: 20px;
-                      }
-                      #seekerMapContainer.expanded #seekerMap {
+                      #broadcastMapContainer.expanded #broadcastMap {
                         border-radius: 0;
                       }
-      
-      /* --- FULL SCREEN CSS FOR BROADCAST MAP --- */
-                #broadcastMapContainer.expanded {
-                  position: fixed;
-                  inset: 0;
-                  width: 100vw;
-                  height: 100vh;
-                  z-index: 1001;
-                  border-radius: 0;
-                  margin: 0;
-                }
-                #broadcastMapContainer.expanded #broadcastMap {
-                  border-radius: 0;
-                }
-      
-
-                      .map-expand-btn {
-                        position: absolute;
-                        bottom: 10px;
-                        right: 10px;
-                        background: rgba(255, 255, 255, 0.9);
-                        border: none;
-                        padding: 8px 12px;
-                        border-radius: 15px;
-                        box-shadow: var(--shadow);
-                        cursor: pointer;
-                        z-index: 2;
-                        font-size: 14px;
-                        font-weight: 700;
-                        color: var(--text);
-                      }
-                      .map-close-btn {
-                        position: absolute;
-                        top: 15px;
-                        right: 15px;
-                        background: var(--danger);
-                        color: white;
-                        border: none;
-                        width: 35px;
-                        height: 35px;
-                        border-radius: 50%;
-                        font-size: 20px;
-                        font-weight: bold;
-                        display: none;
-                        align-items: center;
-                        justify-content: center;
-                        cursor: pointer;
-                        box-shadow: var(--shadow);
-                        z-index: 1002;
-                      }
-
-                      .search-pulse {
-                        width: 80px;
-                        height: 80px;
-                        background: var(--danger);
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 30px;
-                        color: white;
-                        margin: 0 auto 20px;
-                        position: relative;
-                      }
-                      .search-pulse::after {
-                        content: "";
-                        position: absolute;
-                        inset: 0;
-                        border-radius: 50%;
-                        background: var(--danger);
-                        opacity: 0.4;
-                        animation: pulse 2s infinite;
-                      }
-                      @keyframes pulse {
-                        0% {
-                          transform: scale(1);
-                          opacity: 0.4;
-                        }
-                        100% {
-                          transform: scale(2.5);
-                          opacity: 0;
-                        }
-                      }
-
-                      #map {
-                        width: 100%;
-                        height: 100%;
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        z-index: 1;
-                      }
-                      #statusIndicator {
-                        position: fixed;
-                        left: 5px;
-                        bottom: 50px;
-                        z-index: 150;
-                        width: 55px;
-                        height: 55px;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        color: white;
-                        font-weight: 900;
-                        font-size: 28px;
-                        cursor: pointer;
-                        box-shadow: var(--shadow);
-                        border: 3px solid white;
-                        transition: 0.3s;
-                      }
-
-                      #heroPanel {
-                        width: 100%;
-                        max-width: 400px;
-                        position: fixed;
-                        bottom: 50px;
-                        left: 0;
-                        z-index: 100;
-                        display: flex;
-                        flex-direction: column;
-                        padding: 0 15px;
-                        pointer-events: none;
-                      }
-                      #heroPanel > * {
-                        pointer-events: auto;
-                      }
-
-                      .task-card {
-                        background: rgba(255, 255, 255, 0.98);
-                        backdrop-filter: blur(10px);
-                        padding: 20px;
-                        border-radius: 24px;
-                        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-                        display: none;
-                        transform: translateX(-110%);
-                        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                        max-height: 400px;
-                        overflow-y: auto;
-                      }
-                      .task-card.expanded {
-                        display: block;
-                        transform: translateX(0);
-                      }
-
-                      .sos-list-item {
-                        padding: 15px;
-                        border-radius: 12px;
-                        background: #fff;
-                        border: 0.5px solid #e2e8f0;
-                        cursor: pointer;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        text-align: left;
-                        margin-bottom: 10px;
-                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-                      }
-                      .sos-list-item.status-active {
-                        border-color: var(--success);
-                      }
-                      .sos-list-item.status-tow {
-                        border-color: var(--tow-blue);
-                      }
-                      .sos-list-item.status-roadside {
-                        border-color: var(--accent);
-                      }
-
-                      .sos-info-left {
-                        flex: 1;
-                        margin-right: 10px;
-                        word-break: break-word;
-                        min-width: 0;
-                      }
-
-                      /* NEW STYLES FOR SEEKER MESSAGES LIST */
-                      #seekerMessagesList {
-                        width: 100%;
-                        max-width: 450px;
-                        margin-top: 20px;
-                        display: none; /* Hidden by default */
-                        z-index: 50;
-                        flex-direction: column;
-                        word-break: break-all;
-                      }
-                      .msg-thread-card {
-                        background: white;
-                        border: 1px solid #e2e8f0;
-                        border-radius: 15px;
-                        padding: 15px;
-                        margin-bottom: 10px;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: flex-start;
-                        box-shadow: var(--shadow);
-                        cursor: pointer;
-                        text-align: left;
-                        position: relative;
-                        width: 100%;
-                      }
-                      .msg-thread-info {
-                        flex: 1;
-                        padding-right: 10px;
-                      }
-                      .msg-thread-time {
-                        font-size: 10px;
-                        color: var(--muted);
-                        margin-top: 8px;
-                        font-weight: 600;
-                      }
-
-                      .modal {
-                        position: fixed;
-                        inset: 0;
-                        background: rgba(15, 23, 42, 0.6);
-                        backdrop-filter: blur(4px);
-                        display: none;
-                        justify-content: center;
-                        align-items: flex-end;
-                        z-index: 1000;
-                      }
-                      .modal-content {
-                        height: 95vh;
-                        background: white;
-                        width: 100%;
-                        max-width: 600px;
-                        border-radius: 32px 32px 0 0;
-                        padding: 30px;
-                        max-height: 95vh;
-                        overflow-y: auto;
-                        transform: translateY(100%);
-                        animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1);
-                      }
-                      @keyframes slideUp {
-                        to {
-                          transform: translateY(0);
-                        }
-                      }
-
-                      #chatBox {
-                        height: 80%;
-                        overflow-y: auto;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 12px;
-                        padding: 15px;
-                        background: #f8fafc;
-                        border-radius: 20px;
-                        margin-bottom: 12px;
-                        border: 1px solid #e2e8f0;
-                        position: relative;
-                      }
-
-                      .chat-empty-bg {
-                        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="%23CBD5E1" d="M100,40 C60,40 20,70 20,110 C20,130 30,145 50,155 L50,180 L80,165 C86,166 93,167 100,167 C140,167 180,137 180,97 C180,57 140,40 100,40 Z" opacity="0.3"/></svg>');
-                        background-repeat: no-repeat;
-                        background-position: center 40%;
-                        background-size: 100px;
-                      }
-                      .chat-empty-bg::after {
-                        content: "Send a message to start communicating";
-                        position: absolute;
-                        top: 65%;
-                        left: 0;
-                        width: 100%;
-                        text-align: center;
-                        color: var(--muted);
-                        font-weight: 600;
-                        font-size: 14px;
-                        opacity: 0.6;
-                      }
-
-                      .msg {
-                        padding: 12px 16px;
-                        border-radius: 18px;
-                        max-width: 80%;
-                        font-size: 14px;
-                        line-height: 1.4;
-                        z-index: 2;
-                      }
-                      .msg-me {
-                        align-self: flex-end;
-                        background: var(--accent);
-                        color: white;
-                        border-bottom-right-radius: 4px;
-                      }
-                      .msg-them {
-                        align-self: flex-start;
-                        background: white;
-                        color: var(--text);
-                        border-bottom-left-radius: 4px;
-                        border: 1px solid #e2e8f0;
-                      }
-
-                      .vehicle-grid {
-                        display: flex;
-                        grid-template-columns: repeat(2, 1fr);
-                        margin: 15px 0;
-                      }
-                      .v-type {
-                        background-color:white;
-                        padding: 15px;
-                        border: 2px solid #f1f5f9;
-                        border-radius: 10px;
-                        text-align: center;
-                        cursor: pointer;
-                        font-weight: 700;
-                        width: 25%;
-                        align-content: center;
-                      }
-                      .v-type.active {
-                        border-color: #ee611c;
-                        color: #ee611c;
-                      }
-                      .tip-btn {
-                        border: 2px solid #f1f5f9;
-                        border-radius: 10px;
-                        padding: 12px;
-                        flex: 1;
-                        text-align: center;
-                        cursor: pointer;
-                        font-weight: 800;
-                        background: white;
-                      }
-                      .tip-btn.active {
-                        border-color: var(--success);
-                        color: var(--success);
-                      }
-
-                      input,
-                      textarea,
-                      select {
-                        width: 100%;
-                        padding: 15px;
-                        border-radius: 14px;
-                        border: 1px solid #e2e8f0;
-                        margin-bottom: 12px;
-                        font-size: 15px;
-                        background: #f8fafc;
-                        font-family: math;
-                      }
-                      .submit-btn {
-                        width: 100%;
-                        padding: 18px;
-                        background: #ee611c;
-                        color: white;
-                        border: none;
-                        border-radius: 16px;
-                        font-weight: 700;
-                        cursor: pointer;
-                        font-size: 16px;
-                      }
-
-                           #jbtn{
-                           border-radius: 20px;
-
-                       }
 
 
-                         #jbtn:hover{
-                        background-color: #ee611c;
-                        border-radius: 20px;
+                            .map-expand-btn {
+                              position: absolute;
+                              bottom: 10px;
+                              right: 10px;
+                              background: rgba(255, 255, 255, 0.9);
+                              border: none;
+                              padding: 8px 12px;
+                              border-radius: 15px;
+                              box-shadow: var(--shadow);
+                              cursor: pointer;
+                              z-index: 2;
+                              font-size: 14px;
+                              font-weight: 700;
+                              color: var(--text);
+                            }
+                            .map-close-btn {
+                              position: absolute;
+                              top: 15px;
+                              right: 15px;
+                              background: var(--danger);
+                              color: white;
+                              border: none;
+                              width: 35px;
+                              height: 35px;
+                              border-radius: 50%;
+                              font-size: 20px;
+                              font-weight: bold;
+                              display: none;
+                              align-items: center;
+                              justify-content: center;
+                              cursor: pointer;
+                              box-shadow: var(--shadow);
+                              z-index: 1002;
+                            }
 
-                       }
+                            .search-pulse {
+                              width: 80px;
+                              height: 80px;
+                              background: var(--danger);
+                              border-radius: 50%;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              font-size: 30px;
+                              color: white;
+                              margin: 0 auto 20px;
+                              position: relative;
+                            }
+                            .search-pulse::after {
+                              content: "";
+                              position: absolute;
+                              inset: 0;
+                              border-radius: 50%;
+                              background: var(--danger);
+                              opacity: 0.4;
+                              animation: pulse 2s infinite;
+                            }
+                            @keyframes pulse {
+                              0% {
+                                transform: scale(1);
+                                opacity: 0.4;
+                              }
+                              100% {
+                                transform: scale(2.5);
+                                opacity: 0;
+                              }
+                            }
+
+                            #map {
+                              width: 100%;
+                              height: 100%;
+                              position: absolute;
+                              top: 0;
+                              left: 0;
+                              z-index: 1;
+                            }
+                            #statusIndicator {
+                              position: fixed;
+                              left: 5px;
+                              bottom: 50px;
+                              z-index: 150;
+                              width: 55px;
+                              height: 55px;
+                              border-radius: 50%;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              color: white;
+                              font-weight: 900;
+                              font-size: 28px;
+                              cursor: pointer;
+                              box-shadow: var(--shadow);
+                              border: 3px solid white;
+                              transition: 0.3s;
+                            }
+
+                            #heroPanel {
+                              width: 100%;
+                              max-width: 400px;
+                              position: fixed;
+                              bottom: 50px;
+                              left: 0;
+                              z-index: 100;
+                              display: flex;
+                              flex-direction: column;
+                              padding: 0 15px;
+                              pointer-events: none;
+                            }
+                            #heroPanel > * {
+                              pointer-events: auto;
+                            }
+
+                            .task-card {
+                              background: rgba(255, 255, 255, 0.98);
+                              backdrop-filter: blur(10px);
+                              padding: 20px;
+                              border-radius: 24px;
+                              box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                              display: none;
+                              transform: translateX(-110%);
+                              transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                              max-height: 400px;
+                              overflow-y: auto;
+                            }
+                            .task-card.expanded {
+                              display: block;
+                              transform: translateX(0);
+                            }
+
+                            .sos-list-item {
+                              padding: 15px;
+                              border-radius: 12px;
+                              background: #fff;
+                              border: 0.5px solid #e2e8f0;
+                              cursor: pointer;
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: center;
+                              text-align: left;
+                              margin-bottom: 10px;
+                              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+                            }
+                            .sos-list-item.status-active {
+                              border-color: var(--success);
+                            }
+                            .sos-list-item.status-tow {
+                              border-color: var(--tow-blue);
+                            }
+                            .sos-list-item.status-roadside {
+                              border-color: var(--accent);
+                            }
+
+                            .sos-info-left {
+                              flex: 1;
+                              margin-right: 10px;
+                              word-break: break-word;
+                              min-width: 0;
+                            }
+
+                            /* NEW STYLES FOR SEEKER MESSAGES LIST */
+                            #seekerMessagesList {
+                              width: 100%;
+                              max-width: 450px;
+                              margin-top: 20px;
+                              display: none; /* Hidden by default */
+                              z-index: 50;
+                              flex-direction: column;
+                              word-break: break-all;
+                            }
+                            .msg-thread-card {
+                              background: white;
+                              border: 1px solid #e2e8f0;
+                              border-radius: 15px;
+                              padding: 15px;
+                              margin-bottom: 10px;
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: flex-start;
+                              box-shadow: var(--shadow);
+                              cursor: pointer;
+                              text-align: left;
+                              position: relative;
+                              width: 100%;
+                            }
+                            .msg-thread-info {
+                              flex: 1;
+                              padding-right: 10px;
+                            }
+                            .msg-thread-time {
+                              font-size: 10px;
+                              color: var(--muted);
+                              margin-top: 8px;
+                              font-weight: 600;
+                            }
+
+                            .modal {
+                              position: fixed;
+                              inset: 0;
+                              background: rgba(15, 23, 42, 0.6);
+                              backdrop-filter: blur(4px);
+                              display: none;
+                              justify-content: center;
+                              align-items: flex-end;
+                              z-index: 1000;
+                            }
+                            .modal-content {
+                              height: 95vh;
+                              background: white;
+                              width: 100%;
+                              max-width: 600px;
+                              border-radius: 32px 32px 0 0;
+                              padding: 30px;
+                              max-height: 95vh;
+                              overflow-y: auto;
+                              transform: translateY(100%);
+                              animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1);
+                            }
+                            @keyframes slideUp {
+                              to {
+                                transform: translateY(0);
+                              }
+                            }
+
+                            #chatBox {
+                              height: 80%;
+                              overflow-y: auto;
+                              display: flex;
+                              flex-direction: column;
+                              gap: 12px;
+                              padding: 15px;
+                              background: #f8fafc;
+                              border-radius: 20px;
+                              margin-bottom: 12px;
+                              border: 1px solid #e2e8f0;
+                              position: relative;
+                            }
+
+                            .chat-empty-bg {
+                              background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path fill="%23CBD5E1" d="M100,40 C60,40 20,70 20,110 C20,130 30,145 50,155 L50,180 L80,165 C86,166 93,167 100,167 C140,167 180,137 180,97 C180,57 140,40 100,40 Z" opacity="0.3"/></svg>');
+                              background-repeat: no-repeat;
+                              background-position: center 40%;
+                              background-size: 100px;
+                            }
+                            .chat-empty-bg::after {
+                              content: "Send a message to start communicating";
+                              position: absolute;
+                              top: 65%;
+                              left: 0;
+                              width: 100%;
+                              text-align: center;
+                              color: var(--muted);
+                              font-weight: 600;
+                              font-size: 14px;
+                              opacity: 0.6;
+                            }
+
+                            .msg {
+                              padding: 12px 16px;
+                              border-radius: 18px;
+                              max-width: 80%;
+                              font-size: 14px;
+                              line-height: 1.4;
+                              z-index: 2;
+                            }
+                            .msg-me {
+                              align-self: flex-end;
+                              background: var(--accent);
+                              color: white;
+                              border-bottom-right-radius: 4px;
+                            }
+                            .msg-them {
+                              align-self: flex-start;
+                              background: white;
+                              color: var(--text);
+                              border-bottom-left-radius: 4px;
+                              border: 1px solid #e2e8f0;
+                            }
+
+                            .vehicle-grid {
+                              display: flex;
+                              grid-template-columns: repeat(2, 1fr);
+                              margin: 15px 0;
+                            }
+                            .v-type {
+                              background-color:white;
+                              padding: 15px;
+                              border: 2px solid #f1f5f9;
+                              border-radius: 10px;
+                              text-align: center;
+                              cursor: pointer;
+                              font-weight: 700;
+                              width: 25%;
+                              align-content: center;
+                            }
+                            .v-type.active {
+                              border-color: #ee611c;
+                              color: #ee611c;
+                            }
+                            .tip-btn {
+                              border: 2px solid #f1f5f9;
+                              border-radius: 10px;
+                              padding: 12px;
+                              flex: 1;
+                              text-align: center;
+                              cursor: pointer;
+                              font-weight: 800;
+                              background: white;
+                            }
+                            .tip-btn.active {
+                              border-color: var(--success);
+                              color: var(--success);
+                            }
+
+                            input,
+                            textarea,
+                            select {
+                              width: 100%;
+                              padding: 15px;
+                              border-radius: 14px;
+                              border: 1px solid #e2e8f0;
+                              margin-bottom: 12px;
+                              font-size: 15px;
+                              background: #f8fafc;
+                              font-family: math;
+                            }
+                            .submit-btn {
+                              width: 100%;
+                              padding: 18px;
+                              background: #ee611c;
+                              color: white;
+                              border: none;
+                              border-radius: 16px;
+                              font-weight: 700;
+                              cursor: pointer;
+                              font-size: 16px;
+                            }
+
+                                 #jbtn{
+                                 border-radius: 20px;
+
+                             }
+
+
+                               #jbtn:hover{
+                              background-color: #ee611c;
+                              border-radius: 20px;
+
+                             }
 
 
 
 
 
-                      .cancel-link {
-                        display: block;
-                        text-align: center;
-                        padding: 15px;
-                        color: red;
-                        cursor: pointer;
-                        font-weight: 600;
-                      }
+                            .cancel-link {
+                              display: block;
+                              text-align: center;
+                              padding: 15px;
+                              color: red;
+                              cursor: pointer;
+                              font-weight: 600;
+                            }
 
-                      .footer {
-                        position: fixed;
-                        bottom: 0;
-                        width: 100%;
-                        background: rgba(238, 97, 28, 0.9);
-                        backdrop-filter: blur(10px);
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        z-index: 200;
-                        border-top: 1px solid rgba(255, 255, 255, 0.2);
-                      }
-                      .footer-icons {
-                        display: flex;
-                        gap: 100px;
-                        padding: 5px;
-                      }
-                      .icon-btn {
-                        cursor: pointer;
-                        width: 35px;
-                        height: 35px;
-                        filter: brightness(0) invert(1);
-                      }
-                      #chatBadge,
-                      #chatBadgeHero {
-                        position: absolute;
-                        top: -5px;
-                        right: -5px;
-                        background: var(--accent);
-                        color: white;
-                        font-size: 10px;
-                        width: 20px;
-                        height: 20px;
-                        border-radius: 50%;
-                        display: none;
-                        align-items: center;
-                        justify-content: center;
-                        font-weight: 900;
-                      }
-
-
-
-
-                      .jb-btn {
-                        position: absolute;
-                        top: 20px;
-                        left 20px;
-                        margin-left:15px;
-                        background: #ee611c;
-                        border: none;
-                        padding: 12px;
-                        border-radius: 12px;
-                        box-shadow: var(--shadow);
-                        cursor: pointer;
-                        z-index: 5;
-                        font-weight: 800;
-                        font-size: 11px;
-                        color:white;
-                      }
+                            .footer {
+                              position: fixed;
+                              bottom: 0;
+                              width: 100%;
+                              background: rgba(238, 97, 28, 0.9);
+                              backdrop-filter: blur(10px);
+                              display: flex;
+                              justify-content: center;
+                              align-items: center;
+                              z-index: 200;
+                              border-top: 1px solid rgba(255, 255, 255, 0.2);
+                            }
+                            .footer-icons {
+                              display: flex;
+                              gap: 100px;
+                              padding: 5px;
+                            }
+                            .icon-btn {
+                              cursor: pointer;
+                              width: 35px;
+                              height: 35px;
+                              filter: brightness(0) invert(1);
+                            }
+                            #chatBadge,
+                            #chatBadgeHero {
+                              position: absolute;
+                              top: -5px;
+                              right: -5px;
+                              background: var(--accent);
+                              color: white;
+                              font-size: 10px;
+                              width: 20px;
+                              height: 20px;
+                              border-radius: 50%;
+                              display: none;
+                              align-items: center;
+                              justify-content: center;
+                              font-weight: 900;
+                            }
 
 
 
 
-
-                      .center-btn {
-                        position: absolute;
-                        top: 20px;
-                        right: 20px;
-                        background: #ee611c;
-                        border: none;
-                        padding: 12px;
-                        border-radius: 12px;
-                        box-shadow: var(--shadow);
-                        cursor: pointer;
-                        z-index: 5;
-                        font-weight: 800;
-                        font-size: 11px;
-                        color: white;
-                      }
-
-
-                      .trash-icon {
-                        width: 20px;
-                        height: 20px;
-                        cursor: pointer;
-                        margin-left: 10px;
-                      }
-
-                      .btn-towtruck {
-                        background: white;
-                        color: #2563eb;
-                        border: 2px solid #2563eb;
-                        border-radius: 16px;
-                        font-weight: 700;
-                        cursor: pointer;
-                        font-size: 16px;
-                        padding: 18px;
-                        width: 100%;
-                        margin-bottom: 10px;
-                      }
-                      .btn-towtruck.active {
-                        background: #1d4ed8;
-                        color: white;
-                      }
-                      .phone-input-group {
-                        margin-bottom: 15px;
-                        display: none;
-                      }
-                      .phone-input-group label {
-                        font-size: 11px;
-                        font-weight: bold;
-                        color: var(--muted);
-                        margin-bottom: 8px;
-                        display: block;
-                      }
-
-                      #imageEnlargeModal {
-                        background: rgba(0, 0, 0, 0.9);
-                        display: none;
-                        align-items: center;
-                        justify-content: center;
-                        z-index: 1002;
-                      }
-                      #imageEnlargeModal img {
-                        max-width: 95vw;
-                        max-height: 95vh;
-                        object-fit: contain;
-                      }
-                      #imageEnlargeModal .close-btn {
-                        position: absolute;
-                        top: 20px;
-                        right: 20px;
-                        background: white;
-                        color: var(--text);
-                        border: none;
-                        border-radius: 50%;
-                        width: 40px;
-                        height: 40px;
-                        font-size: 24px;
-                        font-weight: bold;
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        box-shadow: var(--shadow);
-                      }
-
-                      .modal-header-row {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 20px;
-                        width: 100%;
-                        margin-top: -30px;
-                      }
-                      .modal-header-row h3 {
-                        margin: 0;
-                        color: var(--accent);
-                        flex: 1;
-                        text-align: center;
-                        font-size: 30px;
-                        margin-left: -60px;
-                      }
-                      .close-x-btn {
-                        background: var(--accent);
-                        color: white;
-                        border: none;
-                        width: 32px;
-                        height: 32px;
-                        border-radius: 50%;
-                        font-weight: bold;
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 16px;
-                      }
-                      .comm-btn-row {
-                        display: flex;
-                        justify-content: center;
-                        gap: 20px;
-                        margin: 15px 0 20px 0;
-                      }
-                      .comm-icon-btn {
-                        width: 50%;
-                        background: whitesmoke;
-                        border: 2px solid var(--accent);
-                        border-radius: 16px;
-                        padding: 12px 25px;
-                        cursor: pointer;
-                        transition: 0.2s;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                      }
-                      .comm-icon-btn:active {
-                        transform: scale(0.95);
-                      }
-                      .comm-icon-btn img {
-                        width: 32px;
-                        height: 32px;
-                      }
-                      #detDist {
-                        padding-top: 15%;
-                      }
-                      #detIssue {
-                        word-break: break-all;
-                      }
-                      .det-img-scroller {
-                        display: flex;
-                        gap: 10px;
-                        overflow-x: auto;
-                        margin-bottom: 15px;
-                        padding-bottom: 10px;
-                      }
-                      .det-img-scroller img {
-                        width: 100%;
-                        height: 90%;
-                        object-fit: cover;
-                        border-radius: 15px;
-                        flex-shrink: 0;
-                        cursor: pointer;
-                        border: 1px solid #e2e8f0;
-                      }
-
-                      #contact {
-                        filter: drop-shadow(1px 1px 2px #ee611c);
-                      }
-
-
-              /* --- ROLE TOGGLE BUTTONS --- */
-                      .role-toggle {
-                        display: flex;
-                        gap: 10px;
-                        margin-bottom: 15px;
-                      }
-                      .role-btn {
-                        flex: 1;
-                        padding: 12px;
-                        border: 2px solid #e2e8f0;
-                        border-radius: 12px;
-                        background: white;
-                        cursor: pointer;
-                        font-weight: 700;
-                        color: var(--muted);
-                        transition: all 0.2s;
-                        font-size: 13px;
-                      }
-                      .role-btn.active {
-                        border-color: var(--accent);
-                        color: var(--accent);
-                        background: rgba(238, 97, 28, 0.05);
-                      }
+                            .jb-btn {
+                              position: absolute;
+                              top: 20px;
+                              left 20px;
+                              margin-left:15px;
+                              background: #ee611c;
+                              border: none;
+                              padding: 12px;
+                              border-radius: 12px;
+                              box-shadow: var(--shadow);
+                              cursor: pointer;
+                              z-index: 5;
+                              font-weight: 800;
+                              font-size: 11px;
+                              color:white;
+                            }
 
 
 
 
-                      .toggle-wrapper {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        background: #f8fafc;
-                        padding: 15px 20px;
-                        border-radius: 20px;
-                        margin-bottom: 15px;
-                      }
-                      .toggle-label {
-                        font-weight: 700;
-                        font-size: 14px;
-                      }
-                      .toggle-switch {
-                        position: relative;
-                        width: 50px;
-                        height: 28px;
-                      }
-                      .toggle-switch input {
-                        opacity: 0;
-                        width: 0;
-                        height: 0;
-                      }
-                      .slider {
-                        position: absolute;
-                        cursor: pointer;
-                        inset: 0;
-                        background-color: var(--accent);
-                        transition: 0.4s;
-                        border-radius: 34px;
-                      }
-                      .slider:before {
-                        position: absolute;
-                        content: "";
-                        height: 20px;
-                        width: 20px;
-                        left: 4px;
-                        bottom: 4px;
-                        background-color: white;
-                        transition: 0.4s;
-                        border-radius: 50%;
-                      }
-                      input:checked + .slider {
-                        background-color: var(--success);
-                      }
-                      input:checked + .slider:before {
-                        transform: translateX(22px);
-                      }
 
-                      .gamenail {
-                        height: 250px;
-                      }
-
-                      #notifHistory {
-                        word-break: break-all;
-                      }
-
-                      @media (max-width: 1000px) {
-                        #landingPage {
-                          transform: scale(1);
-                        }
-                      }
+                            .center-btn {
+                              position: absolute;
+                              top: 20px;
+                              right: 20px;
+                              background: #ee611c;
+                              border: none;
+                              padding: 12px;
+                              border-radius: 12px;
+                              box-shadow: var(--shadow);
+                              cursor: pointer;
+                              z-index: 5;
+                              font-weight: 800;
+                              font-size: 11px;
+                              color: white;
+                            }
 
 
-                      .jbutton:active{
-                          background: var(--accent);
-                          color: white;
-                      }
+                            .trash-icon {
+                              width: 20px;
+                              height: 20px;
+                              cursor: pointer;
+                              margin-left: 10px;
+                            }
+
+                            .btn-towtruck {
+                              background: white;
+                              color: #2563eb;
+                              border: 2px solid #2563eb;
+                              border-radius: 16px;
+                              font-weight: 700;
+                              cursor: pointer;
+                              font-size: 16px;
+                              padding: 18px;
+                              width: 100%;
+                              margin-bottom: 10px;
+                            }
+                            .btn-towtruck.active {
+                              background: #1d4ed8;
+                              color: white;
+                            }
+                            .phone-input-group {
+                              margin-bottom: 15px;
+                              display: none;
+                            }
+                            .phone-input-group label {
+                              font-size: 11px;
+                              font-weight: bold;
+                              color: var(--muted);
+                              margin-bottom: 8px;
+                              display: block;
+                            }
+
+                            #imageEnlargeModal {
+                              background: rgba(0, 0, 0, 0.9);
+                              display: none;
+                              align-items: center;
+                              justify-content: center;
+                              z-index: 1002;
+                            }
+                            #imageEnlargeModal img {
+                              max-width: 95vw;
+                              max-height: 95vh;
+                              object-fit: contain;
+                            }
+                            #imageEnlargeModal .close-btn {
+                              position: absolute;
+                              top: 20px;
+                              right: 20px;
+                              background: white;
+                              color: var(--text);
+                              border: none;
+                              border-radius: 50%;
+                              width: 40px;
+                              height: 40px;
+                              font-size: 24px;
+                              font-weight: bold;
+                              cursor: pointer;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              box-shadow: var(--shadow);
+                            }
+
+                            .modal-header-row {
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: center;
+                              margin-bottom: 20px;
+                              width: 100%;
+                              margin-top: -30px;
+                            }
+                            .modal-header-row h3 {
+                              margin: 0;
+                              color: var(--accent);
+                              flex: 1;
+                              text-align: center;
+                              font-size: 30px;
+                              margin-left: -60px;
+                            }
+                            .close-x-btn {
+                              background: var(--accent);
+                              color: white;
+                              border: none;
+                              width: 32px;
+                              height: 32px;
+                              border-radius: 50%;
+                              font-weight: bold;
+                              cursor: pointer;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              font-size: 16px;
+                            }
+                            .comm-btn-row {
+                              display: flex;
+                              justify-content: center;
+                              gap: 20px;
+                              margin: 15px 0 20px 0;
+                            }
+                            .comm-icon-btn {
+                              width: 50%;
+                              background: whitesmoke;
+                              border: 2px solid var(--accent);
+                              border-radius: 16px;
+                              padding: 12px 25px;
+                              cursor: pointer;
+                              transition: 0.2s;
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                            }
+                            .comm-icon-btn:active {
+                              transform: scale(0.95);
+                            }
+                            .comm-icon-btn img {
+                              width: 32px;
+                              height: 32px;
+                            }
+                            #detDist {
+                              padding-top: 15%;
+                            }
+                            #detIssue {
+                              word-break: break-all;
+                            }
+                            .det-img-scroller {
+                              display: flex;
+                              gap: 10px;
+                              overflow-x: auto;
+                              margin-bottom: 15px;
+                              padding-bottom: 10px;
+                            }
+                            .det-img-scroller img {
+                              width: 100%;
+                              height: 90%;
+                              object-fit: cover;
+                              border-radius: 15px;
+                              flex-shrink: 0;
+                              cursor: pointer;
+                              border: 1px solid #e2e8f0;
+                            }
+
+                            #contact {
+                              filter: drop-shadow(1px 1px 2px #ee611c);
+                            }
 
 
-              #verifiedMechanic {
-                width: 100%;
-                background-color: #fee2e2; /* Red bg */
-                border: 2px solid #fbbf24; /* Yellow outline */
-                margin-bottom: 12px;
-                border-radius: 14px;
-                padding: 12px;
-                display: none; /* Controlled by toggleTowTruckRequest */
-                flex-direction: column;
-              }
-
-              .no-pros-text {
-                font-size: 13px;
-                font-weight: 700;
-                color: #b91c1c;
-                text-align: center;
-                padding: 10px 0;
-                font-style: italic;
-                line-height: 1.4;
-              }
-
-              .pro-scroller {
-                display: flex;
-                gap: 12px;
-                overflow-x: auto;
-                padding-bottom: 5px;
-                -webkit-overflow-scrolling: touch;
-              }
-
-              .pro-mechanic-card {
-                flex: 0 0 120px;
-                background: white;
-                border-radius: 12px;
-                padding: 8px;
-                text-align: center;
-                box-shadow: var(--shadow);
-                border: 1px solid #fcd34d;
-              }
-
-              .pro-img-mini {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                object-fit: cover;
-                margin-bottom: 5px;
-                border: 2px solid var(--accent);
-              }
+                    /* --- ROLE TOGGLE BUTTONS --- */
+                            .role-toggle {
+                              display: flex;
+                              gap: 10px;
+                              margin-bottom: 15px;
+                            }
+                            .role-btn {
+                              flex: 1;
+                              padding: 12px;
+                              border: 2px solid #e2e8f0;
+                              border-radius: 12px;
+                              background: white;
+                              cursor: pointer;
+                              font-weight: 700;
+                              color: var(--muted);
+                              transition: all 0.2s;
+                              font-size: 13px;
+                            }
+                            .role-btn.active {
+                              border-color: var(--accent);
+                              color: var(--accent);
+                              background: rgba(238, 97, 28, 0.05);
+                            }
 
 
 
-              /* --- SUBMIT BUTTON UI STATES --- */
-      #submitSosBtn:disabled {
-        background: #cbd5e1 !important; /* Muted Gray */
-        color: #94a3b8;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
+
+                            .toggle-wrapper {
+                              display: flex;
+                              align-items: center;
+                              justify-content: space-between;
+                              background: #f8fafc;
+                              padding: 15px 20px;
+                              border-radius: 20px;
+                              margin-bottom: 15px;
+                            }
+                            .toggle-label {
+                              font-weight: 700;
+                              font-size: 14px;
+                            }
+                            .toggle-switch {
+                              position: relative;
+                              width: 50px;
+                              height: 28px;
+                            }
+                            .toggle-switch input {
+                              opacity: 0;
+                              width: 0;
+                              height: 0;
+                            }
+                            .slider {
+                              position: absolute;
+                              cursor: pointer;
+                              inset: 0;
+                              background-color: var(--accent);
+                              transition: 0.4s;
+                              border-radius: 34px;
+                            }
+                            .slider:before {
+                              position: absolute;
+                              content: "";
+                              height: 20px;
+                              width: 20px;
+                              left: 4px;
+                              bottom: 4px;
+                              background-color: white;
+                              transition: 0.4s;
+                              border-radius: 50%;
+                            }
+                            input:checked + .slider {
+                              background-color: var(--success);
+                            }
+                            input:checked + .slider:before {
+                              transform: translateX(22px);
+                            }
+
+                            .gamenail {
+                              height: 250px;
+                            }
+
+                            #notifHistory {
+                              word-break: break-all;
+                            }
+
+                            @media (max-width: 1000px) {
+                              #landingPage {
+                                transform: scale(1);
+                              }
+                            }
+
+
+                            .jbutton:active{
+                                background: var(--accent);
+                                color: white;
+                            }
+
+
+                    #verifiedMechanic {
+                      width: 100%;
+                      background-color: #fee2e2; /* Red bg */
+                      border: 2px solid #fbbf24; /* Yellow outline */
+                      margin-bottom: 12px;
+                      border-radius: 14px;
+                      padding: 12px;
+                      display: none; /* Controlled by toggleTowTruckRequest */
+                      flex-direction: column;
+                    }
+
+                    .no-pros-text {
+                      font-size: 13px;
+                      font-weight: 700;
+                      color: #b91c1c;
+                      text-align: center;
+                      padding: 10px 0;
+                      font-style: italic;
+                      line-height: 1.4;
+                    }
+
+                    .pro-scroller {
+                      display: flex;
+                      gap: 12px;
+                      overflow-x: auto;
+                      padding-bottom: 5px;
+                      -webkit-overflow-scrolling: touch;
+                    }
+
+                    .pro-mechanic-card {
+                      flex: 0 0 120px;
+                      background: white;
+                      border-radius: 12px;
+                      padding: 8px;
+                      text-align: center;
+                      box-shadow: var(--shadow);
+                      border: 1px solid #fcd34d;
+                    }
+
+                    .pro-img-mini {
+                      width: 50px;
+                      height: 50px;
+                      border-radius: 50%;
+                      object-fit: cover;
+                      margin-bottom: 5px;
+                      border: 2px solid var(--accent);
+                    }
+
+
+
+                    /* --- SUBMIT BUTTON UI STATES --- */
+            #submitSosBtn:disabled {
+              background: #cbd5e1 !important; /* Muted Gray */
+              color: #94a3b8;
+              cursor: not-allowed;
+              transform: none;
+              box-shadow: none;
+            }
+
+            .pulse-ready {
+              animation: pulse-button 1.5s infinite;
+            }
+
+            @keyframes pulse-button {
+              0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(238, 97, 28, 0.7); }
+              50% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(238, 97, 28, 0); }
+              100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(238, 97, 28, 0); }
+            }
+
+
+                    .form-wrapper{
+                      background-color:whitesmoke;
+                      padding:2%;
+                      border-radius:15px;
+                      margin-bottom:20%;
+
+
+                    }
+
+
+            /* --- BROADCAST RADAR UI --- */
+      .radar-pill {
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--text);
+        box-shadow: var(--shadow);
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid #e2e8f0;
       }
 
-      .pulse-ready {
-        animation: pulse-button 1.5s infinite;
+      .radar-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 50%;
+        animation: pulse-dot 1.5s infinite;
       }
 
-      @keyframes pulse-button {
-        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(238, 97, 28, 0.7); }
-        50% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(238, 97, 28, 0); }
-        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(238, 97, 28, 0); }
+      @keyframes pulse-dot {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.2); }
+        100% { opacity: 1; transform: scale(1); }
       }
-
-
-              .form-wrapper{
-                background-color:whitesmoke;
-                padding:2%;
-                border-radius:15px;
-                margin-bottom:20%;
-
-
-              }
-      
-      
-      /* --- BROADCAST RADAR UI --- */
-.radar-pill {
-  position: absolute;
-  top: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--text);
-  box-shadow: var(--shadow);
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid #e2e8f0;
-}
-
-.radar-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--success);
-  border-radius: 50%;
-  animation: pulse-dot 1.5s infinite;
-}
-
-@keyframes pulse-dot {
-  0% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.2); }
-  100% { opacity: 1; transform: scale(1); }
-}
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
     </style>
   </head>
 
@@ -1138,26 +1119,44 @@
 
       <div id="searchingState" class="status-card">
         <div class="search-pulse">📡</div>
-        
-        
+
         <h3 id="searchingTitle">Broadcasting SOS...</h3>
-          <p
-            id="searchingSubtitle"
-            style="font-size: 14px; color: var(--muted)"
-          >
-            Finding your Hero...
-          </p>
+        <p id="searchingSubtitle" style="font-size: 14px; color: var(--muted)">
+          Finding your Hero...
+        </p>
 
-          <div id="broadcastMapContainer" style="position: relative; width: 100%; height: 220px; border-radius: 20px; margin: 15px 0; background: #eee; border: 1px solid #e2e8f0; overflow: hidden; display:none;">
-              <div class="radar-pill">
-                  <div class="radar-dot"></div>
-                  <span id="nearbyHeroCount">0</span> HEROES NEARBY
-              </div>
-              <div id="broadcastMap" style="width:100%; height:100%;"></div>
-              <button class="map-expand-btn" onclick="window.toggleBroadcastMapExpansion()">Expand Map</button>
-              <button class="map-close-btn" onclick="window.toggleBroadcastMapExpansion()">✕</button>
+        <div
+          id="broadcastMapContainer"
+          style="
+            position: relative;
+            width: 100%;
+            height: 220px;
+            border-radius: 20px;
+            margin: 15px 0;
+            background: #eee;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            display: none;
+          "
+        >
+          <div class="radar-pill">
+            <div class="radar-dot"></div>
+            <span id="nearbyHeroCount">0</span> HEROES NEARBY
           </div>
-
+          <div id="broadcastMap" style="width: 100%; height: 100%"></div>
+          <button
+            class="map-expand-btn"
+            onclick="window.toggleBroadcastMapExpansion()"
+          >
+            Expand Map
+          </button>
+          <button
+            class="map-close-btn"
+            onclick="window.toggleBroadcastMapExpansion()"
+          >
+            ✕
+          </button>
+        </div>
 
         <div
           id="seekerBidFeed"
@@ -2742,6 +2741,103 @@
       style="display: none"
     ></audio>
 
+    <!-- WIN / LOSS BID SCREENS -->
+    <div id="winBidModal" class="modal">
+      <div
+        class="modal-content"
+        style="
+          background: var(--success);
+          color: white;
+          text-align: center;
+          height: auto;
+          border-radius: 32px 32px 0 0;
+          padding: 40px 20px;
+          box-shadow: 0 -10px 40px rgba(34, 197, 94, 0.4);
+        "
+      >
+        <div
+          style="
+            font-size: 70px;
+            margin-bottom: 10px;
+            animation: slideUp 0.5s ease;
+          "
+        >
+          🎉
+        </div>
+        <h2
+          style="color: white; margin-top: 0; font-size: 28px; font-weight: 900"
+        >
+          Congratulations!
+        </h2>
+        <p
+          style="
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            opacity: 0.9;
+          "
+        >
+          Your quote was accepted! The Seeker is waiting for you.
+        </p>
+        <button
+          class="submit-btn"
+          style="
+            background: white;
+            color: var(--success);
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          "
+          onclick="window.closeModal('winBidModal'); window.viewRequest(window.currentWonJobId);"
+        >
+          VIEW JOB DETAILS
+        </button>
+      </div>
+    </div>
+
+    <div id="loseBidModal" class="modal">
+      <div
+        class="modal-content"
+        style="
+          background: var(--danger);
+          color: white;
+          text-align: center;
+          height: auto;
+          border-radius: 32px 32px 0 0;
+          padding: 40px 20px;
+          box-shadow: 0 -10px 40px rgba(238, 97, 28, 0.4);
+        "
+      >
+        <div style="font-size: 70px; margin-bottom: 10px">😔</div>
+        <h2
+          style="color: white; margin-top: 0; font-size: 28px; font-weight: 900"
+        >
+          Bid Lost
+        </h2>
+        <p
+          style="
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            opacity: 0.9;
+          "
+        >
+          Sorry, the Seeker chose another Hero's quote this time. Keep hunting!
+        </p>
+        <button
+          class="submit-btn"
+          style="
+            background: white;
+            color: var(--danger);
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          "
+          onclick="window.closeModal('loseBidModal');"
+        >
+          CLOSE
+        </button>
+      </div>
+    </div>
+
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
       import {
@@ -2819,7 +2915,6 @@
       let isManualMapControl = false,
         manualMapTimeout = null;
       let destinationAutocomplete = null;
-      
 
       let destLat = null;
       let destLng = null;
@@ -3041,18 +3136,14 @@
         }
       };
 
+      window.onload = () => {
+        // --- FIX: FORCE THE GLASS OVERLAY TO LIFT ONCE APP LOADS ---
+        const loader = document.getElementById("loadingOverlay");
+        if (loader) loader.classList.add("loader-hidden");
 
-          window.onload = () => {
-          // --- FIX: FORCE THE GLASS OVERLAY TO LIFT ONCE APP LOADS ---
-          const loader = document.getElementById("loadingOverlay");
-          if (loader) loader.classList.add("loader-hidden");
-
-          // Initialize Places Autocomplete for Tow Destination
-          const inputField = document.getElementById("towDestinationInput");
-          destinationAutocomplete = new google.maps.places.Autocomplete(
-          
-          
-          
+        // Initialize Places Autocomplete for Tow Destination
+        const inputField = document.getElementById("towDestinationInput");
+        destinationAutocomplete = new google.maps.places.Autocomplete(
           inputField,
           {
             types: ["address"],
@@ -3729,34 +3820,30 @@
         if (r.damagePic) imagesToDisplay.push(r.damagePic);
         if (r.damagePics && Array.isArray(r.damagePics))
           imagesToDisplay = r.damagePics;
-        
-        
-        // FIX: Always show the container so the "PHOTOS" label is visible
-          detImgContainer.style.display = "block";
-
 
         // FIX: Always show the container so the "PHOTOS" label is visible
-          detImgContainer.style.display = "block";
+        detImgContainer.style.display = "block";
 
-          if (imagesToDisplay.length > 0) {
-            imagesToDisplay.forEach((src) => {
-              const img = document.createElement("img");
-              img.src = src;
-              img.onclick = () => window.enlargeImage(src);
-              detImgScroller.appendChild(img);
-            });
-          } else {
-            // FIX: Inject the exact styled dashed-box from the Job Board
-            detImgScroller.innerHTML = `
+        // FIX: Always show the container so the "PHOTOS" label is visible
+        detImgContainer.style.display = "block";
+
+        if (imagesToDisplay.length > 0) {
+          imagesToDisplay.forEach((src) => {
+            const img = document.createElement("img");
+            img.src = src;
+            img.onclick = () => window.enlargeImage(src);
+            detImgScroller.appendChild(img);
+          });
+        } else {
+          // FIX: Inject the exact styled dashed-box from the Job Board
+          detImgScroller.innerHTML = `
               <div style="width: 100%; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 15px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box;">
                 <div style="font-size: 28px; margin-bottom: 5px;">📸</div>
                 <div style="font-size: 12px; font-weight: 700; color: #64748b;">No Photos Uploaded</div>
               </div>
             `;
-          }
-   
-        
-        
+        }
+
         document.getElementById("detIssue").innerText = r.issue;
         const dist = userLocation
           ? (
@@ -4292,6 +4379,11 @@
         const prefersRoadside =
           currentHeroProfile.prefersRoadsideRequests !== false;
 
+        
+        
+        
+        
+        
         Object.entries(sosCache).forEach(([id, r]) => {
           const isTowTruck = r.isTowTruckRequest === true;
           if (isTowTruck && !prefersTowTruck) {
@@ -4409,6 +4501,31 @@
             const sound = document.getElementById("notificationSound");
             if (sound) sound.play().catch((e) => console.error(e));
           }
+          
+          
+          // --- NEW: WIN / LOSS BID DETECTOR ---
+          if (lastKnownSOS && lastKnownSOS.status === "open" && r.status === "accepted") {
+            // Check if THIS specific Hero placed a bid on this job
+            if (r.bids && r.bids[myId]) {
+              // Force close the details modal if they happen to be staring at it
+              window.closeModal("detailsModal"); 
+              
+              if (r.helperId === myId) {
+                // THEY WON!
+                window.currentWonJobId = id; // Store the ID so the button can open the job details
+                window.openModal("winBidModal");
+                // Play notification sound
+                const sound = document.getElementById("notificationSound");
+                if (sound) sound.play().catch((e) => console.error(e));
+              } else {
+                // THEY LOST!
+                window.openModal("loseBidModal");
+              }
+            }
+          }
+          
+          
+
           if (r.ownerId === myId || r.helperId === myId) {
             let sCol =
               r.status === "completed" || r.status === "finalized"
@@ -4504,86 +4621,97 @@
           panelContent = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone inside your ${myRadius} mile radius needs help.</p></div>`;
         tCard.innerHTML = panelContent;
         tCard.style.display = "block";
-        
-        
-        
+
         // --- BROADCAST RADAR LOGIC ---
         window.updateBroadcastMap = (sos) => {
-            const container = document.getElementById("broadcastMapContainer");
-            container.style.display = "block";
+          const container = document.getElementById("broadcastMapContainer");
+          container.style.display = "block";
 
-            if (!broadcastMiniMap) {
-                broadcastMiniMap = new google.maps.Map(document.getElementById("broadcastMap"), {
-                    zoom: 13,
-                    disableDefaultUI: true,
-                    styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }]
+          if (!broadcastMiniMap) {
+            broadcastMiniMap = new google.maps.Map(
+              document.getElementById("broadcastMap"),
+              {
+                zoom: 13,
+                disableDefaultUI: true,
+                styles: [
+                  {
+                    featureType: "poi",
+                    elementType: "labels",
+                    stylers: [{ visibility: "off" }],
+                  },
+                ],
+              }
+            );
+          }
+
+          // Clear old markers
+          broadcastMarkers.forEach((m) => m.setMap(null));
+          broadcastMarkers = [];
+
+          const userPos = { lat: sos.lat, lng: sos.lng };
+          const bounds = new google.maps.LatLngBounds();
+          bounds.extend(userPos);
+
+          // 1. Mark the Seeker (Blue Dot)
+          const userMarker = new google.maps.Marker({
+            position: userPos,
+            map: broadcastMiniMap,
+            icon: seekerOwnIcon,
+          });
+          broadcastMarkers.push(userMarker);
+
+          // 2. Filter Nearby Heroes & Add Orange Cross Markers
+          let count = 0;
+          Object.values(profilesCache).forEach((hero) => {
+            if (hero.lat && hero.lng && hero.id !== myId) {
+              const heroPos = { lat: hero.lat, lng: hero.lng };
+              const dist =
+                google.maps.geometry.spherical.computeDistanceBetween(
+                  new google.maps.LatLng(userPos.lat, userPos.lng),
+                  new google.maps.LatLng(hero.lat, hero.lng)
+                ) / 1609.34;
+
+              if (dist <= 25) {
+                // Only show Heroes within 25 miles
+                count++;
+                const hm = new google.maps.Marker({
+                  position: heroPos,
+                  map: broadcastMiniMap,
+                  icon: getMarkerIcon("#EE611C"), // Orange Cross
                 });
+                broadcastMarkers.push(hm);
+                bounds.extend(heroPos);
+              }
             }
-            
-            // Clear old markers
-            broadcastMarkers.forEach(m => m.setMap(null));
-            broadcastMarkers = [];
+          });
 
-            const userPos = { lat: sos.lat, lng: sos.lng };
-            const bounds = new google.maps.LatLngBounds();
-            bounds.extend(userPos);
+          document.getElementById("nearbyHeroCount").innerText = count;
 
-            // 1. Mark the Seeker (Blue Dot)
-            const userMarker = new google.maps.Marker({ position: userPos, map: broadcastMiniMap, icon: seekerOwnIcon });
-            broadcastMarkers.push(userMarker);
+          // Auto-zoom map to show user and heroes
+          if (count > 0) broadcastMiniMap.fitBounds(bounds);
+          else broadcastMiniMap.setCenter(userPos);
 
-            // 2. Filter Nearby Heroes & Add Orange Cross Markers
-            let count = 0;
-            Object.values(profilesCache).forEach(hero => {
-                if (hero.lat && hero.lng && hero.id !== myId) {
-                    const heroPos = { lat: hero.lat, lng: hero.lng };
-                    const dist = google.maps.geometry.spherical.computeDistanceBetween(
-                        new google.maps.LatLng(userPos.lat, userPos.lng),
-                        new google.maps.LatLng(hero.lat, hero.lng)
-                    ) / 1609.34;
-
-                    if (dist <= 25) { // Only show Heroes within 25 miles
-                        count++;
-                        const hm = new google.maps.Marker({
-                            position: heroPos,
-                            map: broadcastMiniMap,
-                            icon: getMarkerIcon("#EE611C") // Orange Cross
-                        });
-                        broadcastMarkers.push(hm);
-                        bounds.extend(heroPos);
-                    }
-                }
-            });
-
-            document.getElementById("nearbyHeroCount").innerText = count;
-            
-            // Auto-zoom map to show user and heroes
-            if (count > 0) broadcastMiniMap.fitBounds(bounds);
-            else broadcastMiniMap.setCenter(userPos);
-
-            google.maps.event.trigger(broadcastMiniMap, "resize");
+          google.maps.event.trigger(broadcastMiniMap, "resize");
         };
 
         window.toggleBroadcastMapExpansion = () => {
-            const container = document.getElementById("broadcastMapContainer");
-            const expandBtn = container.querySelector(".map-expand-btn");
-            const closeBtn = container.querySelector(".map-close-btn");
-            container.classList.toggle("expanded");
-            
-            if (container.classList.contains("expanded")) {
-                expandBtn.style.display = "none";
-                closeBtn.style.display = "flex";
-            } else {
-                expandBtn.style.display = "block";
-                closeBtn.style.display = "none";
-            }
-            setTimeout(() => google.maps.event.trigger(broadcastMiniMap, "resize"), 300);
+          const container = document.getElementById("broadcastMapContainer");
+          const expandBtn = container.querySelector(".map-expand-btn");
+          const closeBtn = container.querySelector(".map-close-btn");
+          container.classList.toggle("expanded");
+
+          if (container.classList.contains("expanded")) {
+            expandBtn.style.display = "none";
+            closeBtn.style.display = "flex";
+          } else {
+            expandBtn.style.display = "block";
+            closeBtn.style.display = "none";
+          }
+          setTimeout(
+            () => google.maps.event.trigger(broadcastMiniMap, "resize"),
+            300
+          );
         };
-        
-        
-        
-        
-        
 
         if (myActiveSOS) {
           if (
@@ -4598,100 +4726,105 @@
           const cancelBtn = document.getElementById("cancelSosBtn");
           const msgList = document.getElementById("seekerMessagesList");
 
-  
-            
+          if (myActiveSOS.status === "open") {
+            // 1. MAKE SURE PARENT UI IS VISIBLE FIRST!
+            searching.style.display = "block";
+            matched.style.display = "none";
+            completed.style.display = "none";
+            cancelBtn.style.display = "block";
 
-              
-              
-              
-              
-              
-              if (myActiveSOS.status === "open") {
-              
-              // 1. MAKE SURE PARENT UI IS VISIBLE FIRST!
-              searching.style.display = "block";
-              matched.style.display = "none";
-              completed.style.display = "none";
-              cancelBtn.style.display = "block";
+            // 2. NOW IT IS SAFE TO TRIGGER THE MAP (With a tiny delay to let the browser draw the card)
+            setTimeout(() => {
+              window.updateBroadcastMap(myActiveSOS);
+            }, 50);
 
-              // 2. NOW IT IS SAFE TO TRIGGER THE MAP (With a tiny delay to let the browser draw the card)
-              setTimeout(() => {
-                  window.updateBroadcastMap(myActiveSOS);
-              }, 50);
+            msgList.innerHTML = "";
+            let hasMessages = false;
 
-              msgList.innerHTML = "";
-              let hasMessages = false;
-              
-              
-              if (myActiveSOS.id) {
-                Object.keys(chatCache).forEach((chatId) => {
-                  if (chatId.startsWith(myActiveSOS.id + "_")) {
-                    hasMessages = true; 
-                    const heroId = chatId.split("_")[1];
-                    const msgs = Object.values(chatCache[chatId]);
-                    const lastMsg = msgs[msgs.length - 1];
-                    const heroProfile = profilesCache[heroId] || { name: "Hero" };
-                    const date = new Date(lastMsg.timestamp || Date.now());
-                    const timeString = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-                    msgList.innerHTML += `<div class="msg-thread-card" onclick="window.openChat('${chatId}')"><div class="msg-thread-info"><b style="color:var(--accent);">${heroProfile.name}</b><div style="font-size:13px; margin-top:4px; font-weight:600;">Re: ${myActiveSOS.issue}</div><div style="font-size:13px; color:var(--text); margin-top:2px; font-style:italic;">"${lastMsg.text || "Image"}"</div><div class="msg-thread-time">${timeString}</div></div><img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="event.stopPropagation(); window.confirmDeleteChatPrompt('${chatId}')"></div>`;
-                  }
-                });
-              } 
+            if (myActiveSOS.id) {
+              Object.keys(chatCache).forEach((chatId) => {
+                if (chatId.startsWith(myActiveSOS.id + "_")) {
+                  hasMessages = true;
+                  const heroId = chatId.split("_")[1];
+                  const msgs = Object.values(chatCache[chatId]);
+                  const lastMsg = msgs[msgs.length - 1];
+                  const heroProfile = profilesCache[heroId] || { name: "Hero" };
+                  const date = new Date(lastMsg.timestamp || Date.now());
+                  const timeString = date.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  msgList.innerHTML += `<div class="msg-thread-card" onclick="window.openChat('${chatId}')"><div class="msg-thread-info"><b style="color:var(--accent);">${
+                    heroProfile.name
+                  }</b><div style="font-size:13px; margin-top:4px; font-weight:600;">Re: ${
+                    myActiveSOS.issue
+                  }</div><div style="font-size:13px; color:var(--text); margin-top:2px; font-style:italic;">"${
+                    lastMsg.text || "Image"
+                  }"</div><div class="msg-thread-time">${timeString}</div></div><img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="event.stopPropagation(); window.confirmDeleteChatPrompt('${chatId}')"></div>`;
+                }
+              });
+            }
 
-              if (hasMessages) {  
-                msgList.style.display = "flex";
-                document.getElementById("footerChatBtn").style.display = "block";
-              } else {
-                msgList.style.display = "none";
-                document.getElementById("footerChatBtn").style.display = "none";
-              }
- 
+            if (hasMessages) {
+              msgList.style.display = "flex";
+              document.getElementById("footerChatBtn").style.display = "block";
+            } else {
+              msgList.style.display = "none";
+              document.getElementById("footerChatBtn").style.display = "none";
+            }
 
+            const bidFeed = document.getElementById("seekerBidFeed");
+            const bidContainer = document.getElementById("bidContainer");
 
-              const bidFeed = document.getElementById("seekerBidFeed");
-              const bidContainer = document.getElementById("bidContainer");
+            // --- STANDARDIZE TEXT FOR ALL SEARCHING ---
+            document.getElementById("searchingTitle").innerText =
+              "Broadcasting SOS...";
+            document.getElementById("searchingSubtitle").innerText =
+              "Finding you a Hero...";
 
-              // --- STANDARDIZE TEXT FOR ALL SEARCHING ---
-              document.getElementById("searchingTitle").innerText = "Broadcasting SOS...";
-              document.getElementById("searchingSubtitle").innerText = "Finding you a Hero...";
+            if (myActiveSOS.isTowTruckRequest) {
+              bidFeed.style.display = "block";
+              bidContainer.innerHTML = "";
 
-              if (myActiveSOS.isTowTruckRequest) {
-                bidFeed.style.display = "block";
-                bidContainer.innerHTML = ""; 
-
-                if (myActiveSOS.bids && Object.keys(myActiveSOS.bids).length > 0) {
-                  Object.entries(myActiveSOS.bids).forEach(([heroId, bid]) => {
-                    bidContainer.innerHTML += `
+              if (
+                myActiveSOS.bids &&
+                Object.keys(myActiveSOS.bids).length > 0
+              ) {
+                Object.entries(myActiveSOS.bids).forEach(([heroId, bid]) => {
+                  bidContainer.innerHTML += `
                         <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:15px; border-radius:16px; margin-bottom:10px; border:1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                             <div>
-                                <div style="font-weight:900; font-size:15px; color:var(--text);">${bid.heroName}</div>
-                                <div style="color:var(--success); font-weight:900; font-size:20px; margin-top:2px;">$${bid.amount}</div>
-                                <div style="font-size:12px; color:var(--muted); font-weight:700; margin-top:4px;">⏱️ ETA: ${bid.eta || "TBD"}</div>
+                                <div style="font-weight:900; font-size:15px; color:var(--text);">${
+                                  bid.heroName
+                                }</div>
+                                <div style="color:var(--success); font-weight:900; font-size:20px; margin-top:2px;">$${
+                                  bid.amount
+                                }</div>
+                                <div style="font-size:12px; color:var(--muted); font-weight:700; margin-top:4px;">⏱️ ETA: ${
+                                  bid.eta || "TBD"
+                                }</div>
                             </div>
-                            <button onclick="window.acceptBid('${myActiveSOS.id}', '${heroId}', ${bid.amount}, '${bid.eta}')" style="background:var(--text); color:white; border:none; padding:12px 20px; border-radius:12px; font-weight:800; font-size:12px; cursor:pointer;">ACCEPT</button>
+                            <button onclick="window.acceptBid('${
+                              myActiveSOS.id
+                            }', '${heroId}', ${bid.amount}, '${
+                    bid.eta
+                  }')" style="background:var(--text); color:white; border:none; padding:12px 20px; border-radius:12px; font-weight:800; font-size:12px; cursor:pointer;">ACCEPT</button>
                         </div>`;
-                  });
-                } else {
-                  bidContainer.innerHTML = `<p style="font-size:13px; color:var(--muted); font-style:italic; text-align:center; padding:10px;">Waiting for local heroes to send quotes...</p>`;
-                }
+                });
               } else {
-                bidFeed.style.display = "none";
+                bidContainer.innerHTML = `<p style="font-size:13px; color:var(--muted); font-style:italic; text-align:center; padding:10px;">Waiting for local heroes to send quotes...</p>`;
               }
-            } else if (myActiveSOS.status === "accepted" || myActiveSOS.status === "arrived") {
-                // --- HIDE BROADCAST MAP ON ACCEPT ---
-                const bMapCont = document.getElementById("broadcastMapContainer");
-                if (bMapCont) bMapCont.style.display = "none";
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+            } else {
+              bidFeed.style.display = "none";
+            }
+          } else if (
+            myActiveSOS.status === "accepted" ||
+            myActiveSOS.status === "arrived"
+          ) {
+            // --- HIDE BROADCAST MAP ON ACCEPT ---
+            const bMapCont = document.getElementById("broadcastMapContainer");
+            if (bMapCont) bMapCont.style.display = "none";
+
             msgList.style.display = "none";
             searching.style.display = "none";
             matched.style.display = "block";
@@ -4910,10 +5043,8 @@
             document.getElementById("towTruckContact").style.display = "none";
           }
         }
+      });
 
- 
-      }); 
- 
       onValue(ref(db, "profiles"), (snap) => {
         profilesCache = snap.val() || {};
         syncUI();
