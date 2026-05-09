@@ -3299,11 +3299,19 @@
         }
       };
 
-      window.closeModal = (id) => {
+
+          
+          window.closeModal = (id) => {
         document.getElementById(id).style.display = "none";
+
+        // <-- CLEAR THE MEMORY WHEN DETAILS CLOSES
+        if (id === "detailsModal") {
+            window.currentViewedSosId = null;
+        }
 
         if (id === "detailsModal" || id === "imageEnlargeModal") {
           const enlargedImage = document.getElementById("enlargedImage");
+          
           enlargedImage.onload = null;
           enlargedImage.onerror = null;
           enlargedImage.src = "";
@@ -3842,10 +3850,15 @@
         (error) => console.error("Error fetching chats:", error)
       );
 
-      window.viewRequest = (id) => {
+
+        
+        window.viewRequest = (id) => {
+        window.currentViewedSosId = id; // <-- THE MISSING TRACKER
         const r = sosCache[id];
         if (!r) return;
         const isHelper = r.helperId === myId;
+        
+        
         const detImgContainer = document.getElementById("detImgContainer");
         const detImgScroller = document.getElementById("detImgScroller");
         detImgScroller.innerHTML = "";
@@ -4392,14 +4405,26 @@
         });
       }
 
-      function syncUI() {
+       function syncUI() {
         if (
           !map &&
           document.getElementById("heroUI").classList.contains("view-active")
         )
           return;
 
+        // --- THE BOUNCER: AUTO-CLOSE DETAILS MODAL IF JOB DIES ---
+        if (window.currentViewedSosId && document.getElementById("detailsModal").style.display === "flex") {
+            const viewedJob = sosCache[window.currentViewedSosId];
+            if (!viewedJob || viewedJob.status === "canceled") {
+                window.closeModal("detailsModal");
+                window.currentViewedSosId = null; 
+                window.openModal("jobCanceledModal");
+            }
+        }
+        // ---------------------------------------------------------
+
         const history = document.getElementById("notifHistory");
+        
         history.innerHTML = "";
         let nearbySOS = [],
           activeTasks = [],
@@ -5038,23 +5063,10 @@
         });
       }
 
-onValue(ref(db, "sosRequests"), (snap) => {
+      onValue(ref(db, "sosRequests"), (snap) => {
         window._lastSosCacheState_ = { ...sosCache };
         sosCache = snap.val() || {};
         syncUI();
-
-// --- NEW: AUTO-CLOSE DETAILS MODAL IF JOB IS CANCELED ---
-        if (window.currentViewedSosId && document.getElementById("detailsModal").style.display === "flex") {
-            const viewedJob = sosCache[window.currentViewedSosId];
-            // If the job disappeared or was marked canceled while we were looking at it
-            if (!viewedJob || viewedJob.status === "canceled") {
-                window.closeModal("detailsModal");
-                // Clear the tracker so it doesn't loop
-                window.currentViewedSosId = null; 
-                // Trigger the beautiful custom UI screen instead of an alert
-                window.openModal("jobCanceledModal");
-            }
-        }
 
         const myActive = Object.values(sosCache).find(
           (r) =>
