@@ -1449,6 +1449,9 @@
         <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 4px;">ISSUE DESCRIPTION</p>
         <div id="detIssue" style="font-weight: 600; font-size:14px; margin-bottom: 15px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;"></div>
         
+        
+        
+        
         <div id="detActionGrid" class="command-grid" style="display: none;">
           <a id="detPhoneBtn" href="#" class="cmd-btn">
             <img src="phone1.png" alt="Call" style="width:28px; height:28px; margin-bottom:5px;"/> CALL
@@ -1458,19 +1461,24 @@
           </button>
           
           <button id="detDispatchBtn" class="cmd-btn disabled" onclick="window.openDispatchMenu()">
-            <div style="font-size:24px; margin-bottom:4px;"></div> DISPATCH
+            <img src="dispatch.png" alt="Dispatch" style="width:28px; height:28px; margin-bottom:5px;"/> DISPATCH
           </button>
           <button id="detCancelBtn" class="cmd-btn" style="border-color: var(--danger); color: var(--danger);" onclick="window.heroCancelJob()">
-            <div style="font-size:24px; margin-bottom:4px;"></div> CANCEL
+            <img src="cancel.png" alt="Cancel" style="width:28px; height:28px; margin-bottom:5px;"/> CANCEL
           </button>
 
           <a id="detNavBtn" href="#" target="_blank" class="cmd-btn" style="background: var(--success); color: white; border-color: var(--success);">
-            <div style="font-size:24px; margin-bottom:4px;"></div> NAVIGATE
+            <img src="navigate.png" alt="Navigate" style="width:28px; height:28px; margin-bottom:5px;"/> NAVIGATE
           </a>
           <button id="detStatusBtn" class="cmd-btn" style="background: var(--warning); color: white; border-color: var(--warning);">
-            <div style="font-size:24px; margin-bottom:4px;"></div> I'M HERE
+            <img src="here.png" alt="I'm Here" style="width:28px; height:28px; margin-bottom:5px;"/> I'M HERE
           </button>
         </div>
+        
+
+        
+        
+        
 
         <div id="detETAGroup">
           <label style="font-size: 11px; font-weight: bold; color: var(--muted)">ETA TO ARRIVAL</label>
@@ -3847,14 +3855,21 @@ window.acceptBid = (sosId, winningHeroId, agreedAmount, agreedEta) => {
           progressText.style.display = "block";
 
           document.getElementById("detBidSection").style.display = "none";
-
+          
+          
+          
+          
+          
           let navLink = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
           if (r.isTowTruckRequest && r.towDestination)
             navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(r.towDestination)}`;
           detNavBtn.href = navLink;
+   
           
-          if (r.status === "accepted") {
-            detStatusBtn.innerHTML = `<div style="font-size:24px; margin-bottom:4px;">📍</div> I'M HERE`;
+          
+          
+            if (r.status === "accepted") {
+            detStatusBtn.innerHTML = `<img src="here.png" alt="I'm Here" style="width:28px; height:28px; margin-bottom:5px;"/> I'M HERE`;
             detStatusBtn.style.background = "var(--warning)";
             detStatusBtn.style.borderColor = "var(--warning)";
             detStatusBtn.onclick = () => {
@@ -3862,7 +3877,7 @@ window.acceptBid = (sosId, winningHeroId, agreedAmount, agreedEta) => {
               window.closeModal("detailsModal");
             };
           } else {
-            detStatusBtn.innerHTML = `<div style="font-size:24px; margin-bottom:4px;">✅</div> JOB DONE`;
+            detStatusBtn.innerHTML = `<img src="done.png" alt="Job Done" style="width:28px; height:28px; margin-bottom:5px;"/> JOB DONE`;
             detStatusBtn.style.background = "var(--success)";
             detStatusBtn.style.borderColor = "var(--success)";
             detStatusBtn.onclick = () => {
@@ -3870,12 +3885,16 @@ window.acceptBid = (sosId, winningHeroId, agreedAmount, agreedEta) => {
               window.closeModal("detailsModal");
             };
           }
+          
+          
+          
+          
         } else {
           detActionGrid.style.display = "none"; // <-- HIDE GRID
 
           
           
-          
+           
           
           
           
@@ -3911,20 +3930,12 @@ window.acceptBid = (sosId, winningHeroId, agreedAmount, agreedEta) => {
                 // Fallback if older requests in the database lack coordinates
                 towDistanceMiles = dist;
               }
-
-              // Update the UI to show the Hero the exact Tow Distance
-              const detTowDestinationElement =
-                document.getElementById("detTowDestination");
-              detTowDestinationElement.innerHTML = `Tow Destination: ${
-                r.towDestination
-              }<br><span style="color:var(--accent); font-size:12px; font-weight:800;">🚗 Tow  Distance: ${towDistanceMiles.toFixed(
-                1
-              )} miles</span>`;
-
-              // Calculate Suggested Bid using the TRUE Tow Distance
+              
+               // Calculate Suggested Bid using the TRUE Tow Distance
               const suggestedBid = Math.round(
                 baseRate + pricePerMile * towDistanceMiles
               );
+
 
               const bidInput = document.getElementById("detBidAmount");
 
