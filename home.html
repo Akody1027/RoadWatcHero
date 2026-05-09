@@ -4502,11 +4502,21 @@
             if (sound) sound.play().catch((e) => console.error(e));
           }
           
-          
           // --- NEW: WIN / LOSS BID DETECTOR ---
-          if (lastKnownSOS && lastKnownSOS.status === "open" && r.status === "accepted") {
+          // Initialize our tracker to prevent infinite loops
+          window.notifiedBids = window.notifiedBids || {};
+
+          if (
+            lastKnownSOS && 
+            lastKnownSOS.status === "open" && 
+            r.status === "accepted" &&
+            !window.notifiedBids[id] // <-- FIX: Only trigger if we haven't shown it yet!
+          ) {
             // Check if THIS specific Hero placed a bid on this job
             if (r.bids && r.bids[myId]) {
+              // Mark this job as notified so the GPS loop ignores it next time
+              window.notifiedBids[id] = true;
+              
               // Force close the details modal if they happen to be staring at it
               window.closeModal("detailsModal"); 
               
@@ -4523,6 +4533,7 @@
               }
             }
           }
+
           
           
 
