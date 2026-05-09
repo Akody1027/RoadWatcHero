@@ -1018,6 +1018,42 @@
         50% { opacity: 0.4; transform: scale(1.2); }
         100% { opacity: 1; transform: scale(1); }
       }
+      
+      
+      /* --- COMMAND CENTER GRID --- */
+      .command-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .cmd-btn {
+        background: whitesmoke;
+        border: 2px solid var(--accent);
+        border-radius: 16px;
+        padding: 12px 10px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 12px;
+        color: var(--text);
+        text-decoration: none;
+        transition: all 0.2s ease;
+      }
+      .cmd-btn:active {
+        transform: scale(0.95);
+      }
+      .cmd-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        border-color: #cbd5e1;
+        color: #94a3b8;
+      }
+      
+      
     </style>
   </head>
 
@@ -1376,122 +1412,68 @@
         </div>
       </div>
     </div>
-
-    <!-- MODALS -->
+    
+    
+    
     <div id="detailsModal" class="modal">
       <div class="modal-content">
-        <div class="modal-header-row">
-          <span
-            id="detDist"
-            style="color: var(--muted); font-size: 14px; font-weight: 700"
-          ></span>
-          <h3>SOS DETAILS</h3>
-          <button
-            class="close-x-btn"
-            onclick="window.closeModal('detailsModal')"
-          >
-            ✕
-          </button>
+        
+        <div class="modal-header-row" style="margin-top: -10px; margin-bottom: 10px;">
+          <div style="flex: 1"></div>
+          <h3 style="margin: 0; color: var(--accent); text-align: center; font-size: 24px;">SOS DETAILS</h3>
+          <div style="flex: 1; display: flex; justify-content: flex-end;">
+              <button class="close-x-btn" onclick="window.closeModal('detailsModal')">✕</button>
+          </div>
         </div>
+
+        <div id="tripDashboard" style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:15px; text-align:center;">
+            <div style="flex:1; border-right:1px solid #cbd5e1;">
+                <div style="font-size:10px; font-weight:800; color:var(--muted);">DISTANCE</div>
+                <div id="detDist" style="font-size:14px; font-weight:900; color:var(--accent);">-- mi</div>
+            </div>
+            <div style="flex:1; border-right:1px solid #cbd5e1;">
+                <div style="font-size:10px; font-weight:800; color:var(--muted);">LOADED MILES</div>
+                <div id="detLoadedMiles" style="font-size:14px; font-weight:900; color:var(--success);">-- mi</div>
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:10px; font-weight:800; color:var(--muted);">DESTINATION</div>
+                <div id="detTowDestinationTop" style="font-size:11px; font-weight:800; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 5px;">--</div>
+            </div>
+        </div>
+
         <div id="detImgContainer" style="display: none">
-          <p
-            style="
-              font-size: 11px;
-              font-weight: bold;
-              color: var(--muted);
-              margin-bottom: 4px;
-            "
-          >
-            PHOTOS
-          </p>
+          <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 4px;">PHOTOS</p>
           <div id="detImgScroller" class="det-img-scroller"></div>
         </div>
-        <p
-          style="
-            font-size: 11px;
-            font-weight: bold;
-            color: var(--muted);
-            margin-bottom: 4px;
-          "
-        >
-          ISSUE DESCRIPTION
-        </p>
-        <div
-          id="detIssue"
-          style="
-            font-weight: 500;
-            margin-bottom: 15px;
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-          "
-        ></div>
-        <p
-          id="detTowDestination"
-          style="
-            font-size: 14px;
-            margin-bottom: 10px;
-            font-weight: 600;
-            display: none;
-            color: var(--text);
-          "
-        ></p>
-        <div class="comm-btn-row">
-          <a
-            id="detPhoneBtn"
-            href="#"
-            class="comm-icon-btn"
-            style="display: none"
-          >
-            <img src="phone1.png" id="contact" alt="Call" />
+        
+        <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 4px;">ISSUE DESCRIPTION</p>
+        <div id="detIssue" style="font-weight: 600; font-size:14px; margin-bottom: 15px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;"></div>
+        
+        <div id="detActionGrid" class="command-grid" style="display: none;">
+          <a id="detPhoneBtn" href="#" class="cmd-btn">
+            <img src="phone1.png" alt="Call" style="width:28px; height:28px; margin-bottom:5px;"/> CALL
           </a>
-          <button id="detChatBtn" class="comm-icon-btn">
-            <img src="Chaticon.png" alt="Chat" id="contact" />
+          <button id="detChatBtn" class="cmd-btn">
+            <img src="Chaticon.png" alt="Chat" style="width:28px; height:28px; margin-bottom:5px;"/> CHAT
           </button>
-        </div>
-        <div
-          id="detActionBtns"
-          style="display: none; gap: 10px; margin-bottom: 20px"
-        >
-          <a
-            id="detNavBtn"
-            href="#"
-            target="_blank"
-            style="
-              flex: 1;
-              background: var(--success);
-              color: white;
-              text-align: center;
-              padding: 15px;
-              border-radius: 16px;
-              text-decoration: none;
-              font-weight: 700;
-              font-size: 14px;
-              display: block;
-            "
-            >NAVIGATE</a
-          >
-          <button
-            id="detStatusBtn"
-            style="
-              flex: 1;
-              background: var(--warning);
-              color: white;
-              border: none;
-              border-radius: 16px;
-              font-weight: 700;
-              font-size: 14px;
-            "
-          >
-            HERE
+          
+          <button id="detDispatchBtn" class="cmd-btn disabled" onclick="window.openDispatchMenu()">
+            <div style="font-size:24px; margin-bottom:4px;"></div> DISPATCH
+          </button>
+          <button id="detCancelBtn" class="cmd-btn" style="border-color: var(--danger); color: var(--danger);" onclick="window.heroCancelJob()">
+            <div style="font-size:24px; margin-bottom:4px;"></div> CANCEL
+          </button>
+
+          <a id="detNavBtn" href="#" target="_blank" class="cmd-btn" style="background: var(--success); color: white; border-color: var(--success);">
+            <div style="font-size:24px; margin-bottom:4px;"></div> NAVIGATE
+          </a>
+          <button id="detStatusBtn" class="cmd-btn" style="background: var(--warning); color: white; border-color: var(--warning);">
+            <div style="font-size:24px; margin-bottom:4px;"></div> I'M HERE
           </button>
         </div>
 
         <div id="detETAGroup">
-          <label style="font-size: 11px; font-weight: bold; color: var(--muted)"
-            >ETA TO ARRIVAL</label
-          >
+          <label style="font-size: 11px; font-weight: bold; color: var(--muted)">ETA TO ARRIVAL</label>
           <select id="detETA">
             <option value="5-10 mins">5-10 mins</option>
             <option value="15-20 mins">15-20 mins</option>
@@ -1504,115 +1486,24 @@
           </select>
         </div>
 
-        <button id="detAcceptBtn" class="submit-btn" style="margin-top: 20px">
-          ACCEPT & HELP
-        </button>
+        <button id="detAcceptBtn" class="submit-btn" style="margin-top: 20px">ACCEPT & HELP</button>
 
-        <div
-          id="detBidSection"
-          style="display: none; width: 100%; margin-top: 20px"
-        >
-          <div
-            id="sneakPeekBoard"
-            style="
-              display: none;
-              background: #fffbeb;
-              border: 1px solid #f59e0b;
-              padding: 15px;
-              border-radius: 15px;
-              margin-bottom: 15px;
-            "
-          >
-            <p
-              style="
-                font-size: 11px;
-                font-weight: 900;
-                color: #d97706;
-                margin: 0 0 10px 0;
-              "
-            >
-              ⭐ ACTIVE BIDS (PRO PREVIEW)
-            </p>
-            <div
-              id="sneakPeekList"
-              style="
-                font-size: 13px;
-                font-weight: 600;
-                color: var(--text);
-                max-height: 80px;
-                overflow-y: auto;
-              "
-            ></div>
+        <div id="detBidSection" style="display: none; width: 100%; margin-top: 20px">
+          <div id="sneakPeekBoard" style="display: none; background: #fffbeb; border: 1px solid #f59e0b; padding: 15px; border-radius: 15px; margin-bottom: 15px;">
+            <p style="font-size: 11px; font-weight: 900; color: #d97706; margin: 0 0 10px 0;">⭐ ACTIVE BIDS (PRO PREVIEW)</p>
+            <div id="sneakPeekList" style="font-size: 13px; font-weight: 600; color: var(--text); max-height: 80px; overflow-y: auto;"></div>
           </div>
 
-          <div
-            id="proUpsellBoard"
-            style="
-              display: none;
-              background: #f8fafc;
-              border: 1px dashed #cbd5e1;
-              padding: 15px;
-              border-radius: 15px;
-              margin-bottom: 15px;
-              text-align: center;
-            "
-          >
+          <div id="proUpsellBoard" style="display: none; background: #f8fafc; border: 1px dashed #cbd5e1; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: center;">
             <p style="font-size: 18px; margin: 0 0 5px 0">🔒</p>
-            <p
-              style="
-                font-size: 12px;
-                font-weight: 700;
-                color: var(--muted);
-                margin: 0;
-              "
-            >
-              Competing bids hidden.
-            </p>
-            <a
-              href="pro-hero.html"
-              style="
-                font-size: 11px;
-                color: var(--accent);
-                font-weight: 800;
-                text-decoration: none;
-              "
-              >Upgrade to Pro to unlock →</a
-            >
+            <p style="font-size: 12px; font-weight: 700; color: var(--muted); margin: 0;">Competing bids hidden.</p>
+            <a href="pro-hero.html" style="font-size: 11px; color: var(--accent); font-weight: 800; text-decoration: none;">Upgrade to Pro to unlock →</a>
           </div>
 
-          <label
-            style="
-              font-size: 11px;
-              font-weight: bold;
-              color: var(--muted);
-              display: block;
-              margin-bottom: 8px;
-            "
-            >YOUR TOTAL BID ($)</label
-          >
+          <label style="font-size: 11px; font-weight: bold; color: var(--muted); display: block; margin-bottom: 8px;">YOUR TOTAL BID ($)</label>
+          <input type="number" id="detBidAmount" style="font-size: 20px; font-weight: 800; color: var(--accent); margin-bottom: 15px;" placeholder="0.00" />
 
-          <input
-            type="number"
-            id="detBidAmount"
-            style="
-              font-size: 20px;
-              font-weight: 800;
-              color: var(--accent);
-              margin-bottom: 15px;
-            "
-            placeholder="0.00"
-          />
-
-          <label
-            style="
-              font-size: 11px;
-              font-weight: bold;
-              color: var(--muted);
-              display: block;
-              margin-bottom: 8px;
-            "
-            >ETA TO ARRIVAL</label
-          >
+          <label style="font-size: 11px; font-weight: bold; color: var(--muted); display: block; margin-bottom: 8px;">ETA TO ARRIVAL</label>
           <select id="detBidETA" style="margin-bottom: 15px">
             <option value="5-10 mins">5-10 mins</option>
             <option value="15-20 mins">15-20 mins</option>
@@ -1624,36 +1515,23 @@
             <option value="3 hours+">3 hours+</option>
           </select>
 
-          <button
-            id="detSubmitBidBtn"
-            class="submit-btn"
-            style="background: var(--accent)"
-          >
-            SEND BID
-          </button>
-          <button
-            id="detWithdrawBidBtn"
-            class="submit-btn"
-            style="background: #ef4444; margin-top: 10px; display: none"
-          >
-            WITHDRAW BID
-          </button>
+          <button id="detSubmitBidBtn" class="submit-btn" style="background: var(--accent)">SEND BID</button>
+          <button id="detWithdrawBidBtn" class="submit-btn" style="background: #ef4444; margin-top: 10px; display: none">WITHDRAW BID</button>
         </div>
 
-        <span
-          id="detInProgressText"
-          style="
-            display: none;
-            color: var(--success);
-            font-weight: bold;
-            text-align: center;
-            margin-top: 20px;
-          "
-          >JOB IN PROGRESS...</span
-        >
+        <span id="detInProgressText" style="display: none; color: var(--success); font-weight: bold; text-align: center; margin-top: 20px;">JOB IN PROGRESS...</span>
       </div>
     </div>
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div id="imageEnlargeModal" class="modal">
       <img id="enlargedImage" src="" alt="Enlarged Image" />
       <button
@@ -3514,16 +3392,30 @@
 
       // NEW: Seeker accepts a specific tow truck bid
 
-      window.acceptBid = (sosId, winningHeroId, agreedAmount, agreedEta) => {
+window.acceptBid = (sosId, winningHeroId, agreedAmount, agreedEta) => {
+        // 1. Update the Job Status
         update(ref(db, `sosRequests/${sosId}`), {
           status: "accepted",
           helperId: winningHeroId,
           acceptedPrice: agreedAmount,
-          eta: agreedEta, // NEW: Locks in the ETA!
+          eta: agreedEta,
           helperAcknowledged: false,
         });
+
+        // --- NEW: AUTOMATED HANDSHAKE (Fixes Ghost Chat) ---
+        const chatId = `${sosId}_${winningHeroId}`;
+        push(ref(db, `chats/${chatId}`), {
+          sender: myId, // The Seeker sends the message
+          text: `✅ I have accepted your quote for $${agreedAmount}. See you in ${agreedEta}!`,
+          timestamp: Date.now(),
+          read: false, // Triggers the Hero's unread badge!
+        });
+
         alert("Bid accepted! Connecting you to your Tow Hero now.");
       };
+      
+      
+      
 
       window.launchGame = (url) => {
         const iframe = document.getElementById("gameIframe");
@@ -3889,46 +3781,67 @@
               </div>
             `;
         }
+          
+          
+          
+          
+          document.getElementById("detIssue").innerText = r.issue;
 
-        document.getElementById("detIssue").innerText = r.issue;
-        const dist = userLocation
-          ? (
-              google.maps.geometry.spherical.computeDistanceBetween(
-                new google.maps.LatLng(userLocation.lat, userLocation.lng),
-                new google.maps.LatLng(r.lat, r.lng)
-              ) / 1609
-            ).toFixed(1)
-          : "?";
-        document.getElementById("detDist").innerText =
-          "" + dist + " miles away";
+        // --- NEW: TRIP DASHBOARD CALCULATIONS ---
+        const dist = userLocation ? (google.maps.geometry.spherical.computeDistanceBetween(
+            new google.maps.LatLng(userLocation.lat, userLocation.lng),
+            new google.maps.LatLng(r.lat, r.lng)
+        ) / 1609.34).toFixed(1) : "?";
+        
+        let loadedMiles = "--";
+        if (r.isTowTruckRequest && r.destLat && r.destLng) {
+            loadedMiles = (google.maps.geometry.spherical.computeDistanceBetween(
+                new google.maps.LatLng(r.lat, r.lng),
+                new google.maps.LatLng(r.destLat, r.destLng)
+            ) / 1609.34).toFixed(1);
+        }
+
+        document.getElementById("detDist").innerText = dist + " mi";
+        document.getElementById("detLoadedMiles").innerText = loadedMiles !== "--" ? loadedMiles + " mi" : "--";
+        document.getElementById("detTowDestinationTop").innerText = (r.isTowTruckRequest && r.towDestination) ? r.towDestination : "N/A";
+
+        // --- NEW: COMMAND GRID SETUP ---
+        const detActionGrid = document.getElementById("detActionGrid");
         const detPhoneBtn = document.getElementById("detPhoneBtn");
         const detChatBtn = document.getElementById("detChatBtn");
-        if (r.isTowTruckRequest && r.phoneNumber) {
-          detPhoneBtn.href = `tel:${r.phoneNumber}`;
-          detPhoneBtn.style.display = "flex";
-        } else {
-          detPhoneBtn.style.display = "none";
-        }
-        detChatBtn.onclick = () => {
-          activeChatId = `${id}_${myId}`;
-          window.openChat(activeChatId);
-        };
-        const detTowDestinationElement =
-          document.getElementById("detTowDestination");
-        if (r.isTowTruckRequest && r.towDestination) {
-          detTowDestinationElement.innerText = `Tow Destination: ${r.towDestination}`;
-          detTowDestinationElement.style.display = "block";
-        } else {
-          detTowDestinationElement.style.display = "none";
-        }
-        const detActionBtns = document.getElementById("detActionBtns");
         const detNavBtn = document.getElementById("detNavBtn");
         const detStatusBtn = document.getElementById("detStatusBtn");
+        const detDispatchBtn = document.getElementById("detDispatchBtn");
+
+        // 1. Call & Chat Logic
+        if (r.isTowTruckRequest && r.phoneNumber) {
+            detPhoneBtn.href = `tel:${r.phoneNumber}`;
+            detPhoneBtn.style.opacity = "1";
+            detPhoneBtn.style.pointerEvents = "auto";
+        } else {
+            detPhoneBtn.href = "#";
+            detPhoneBtn.style.opacity = "0.5";
+            detPhoneBtn.style.pointerEvents = "none";
+        }
+        detChatBtn.onclick = () => {
+            activeChatId = `${id}_${myId}`;
+            window.openChat(activeChatId);
+        };
+
+        // 2. Pro Dispatch Lockout Logic
+        const myProfile = profilesCache[myId] || {};
+        if (myProfile.isPro && myProfile.fleetModeActive) {
+            detDispatchBtn.classList.remove("disabled");
+        } else {
+            detDispatchBtn.classList.add("disabled");
+        }
+
         const detETAGroup = document.getElementById("detETAGroup");
         const acceptBtn = document.getElementById("detAcceptBtn");
         const progressText = document.getElementById("detInProgressText");
+        
         if (isHelper && (r.status === "accepted" || r.status === "arrived")) {
-          detActionBtns.style.display = "flex";
+          detActionGrid.style.display = "grid"; // <-- SHOW NEW GRID
           detETAGroup.style.display = "none";
           acceptBtn.style.display = "none";
           progressText.style.display = "block";
@@ -3937,27 +3850,37 @@
 
           let navLink = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
           if (r.isTowTruckRequest && r.towDestination)
-            navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(
-              r.towDestination
-            )}`;
+            navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(r.towDestination)}`;
           detNavBtn.href = navLink;
+          
           if (r.status === "accepted") {
-            detStatusBtn.innerText = "I'M HERE";
+            detStatusBtn.innerHTML = `<div style="font-size:24px; margin-bottom:4px;">📍</div> I'M HERE`;
             detStatusBtn.style.background = "var(--warning)";
+            detStatusBtn.style.borderColor = "var(--warning)";
             detStatusBtn.onclick = () => {
               window.markArrived();
               window.closeModal("detailsModal");
             };
           } else {
-            detStatusBtn.innerText = "JOB DONE";
+            detStatusBtn.innerHTML = `<div style="font-size:24px; margin-bottom:4px;">✅</div> JOB DONE`;
             detStatusBtn.style.background = "var(--success)";
+            detStatusBtn.style.borderColor = "var(--success)";
             detStatusBtn.onclick = () => {
               window.completeTask();
               window.closeModal("detailsModal");
             };
           }
         } else {
-          detActionBtns.style.display = "none";
+          detActionGrid.style.display = "none"; // <-- HIDE GRID
+
+          
+          
+          
+          
+          
+          
+          
+          
 
           if (r.status === "open") {
             progressText.style.display = "none";
