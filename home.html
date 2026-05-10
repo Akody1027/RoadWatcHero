@@ -3448,14 +3448,24 @@
         if (map && userLocation) map.setCenter(userLocation);
       };
 
-      window.openModal = (id) => {
+      
+      
+      
+      
+    window.openModal = (id) => {
         document.getElementById(id).style.display = "flex";
 
-        // NEW: Inject a "fake" history step so the phone knows we opened a view
-        history.pushState({ modalOpen: id }, "", "");
+        // NEW: Safe history push to prevent mobile browser crashes
+        try {
+          history.pushState({ modalOpen: id }, "", "");
+        } catch (e) {
+          console.warn("History API blocked, continuing safely.");
+        }
 
         // Aggressively scrub the form's memory and visuals every time it is opened
         if (id === "requestModal") {
+          
+
           damageImgList = [];
           document.getElementById("damagePreviewList").innerHTML = "";
           document.getElementById("reqIssue").value = "";
@@ -3508,10 +3518,12 @@
           profileRadiusCircle = null;
         }
 
-        // NEW: If they clicked the 'X' button manually, we must erase the fake history step
-        if (history.state && history.state.modalOpen) {
-          history.back();
-        }
+        // NEW: Safe history back check
+        try {
+          if (history.state && history.state.modalOpen) {
+            history.back();
+          }
+        } catch(e) {}
       };
 
       // NEW: Intercept the phone's physical back button / back swipe
