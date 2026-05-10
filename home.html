@@ -3495,6 +3495,11 @@
         }
       };
 
+      
+      
+      
+      
+      
       window.closeModal = (id) => {
         document.getElementById(id).style.display = "none";
 
@@ -5430,8 +5435,7 @@
       
       
       
-      
-      window.openProfile = async () => {
+      window.openProfile = async function() {
         window.openModal("profileModal");
         const snap = await get(ref(db, `profiles/${myId}`));
         if (snap.exists()) {
