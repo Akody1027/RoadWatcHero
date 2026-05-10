@@ -2351,6 +2351,26 @@
                 Both
               </button>
             </div>
+            
+            
+            
+            
+            <div class="toggle-wrapper" style="background: white; border: 1px solid #e2e8f0; margin-bottom: 10px; padding: 10px 15px;">
+  <span class="toggle-label" style="font-weight: 800">Mechanic Shop Mode</span>
+  <label class="toggle-switch">
+    <input type="checkbox" id="mechanicModeToggle" onchange="window.toggleShopAddress(this)" />
+    <span class="slider"></span>
+  </label>
+</div>
+
+<div id="shopAddressPanel" style="display: none; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px;">
+  <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 5px; display: block;">BUSINESS / SHOP ADDRESS</label>
+  <input type="text" id="profileBusinessAddress" placeholder="123 Shop St..." style="margin-bottom: 0" />
+</div>
+            
+            
+
+            
 
             <div
               class="toggle-wrapper"
@@ -2361,57 +2381,7 @@
                 padding: 10px 15px;
               "
             >
-              <span class="toggle-label" style="font-weight: 800"
-                >Mechanic Shop Mode</span
-              >
-              <label class="toggle-switch">
-                <input
-                  type="checkbox"
-                  id="mechanicModeToggle"
-                  onchange="window.toggleShopAddress(this)"
-                />
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div
-              id="shopAddressPanel"
-              style="
-                display: none;
-                background: white;
-                padding: 15px;
-                border-radius: 12px;
-                border: 1px solid #e2e8f0;
-                margin-bottom: 10px;
-              "
-            >
-              <label
-                style="
-                  font-size: 11px;
-                  font-weight: bold;
-                  color: var(--muted);
-                  margin-bottom: 5px;
-                  display: block;
-                "
-                >BUSINESS / SHOP ADDRESS</label
-              >
-              <input
-                type="text"
-                id="profileBusinessAddress"
-                placeholder="123 Shop St..."
-                style="margin-bottom: 0"
-              />
-            </div>
-
-            <div
-              class="toggle-wrapper"
-              style="
-                background: white;
-                border: 1px solid #e2e8f0;
-                margin-bottom: 10px;
-                padding: 10px 15px;
-              "
-            >
+              
               <span class="toggle-label" style="font-weight: 800"
                 >Fleet Dispatch Mode</span
               >
@@ -3161,6 +3131,13 @@
 
       let destLat = null;
       let destLng = null;
+
+
+       window.enterHeroMode = enterHeroMode;
+       window.openModal = openModal;
+       window.switchView = switchView;
+
+
 
       // --- PROFILE SERVICE TYPE SELECTION ---
       let profileEditRole = "tow_truck"; // Default
@@ -5440,6 +5417,9 @@
         window.closeModal("profileModal");
       };
 
+      
+      
+      
       window.openProfile = async () => {
         window.openModal("profileModal");
         const snap = await get(ref(db, `profiles/${myId}`));
@@ -5449,21 +5429,28 @@
           document.getElementById("profileBio").value = d.bio || "";
           if (d.pic) document.getElementById("profileDisplayPic").src = d.pic;
 
+          
+          
+          
+          
           // 1. Get the toggle and panel elements
           const shopToggle = document.getElementById("mechanicModeToggle");
           const shopPanel = document.getElementById("shopAddressPanel");
 
-          // 2. Check Firebase data for the saved state
-          shopToggle.checked = d.mechanicModeActive === true;
-
-          // 3. Set the visibility of the address input based on that state
-          if (shopToggle.checked) {
-            shopPanel.style.display = "block";
-            document.getElementById("profileBusinessAddress").value =
-              d.businessAddress || "";
-          } else {
-            shopPanel.style.display = "none";
+          // 2. Safety Check: Only run if the HTML actually exists
+          if (shopToggle && shopPanel) {
+            shopToggle.checked = d.mechanicModeActive === true;
+            if (shopToggle.checked) {
+              shopPanel.style.display = "block";
+              document.getElementById("profileBusinessAddress").value = d.businessAddress || "";
+            } else {
+              shopPanel.style.display = "none";
+            } 
           }
+          
+
+          
+          
 
           const currentRadius = d.radius || myRadius;
           myRadius = currentRadius;
@@ -5534,10 +5521,6 @@
             });
         }
       };
-
-window.enterHeroMode = enterHeroMode;
-window.openModal = openModal;
-window.switchView = switchView;
 
 
 
