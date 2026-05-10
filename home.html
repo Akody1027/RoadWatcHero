@@ -4180,7 +4180,10 @@
 
           document.getElementById("detBidSection").style.display = "none";
 
-          let navLink = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
+          
+          
+          let navLink = `https://maps.google.com/?q=${r.lat},${r.lng}`;
+          
           if (r.isTowTruckRequest && r.towDestination)
             navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(
               r.towDestination
@@ -5387,32 +5390,7 @@
           "prefersRoadsideRequests"
         ).checked;
 
-        update(ref(db, `profiles/${myId}`), {
-          name: document.getElementById("profileName").value,
-          bio: document.getElementById("profileBio").value,
-          pic: document.getElementById("profileDisplayPic").src,
-          radius: myRadius,
-          prefersTowTruckRequests: prefersTowTruckRequests,
-          prefersRoadsideRequests: prefersRoadsideRequests,
 
-          mechanicModeActive:
-            document.getElementById("mechanicModeToggle").checked,
-          businessAddress: document.getElementById("profileBusinessAddress")
-            .value,
-
-          baseRate: document.getElementById("profileBaseRate").value || 0,
-          pricePerMile: document.getElementById("profilePerMile").value || 0,
-          dispatchPhone:
-            document.getElementById("profileDispatchPhone").value || "",
-          businessAddress: document.getElementById("profileBusinessAddress")
-            ? document.getElementById("profileBusinessAddress").value
-            : "",
-          heroType: profileEditRole,
-          fleetModeActive: document.getElementById("fleetModeToggle")
-            ? document.getElementById("fleetModeToggle").checked: false,
-
-          fleetDrivers: window.fleetDrivers || [],
-        });
 
         if (profileRadiusCircle) {
           profileRadiusCircle.setMap(null);
@@ -5423,7 +5401,28 @@
       };
 
       
-      
+      update(ref(db, `profiles/${myId}`), {
+          name: document.getElementById("profileName").value,
+          bio: document.getElementById("profileBio").value,
+          pic: document.getElementById("profileDisplayPic").src,
+          radius: myRadius,
+          prefersTowTruckRequests: prefersTowTruckRequests,
+          prefersRoadsideRequests: prefersRoadsideRequests,
+
+          mechanicModeActive: document.getElementById("mechanicModeToggle").checked,
+          
+          baseRate: document.getElementById("profileBaseRate").value || 0,
+          pricePerMile: document.getElementById("profilePerMile").value || 0,
+          dispatchPhone: document.getElementById("profileDispatchPhone").value || "",
+          businessAddress: document.getElementById("profileBusinessAddress")
+            ? document.getElementById("profileBusinessAddress").value
+            : "",
+          heroType: profileEditRole,
+          fleetModeActive: document.getElementById("fleetModeToggle")
+            ? document.getElementById("fleetModeToggle").checked: false,
+
+          fleetDrivers: window.fleetDrivers || [],
+        });
       
       window.openProfile = async () => {
         window.openModal("profileModal");
