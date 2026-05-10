@@ -5427,8 +5427,7 @@
             : "",
           heroType: profileEditRole,
           fleetModeActive: document.getElementById("fleetModeToggle")
-            ? document.getElementById("fleetModeToggle").checked
-            : false,
+            ? document.getElementById("fleetModeToggle").checked: false,
 
           fleetDrivers: window.fleetDrivers || [],
         });
@@ -5535,6 +5534,14 @@
             });
         }
       };
+
+window.enterHeroMode = enterHeroMode;
+window.openModal = openModal;
+window.switchView = switchView;
+
+
+
+      
     </script>
   </body>
 </html>
