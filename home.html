@@ -5380,6 +5380,7 @@
           updateSeekerMiniMap(myActiveSOS, profilesCache[myActiveSOS.helperId]);
       });
 
+      
       window.saveProfile = () => {
         myRadius = parseInt(document.getElementById("profileRadius").value);
         localStorage.setItem("heroRadius", myRadius);
@@ -5390,18 +5391,8 @@
           "prefersRoadsideRequests"
         ).checked;
 
-
-
-        if (profileRadiusCircle) {
-          profileRadiusCircle.setMap(null);
-          profileRadiusCircle = null;
-        }
-        if (map && userLocation) map.setCenter(userLocation);
-        window.closeModal("profileModal");
-      };
-
-      
-      update(ref(db, `profiles/${myId}`), {
+        // The update block is now safely INSIDE the function
+        update(ref(db, `profiles/${myId}`), {
           name: document.getElementById("profileName").value,
           bio: document.getElementById("profileBio").value,
           pic: document.getElementById("profileDisplayPic").src,
@@ -5418,11 +5409,27 @@
             ? document.getElementById("profileBusinessAddress").value
             : "",
           heroType: profileEditRole,
-          fleetModeActive: document.getElementById("fleetModeToggle")
+          fleetModeActive: document.getElementById("fleetModeToggle") 
             ? document.getElementById("fleetModeToggle").checked: false,
 
           fleetDrivers: window.fleetDrivers || [],
         });
+
+        if (profileRadiusCircle) {
+          profileRadiusCircle.setMap(null);
+          profileRadiusCircle = null;
+        }
+        if (map && userLocation) map.setCenter(userLocation);
+        window.closeModal("profileModal");
+      };
+      
+      
+
+      
+      
+      
+      
+      
       
       window.openProfile = async () => {
         window.openModal("profileModal");
@@ -5433,10 +5440,6 @@
           document.getElementById("profileBio").value = d.bio || "";
           if (d.pic) document.getElementById("profileDisplayPic").src = d.pic;
 
-          
-          
-          
-          
           // 1. Get the toggle and panel elements
           const shopToggle = document.getElementById("mechanicModeToggle");
           const shopPanel = document.getElementById("shopAddressPanel");
