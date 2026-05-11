@@ -1375,6 +1375,9 @@
       </div>
       <div class="footer">
         <div class="footer-icons">
+          
+          
+          
           <div style="position: relative">
             <img
               src="Historyicon.png"
@@ -1382,6 +1385,10 @@
               onclick="window.openModal('notifModal')"
             />
           </div>
+          
+          
+          
+          
           <img
             src="thishomeicon.png"
             class="icon-btn"
@@ -2068,7 +2075,10 @@
         </div>
       </div>
     </div>
-
+</div>
+    
+    
+    
     <div id="cancelConfirmModal" class="modal">
       <div class="modal-content">
         <h3>Cancel SOS?</h3>
@@ -3093,6 +3103,16 @@
 
       // NEW: Initialize Auth
       const auth = getAuth(app);
+      
+      // EXPOSE NAVIGATION TO WINDOW SCOPE
+
+
+      window.openJobBoard = () => {
+          window.location.href = "jobboard.html";
+      };
+
+ 
+      
 
       if (!localStorage.getItem("heroUserId"))
         localStorage.setItem(
@@ -3100,7 +3120,12 @@
           "u_" + Math.random().toString(36).substr(2, 9)
         );
       let myId = localStorage.getItem("heroUserId");
+      
+      
 
+
+
+      
       let map,
         seekerMiniMap,
         userLocation,
@@ -3448,11 +3473,7 @@
         if (map && userLocation) map.setCenter(userLocation);
       };
 
-      
-      
-      
-      
-    window.openModal = (id) => {
+      window.openModal = (id) => {
         document.getElementById(id).style.display = "flex";
 
         // NEW: Safe history push to prevent mobile browser crashes
@@ -3461,6 +3482,7 @@
         } catch (e) {
           console.warn("History API blocked, continuing safely.");
         }
+    
 
         // Aggressively scrub the form's memory and visuals every time it is opened
         if (id === "requestModal") {
@@ -5353,7 +5375,7 @@
               document.getElementById("towDestinationInput").value =
                 myActive.towDestination;
               document
-                .getElementById("towDestinationInput")
+                .getElementById("towDestinationInput") 
                 .setAttribute("required", "required");
             }
           } else {
@@ -5384,40 +5406,34 @@
         )
           updateSeekerMiniMap(myActiveSOS, profilesCache[myActiveSOS.helperId]);
       });
-
       
-      window.saveProfile = () => {
-        myRadius = parseInt(document.getElementById("profileRadius").value);
+
+  window.saveProfile = () => {
+        const radiusEl = document.getElementById("profileRadius");
+        const nameEl = document.getElementById("profileName");
+        const bioEl = document.getElementById("profileBio");
+        const picEl = document.getElementById("profileDisplayPic");
+        const towReqEl = document.getElementById("prefersTowTruckRequests");
+        const roadReqEl = document.getElementById("prefersRoadsideRequests");
+
+        myRadius = radiusEl ? parseInt(radiusEl.value) : 25;
         localStorage.setItem("heroRadius", myRadius);
-        const prefersTowTruckRequests = document.getElementById(
-          "prefersTowTruckRequests"
-        ).checked;
-        const prefersRoadsideRequests = document.getElementById(
-          "prefersRoadsideRequests"
-        ).checked;
 
-        // The update block is now safely INSIDE the function
         update(ref(db, `profiles/${myId}`), {
-          name: document.getElementById("profileName").value,
-          bio: document.getElementById("profileBio").value,
-          pic: document.getElementById("profileDisplayPic").src,
+          name: nameEl ? nameEl.value : "",
+          bio: bioEl ? bioEl.value : "",
+          pic: picEl ? picEl.src : "",
           radius: myRadius,
-          prefersTowTruckRequests: prefersTowTruckRequests,
-          prefersRoadsideRequests: prefersRoadsideRequests,
-
-          mechanicModeActive: document.getElementById("mechanicModeToggle").checked,
-          
-          baseRate: document.getElementById("profileBaseRate").value || 0,
-          pricePerMile: document.getElementById("profilePerMile").value || 0,
-          dispatchPhone: document.getElementById("profileDispatchPhone").value || "",
-          businessAddress: document.getElementById("profileBusinessAddress")
-            ? document.getElementById("profileBusinessAddress").value
-            : "",
-          heroType: profileEditRole,
-          fleetModeActive: document.getElementById("fleetModeToggle") 
-            ? document.getElementById("fleetModeToggle").checked: false,
-
-          fleetDrivers: window.fleetDrivers || [],
+          prefersTowTruckRequests: towReqEl ? towReqEl.checked : false,
+          prefersRoadsideRequests: roadReqEl ? roadReqEl.checked : true,
+          mechanicModeActive: document.getElementById("mechanicModeToggle")?.checked || false,
+          baseRate: document.getElementById("profileBaseRate")?.value || 0,
+          pricePerMile: document.getElementById("profilePerMile")?.value || 0,
+          dispatchPhone: document.getElementById("profileDispatchPhone")?.value || "",
+          businessAddress: document.getElementById("profileBusinessAddress")?.value || "",
+          heroType: profileEditRole || "tow_truck",
+          fleetModeActive: document.getElementById("fleetModeToggle")?.checked || false,
+          fleetDrivers: window.fleetDrivers || []
         });
 
         if (profileRadiusCircle) {
@@ -5427,46 +5443,38 @@
         if (map && userLocation) map.setCenter(userLocation);
         window.closeModal("profileModal");
       };
+  
       
       
 
-      
-      
-      
-      
-      
       window.openProfile = async function() {
         window.openModal("profileModal");
         const snap = await get(ref(db, `profiles/${myId}`));
         if (snap.exists()) {
           const d = snap.val();
-          document.getElementById("profileName").value = d.name || "";
-          document.getElementById("profileBio").value = d.bio || "";
-          if (d.pic) document.getElementById("profileDisplayPic").src = d.pic;
+          if(document.getElementById("profileName")) document.getElementById("profileName").value = d.name || "";
+          if(document.getElementById("profileBio")) document.getElementById("profileBio").value = d.bio || "";
+          if (d.pic && document.getElementById("profileDisplayPic")) document.getElementById("profileDisplayPic").src = d.pic;
 
-          // 1. Get the toggle and panel elements
           const shopToggle = document.getElementById("mechanicModeToggle");
           const shopPanel = document.getElementById("shopAddressPanel");
+          const shopAddrInput = document.getElementById("profileBusinessAddress");
 
-          // 2. Safety Check: Only run if the HTML actually exists
           if (shopToggle && shopPanel) {
-            shopToggle.checked = d.mechanicModeActive === true;
-            if (shopToggle.checked) {
-              shopPanel.style.display = "block";
-              document.getElementById("profileBusinessAddress").value = d.businessAddress || "";
-            } else {
-              shopPanel.style.display = "none";
-            } 
+            // Fix: Check for both possible variable names from your previous versions
+            const isMechanic = d.mechanicModeActive === true || d.mechanicModeToggle === true;
+            shopToggle.checked = isMechanic;
+            shopPanel.style.display = isMechanic ? "block" : "none";
+            if (isMechanic && shopAddrInput) {
+              shopAddrInput.value = d.businessAddress || "";
+            }
           }
-          
-
-          
-          
 
           const currentRadius = d.radius || myRadius;
           myRadius = currentRadius;
-          document.getElementById("profileRadius").value = currentRadius;
-          document.getElementById("radiusVal").innerText = currentRadius;
+          if(document.getElementById("profileRadius")) document.getElementById("profileRadius").value = currentRadius;
+          if(document.getElementById("radiusVal")) document.getElementById("radiusVal").innerText = currentRadius;
+     
           document.getElementById("prefersTowTruckRequests").checked =
             d.prefersTowTruckRequests === true;
 
@@ -5476,7 +5484,7 @@
             d.pricePerMile || "";
 
           document.getElementById("profileDispatchPhone").value =
-            d.dispatchPhone || "";
+            d.dispatchPhone || ""; 
 
           if (document.getElementById("profileBusinessAddress")) {
             document.getElementById("profileBusinessAddress").value =
@@ -5514,6 +5522,9 @@
             d.prefersRoadsideRequests !== false;
         }
       };
+      
+
+      
 
       window.confirmDeleteActivityPrompt = (id) => {
         activityToDeleteId = id;
