@@ -13,159 +13,136 @@
         :root { --accent: #EE611C; --bg: #f4f7f9; --surface: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
         body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
 
-        /* HEADER: LOGO LEFT, TITLE RIGHT */
-        .hub-module-header { 
-            background: var(--surface); 
-            padding: 15px 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid var(--border);
-            height: 70px;
-        }
-        .logo-box img { height: 40px; width: auto; } /* Placeholder for your logo */
-        .hub-title { font-size: 18px; font-weight: 900; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+        /* HEADER & NAV STRIP */
+        .hub-module-header { background: var(--surface); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); height: 70px; }
+        .logo-box img { height: 40px; width: auto; }
+        .hub-title { font-size: 18px; font-weight: 900; color: var(--accent); text-transform: uppercase; }
 
-        /* IMAGE-BASED NAVIGATION */
-        .nav-strip { 
-            display: flex; 
-            background: var(--surface); 
-            border-bottom: 1px solid var(--border);
-            height: 60px;
-        }
-        .nav-item { 
-            flex: 1; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            transition: 0.2s;
-            border-right: 1px solid var(--border);
-        }
-        .nav-item:last-child { border-right: none; }
-        .nav-item img { width: 30px; height: 30px; object-fit: contain; filter: grayscale(1); opacity: 0.6; }
-        .nav-item.active { background: #fff8f5; }
-        .nav-item.active img { filter: none; opacity: 1; }
+        .nav-strip { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); height: 60px; }
+        .nav-item { flex: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; border-right: 1px solid var(--border); }
+        .nav-item img { width: 28px; height: 28px; object-fit: contain; }
 
-        /* TOP-DOWN SEARCH DRAWER (25% Width, 100% Height) */
+        /* LEFT-SIDE SEARCH MODULE (25% Width) */
         #searchModule { 
-            position: fixed; 
-            top: -100%; /* Hidden above */
-            right: 0; 
+            position: absolute; 
+            top: 130px; /* Under Header + Nav */
+            left: -25%; 
             width: 25%; 
-            height: 100%; 
+            height: calc(100vh - 130px); 
             background: var(--surface); 
-            z-index: 200; 
-            box-shadow: -5px 0 20px rgba(0,0,0,0.1);
-            transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
+            z-index: 100; 
+            border-right: 1px solid var(--border);
+            transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
         }
-        #searchModule.open { top: 0; }
-        .module-padding { padding: 25px; flex: 1; overflow-y: auto; }
+        #searchModule.open { left: 0; }
 
-        /* VERTICAL LIST CATEGORIES */
-        .vertical-cat-list { margin-top: 15px; }
-        .cat-row { 
-            padding: 15px; 
-            border-bottom: 1px solid var(--border); 
-            font-weight: 700; 
-            font-size: 14px; 
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* FEED AREA (Adjusts when Sidebar opens) */
+        .module-body { 
+            height: calc(100vh - 130px); 
+            overflow-y: auto; 
+            padding: 20px; 
+            transition: margin-left 0.4s ease;
         }
-        .cat-row:active { background: var(--bg); }
-        .cat-row::after { content: '→'; color: var(--accent); font-size: 18px; }
+        .module-body.shifted { margin-left: 25%; }
 
-        /* MODULE CONTENT AREA */
-        .module-body { height: calc(100vh - 130px); overflow-y: auto; padding: 15px; }
-        .empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
-
-        .input-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
-        
-        @media (max-width: 768px) {
-            #searchModule { width: 80%; } /* Mobile adjustment for the 25% width */
+        /* BUSINESS POST STRUCTURE (GHOST CARDS) */
+        .post-structure { 
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            margin-bottom: 25px; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto;
+            overflow: hidden;
         }
+        .post-header { display: flex; align-items: center; padding: 12px; border-bottom: 1px solid #f8fafc; }
+        .user-icon-circle { width: 35px; height: 35px; border-radius: 50%; background: #e2e8f0; border: 1px solid var(--border); }
+        .biz-name-placeholder { flex: 1; text-align: center; font-weight: 800; font-size: 14px; color: var(--muted); text-transform: uppercase; }
+        .post-image-square { width: 100%; aspect-ratio: 1 / 1; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-weight: 700; }
+        .post-footer { padding: 15px; border-top: 1px solid #f8fafc; }
+
+        /* VERTICAL LIST */
+        .cat-row { padding: 12px 20px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; }
+        .cat-row:hover { background: #fff8f5; color: var(--accent); }
+
+        .input-box { width: 90%; margin: 10px auto; display: block; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
     </style>
 </head>
 <body>
 
     <div class="hub-module-header">
-        <div class="logo-box">
-            <img src="https://www.roadwatchero.com/assets/logo-placeholder.png" alt="Road Watch Hero">
-        </div>
+        <div class="logo-box"><img src="https://www.roadwatchero.com/assets/logo-placeholder.png" alt="RW Hero"></div>
         <div class="hub-title">Hero Hub</div>
     </div>
 
     <div class="nav-strip">
         <div class="nav-item" onclick="toggleSearch()"><img src="https://www.roadwatchero.com/assets/nav/search-icon.png" alt="Search"></div>
-        <div class="nav-item active" id="nav-home" onclick="switchView('home')"><img src="https://www.roadwatchero.com/assets/nav/home-icon.png" alt="Home"></div>
-        <div class="nav-item" id="nav-profile" onclick="switchView('profile')"><img src="https://www.roadwatchero.com/assets/nav/user-icon.png" alt="Profile"></div>
+        <div class="nav-item" onclick="switchView('home')"><img src="https://www.roadwatchero.com/assets/nav/home-icon.png" alt="Home"></div>
+        <div class="nav-item" onclick="switchView('profile')"><img src="https://www.roadwatchero.com/assets/nav/user-icon.png" alt="Profile"></div>
     </div>
 
     <div id="searchModule">
-        <div class="module-padding">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
-                <h2 style="margin:0; font-size:20px;">Filters</h2>
-                <button onclick="toggleSearch()" style="border:none; background:none; font-size:20px; cursor:pointer;">✕</button>
-            </div>
-
-            <label style="font-size:11px; font-weight:800; color:var(--muted); display:block; margin-bottom:5px;">LOCATION</label>
-            <input type="text" class="input-box" placeholder="Enter City/Address">
-
-            <label style="font-size:11px; font-weight:800; color:var(--muted); display:block; margin-bottom:5px;">RADIUS</label>
-            <input type="range" min="5" max="100" value="25" style="width:100%; accent-color:var(--accent);">
-
-            <label style="font-size:11px; font-weight:800; color:var(--muted); display:block; margin-top:30px; margin-bottom:10px;">AUTOMOTIVE CATEGORIES</label>
-            <div class="vertical-cat-list">
-                <div class="cat-row" onclick="filter('Towing')">Towing Services</div>
-                <div class="cat-row" onclick="filter('Mechanic')">Mobile Mechanic</div>
-                <div class="cat-row" onclick="filter('Detailing')">Auto Detailing</div>
-                <div class="cat-row" onclick="filter('Tires')">Tire Repair & Replace</div>
-                <div class="cat-row" onclick="filter('Locksmith')">Auto Locksmith</div>
-                <div class="cat-row" onclick="filter('Tint')">Window Tinting</div>
-                <div class="cat-row" onclick="filter('Glass')">Auto Glass Repair</div>
-            </div>
+        <div style="padding: 20px;">
+            <h3 style="margin-top:0; font-size: 16px;">Filter Results</h3>
+            <input type="text" class="input-box" placeholder="City / Address">
+            <input type="range" min="5" max="100" value="25" style="width:90%; margin: 10px auto; display:block; accent-color: var(--accent);">
+            
+            <p style="font-size: 10px; font-weight: 800; color: var(--muted); margin-top: 25px; padding-left: 5px;">CATEGORIES</p>
+            <div class="cat-row">Towing Services <span>→</span></div>
+            <div class="cat-row">Mobile Mechanic <span>→</span></div>
+            <div class="cat-row">Auto Detailing <span>→</span></div>
+            <div class="cat-row">Tire Repair <span>→</span></div>
+            <div class="cat-row">Auto Locksmith <span>→</span></div>
         </div>
     </div>
 
     <div id="view-home" class="module-body">
-        <div class="empty-state">
-            <div style="font-size:40px; margin-bottom:10px;">⏳</div>
-            <h3 style="margin:0;">Waiting for Business to Post</h3>
-            <p style="font-size:14px;">There are no active heroes in this area yet.</p>
+        
+        <div style="text-align:center; padding: 20px; color: var(--muted);">
+            <h2 style="margin:0; font-size: 18px;">Waiting for Businesses to Post...</h2>
+            <p style="font-size: 12px;">This is how the marketplace will appear:</p>
         </div>
-    </div>
 
-    <div id="view-profile" class="module-body" style="display:none; padding:40px 20px;">
-        <div style="background:white; border:1px solid var(--border); border-radius:12px; padding:25px; text-align:center;">
-            <h3>Hero Dashboard</h3>
-            <p style="color:var(--muted); font-size:14px; margin-bottom:20px;">Sign in to manage your professional listing.</p>
-            <input type="email" class="input-box" placeholder="Email">
-            <input type="password" class="input-box" placeholder="Password">
-            <button style="width:100%; background:var(--accent); color:white; border:none; padding:15px; border-radius:8px; font-weight:800;">LOGIN</button>
+        <div class="post-structure">
+            <div class="post-header">
+                <div class="user-icon-circle"></div>
+                <div class="biz-name-placeholder">Business Name Here</div>
+            </div>
+            <div class="post-image-square">POST IMAGE AREA</div>
+            <div class="post-footer">
+                <div style="width:100%; height:45px; background: #10b981; border-radius: 8px;"></div>
+            </div>
         </div>
+
+        <div class="post-structure" style="opacity: 0.6;">
+            <div class="post-header">
+                <div class="user-icon-circle"></div>
+                <div class="biz-name-placeholder">Business Name Here</div>
+            </div>
+            <div class="post-image-square">POST IMAGE AREA</div>
+            <div class="post-footer">
+                <div style="width:100%; height:45px; background: #10b981; border-radius: 8px;"></div>
+            </div>
+        </div>
+
     </div>
 
     <script>
         function toggleSearch() {
-            document.getElementById('searchModule').classList.toggle('open');
+            const module = document.getElementById('searchModule');
+            const body = document.getElementById('view-home');
+            const isOpen = module.classList.toggle('open');
+            if(isOpen) {
+                body.classList.add('shifted');
+            } else {
+                body.classList.remove('shifted');
+            }
         }
 
         function switchView(view) {
-            document.getElementById('view-home').style.display = view === 'home' ? 'block' : 'none';
-            document.getElementById('view-profile').style.display = view === 'profile' ? 'block' : 'none';
-            
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('nav-' + view).classList.add('active');
-        }
-
-        function filter(cat) {
-            console.log("Filtering by:", cat);
-            toggleSearch(); // Close on selection
+            // Logic for switching tabs
         }
     </script>
 </body>
