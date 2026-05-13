@@ -3,86 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hero Hub Marketplace</title>
+    <title>Hero Hub Engine</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --accent: #EE611C; --bg: #ffffff; --secondary: #f1f5f9; --text: #0f172a; --muted: #64748b; }
-        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+        :root { --accent: #EE611C; --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
+        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 20px; }
+        * { box-sizing: border-box; }
+
+        /* TOP NAVIGATION TABS */
+        .hub-nav { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 200; }
+        .nav-tab { flex: 1; padding: 15px; text-align: center; font-weight: 800; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; font-size: 14px; text-transform: uppercase; }
+        .nav-tab.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
+
+        /* VIEW CONTAINERS */
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+
+        /* --- MARKETPLACE VIEW --- */
+        .search-header { background: var(--surface); padding: 15px; border-bottom: 1px solid var(--border); }
+        .search-bar { display: flex; background: var(--bg); border-radius: 12px; padding: 8px 15px; align-items: center; border: 1px solid var(--border); }
+        #searchInput { flex: 1; border: none; background: none; outline: none; font-size: 16px; padding: 5px; }
+        .filter-btn { font-size: 20px; color: var(--accent); cursor: pointer; padding-left: 10px; border-left: 1px solid var(--border); }
         
-        /* SEARCH & SETTINGS BAR */
-        .hub-header { position: sticky; top: 0; background: white; z-index: 100; padding: 12px; border-bottom: 1px solid #e2e8f0; }
-        .search-row { display: flex; align-items: center; background: var(--secondary); border-radius: 10px; padding: 5px 12px; }
-        #searchInput { flex: 1; border: none; background: none; padding: 10px; outline: none; font-size: 16px; }
-        .settings-icon { font-size: 20px; cursor: pointer; color: var(--accent); padding-left: 10px; }
+        #settingsDropdown { display: none; padding: 15px; background: var(--surface); border-bottom: 1px solid var(--border); }
+        .slider-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--muted); margin-bottom: 10px; }
+        input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+        .feed-container { padding: 15px; }
+        .hero-card { background: var(--surface); border-radius: 16px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+        .hero-img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
+        .hero-info { padding: 16px; }
+        .hero-title { font-size: 18px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+        .verified { color: var(--accent); font-size: 14px; background: #fff0eb; padding: 2px 8px; border-radius: 12px; }
+        .hero-meta { font-size: 13px; color: var(--muted); margin: 5px 0 10px 0; font-weight: 600; }
+        .btn-call { display: block; width: 100%; background: #10b981; color: white; padding: 14px; text-align: center; border-radius: 10px; text-decoration: none; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- PRO PORTAL VIEW (AUTH & DASHBOARD) --- */
+        #authGate { padding: 30px 20px; }
+        .auth-card { background: var(--surface); padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; }
+        .input-field { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; }
+        .btn-primary { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; text-transform: uppercase; }
         
-        /* DISTANCE SLIDER DROPDOWN */
-        #settingsDropdown { display: none; padding: 15px; background: white; border-bottom: 1px solid #e2e8f0; animation: slideDown 0.2s ease; }
-        .slider-meta { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--muted); margin-bottom: 10px; }
-        input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+        .upsell-box { margin-top: 30px; padding-top: 25px; border-top: 2px dashed var(--border); }
+        .price { font-size: 28px; font-weight: 900; color: var(--accent); margin: 10px 0; display: block; }
+        
+        #proDashboard { display: none; padding: 20px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-box { background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
+        .stat-num { font-size: 32px; font-weight: 900; color: var(--accent); }
+        .stat-label { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
 
-        /* AUTH & PRO UPSELL */
-        #authGate { padding: 30px 20px; text-align: center; }
-        .auth-container { max-width: 400px; margin: auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .auth-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
-        .btn-action { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 16px; margin-top: 15px; cursor: pointer; }
-        .pro-promo { margin-top: 25px; padding-top: 20px; border-top: 1px dashed #cbd5e1; }
-        .price-tag { color: var(--accent); font-size: 24px; font-weight: 900; display: block; margin: 10px 0; }
+        .creator-card { background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); }
+        .creator-title { font-weight: 800; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
+        textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; resize: none; margin-bottom: 5px; }
+        .char-count { font-size: 12px; color: var(--muted); text-align: right; margin-bottom: 15px; display: block; }
+        .timer-notice { font-size: 12px; font-weight: 700; color: #ef4444; background: #fef2f2; padding: 8px; border-radius: 6px; margin-bottom: 15px; text-align: center; }
 
-        /* FEED & CARDS */
-        #marketplaceFeed { padding: 15px; }
-        .hero-card { background: white; border: 1px solid #e2e8f0; border-radius: 15px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .hero-img { width: 100%; height: 180px; object-fit: cover; }
-        .hero-details { padding: 15px; }
-        .hero-title { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 5px; }
-        .verified-check { color: var(--accent); font-size: 16px; }
-        .btn-call { display: block; background: #10b981; color: white; text-align: center; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 800; margin-top: 15px; }
-
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div class="hub-header">
-        <div class="search-row">
-            <input type="text" id="searchInput" placeholder="Search Towing, Mechanic, Detailer..." onkeyup="filterFeed()">
-            <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
-        </div>
+    <audio id="pingSound" src="https://www.roadwatchero.com/assets/ping.mp3" preload="auto"></audio>
+
+    <div class="hub-nav">
+        <div class="nav-tab active" id="tabBtn-marketplace" onclick="switchTab('marketplace')">Marketplace</div>
+        <div class="nav-tab" id="tabBtn-portal" onclick="switchTab('portal')">Pro Portal</div>
     </div>
 
-    <div id="settingsDropdown">
-        <div class="slider-meta">
-            <span>DISTANCE RADIUS</span>
-            <span id="radiusText">50 MILES</span>
-        </div>
-        <input type="range" id="radiusSlider" min="5" max="250" value="50" oninput="updateRadius(this.value)">
-    </div>
-
-    <div id="authGate" style="display: none;">
-        <div class="auth-container">
-            <h2 style="margin-top: 0;">Hero Pro Portal</h2>
-            <input type="email" id="email" class="auth-input" placeholder="Email Address">
-            <input type="password" id="pass" class="auth-input" placeholder="Password">
-            <button class="btn-action" onclick="handleLogin()">LOGIN TO DASHBOARD</button>
-            
-            <div class="pro-promo">
-                <p style="font-weight: 700; margin: 0;">WANT MORE LEADS?</p>
-                <span class="price-tag">$9.99 / Month</span>
-                <p style="font-size: 13px; color: var(--muted);">Join the Hero Hub network. Get listed, get calls, grow your business.</p>
-                <button class="btn-action" style="background: #1e293b;" onclick="window.location.href='YOUR_STRIPE_LINK'">SIGN UP TO BE A PRO</button>
+    <div id="view-marketplace" class="view-section active">
+        <div class="search-header">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search Towing, Mechanic..." onkeyup="searchFeed()">
+                <div class="filter-btn" onclick="toggleSettings()">⚙️</div>
             </div>
         </div>
+
+        <div id="settingsDropdown">
+            <div class="slider-header">
+                <span>SEARCH RADIUS</span>
+                <span id="radiusLabel">25 MILES</span>
+            </div>
+            <input type="range" min="5" max="100" value="25" oninput="updateRadius(this.value)">
+        </div>
+
+        <div class="feed-container" id="feedList">
+            </div>
     </div>
 
-    <div id="marketplaceFeed"></div>
+    <div id="view-portal" class="view-section">
+        
+        <div id="authGate">
+            <div class="auth-card">
+                <h2 style="margin-top:0">Hero Login</h2>
+                <input type="email" id="proEmail" class="input-field" placeholder="Email Address">
+                <input type="password" id="proPass" class="input-field" placeholder="Password">
+                <button class="btn-primary" onclick="loginPro()">ACCESS DASHBOARD</button>
+                
+                <div class="upsell-box">
+                    <span style="font-weight: 800; color: var(--muted);">NOT A VERIFIED PRO?</span>
+                    <span class="price">$9.99 / mo</span>
+                    <p style="font-size: 14px; margin-bottom: 20px;">List your business, receive direct calls, and get access to the lead dashboard.</p>
+                    <button class="btn-primary" style="background: #1e293b;" onclick="window.open('YOUR_STRIPE_LINK', '_blank')">SUBSCRIBE VIA STRIPE</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="proDashboard">
+            <h2 style="margin-top:0;">My Dashboard <span style="float:right; font-size:12px; color:var(--accent); cursor:pointer;" onclick="logoutPro()">Logout</span></h2>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-num" id="statViews">0</div>
+                    <div class="stat-label">Profile Views</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="statCalls">0</div>
+                    <div class="stat-label">Calls Received</div>
+                </div>
+            </div>
+
+            <div class="creator-card">
+                <h3 class="creator-title">Manage Active Listing</h3>
+                <div class="timer-notice">⏱ Your listing expires in 28 Days</div>
+                
+                <input type="file" id="adImage" class="input-field" accept="image/*" style="padding: 10px;">
+                <input type="text" id="adCategory" class="input-field" placeholder="Category (e.g., Towing, Mobile Detail)">
+                
+                <textarea id="adDesc" placeholder="Describe your services..." maxlength="250" oninput="updateCharCount(this)"></textarea>
+                <span class="char-count"><span id="charNum">0</span>/250</span>
+
+                <button class="btn-primary" onclick="saveListing()">PUBLISH LISTING</button>
+            </div>
+        </div>
+
+    </div>
 
     <script>
-        // FIREBASE INTEGRATION - Using your roadsidehero-104ea credentials
+        // 1. FIREBASE INITIALIZATION
         const firebaseConfig = {
-            apiKey: "AIzaSyAzY...", // Retrieval shortened for space; use your full home.html key
+            apiKey: "AIzaSyAzY...", // Insert your actual key
             authDomain: "roadsidehero-104ea.firebaseapp.com",
             projectId: "roadsidehero-104ea",
             storageBucket: "roadsidehero-104ea.appspot.com",
@@ -93,87 +157,116 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // 1. SETTINGS & RADIUS
+        // 2. TAB NAVIGATION LOGIC
+        function switchTab(tabName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(`view-${tabName}`).classList.add('active');
+            document.getElementById(`tabBtn-${tabName}`).classList.add('active');
+
+            if(tabName === 'marketplace') loadMarketplace();
+        }
+
+        // 3. UI CONTROLS (Marketplace)
         function toggleSettings() {
-            const ds = document.getElementById('settingsDropdown');
-            ds.style.display = ds.style.display === 'block' ? 'none' : 'block';
+            const el = document.getElementById('settingsDropdown');
+            el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
-
         function updateRadius(val) {
-            document.getElementById('radiusText').innerText = val + " MILES";
-            // In a real app, this would trigger a GeoFirestore query
+            document.getElementById('radiusLabel').innerText = val + " MILES";
+            // Re-trigger feed load based on radius
         }
 
-        // 2. AUTHENTICATION & PRO CHECK
+        // 4. AUTHENTICATION & DASHBOARD STATE
         auth.onAuthStateChanged(user => {
-            if (!user) {
-                // If they are trying to access 'My Profile', show authGate
-                // For now, marketplace stays public
+            const gate = document.getElementById('authGate');
+            const dash = document.getElementById('proDashboard');
+            if (user) {
+                gate.style.display = 'none';
+                dash.style.display = 'block';
+                loadProStats(user.uid);
+            } else {
+                gate.style.display = 'block';
+                dash.style.display = 'none';
             }
         });
 
-        async function handleLogin() {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
+        async function loginPro() {
             try {
-                await auth.signInWithEmailAndPassword(email, pass);
-                alert("Logged In Successfully");
-            } catch (e) {
-                alert(e.message);
-            }
+                await auth.signInWithEmailAndPassword(document.getElementById('proEmail').value, document.getElementById('proPass').value);
+            } catch (e) { alert("Login Failed: " + e.message); }
+        }
+        function logoutPro() { auth.signOut(); }
+
+        // 5. AD CREATOR LOGIC
+        function updateCharCount(el) {
+            document.getElementById('charNum').innerText = el.value.length;
+        }
+        async function saveListing() {
+            const user = auth.currentUser;
+            if(!user) return;
+            // In production, upload image to Storage, get URL, then save to DB
+            alert("Listing saved! It is now live in the marketplace for 30 days.");
         }
 
-        // 3. THE FEED (Dynamic Loading)
-        async function loadFeed() {
-            const feed = document.getElementById('marketplaceFeed');
+        // 6. MARKETPLACE FEED & SOUND ALERTS
+        function loadMarketplace() {
+            const feed = document.getElementById('feedList');
             feed.innerHTML = ''; 
-
-            db.collection("heroes").where("status", "==", "active").limit(15).get().then(snap => {
+            
+            db.collection("heroes").where("isActive", "==", true).limit(10).get().then(snap => {
                 if(snap.empty) {
-                    feed.innerHTML = `<div style="text-align:center; padding:50px;">
-                        <p style="color:var(--muted)">No Pros nearby yet.</p>
-                        <button class="btn-action" style="width:auto; padding: 10px 20px;" onclick="requestSection()">SUGGEST A CATEGORY</button>
-                    </div>`;
+                    feed.innerHTML = `
+                        <div style="text-align:center; padding: 40px 20px;">
+                            <p style="color:var(--muted); font-weight:700;">No Heroes nearby.</p>
+                            <button class="btn-primary" style="width:auto; padding: 10px 20px;" onclick="suggestCategory()">REQUEST A CATEGORY</button>
+                        </div>`;
                     return;
                 }
-                snap.forEach(doc => renderCard(doc.data()));
-            });
+                snap.forEach(doc => renderCard(doc.data(), doc.id));
+            }).catch(e => console.error(e));
         }
 
-        function renderCard(data) {
-            const html = `
+        function renderCard(data, id) {
+            const card = `
                 <div class="hero-card">
-                    <img src="${data.imageUrl}" class="hero-img">
-                    <div class="hero-details">
-                        <div class="hero-title">${data.name} <span class="verified-check">✔</span></div>
-                        <p style="color:var(--muted); font-size:13px; margin:5px 0;">${data.category} • ${data.distance || 'Near You'}</p>
-                        <p style="font-size:14px;">${data.description}</p>
-                        <a href="tel:${data.phone}" class="btn-call" onclick="trackLead('${data.id}')">CALL NOW</a>
+                    <img src="${data.imageUrl || 'https://via.placeholder.com/400x200?text=Hero+Image'}" class="hero-img">
+                    <div class="hero-info">
+                        <div class="hero-title">
+                            ${data.businessName} <span class="verified">✔ Verified Pro</span>
+                        </div>
+                        <div class="hero-meta">${data.category} • ${data.distance || 'Local'}</div>
+                        <p style="font-size:14px; margin-bottom:15px; line-height: 1.5;">${data.description}</p>
+                        <a href="tel:${data.phone}" class="btn-call" onclick="triggerLead('${id}')">CALL NOW</a>
                     </div>
                 </div>
             `;
-            document.getElementById('marketplaceFeed').innerHTML += html;
+            document.getElementById('feedList').innerHTML += card;
         }
 
-        // 4. LEADS & PINGS
-        function trackLead(id) {
-            // Update Firestore lead count
-            db.collection("heroes").doc(id).update({
-                totalLeads: firebase.firestore.FieldValue.increment(1)
-            });
-            // Parent shell handles the sound
-            window.parent.postMessage('ping_notification', '*');
+        function triggerLead(id) {
+            // 1. Play Sound & Vibrate
+            document.getElementById('pingSound').play().catch(e=>{});
+            if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            
+            // 2. Alert the Parent Window sidebar badge (if needed)
+            window.parent.postMessage({ type: 'NEW_LEAD' }, '*');
+
+            // 3. Update DB
+            db.collection("heroes").doc(id).update({ calls: firebase.firestore.FieldValue.increment(1) });
         }
 
-        function requestSection() {
-            const suggestion = prompt("What service do you need?");
-            if(suggestion) {
-                db.collection("category_requests").add({ name: suggestion, date: new Date() });
-                alert("Thanks! We'll look for Pros in that category.");
+        function suggestCategory() {
+            const cat = prompt("What category are you looking for?");
+            if(cat) {
+                db.collection("category_requests").add({ name: cat, date: new Date() });
+                alert("Thanks! We've logged your request.");
             }
         }
 
-        loadFeed();
+        // Initialize Feed
+        loadMarketplace();
     </script>
 </body>
 </html>
