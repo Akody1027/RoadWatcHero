@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hero Hub Marketplace</title>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --accent: #EE611C;
+            --bg: #ffffff;
+            --secondary: #f8fafc;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: -apple-system, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER & SEARCH --- */
+        header {
+            position: sticky; top: 0;
+            background: white;
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: var(--secondary);
+            border-radius: 12px;
+            padding: 8px 12px;
+            gap: 10px;
+        }
+
+        #searchInput {
+            flex: 1;
+            border: none; background: none;
+            outline: none; font-size: 16px;
+        }
+
+        .filter-btn {
+            background: none; border: none;
+            color: var(--accent); cursor: pointer;
+            font-size: 20px;
+        }
+
+        /* --- RADIUS SETTINGS (Hidden by default) --- */
+        #geoSettings {
+            display: none;
+            padding: 15px;
+            background: var(--secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .slider-label {
+            display: flex; justify-content: space-between;
+            font-size: 12px; font-weight: 700; color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%; accent-color: var(--accent);
+        }
+
+        /* --- AUTH GATE (Sign In / Sign Up) --- */
+        #authGate {
+            display: none; /* Shown if user is not logged in */
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .auth-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        input[type="email"], input[type="password"] {
+            width: 100%; padding: 12px;
+            margin: 8px 0; border: 1px solid var(--border);
+            border-radius: 8px; box-sizing: border-box;
+        }
+
+        .btn-pro {
+            width: 100%; padding: 14px;
+            background: var(--accent); color: white;
+            border: none; border-radius: 8px;
+            font-weight: 800; cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .pro-upsell {
+            margin-top: 20px; font-size: 14px; color: var(--muted);
+        }
+
+        .pro-price { color: var(--accent); font-weight: 900; }
+
+        /* --- FEED --- */
+        #mainFeed { padding: 15px; }
+
+        .ad-card {
+            background: white; border: 1px solid var(--border);
+            border-radius: 12px; margin-bottom: 20px;
+            overflow: hidden; transition: transform 0.2s;
+        }
+
+        .ad-img {
+            width: 100%; height: 200px;
+            object-fit: cover; background: #eee;
+        }
+
+        .ad-info { padding: 15px; }
+
+        .ad-title { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+        
+        .ad-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+
+        .call-btn {
+            display: block; width: 100%;
+            padding: 12px; margin-top: 10px;
+            background: #10b981; color: white;
+            text-align: center; text-decoration: none;
+            border-radius: 8px; font-weight: 700;
+        }
+
+        /* --- NOTIFICATION SOUNDS --- */
+        #audioContainer { display: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search for a Hero (Towing, Detailer...)">
+            <button class="filter-btn" onclick="toggleSettings()">⚙️</button>
+        </div>
+    </header>
+
+    <div id="geoSettings">
+        <div class="slider-label">
+            <span>Search Radius</span>
+            <span id="radiusVal">25 miles</span>
+        </div>
+        <input type="range" id="radiusSlider" min="1" max="100" value="25" oninput="updateRadius(this.value)">
+    </div>
+
+    <div id="authGate">
+        <div class="auth-card">
+            <h2 style="margin-top:0">Hero Login</h2>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn-pro" onclick="handleAuth()">LOGIN TO DASHBOARD</button>
+            
+            <div class="pro-upsell">
+                Not a Pro Hero? <br>
+                <span class="pro-price">$9.99/month</span> gets you leads. <br>
+                <a href="#" style="color:var(--accent); font-weight:700;">SIGN UP NOW</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainFeed">
+        </div>
+
+    <audio id="pingSound" src="https://www.roadwatchero.com/assets/ping.mp3" preload="auto"></audio>
+
+    <script>
+        // 1. YOUR FIREBASE CONFIG (Replace with your actual keys)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_ID",
+            appId: "YOUR_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // 2. STATE MANAGEMENT
+        let currentRadius = 25;
+        let userLocation = { lat: 0, lng: 0 };
+
+        function toggleSettings() {
+            const settings = document.getElementById('geoSettings');
+            settings.style.display = settings.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function updateRadius(val) {
+            currentRadius = val;
+            document.getElementById('radiusVal').innerText = val + " miles";
+            loadMarketplace(); // Re-filter on change
+        }
+
+        // 3. AUTH LOGIC
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('authGate').style.display = 'none';
+                loadHeroDashboard(user);
+            } else {
+                // If they try to access "My Profile", show authGate
+            }
+        });
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            try {
+                await auth.signInWithEmailAndPassword(email, pass);
+            } catch (error) {
+                alert("Login Failed: " + error.message);
+            }
+        }
+
+        // 4. THE MARKETPLACE ENGINE (radius-based)
+        async function loadMarketplace() {
+            const feed = document.getElementById('mainFeed');
+            feed.innerHTML = ''; // Clear for fresh load
+
+            // This is where we pull from your "heroes" collection
+            db.collection("heroes")
+                .where("isActive", "==", true)
+                .limit(20)
+                .get()
+                .then((querySnapshot) => {
+                    if (querySnapshot.empty) {
+                        feed.innerHTML = `
+                            <div style="text-align:center; padding:40px; color:var(--muted)">
+                                <h3>No Heroes in this radius yet.</h3>
+                                <button class="btn-pro" style="background:#64748b" onclick="requestCategory()">REQUEST A HERO HERE</button>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        // SIMPLE RADIUS CALCULATION (In production, use GeoFirestore)
+                        renderCard(data);
+                    });
+                });
+        }
+
+        function renderCard(data) {
+            const card = `
+                <div class="ad-card">
+                    <img src="${data.imageUrl}" class="ad-img" loading="lazy">
+                    <div class="ad-info">
+                        <div class="ad-title">${data.businessName} <span style="color:var(--accent)">★</span></div>
+                        <div class="ad-meta">
+                            <span>${data.category}</span>
+                            <span>${data.distance || 'Local'}</span>
+                        </div>
+                        <p style="font-size:14px; margin:10px 0;">${data.description}</p>
+                        <a href="tel:${data.phone}" class="call-btn" onclick="trackLead('${data.uid}')">CALL NOW</a>
+                    </div>
+                </div>
+            `;
+            document.getElementById('mainFeed').innerHTML += card;
+        }
+
+        // 5. LEAD TRACKING & SOUNDS
+        function trackLead(heroId) {
+            // Increments the pro's badge counter in Firestore
+            const heroRef = db.collection("heroes").doc(heroId);
+            heroRef.update({
+                leads: firebase.firestore.FieldValue.increment(1)
+            });
+            playNotification();
+        }
+
+        function playNotification() {
+            const sound = document.getElementById('pingSound');
+            sound.play().catch(e => console.log("Audio requires user interaction first"));
+            if (navigator.vibrate) navigator.vibrate(100);
+        }
+
+        function requestCategory() {
+            const cat = prompt("What service were you looking for?");
+            if (cat) {
+                db.collection("requests").add({
+                    category: cat,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Thanks! We'll find a Hero for " + cat);
+            }
+        }
+
+        // Initial Load
+        loadMarketplace();
+    </script>
+</body>
+</html>
