@@ -4,305 +4,176 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Hero Hub Marketplace</title>
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore-compat.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
     <style>
-        :root {
-            --accent: #EE611C;
-            --bg: #ffffff;
-            --secondary: #f8fafc;
-            --text: #0f172a;
-            --muted: #64748b;
-            --border: #e2e8f0;
-        }
-
-        body {
-            margin: 0; padding: 0;
-            font-family: -apple-system, system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
-        }
-
-        /* --- HEADER & SEARCH --- */
-        header {
-            position: sticky; top: 0;
-            background: white;
-            padding: 15px;
-            border-bottom: 1px solid var(--border);
-            z-index: 100;
-        }
-
-        .search-container {
-            display: flex;
-            align-items: center;
-            background: var(--secondary);
-            border-radius: 12px;
-            padding: 8px 12px;
-            gap: 10px;
-        }
-
-        #searchInput {
-            flex: 1;
-            border: none; background: none;
-            outline: none; font-size: 16px;
-        }
-
-        .filter-btn {
-            background: none; border: none;
-            color: var(--accent); cursor: pointer;
-            font-size: 20px;
-        }
-
-        /* --- RADIUS SETTINGS (Hidden by default) --- */
-        #geoSettings {
-            display: none;
-            padding: 15px;
-            background: var(--secondary);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .slider-label {
-            display: flex; justify-content: space-between;
-            font-size: 12px; font-weight: 700; color: var(--muted);
-            margin-bottom: 8px;
-        }
-
-        input[type="range"] {
-            width: 100%; accent-color: var(--accent);
-        }
-
-        /* --- AUTH GATE (Sign In / Sign Up) --- */
-        #authGate {
-            display: none; /* Shown if user is not logged in */
-            padding: 40px 20px;
-            text-align: center;
-        }
-
-        .auth-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-
-        input[type="email"], input[type="password"] {
-            width: 100%; padding: 12px;
-            margin: 8px 0; border: 1px solid var(--border);
-            border-radius: 8px; box-sizing: border-box;
-        }
-
-        .btn-pro {
-            width: 100%; padding: 14px;
-            background: var(--accent); color: white;
-            border: none; border-radius: 8px;
-            font-weight: 800; cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .pro-upsell {
-            margin-top: 20px; font-size: 14px; color: var(--muted);
-        }
-
-        .pro-price { color: var(--accent); font-weight: 900; }
-
-        /* --- FEED --- */
-        #mainFeed { padding: 15px; }
-
-        .ad-card {
-            background: white; border: 1px solid var(--border);
-            border-radius: 12px; margin-bottom: 20px;
-            overflow: hidden; transition: transform 0.2s;
-        }
-
-        .ad-img {
-            width: 100%; height: 200px;
-            object-fit: cover; background: #eee;
-        }
-
-        .ad-info { padding: 15px; }
-
-        .ad-title { font-size: 18px; font-weight: 800; margin-bottom: 5px; }
+        :root { --accent: #EE611C; --bg: #ffffff; --secondary: #f1f5f9; --text: #0f172a; --muted: #64748b; }
+        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); }
         
-        .ad-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+        /* SEARCH & SETTINGS BAR */
+        .hub-header { position: sticky; top: 0; background: white; z-index: 100; padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        .search-row { display: flex; align-items: center; background: var(--secondary); border-radius: 10px; padding: 5px 12px; }
+        #searchInput { flex: 1; border: none; background: none; padding: 10px; outline: none; font-size: 16px; }
+        .settings-icon { font-size: 20px; cursor: pointer; color: var(--accent); padding-left: 10px; }
+        
+        /* DISTANCE SLIDER DROPDOWN */
+        #settingsDropdown { display: none; padding: 15px; background: white; border-bottom: 1px solid #e2e8f0; animation: slideDown 0.2s ease; }
+        .slider-meta { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--muted); margin-bottom: 10px; }
+        input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
 
-        .call-btn {
-            display: block; width: 100%;
-            padding: 12px; margin-top: 10px;
-            background: #10b981; color: white;
-            text-align: center; text-decoration: none;
-            border-radius: 8px; font-weight: 700;
-        }
+        /* AUTH & PRO UPSELL */
+        #authGate { padding: 30px 20px; text-align: center; }
+        .auth-container { max-width: 400px; margin: auto; padding: 25px; border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .auth-input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
+        .btn-action { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 16px; margin-top: 15px; cursor: pointer; }
+        .pro-promo { margin-top: 25px; padding-top: 20px; border-top: 1px dashed #cbd5e1; }
+        .price-tag { color: var(--accent); font-size: 24px; font-weight: 900; display: block; margin: 10px 0; }
 
-        /* --- NOTIFICATION SOUNDS --- */
-        #audioContainer { display: none; }
+        /* FEED & CARDS */
+        #marketplaceFeed { padding: 15px; }
+        .hero-card { background: white; border: 1px solid #e2e8f0; border-radius: 15px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .hero-img { width: 100%; height: 180px; object-fit: cover; }
+        .hero-details { padding: 15px; }
+        .hero-title { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 5px; }
+        .verified-check { color: var(--accent); font-size: 16px; }
+        .btn-call { display: block; background: #10b981; color: white; text-align: center; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 800; margin-top: 15px; }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search for a Hero (Towing, Detailer...)">
-            <button class="filter-btn" onclick="toggleSettings()">⚙️</button>
+    <div class="hub-header">
+        <div class="search-row">
+            <input type="text" id="searchInput" placeholder="Search Towing, Mechanic, Detailer..." onkeyup="filterFeed()">
+            <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
         </div>
-    </header>
-
-    <div id="geoSettings">
-        <div class="slider-label">
-            <span>Search Radius</span>
-            <span id="radiusVal">25 miles</span>
-        </div>
-        <input type="range" id="radiusSlider" min="1" max="100" value="25" oninput="updateRadius(this.value)">
     </div>
 
-    <div id="authGate">
-        <div class="auth-card">
-            <h2 style="margin-top:0">Hero Login</h2>
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Password">
-            <button class="btn-pro" onclick="handleAuth()">LOGIN TO DASHBOARD</button>
+    <div id="settingsDropdown">
+        <div class="slider-meta">
+            <span>DISTANCE RADIUS</span>
+            <span id="radiusText">50 MILES</span>
+        </div>
+        <input type="range" id="radiusSlider" min="5" max="250" value="50" oninput="updateRadius(this.value)">
+    </div>
+
+    <div id="authGate" style="display: none;">
+        <div class="auth-container">
+            <h2 style="margin-top: 0;">Hero Pro Portal</h2>
+            <input type="email" id="email" class="auth-input" placeholder="Email Address">
+            <input type="password" id="pass" class="auth-input" placeholder="Password">
+            <button class="btn-action" onclick="handleLogin()">LOGIN TO DASHBOARD</button>
             
-            <div class="pro-upsell">
-                Not a Pro Hero? <br>
-                <span class="pro-price">$9.99/month</span> gets you leads. <br>
-                <a href="#" style="color:var(--accent); font-weight:700;">SIGN UP NOW</a>
+            <div class="pro-promo">
+                <p style="font-weight: 700; margin: 0;">WANT MORE LEADS?</p>
+                <span class="price-tag">$9.99 / Month</span>
+                <p style="font-size: 13px; color: var(--muted);">Join the Hero Hub network. Get listed, get calls, grow your business.</p>
+                <button class="btn-action" style="background: #1e293b;" onclick="window.location.href='YOUR_STRIPE_LINK'">SIGN UP TO BE A PRO</button>
             </div>
         </div>
     </div>
 
-    <div id="mainFeed">
-        </div>
-
-    <audio id="pingSound" src="https://www.roadwatchero.com/assets/ping.mp3" preload="auto"></audio>
+    <div id="marketplaceFeed"></div>
 
     <script>
-        // 1. YOUR FIREBASE CONFIG (Replace with your actual keys)
+        // FIREBASE INTEGRATION - Using your roadsidehero-104ea credentials
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyAzY...", // Retrieval shortened for space; use your full home.html key
+            authDomain: "roadsidehero-104ea.firebaseapp.com",
+            projectId: "roadsidehero-104ea",
+            storageBucket: "roadsidehero-104ea.appspot.com",
+            messagingSenderId: "1098...",
+            appId: "1:1098..."
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // 2. STATE MANAGEMENT
-        let currentRadius = 25;
-        let userLocation = { lat: 0, lng: 0 };
-
+        // 1. SETTINGS & RADIUS
         function toggleSettings() {
-            const settings = document.getElementById('geoSettings');
-            settings.style.display = settings.style.display === 'block' ? 'none' : 'block';
+            const ds = document.getElementById('settingsDropdown');
+            ds.style.display = ds.style.display === 'block' ? 'none' : 'block';
         }
 
         function updateRadius(val) {
-            currentRadius = val;
-            document.getElementById('radiusVal').innerText = val + " miles";
-            loadMarketplace(); // Re-filter on change
+            document.getElementById('radiusText').innerText = val + " MILES";
+            // In a real app, this would trigger a GeoFirestore query
         }
 
-        // 3. AUTH LOGIC
+        // 2. AUTHENTICATION & PRO CHECK
         auth.onAuthStateChanged(user => {
-            if (user) {
-                document.getElementById('authGate').style.display = 'none';
-                loadHeroDashboard(user);
-            } else {
-                // If they try to access "My Profile", show authGate
+            if (!user) {
+                // If they are trying to access 'My Profile', show authGate
+                // For now, marketplace stays public
             }
         });
 
-        async function handleAuth() {
+        async function handleLogin() {
             const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
+            const pass = document.getElementById('pass').value;
             try {
                 await auth.signInWithEmailAndPassword(email, pass);
-            } catch (error) {
-                alert("Login Failed: " + error.message);
+                alert("Logged In Successfully");
+            } catch (e) {
+                alert(e.message);
             }
         }
 
-        // 4. THE MARKETPLACE ENGINE (radius-based)
-        async function loadMarketplace() {
-            const feed = document.getElementById('mainFeed');
-            feed.innerHTML = ''; // Clear for fresh load
+        // 3. THE FEED (Dynamic Loading)
+        async function loadFeed() {
+            const feed = document.getElementById('marketplaceFeed');
+            feed.innerHTML = ''; 
 
-            // This is where we pull from your "heroes" collection
-            db.collection("heroes")
-                .where("isActive", "==", true)
-                .limit(20)
-                .get()
-                .then((querySnapshot) => {
-                    if (querySnapshot.empty) {
-                        feed.innerHTML = `
-                            <div style="text-align:center; padding:40px; color:var(--muted)">
-                                <h3>No Heroes in this radius yet.</h3>
-                                <button class="btn-pro" style="background:#64748b" onclick="requestCategory()">REQUEST A HERO HERE</button>
-                            </div>
-                        `;
-                        return;
-                    }
-
-                    querySnapshot.forEach((doc) => {
-                        const data = doc.data();
-                        // SIMPLE RADIUS CALCULATION (In production, use GeoFirestore)
-                        renderCard(data);
-                    });
-                });
+            db.collection("heroes").where("status", "==", "active").limit(15).get().then(snap => {
+                if(snap.empty) {
+                    feed.innerHTML = `<div style="text-align:center; padding:50px;">
+                        <p style="color:var(--muted)">No Pros nearby yet.</p>
+                        <button class="btn-action" style="width:auto; padding: 10px 20px;" onclick="requestSection()">SUGGEST A CATEGORY</button>
+                    </div>`;
+                    return;
+                }
+                snap.forEach(doc => renderCard(doc.data()));
+            });
         }
 
         function renderCard(data) {
-            const card = `
-                <div class="ad-card">
-                    <img src="${data.imageUrl}" class="ad-img" loading="lazy">
-                    <div class="ad-info">
-                        <div class="ad-title">${data.businessName} <span style="color:var(--accent)">★</span></div>
-                        <div class="ad-meta">
-                            <span>${data.category}</span>
-                            <span>${data.distance || 'Local'}</span>
-                        </div>
-                        <p style="font-size:14px; margin:10px 0;">${data.description}</p>
-                        <a href="tel:${data.phone}" class="call-btn" onclick="trackLead('${data.uid}')">CALL NOW</a>
+            const html = `
+                <div class="hero-card">
+                    <img src="${data.imageUrl}" class="hero-img">
+                    <div class="hero-details">
+                        <div class="hero-title">${data.name} <span class="verified-check">✔</span></div>
+                        <p style="color:var(--muted); font-size:13px; margin:5px 0;">${data.category} • ${data.distance || 'Near You'}</p>
+                        <p style="font-size:14px;">${data.description}</p>
+                        <a href="tel:${data.phone}" class="btn-call" onclick="trackLead('${data.id}')">CALL NOW</a>
                     </div>
                 </div>
             `;
-            document.getElementById('mainFeed').innerHTML += card;
+            document.getElementById('marketplaceFeed').innerHTML += html;
         }
 
-        // 5. LEAD TRACKING & SOUNDS
-        function trackLead(heroId) {
-            // Increments the pro's badge counter in Firestore
-            const heroRef = db.collection("heroes").doc(heroId);
-            heroRef.update({
-                leads: firebase.firestore.FieldValue.increment(1)
+        // 4. LEADS & PINGS
+        function trackLead(id) {
+            // Update Firestore lead count
+            db.collection("heroes").doc(id).update({
+                totalLeads: firebase.firestore.FieldValue.increment(1)
             });
-            playNotification();
+            // Parent shell handles the sound
+            window.parent.postMessage('ping_notification', '*');
         }
 
-        function playNotification() {
-            const sound = document.getElementById('pingSound');
-            sound.play().catch(e => console.log("Audio requires user interaction first"));
-            if (navigator.vibrate) navigator.vibrate(100);
-        }
-
-        function requestCategory() {
-            const cat = prompt("What service were you looking for?");
-            if (cat) {
-                db.collection("requests").add({
-                    category: cat,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                alert("Thanks! We'll find a Hero for " + cat);
+        function requestSection() {
+            const suggestion = prompt("What service do you need?");
+            if(suggestion) {
+                db.collection("category_requests").add({ name: suggestion, date: new Date() });
+                alert("Thanks! We'll look for Pros in that category.");
             }
         }
 
-        // Initial Load
-        loadMarketplace();
+        loadFeed();
     </script>
 </body>
 </html>
