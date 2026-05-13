@@ -3,65 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hero Hub Engine</title>
+    <title>Hero Hub Marketplace</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --accent: #EE611C; --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
-        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 20px; }
+        :root { --accent: #EE611C; --bg: #f1f5f9; --surface: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
+        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
         * { box-sizing: border-box; }
 
-        /* TOP NAVIGATION TABS */
-        .hub-nav { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 200; }
-        .nav-tab { flex: 1; padding: 15px; text-align: center; font-weight: 800; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; font-size: 14px; text-transform: uppercase; }
-        .nav-tab.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
+        /* --- THICK PROFESSIONAL HEADER --- */
+        .hub-main-header {
+            background: var(--surface); padding: 20px 15px; text-align: center;
+            border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+        }
+        .hub-main-header h1 { margin: 0; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+        
+        /* --- NAVIGATION BAR (ICONS) --- */
+        .nav-bar {
+            display: flex; background: var(--surface); border-bottom: 1px solid var(--border);
+            position: sticky; top: 67px; z-index: 99; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .nav-btn {
+            flex: 1; padding: 15px; text-align: center; font-size: 24px; cursor: pointer;
+            color: var(--muted); transition: 0.2s; border-bottom: 3px solid transparent;
+        }
+        .nav-btn.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
 
-        /* VIEW CONTAINERS */
-        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        /* --- VIEW SECTIONS --- */
+        .view-section { display: none; padding: 15px; padding-bottom: 40px; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
 
-        /* --- MARKETPLACE VIEW --- */
-        .search-header { background: var(--surface); padding: 15px; border-bottom: 1px solid var(--border); }
-        .search-bar { display: flex; background: var(--bg); border-radius: 12px; padding: 8px 15px; align-items: center; border: 1px solid var(--border); }
-        #searchInput { flex: 1; border: none; background: none; outline: none; font-size: 16px; padding: 5px; }
-        .filter-btn { font-size: 20px; color: var(--accent); cursor: pointer; padding-left: 10px; border-left: 1px solid var(--border); }
+        /* --- SEARCH DRAWER (SLIDES FROM LEFT) --- */
+        #searchDrawer {
+            position: fixed; top: 0; left: -100%; width: 85%; height: 100%;
+            background: var(--surface); z-index: 200; transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 10px 0 25px rgba(0,0,0,0.1); overflow-y: auto; display: flex; flex-direction: column;
+        }
+        #searchDrawer.open { left: 0; }
+        .drawer-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .drawer-close { font-size: 24px; color: var(--muted); cursor: pointer; border: none; background: none; }
         
-        #settingsDropdown { display: none; padding: 15px; background: var(--surface); border-bottom: 1px solid var(--border); }
+        .drawer-content { padding: 20px; }
+        .search-input-wrapper { background: var(--bg); border-radius: 12px; padding: 10px 15px; margin-bottom: 25px; border: 1px solid var(--border); }
+        .search-input-wrapper input { width: 100%; border: none; background: none; outline: none; font-size: 16px; }
+        
+        .slider-section { margin-bottom: 25px; }
         .slider-header { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--muted); margin-bottom: 10px; }
         input[type="range"] { width: 100%; accent-color: var(--accent); }
 
-        .feed-container { padding: 15px; }
-        .hero-card { background: var(--surface); border-radius: 16px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-        .hero-img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
-        .hero-info { padding: 16px; }
-        .hero-title { font-size: 18px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
-        .verified { color: var(--accent); font-size: 14px; background: #fff0eb; padding: 2px 8px; border-radius: 12px; }
-        .hero-meta { font-size: 13px; color: var(--muted); margin: 5px 0 10px 0; font-weight: 600; }
-        .btn-call { display: block; width: 100%; background: #10b981; color: white; padding: 14px; text-align: center; border-radius: 10px; text-decoration: none; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        /* SMART CHIPS */
+        .chip-group-title { font-size: 14px; font-weight: 800; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; }
+        .chip-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; }
+        .smart-chip { background: var(--bg); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .smart-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        /* --- PRO PORTAL VIEW (AUTH & DASHBOARD) --- */
-        #authGate { padding: 30px 20px; }
-        .auth-card { background: var(--surface); padding: 25px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border); text-align: center; }
+        /* --- FACEBOOK-STYLE SCROLLING FEED --- */
+        .ad-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .ad-header { display: flex; align-items: center; padding: 15px; gap: 10px; }
+        .ad-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); }
+        .ad-title { font-weight: 800; font-size: 16px; margin: 0; }
+        .ad-subtitle { font-size: 12px; color: var(--muted); margin: 0; }
+        .ad-img { width: 100%; height: 250px; object-fit: cover; background: #eee; }
+        .ad-body { padding: 15px; }
+        .btn-call { display: block; width: 100%; background: #10b981; color: white; padding: 15px; text-align: center; border-radius: 10px; text-decoration: none; font-weight: 800; font-size: 16px; }
+
+        /* --- PRO PROFILE (AUTH & DASHBOARD) --- */
+        .auth-card { background: var(--surface); padding: 25px; border-radius: 16px; text-align: center; border: 1px solid var(--border); }
         .input-field { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; }
-        .btn-primary { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; text-transform: uppercase; }
-        
+        .btn-primary { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 15px; cursor: pointer; }
         .upsell-box { margin-top: 30px; padding-top: 25px; border-top: 2px dashed var(--border); }
         .price { font-size: 28px; font-weight: 900; color: var(--accent); margin: 10px 0; display: block; }
-        
-        #proDashboard { display: none; padding: 20px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        .stat-box { background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
-        .stat-num { font-size: 32px; font-weight: 900; color: var(--accent); }
-        .stat-label { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
 
-        .creator-card { background: var(--surface); padding: 20px; border-radius: 16px; border: 1px solid var(--border); }
-        .creator-title { font-weight: 800; margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
-        textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; resize: none; margin-bottom: 5px; }
-        .char-count { font-size: 12px; color: var(--muted); text-align: right; margin-bottom: 15px; display: block; }
-        .timer-notice { font-size: 12px; font-weight: 700; color: #ef4444; background: #fef2f2; padding: 8px; border-radius: 6px; margin-bottom: 15px; text-align: center; }
+        /* OVERLAY FOR DRAWER */
+        #drawerOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 150; display: none; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -70,83 +87,80 @@
 
     <audio id="pingSound" src="https://www.roadwatchero.com/assets/ping.mp3" preload="auto"></audio>
 
-    <div class="hub-nav">
-        <div class="nav-tab active" id="tabBtn-marketplace" onclick="switchTab('marketplace')">Marketplace</div>
-        <div class="nav-tab" id="tabBtn-portal" onclick="switchTab('portal')">Pro Portal</div>
+    <div class="hub-main-header">
+        <h1>Hero Hub Marketplace</h1>
     </div>
 
-    <div id="view-marketplace" class="view-section active">
-        <div class="search-header">
-            <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Search Towing, Mechanic..." onkeyup="searchFeed()">
-                <div class="filter-btn" onclick="toggleSettings()">⚙️</div>
-            </div>
-        </div>
-
-        <div id="settingsDropdown">
-            <div class="slider-header">
-                <span>SEARCH RADIUS</span>
-                <span id="radiusLabel">25 MILES</span>
-            </div>
-            <input type="range" min="5" max="100" value="25" oninput="updateRadius(this.value)">
-        </div>
-
-        <div class="feed-container" id="feedList">
-            </div>
+    <div class="nav-bar">
+        <div class="nav-btn" onclick="toggleDrawer()">🔍</div>
+        <div class="nav-btn active" id="nav-home" onclick="switchView('home')">🏠</div>
+        <div class="nav-btn" id="nav-profile" onclick="switchView('profile')">👤</div>
     </div>
 
-    <div id="view-portal" class="view-section">
-        
-        <div id="authGate">
-            <div class="auth-card">
-                <h2 style="margin-top:0">Hero Login</h2>
-                <input type="email" id="proEmail" class="input-field" placeholder="Email Address">
-                <input type="password" id="proPass" class="input-field" placeholder="Password">
-                <button class="btn-primary" onclick="loginPro()">ACCESS DASHBOARD</button>
-                
-                <div class="upsell-box">
-                    <span style="font-weight: 800; color: var(--muted);">NOT A VERIFIED PRO?</span>
-                    <span class="price">$9.99 / mo</span>
-                    <p style="font-size: 14px; margin-bottom: 20px;">List your business, receive direct calls, and get access to the lead dashboard.</p>
-                    <button class="btn-primary" style="background: #1e293b;" onclick="window.open('YOUR_STRIPE_LINK', '_blank')">SUBSCRIBE VIA STRIPE</button>
+    <div id="drawerOverlay" onclick="toggleDrawer()"></div>
+    <div id="searchDrawer">
+        <div class="drawer-header">
+            <h2 style="margin:0; font-weight: 900;">Filters</h2>
+            <button class="drawer-close" onclick="toggleDrawer()">✖</button>
+        </div>
+        <div class="drawer-content">
+            <div class="search-input-wrapper">
+                <input type="text" id="searchInput" placeholder="Search businesses...">
+            </div>
+
+            <div class="slider-section">
+                <div class="slider-header">
+                    <span>DISTANCE</span>
+                    <span id="radiusLabel">25 MILES</span>
                 </div>
+                <input type="range" min="5" max="100" value="25" oninput="updateRadius(this.value)">
             </div>
-        </div>
 
-        <div id="proDashboard">
-            <h2 style="margin-top:0;">My Dashboard <span style="float:right; font-size:12px; color:var(--accent); cursor:pointer;" onclick="logoutPro()">Logout</span></h2>
+            <div class="chip-group-title">Emergency</div>
+            <div class="chip-container">
+                <div class="smart-chip">Towing</div>
+                <div class="smart-chip">Locksmith</div>
+                <div class="smart-chip">Tire Repair</div>
+            </div>
+
+            <div class="chip-group-title">Aesthetics</div>
+            <div class="chip-container">
+                <div class="smart-chip">Detailing</div>
+                <div class="smart-chip">Window Tint</div>
+            </div>
             
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-num" id="statViews">0</div>
-                    <div class="stat-label">Profile Views</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-num" id="statCalls">0</div>
-                    <div class="stat-label">Calls Received</div>
-                </div>
-            </div>
+            <button class="btn-primary" style="background: var(--muted); margin-top: 20px;" onclick="suggestCategory()">Missing a Category?</button>
+        </div>
+    </div>
 
-            <div class="creator-card">
-                <h3 class="creator-title">Manage Active Listing</h3>
-                <div class="timer-notice">⏱ Your listing expires in 28 Days</div>
-                
-                <input type="file" id="adImage" class="input-field" accept="image/*" style="padding: 10px;">
-                <input type="text" id="adCategory" class="input-field" placeholder="Category (e.g., Towing, Mobile Detail)">
-                
-                <textarea id="adDesc" placeholder="Describe your services..." maxlength="250" oninput="updateCharCount(this)"></textarea>
-                <span class="char-count"><span id="charNum">0</span>/250</span>
+    <div id="view-home" class="view-section active">
+        </div>
 
-                <button class="btn-primary" onclick="saveListing()">PUBLISH LISTING</button>
+    <div id="view-profile" class="view-section">
+        <div id="authGate" class="auth-card">
+            <h2 style="margin-top:0">Hero Portal</h2>
+            <input type="email" id="proEmail" class="input-field" placeholder="Email Address">
+            <input type="password" id="proPass" class="input-field" placeholder="Password">
+            <button class="btn-primary" onclick="loginPro()">LOGIN</button>
+            
+            <div class="upsell-box">
+                <span style="font-weight: 800; color: var(--muted);">NOT A PRO?</span>
+                <span class="price">$9.99 / mo</span>
+                <p style="font-size: 14px; margin-bottom: 20px;">Get listed in the Hub and receive direct calls from users in your radius.</p>
+                <button class="btn-primary" style="background: #1e293b;" onclick="window.open('YOUR_STRIPE_LINK', '_blank')">SUBSCRIBE VIA STRIPE</button>
             </div>
         </div>
 
+        <div id="proDashboard" style="display:none;">
+            <h2>Dashboard Active</h2>
+            <button class="btn-primary" onclick="logoutPro()">LOGOUT</button>
+        </div>
     </div>
 
     <script>
-        // 1. FIREBASE INITIALIZATION
+        // 1. FIREBASE CONFIGURATION
         const firebaseConfig = {
-            apiKey: "AIzaSyAzY...", // Insert your actual key
+            apiKey: "AIzaSyAzY...", // Insert your actual key from home.html
             authDomain: "roadsidehero-104ea.firebaseapp.com",
             projectId: "roadsidehero-104ea",
             storageBucket: "roadsidehero-104ea.appspot.com",
@@ -157,38 +171,56 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // 2. TAB NAVIGATION LOGIC
-        function switchTab(tabName) {
+        // 2. NAVIGATION & VIEW LOGIC
+        function switchView(viewName) {
+            // Reset active states
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('nav-home').classList.remove('active');
+            document.getElementById('nav-profile').classList.remove('active');
             
-            document.getElementById(`view-${tabName}`).classList.add('active');
-            document.getElementById(`tabBtn-${tabName}`).classList.add('active');
+            // Set new active states
+            document.getElementById(`view-${viewName}`).classList.add('active');
+            document.getElementById(`nav-${viewName}`).classList.add('active');
 
-            if(tabName === 'marketplace') loadMarketplace();
+            if(viewName === 'home') loadFeed();
         }
 
-        // 3. UI CONTROLS (Marketplace)
-        function toggleSettings() {
-            const el = document.getElementById('settingsDropdown');
-            el.style.display = el.style.display === 'block' ? 'none' : 'block';
+        // 3. DRAWER LOGIC
+        function toggleDrawer() {
+            const drawer = document.getElementById('searchDrawer');
+            const overlay = document.getElementById('drawerOverlay');
+            if (drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+                overlay.style.display = 'none';
+            } else {
+                drawer.classList.add('open');
+                overlay.style.display = 'block';
+            }
         }
+
         function updateRadius(val) {
             document.getElementById('radiusLabel').innerText = val + " MILES";
-            // Re-trigger feed load based on radius
         }
 
-        // 4. AUTHENTICATION & DASHBOARD STATE
+        // 4. SMART CHIPS INTERACTION
+        document.querySelectorAll('.smart-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                // Toggle active state for visuals
+                this.classList.toggle('active');
+                // Close drawer to view results
+                setTimeout(toggleDrawer, 300); 
+                // Trigger search function (to be linked to Firebase)
+            });
+        });
+
+        // 5. AUTHENTICATION LOGIC
         auth.onAuthStateChanged(user => {
-            const gate = document.getElementById('authGate');
-            const dash = document.getElementById('proDashboard');
             if (user) {
-                gate.style.display = 'none';
-                dash.style.display = 'block';
-                loadProStats(user.uid);
+                document.getElementById('authGate').style.display = 'none';
+                document.getElementById('proDashboard').style.display = 'block';
             } else {
-                gate.style.display = 'block';
-                dash.style.display = 'none';
+                document.getElementById('authGate').style.display = 'block';
+                document.getElementById('proDashboard').style.display = 'none';
             }
         });
 
@@ -199,29 +231,14 @@
         }
         function logoutPro() { auth.signOut(); }
 
-        // 5. AD CREATOR LOGIC
-        function updateCharCount(el) {
-            document.getElementById('charNum').innerText = el.value.length;
-        }
-        async function saveListing() {
-            const user = auth.currentUser;
-            if(!user) return;
-            // In production, upload image to Storage, get URL, then save to DB
-            alert("Listing saved! It is now live in the marketplace for 30 days.");
-        }
-
-        // 6. MARKETPLACE FEED & SOUND ALERTS
-        function loadMarketplace() {
-            const feed = document.getElementById('feedList');
+        // 6. FEED LOGIC (Facebook Style)
+        function loadFeed() {
+            const feed = document.getElementById('view-home');
             feed.innerHTML = ''; 
             
             db.collection("heroes").where("isActive", "==", true).limit(10).get().then(snap => {
                 if(snap.empty) {
-                    feed.innerHTML = `
-                        <div style="text-align:center; padding: 40px 20px;">
-                            <p style="color:var(--muted); font-weight:700;">No Heroes nearby.</p>
-                            <button class="btn-primary" style="width:auto; padding: 10px 20px;" onclick="suggestCategory()">REQUEST A CATEGORY</button>
-                        </div>`;
+                    feed.innerHTML = `<p style="text-align:center; padding: 40px; color:var(--muted); font-weight:700;">No Heroes nearby.</p>`;
                     return;
                 }
                 snap.forEach(doc => renderCard(doc.data(), doc.id));
@@ -230,30 +247,28 @@
 
         function renderCard(data, id) {
             const card = `
-                <div class="hero-card">
-                    <img src="${data.imageUrl || 'https://via.placeholder.com/400x200?text=Hero+Image'}" class="hero-img">
-                    <div class="hero-info">
-                        <div class="hero-title">
-                            ${data.businessName} <span class="verified">✔ Verified Pro</span>
+                <div class="ad-card">
+                    <div class="ad-header">
+                        <div class="ad-avatar"></div>
+                        <div>
+                            <h3 class="ad-title">${data.businessName} <span style="color:var(--accent);">✔</span></h3>
+                            <p class="ad-subtitle">${data.category} • ${data.distance || 'Local'}</p>
                         </div>
-                        <div class="hero-meta">${data.category} • ${data.distance || 'Local'}</div>
-                        <p style="font-size:14px; margin-bottom:15px; line-height: 1.5;">${data.description}</p>
+                    </div>
+                    <img src="${data.imageUrl || 'https://via.placeholder.com/400x200?text=Hero+Image'}" class="ad-img">
+                    <div class="ad-body">
+                        <p style="font-size:14px; margin-top:0; margin-bottom:15px; line-height: 1.5;">${data.description}</p>
                         <a href="tel:${data.phone}" class="btn-call" onclick="triggerLead('${id}')">CALL NOW</a>
                     </div>
                 </div>
             `;
-            document.getElementById('feedList').innerHTML += card;
+            document.getElementById('view-home').innerHTML += card;
         }
 
         function triggerLead(id) {
-            // 1. Play Sound & Vibrate
             document.getElementById('pingSound').play().catch(e=>{});
             if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
-            
-            // 2. Alert the Parent Window sidebar badge (if needed)
             window.parent.postMessage({ type: 'NEW_LEAD' }, '*');
-
-            // 3. Update DB
             db.collection("heroes").doc(id).update({ calls: firebase.firestore.FieldValue.increment(1) });
         }
 
@@ -266,7 +281,7 @@
         }
 
         // Initialize Feed
-        loadMarketplace();
+        loadFeed();
     </script>
 </body>
 </html>
