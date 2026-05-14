@@ -3,193 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hero Hub Module</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <title>Hero Hub</title>
 
     <style>
-        :root { --accent: #EE611C; --bg: #f4f7f9; --surface: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
-        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
+        :root { --accent: #EE611C; --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
+        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        * { box-sizing: border-box; }
 
-        /* HEADER & NAV */
-        .hub-module-header { background: var(--surface); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); height: 70px; }
-        .logo-box img { height: 40px; width: auto; }
-        .hub-title { font-size: 18px; font-weight: 900; color: var(--accent); text-transform: uppercase; }
-
-        .nav-strip { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); height: 60px; }
-        .nav-item { flex: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; border-right: 1px solid var(--border); transition: 0.2s; }
-        .nav-item img { width: 28px; height: 28px; }
-        .nav-item.active { background: #fff8f5; }
-
-        /* PERMANENT SIDEBAR (40% Default, 25% Collapsed) */
-        #searchModule { 
-            position: absolute; 
-            top: 130px; 
-            left: 0; 
-            width: 40%; 
-            height: calc(100vh - 130px); 
+        /* --- HEADER BRANDING --- */
+        .hub-header { 
             background: var(--surface); 
-            z-index: 100; 
-            border-right: 1px solid var(--border);
-            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 70px; 
+            padding: 0 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        .header-logo { width: 33%; display: flex; align-items: center; }
+        .header-logo img { height: 40px; width: auto; }
+        
+        .header-title { 
+            width: 34%; 
+            text-align: center; 
+            font-size: 18px; 
+            font-weight: 900; 
+            letter-spacing: 0.5px; 
+        }
+        .title-roadwatch { color: var(--text); }
+        .title-hero { color: var(--accent); }
+        .title-hub { color: var(--muted); font-weight: 700; }
+        
+        .header-empty { width: 33%; }
+
+        /* --- MAIN LAYOUT (SIDEBAR + FEED) --- */
+        .app-body { 
+            display: flex; 
+            flex: 1; 
+            overflow: hidden; 
+            position: relative;
+        }
+
+        /* --- COLLAPSIBLE SIDEBAR (40% -> 25%) --- */
+        .sidebar { 
+            width: 40%; 
+            background: var(--surface); 
+            border-right: 1px solid var(--border); 
+            display: flex; 
+            flex-direction: column; 
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             overflow-y: auto;
+            position: relative;
         }
-        #searchModule.collapsed { width: 25%; }
+        .sidebar.collapsed { width: 25%; }
 
-        /* FEED AREA - Responsive to Sidebar */
-        .module-body { 
-            height: calc(100vh - 130px); 
-            overflow-y: auto; 
+        /* Sidebar Toggle Button */
+        .sidebar-toggle {
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            border: none;
+            border-bottom: 1px solid var(--border);
+            padding: 12px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--accent);
+            cursor: pointer;
+            z-index: 10;
+        }
+        .sidebar-toggle:hover { background: #f1f5f9; }
+
+        .sidebar-content { padding: 20px; }
+        .input-label { font-size: 10px; font-weight: 800; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; display: block; }
+        .input-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); font-size: 14px; outline: none; }
+        
+        /* Clean Categories */
+        .cat-row { padding: 14px 0; border-bottom: 1px solid var(--bg); font-size: 14px; font-weight: 700; cursor: pointer; color: var(--text); transition: color 0.2s; }
+        .cat-row:hover { color: var(--accent); }
+        .cat-row:last-child { border-bottom: none; }
+
+        /* --- MARKETPLACE FEED --- */
+        .feed-area { 
+            flex: 1; 
+            background: var(--bg); 
             padding: 20px; 
-            margin-left: 40%;
-            transition: margin-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto; 
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .module-body.expanded-feed { margin-left: 25%; }
 
-        /* CLEAN CATEGORY LIST */
-        .cat-row { 
-            padding: 14px 20px; 
-            border-bottom: 1px solid #f1f5f9; 
-            font-size: 13px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            color: var(--text);
-            text-transform: capitalize;
+        /* Structured Post Card */
+        .post-card { 
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            margin: 0 auto 25px auto; 
+            max-width: 500px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
-        .cat-row:hover { background: #fff8f5; color: var(--accent); }
+        .post-header { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid var(--bg); }
+        .post-user-icon { width: 36px; height: 36px; border-radius: 50%; background: #e2e8f0; border: 2px solid var(--accent); flex-shrink: 0; }
+        .post-biz-name { flex: 1; text-align: center; font-weight: 900; font-size: 15px; color: var(--text); padding-right: 36px; /* Offsets icon for true center */ }
+        
+        .post-image-square { width: 100%; aspect-ratio: 1 / 1; background: #e2e8f0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .post-image-square img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .post-footer { padding: 15px; }
+        .post-desc { font-size: 14px; color: var(--muted); margin-top: 0; margin-bottom: 15px; line-height: 1.4; }
+        .post-btn { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; text-transform: uppercase; }
 
-        /* POST STRUCTURE */
-        .post-structure { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 25px; max-width: 500px; margin-left: auto; margin-right: auto; overflow: hidden; }
-        .post-header { display: flex; align-items: center; padding: 12px; }
-        .user-icon-circle { width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; }
-        .biz-name-placeholder { flex: 1; text-align: center; font-weight: 800; font-size: 13px; color: var(--muted); }
-        .post-image-square { width: 100%; aspect-ratio: 1 / 1; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #cbd5e1; }
-        .post-footer { padding: 12px; }
-
-        .input-label { font-size: 10px; font-weight: 800; color: var(--muted); margin: 15px 20px 5px 20px; text-transform: uppercase; }
-        .input-box { width: calc(100% - 40px); margin: 0 auto 15px auto; display: block; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); font-size: 14px; }
+        .empty-feed-msg { text-align: center; color: var(--muted); padding: 40px 20px; }
     </style>
 </head>
 <body>
 
-    <div class="hub-module-header">
-        <div class="logo-box"><img src="https://www.roadwatchero.com/assets/logo-placeholder.png" alt="RW Hero"></div>
-        <div class="hub-title">Hero Hub</div>
-    </div>
+    <header class="hub-header">
+        <div class="header-logo">
+            <img src="roadwatchlogo.png" alt="RoadWatch Hero">
+        </div>
+        <div class="header-title">
+            <span class="title-roadwatch">ROADWATCH</span><span class="title-hero">HERO</span> <span class="title-hub">- HUB</span>
+        </div>
+        <div class="header-empty"></div>
+    </header>
 
-    <div class="nav-strip">
-        <div class="nav-item" id="searchToggle" onclick="toggleSidebarWidth()"><img src="https://www.roadwatchero.com/assets/nav/search-icon.png" alt="Toggle"></div>
-        <div class="nav-item active" onclick="switchView('home')"><img src="https://www.roadwatchero.com/assets/nav/home-icon.png" alt="Home"></div>
-        <div class="nav-item" onclick="switchView('profile')"><img src="https://www.roadwatchero.com/assets/nav/user-icon.png" alt="Profile"></div>
-    </div>
-
-    <div id="searchModule">
-        <div class="input-label">Keywords</div>
-        <input type="text" class="input-box" placeholder="Towing, Brakes, etc...">
+    <div class="app-body">
         
-        <div class="input-label">Location</div>
-        <input type="text" class="input-box" placeholder="City or Address">
-        
-        <div class="input-label">Radius (Miles)</div>
-        <input type="range" min="5" max="100" value="25" style="width: calc(100% - 40px); margin: 0 20px 20px 20px; accent-color: var(--accent);">
-        
-        <div class="input-label">Categories</div>
-        <div id="categoryList">
-            <div class="cat-row">Towing</div>
-            <div class="cat-row">Mechanic</div>
-            <div class="cat-row">Detailing</div>
-            <div class="cat-row">Tires</div>
-            <div class="cat-row">Locksmith</div>
-            <div class="cat-row">Tint</div>
-            <div class="cat-row">Glass</div>
-            <div class="cat-row">Battery</div>
-            <div class="cat-row">Wraps</div>
-            <div class="cat-row">Bodywork</div>
-            <div class="cat-row">Audio</div>
-            <div class="cat-row">Upholstery</div>
-            <div class="cat-row">Alignment</div>
-            <div class="cat-row">Oil</div>
-            <div class="cat-row">Transmission</div>
-        </div>
-    </div>
-
-    <div id="view-home" class="module-body">
-        <div style="text-align:center; padding-bottom: 20px; color: var(--muted);">
-            <h2 style="margin:0; font-size: 16px;">Waiting for Businesses to Post...</h2>
-        </div>
-
-        <div class="post-structure">
-            <div class="post-header">
-                <div class="user-icon-circle"></div>
-                <div class="biz-name-placeholder">BUSINESS NAME</div>
-            </div>
-            <div class="post-image-square">1:1 AD IMAGE</div>
-            <div class="post-footer">
-                <div style="width:100%; height:45px; background: #10b981; border-radius: 8px;"></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="view-profile" class="module-body" style="display:none; margin-left: 0;">
-        <div style="max-width:400px; margin: 40px auto; background:white; padding:30px; border-radius:16px; border:1px solid var(--border); text-align:center;">
-            <h2 style="margin-top:0">Pro Portal</h2>
-            <input type="email" id="proEmail" class="input-box" style="width:100%" placeholder="Email">
-            <input type="password" id="proPass" class="input-box" style="width:100%" placeholder="Password">
-            <button onclick="loginPro()" style="width:100%; padding:15px; background:var(--accent); color:white; border:none; border-radius:8px; font-weight:800; cursor:pointer;">LOGIN</button>
-        </div>
-    </div>
-
-    <script>
-        // REPLACE THESE WITH YOUR ACTUAL KEYS FROM HOME.HTML
-        const firebaseConfig = {
-            apiKey: "AIzaSyAzY...", 
-            authDomain: "roadsidehero-104ea.firebaseapp.com",
-            projectId: "roadsidehero-104ea",
-            storageBucket: "roadsidehero-104ea.appspot.com",
-            messagingSenderId: "1098...",
-            appId: "1:1098..."
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-
-        function toggleSidebarWidth() {
-            const sidebar = document.getElementById('searchModule');
-            const feed = document.getElementById('view-home');
+        <div id="filterSidebar" class="sidebar">
+            <button class="sidebar-toggle" id="toggleBtn" onclick="toggleSidebar()">[—] COLLAPSE</button>
             
-            sidebar.classList.toggle('collapsed');
-            feed.classList.toggle('expanded-feed');
-        }
+            <div class="sidebar-content">
+                <label class="input-label">Keywords</label>
+                <input type="text" class="input-box" placeholder="Search businesses...">
 
-        async function loginPro() {
-            const email = document.getElementById('proEmail').value;
-            const pass = document.getElementById('proPass').value;
-            try {
-                await auth.signInWithEmailAndPassword(email, pass);
-                alert("Logged in successfully!");
-                // Redirect or update UI
-            } catch (e) {
-                alert("Error: " + e.message);
-            }
-        }
+                <label class="input-label">Location</label>
+                <input type="text" class="input-box" placeholder="City or Zip">
 
-        function switchView(view) {
-            const home = document.getElementById('view-home');
-            const prof = document.getElementById('view-profile');
-            const side = document.getElementById('searchModule');
+                <label class="input-label">Radius (Miles): <span id="rVal" style="color:var(--accent);">25</span></label>
+                <input type="range" min="5" max="100" value="25" class="input-box" style="padding:0; border:none; background:none; accent-color:var(--accent);" oninput="document.getElementById('rVal').innerText=this.value">
 
-            if(view === 'profile') {
-                home.style.display = 'none';
-                prof.style.display = 'block';
-                side.style.display = 'none';
+                <label class="input-label" style="margin-top: 20px;">Categories</label>
+                <div class="cat-list">
+                    <div class="cat-row">Towing</div>
+                    <div class="cat-row">Mechanic</div>
+                    <div class="cat-row">Detailing</div>
+                    <div class="cat-row">Tires</div>
+                    <div class="cat-row">Locksmith</div>
+                    <div class="cat-row">Tint</div>
+                    <div class="cat-row">Glass</div>
+                    <div class="cat-row">Battery</div>
+                    <div class="cat-row">Wraps</div>
+                    <div class="cat-row">Bodywork</div>
+                    <div class="cat-row">Audio</div>
+                    <div class="cat-row">Upholstery</div>
+                    <div class="cat-row">Alignment</div>
+                    <div class="cat-row">Oil</div>
+                    <div class="cat-row">Transmission</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feed-area" id="marketplaceFeed">
+            
+            <div id="feedPlaceholder" class="empty-feed-msg">
+                <h3 style="margin-bottom: 5px; color: var(--text);">Connecting to Hub...</h3>
+                <p style="font-size: 13px;">Waiting for local businesses to post.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module">
+        // Using the exact version from your home.html file
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+        // Your exact credentials from home.html
+        const firebaseConfig = {
+            apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
+            authDomain: "roadsidehero-104ea.firebaseapp.com",
+            databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
+            projectId: "roadsidehero-104ea",
+            storageBucket: "roadsidehero-104ea.firebasestorage.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Sidebar Toggle Logic
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('filterSidebar');
+            const btn = document.getElementById('toggleBtn');
+            const isCollapsed = sidebar.classList.toggle('collapsed');
+            
+            if(isCollapsed) {
+                btn.innerText = "[+] EXPAND";
             } else {
-                home.style.display = 'block';
-                prof.style.display = 'none';
-                side.style.display = 'block';
+                btn.innerText = "[—] COLLAPSE";
             }
-        }
+        };
+
+        // Real-Time Listener for Business Posts
+        // (Assuming you save marketplace posts to a 'businessPosts' node)
+        const feedContainer = document.getElementById('marketplaceFeed');
+        const postsRef = ref(db, 'businessPosts');
+
+        onValue(postsRef, (snapshot) => {
+            const data = snapshot.val();
+            feedContainer.innerHTML = ''; // Clear feed for new data
+
+            if (!data) {
+                // Keep the structural ghost card layout visible as a placeholder if empty
+                feedContainer.innerHTML = `
+                    <div class="empty-feed-msg">
+                        <h3 style="margin-bottom: 5px; color: var(--text);">No Active Posts</h3>
+                        <p style="font-size: 13px;">Local businesses will appear here.</p>
+                    </div>
+                    <div class="post-card" style="opacity: 0.5;">
+                        <div class="post-header">
+                            <div class="post-user-icon"></div>
+                            <div class="post-biz-name">BUSINESS NAME</div>
+                        </div>
+                        <div class="post-image-square" style="font-weight: 800; color: #94a3b8;">1:1 IMAGE AREA</div>
+                        <div class="post-footer">
+                            <button class="post-btn" style="background: #cbd5e1; color: white;">CALL NOW</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render live posts
+            Object.values(data).forEach(post => {
+                const card = `
+                    <div class="post-card">
+                        <div class="post-header">
+                            <img src="${post.userIcon || 'https://via.placeholder.com/36'}" class="post-user-icon">
+                            <div class="post-biz-name">${post.businessName || 'Pro Hero'}</div>
+                        </div>
+                        <div class="post-image-square">
+                            <img src="${post.imageUrl || 'https://via.placeholder.com/500'}" alt="Business Ad">
+                        </div>
+                        <div class="post-footer">
+                            <p class="post-desc">${post.description || 'Professional automotive services.'}</p>
+                            <a href="tel:${post.phone || '#'}" style="text-decoration:none;">
+                                <button class="post-btn">CALL NOW</button>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                feedContainer.innerHTML += card;
+            });
+        });
     </script>
 </body>
 </html>
