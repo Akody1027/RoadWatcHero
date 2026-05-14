@@ -1,157 +1,509 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>ROADWATCHERO</title>
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="https://www.roadwatchero.com/icon-192x192.png">
-    <link rel="icon" href="/roadwatch.ico" type="image/x-icon">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#EE611C">
+    <link rel="manifest" href="/manifest.json" />
+    <link
+      rel="apple-touch-icon"
+      href="https://www.roadwatchero.com/icon-192x192.png"
+    />
+    <link rel="icon" href="/roadwatch.ico" type="image/x-icon" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    /> 
+    <meta name="theme-color" content="#EE611C" />
     <style>
-        :root {
-            --accent: #EE611C;
-            --bg: #ffffff;
-            --text: #0f172a;
-            --muted: #64748b;
-        }
+      :root {
+        --accent: #ee611c;
+        --bg: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b; 
+      }  
 
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
-        
-        iframe {
-            width: 100vw; height: 100vh; border: none; display: none; 
-            position: absolute; top: 0; left: 0; z-index: 1;
-        }
+      body, 
+      html {  
+        margin: 0;
+        padding: 0; 
+        width: 100%;
+        height: 100%;
+        font-family: -apple-system, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow: hidden;
+      }
 
-        #coverPage {
-            position: fixed; inset: 0; background: white; z-index: 99999;
-            display: flex; flex-direction: column; align-items: center;
-            padding: 60px 20px; overflow-y: auto; text-align: center;
-        }
+      iframe {
+        width: 100vw;
+        height: 100vh; 
+        border: none;
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
 
-        .logo { width: 220px; margin-bottom: 40px; }
+      #coverPage {
+        position: fixed;
+        inset: 0;
+        background: white;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 60px 20px;
+        overflow-y: auto;  
+        text-align: center;
+      }
 
-        #browserSection { width: 100%; max-width: 400px; display: block; }
+      .logo {
+        width: 220px;
+        margin-bottom: 40px;
+      }
 
-        h1 { font-size: 26px; font-weight: 800; margin-bottom: 10px; }
-        .description { color: var(--muted); line-height: 1.5; margin-bottom: 25px; font-size: 15px; }
+      #browserSection {
+        width: 100%;
+        max-width: 400px;
+        display: block;
+      }
 
-        .legal-dropdown { width: 100%; margin-bottom: 20px; border: 2px solid #f1f5f9; border-radius: 14px; background: #fff; text-align: left; overflow: hidden; }
-        .legal-header { padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 800; font-size: 13px; color: var(--accent); background: #fff9f6; }
-        #legalContent { max-height: 0; opacity: 0; transition: 0.4s ease; font-size: 13px; padding: 0 18px; line-height: 1.6; }
-        .legal-dropdown.open #legalContent { max-height: 300px; opacity: 1; padding: 18px; }
+      h1 {
+        font-size: 26px;
+        font-weight: 800;
+        margin-bottom: 10px;
+      }
+      .description {
+        color: var(--muted);
+        line-height: 1.5;
+        margin-bottom: 25px;
+        font-size: 15px;
+      }
 
-        .tos-check { display: flex; align-items: center; gap: 12px; margin-bottom: 30px; text-align: left; opacity: 0.3; pointer-events: none; transition: 0.3s; }
-        .tos-check.unlocked { opacity: 1; pointer-events: auto; }
-        .tos-check input { width: 26px; height: 26px; accent-color: var(--accent); }
+      .legal-dropdown {
+        width: 100%;
+        margin-bottom: 20px;
+        border: 2px solid #f1f5f9;
+        border-radius: 14px;
+        background: #fff;
+        text-align: left;
+        overflow: hidden;
+      }
+      .legal-header {
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 800;
+        font-size: 13px;
+        color: var(--accent);
+        background: #fff9f6;
+      }
+      #legalContent {
+        overflow: hidden;
+        max-height: 0;
+        opacity: 0;
+        transition: max-height 0.4s ease, opacity 0.3s ease; 
+        font-size: 13px;
+        padding: 0 18px;
+        line-height: 1.6;
+      }
+      .legal-dropdown.open #legalContent {
+        max-height: 300px;
+        opacity: 1;
+        padding: 18px;
+      }
 
-        .proceed-btn {
-            background: var(--accent); color: white; border: none; padding: 20px; border-radius: 18px; font-weight: 800; font-size: 18px; width: 100%;
-            cursor: pointer; transition: 0.3s; text-transform: uppercase;
-        }
-        .browser-only-btn { opacity: 0.3; pointer-events: none; }
-        .browser-only-btn.ready { opacity: 1; pointer-events: auto; }
+      .tos-check {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 30px;
+        text-align: left;
+        opacity: 0.3;
+        pointer-events: none;
+        transition: 0.3s;
+      }
+      .tos-check.unlocked {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .tos-check input {
+        width: 26px;
+        height: 26px;
+        accent-color: var(--accent);
+      }
 
-        #successPrompt { display: none; flex-direction: column; align-items: center; }
-        #successPrompt h2 { color: var(--text); font-weight: 800; margin-bottom: 10px; }
+      .proceed-btn {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 20px;
+        border-radius: 18px;
+        font-weight: 800;
+        font-size: 18px;
+        width: 100%;
+        cursor: pointer;
+        transition: 0.3s;
+        text-transform: uppercase;
+      }
+      .browser-only-btn {
+        opacity: 0.3;
+        pointer-events: none;
+      }
+      .browser-only-btn.ready {
+        opacity: 1;
+        pointer-events: auto;
+      }
 
-        /* Reset link styling */
-        .reset-link { margin-top: 40px; font-size: 11px; color: #cbd5e1; cursor: pointer; text-decoration: underline; background: none; border: none; }
+      #successPrompt {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+      }
+      #successPrompt h2 {
+        color: var(--text);
+        font-weight: 800;
+        margin-bottom: 10px;
+      }
+
+      /* Reset link styling */
+      .reset-link {
+        margin-top: 40px;
+        font-size: 11px;
+        color: #cbd5e1;
+        cursor: pointer;
+        text-decoration: underline;
+        background: none;
+        border: none;
+      }
+
+     
+
+      
+      
+            /* 1. Sidebar - Vertical Bar on the Left */
+      #heroHubSidebar {
+        pointer-events: auto; /* Made clickable */
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 50px;
+        height: 100%;
+        background: #1e293b; /* Professional Dark Slate */
+        z-index: 1000;
+        display: none; /* Hidden until enterApp() is called */
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Animate the slide */
+      }
+
+      #heroHubSidebar.open {
+        left: 95vw; /* Slides all the way to the right edge */
+      }
+
+      .hub-user-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        border: 2px solid var(--accent);
+        background: #cbd5e1;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .hub-badge {
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ef4444;
+        color: white;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 10px;
+        border: 2px solid #1e293b;
+      }
+
+      .hub-vertical-title {
+        writing-mode: vertical-rl;
+        text-orientation: mixed;
+        color: white;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-top: 40px;
+        opacity: 0.8;
+        font-size: 14px;
+        text-transform: uppercase;
+      }
+
+      #hubToggleBtn {
+        margin-top: auto;
+        margin-bottom: 30px;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      /* 2. The Hub Board - 95% Expansion Drawer */
+      #heroHubBoard {
+        pointer-events: auto; /* Allows you to click inside the iframe */
+        position: fixed;
+        left: -95vw; /* Start off-screen */
+        top: 0;
+        width: 95vw;
+        height: 100%;
+        background: white;
+        z-index: 999;
+        transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+      }
+
+      #heroHubBoard.open {
+        left: 0; /* Slides into the space left by the sidebar */
+      }
+
+      
+      
+       
+      
+      
+      
+      
+
+       #hubIframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+        position: relative;
+      }
+      
+
+      /* Overlay to close by clicking the remaining 5% */
+      #hubOverlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 998;
+        display: none;
+        backdrop-filter: blur(2px);
+      }
     </style>
-</head>
-<body id="mainBody">
-
+  </head>
+  <body id="mainBody">
     <div id="coverPage">
-        <img src="roadwatchlogo.png" alt="Logo" class="logo">
-        
-        <div id="browserSection">
-            <div id="installUI">
-                <h1>RoadWatchHero</h1>
-                <p class="description">Please review our safety policies and install the app to your home screen to continue.</p>
+      <img src="roadwatchlogo.png" alt="Logo" class="logo" />
 
-                <div class="legal-dropdown" id="legalDropdown">
-                    <div class="legal-header" id="triggerHeader">
-                        <span>1. REVIEW SAFETY & PRIVACY</span>
-                        <span>▼</span>
-                    </div>
-                    <div id="legalContent">
-                        <p><strong>GPS TRACKING:</strong> This app uses real-time location during SOS sessions.</p>
-                        <p><strong>PRIVACY:</strong> We do not save your identity or personal files.</p>
-                    </div>
-                </div>
+      <div id="browserSection">
+        <div id="installUI">
+          <h1>RoadWatchHero</h1>
+          <p class="description">
+            Please review our safety policies and install the app to your home
+            screen to continue.
+          </p>
 
-                <label class="tos-check" id="tosWrapper">
-                    <input type="checkbox" id="tosAgree">
-                    <span>2. I agree to proceed at my own risk.</span>
-                </label>
-
-                <div id="androidAction" style="display:none;">
-                    <button id="androidInstallBtn" class="proceed-btn browser-only-btn">INSTALL APP</button>
-                </div>
-
-                <div id="iosAction" style="display:none;">
-                    <p id="iosLockText" style="color: var(--muted); font-size: 13px;">Complete steps 1 and 2 to see instructions.</p>
-                    <div id="iosInstructions" style="display:none; text-align: left; font-size: 14px; font-weight: 600;">
-                        <p>1. Tap <strong>Share</strong> ( <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png" width="12"> )</p>
-                        <p>2. Select <strong>'Add to Home Screen'</strong></p>
-                    </div>
-                </div>
-
-                <div id="desktopAction" style="display:none;">
-                    <button class="proceed-btn browser-only-btn ready" onclick="enterApp()">Launch Web App</button>
-                </div>
+          <div class="legal-dropdown" id="legalDropdown">
+            <div class="legal-header" id="triggerHeader">
+              <span>1. REVIEW SAFETY & PRIVACY</span>
+              <span>▼</span>
             </div>
-
-            <div id="successPrompt">
-                <h2>Please open installed app.</h2>
-                <p style="color: var(--muted); font-size: 14px;">Find the RoadWatchHero icon on your home screen to begin.</p>
+            <div id="legalContent">
+              <p>
+                <strong>GPS TRACKING:</strong> This app uses real-time location
+                during SOS sessions.
+              </p>
+              <p>
+                <strong>PRIVACY:</strong> We do not save your identity or
+                personal files.
+              </p>
             </div>
+          </div>
+
+          <label class="tos-check" id="tosWrapper">
+            <input type="checkbox" id="tosAgree" />
+            <span>2. I agree to proceed at my own risk.</span>
+          </label>
+
+          <div id="androidAction" style="display: none">
+            <button id="androidInstallBtn" class="proceed-btn browser-only-btn">
+              INSTALL APP
+            </button>
+          </div>
+
+          <div id="iosAction" style="display: none">
+            <p id="iosLockText" style="color: var(--muted); font-size: 13px">
+              Complete steps 1 and 2 to see instructions.
+            </p>
+            <div
+              id="iosInstructions"
+              style="
+                display: none;
+                text-align: left;
+                font-size: 14px;
+                font-weight: 600;
+              "
+            >
+              <p>
+                1. Tap <strong>Share</strong> (
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png"
+                  width="12"
+                />
+                )
+              </p>
+              <p>2. Select <strong>'Add to Home Screen'</strong></p>
+            </div>
+          </div>
+
+          <div id="desktopAction" style="display: none">
+            <button
+              class="proceed-btn browser-only-btn ready"
+              onclick="enterApp()"
+            >
+              Launch Web App
+            </button>
+          </div>
+
+          <button
+            id="bypassBtn"
+            class="reset-link browser-only-btn"
+            style="
+              width: 100%;
+              color: var(--muted);
+              margin-top: 15px;
+              font-weight: 800;
+              text-transform: uppercase;
+            "
+            onclick="enterApp()"
+          >
+            MAYBE LATER (Continue to Hub)
+          </button>
         </div>
+
+        <div id="successPrompt">
+          <h2>Please open installed app.</h2>
+          <p style="color: var(--muted); font-size: 14px">
+            Find the RoadWatchHero icon on your home screen to begin.
+          </p>
+        </div>
+      </div>
     </div>
 
     <iframe src="home.html" id="appFrame"></iframe>
 
+    <div id="heroHubSidebar">
+      <div class="hub-user-icon" id="sidebarUserIcon">
+        <div class="hub-badge" id="hubBadgeCounter">0</div>
+      </div>
+      <div class="hub-vertical-title">HERO HUB</div>
+      <button id="hubToggleBtn">❯</button>
+    </div>
+
+    <div id="hubOverlay"></div>
+
+    <div id="heroHubBoard">
+      <iframe src="hub.html" id="hubIframe"></iframe>
+    </div>
+
     <script>
-        let deferredPrompt;
-        const cover = document.getElementById('coverPage');
-        const appFrame = document.getElementById('appFrame');
-        const dropdown = document.getElementById('legalDropdown');
+      let deferredPrompt;
+      const cover = document.getElementById("coverPage");
+      const appFrame = document.getElementById("appFrame");
+      const dropdown = document.getElementById("legalDropdown");
 
-        // Toggle dropdown
-        document.getElementById('triggerHeader').addEventListener('click', () => {
-            dropdown.classList.toggle('open');
-            document.getElementById('tosWrapper').classList.add('unlocked');
-        });
-
-        // Toggle TOS agreement
-        document.getElementById('tosAgree').addEventListener('change', function() {
-            const isAgreed = this.checked;
-            document.querySelectorAll('.browser-only-btn').forEach(btn => btn.classList.toggle('ready', isAgreed));
-            const iosInstr = document.getElementById('iosInstructions');
-            const iosLock = document.getElementById('iosLockText');
-            if(iosInstr) iosInstr.style.display = isAgreed ? 'block' : 'none';
-            if(iosLock) iosLock.style.display = isAgreed ? 'none' : 'block';
-        });
-
-        function enterApp() {
-            cover.style.display = 'none';
-            appFrame.style.display = 'block';
+      // Toggle dropdown
+      
+      // FIXED TOGGLE LOGIC
+      document.getElementById("triggerHeader").addEventListener("click", function() {
+        // 1. Explicitly find the parent container
+        const dropdownContainer = document.querySelector('.legal-dropdown');
+        const content = document.getElementById('legalContent');
+        
+        // 2. Toggle the class
+        const isOpen = dropdownContainer.classList.toggle('open');
+        
+        // 3. Force the browser to calculate the new height
+        if (isOpen) {
+          content.style.maxHeight = "1000px"; 
+          content.style.opacity = "1";
+        } else {
+          content.style.maxHeight = "0";
+          content.style.opacity = "0";
         }
 
-        // Manual recovery for users who deleted the app
-        function resetInstallationState() {
-            localStorage.removeItem('rw_pwa_installed');
-            window.location.reload();
-        }
+        // 4. Unlock the TOS checkbox wrapper
+        document.getElementById("tosWrapper").classList.add("unlocked");
+      });
 
-        function showAlreadyInstalledUI() {
-            document.getElementById('installUI').style.display = 'none';
-            const success = document.getElementById('successPrompt');
-            success.style.display = 'flex';
-            success.innerHTML = `
+     
+            // Toggle TOS agreement 
+      document
+        .getElementById("tosAgree")
+        .addEventListener("change", function () {
+          const isAgreed = this.checked;
+          
+          // This line now unlocks Install buttons AND the Maybe Later button
+          document
+            .querySelectorAll(".browser-only-btn")
+            .forEach((btn) => {
+                btn.classList.toggle("ready", isAgreed);
+                btn.style.pointerEvents = isAgreed ? "auto" : "none";
+                btn.style.opacity = isAgreed ? "1" : "0.3";
+            });
+
+          const iosInstr = document.getElementById("iosInstructions");
+          const iosLock = document.getElementById("iosLockText");
+          if (iosInstr) iosInstr.style.display = isAgreed ? "block" : "none";
+          if (iosLock) iosLock.style.display = isAgreed ? "none" : "block";
+        });
+
+      
+
+            function enterApp() {
+        // 1. Hide the entry gate
+        cover.style.display = "none";
+
+        // 2. Show the core app map
+        appFrame.style.display = "block";
+
+        // 3. Trigger the Hero Hub Sidebar
+        const sidebar = document.getElementById("heroHubSidebar");
+        sidebar.style.display = "flex";
+        sidebar.style.pointerEvents = "auto";
+        
+        // The CSS handles the hidden state naturally now, no inline pin needed.
+      }
+
+      
+      
+      
+
+      // Manual recovery for users who deleted the app
+      function resetInstallationState() {
+        localStorage.removeItem("rw_pwa_installed");
+        window.location.reload();
+      }
+
+      function showAlreadyInstalledUI() {
+        document.getElementById("installUI").style.display = "none";
+        const success = document.getElementById("successPrompt");
+        success.style.display = "flex";
+        success.innerHTML = `
                 <h2>App Already Installed</h2>
                 <p style="color: var(--muted); font-size: 14px; margin-bottom: 25px;">You've already added RoadWatchHero to your home screen.</p>
                 <div style="padding: 20px; background: #fff9f6; border: 2px solid var(--accent); border-radius: 18px; color: var(--accent); font-weight: 800; font-size: 16px;">
@@ -161,75 +513,119 @@
                     App deleted? Reset installation status
                 </button>
             `;
+      }
+
+      async function runSystemCheck() {
+        const isStandalone =
+          window.matchMedia("(display-mode: standalone)").matches ||
+          window.navigator.standalone === true;
+
+        if (isStandalone) {
+          localStorage.setItem("rw_pwa_installed", "true");
+          enterApp();
+          return;
         }
 
-        async function runSystemCheck() {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            
-            if (isStandalone) {
-                localStorage.setItem('rw_pwa_installed', 'true');
-                enterApp();
-                return;
-            }
-
-            if (localStorage.getItem('rw_pwa_installed') === 'true') {
-                showAlreadyInstalledUI();
-                return;
-            }
-
-            if ('getInstalledRelatedApps' in navigator) {
-                const relatedApps = await navigator.getInstalledRelatedApps();
-                if (relatedApps.length > 0) {
-                    showAlreadyInstalledUI();
-                    return;
-                }
-            }
-
-            const ua = navigator.userAgent.toLowerCase();
-            if (/iphone|ipad|ipod/.test(ua)) {
-                document.getElementById('iosAction').style.display = 'block';
-            } else if (/android/.test(ua)) {
-                document.getElementById('androidAction').style.display = 'block';
-            } else {
-                document.getElementById('desktopAction').style.display = 'block';
-            }
+        if (localStorage.getItem("rw_pwa_installed") === "true") {
+          showAlreadyInstalledUI();
+          return;
         }
 
-        // AUTO-CORRECTION: If Android triggers an install prompt, the app isn't installed.
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // If our flag says "installed" but the browser wants to prompt, clear the flag.
-            if (localStorage.getItem('rw_pwa_installed') === 'true') {
-                localStorage.removeItem('rw_pwa_installed');
-                window.location.reload(); 
-            }
-        });
-
-        window.addEventListener('appinstalled', () => {
-            localStorage.setItem('rw_pwa_installed', 'true');
-            document.getElementById('installUI').style.display = 'none';
-            document.getElementById('successPrompt').style.display = 'flex';
-        });
-
-        document.getElementById('androidInstallBtn').addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    localStorage.setItem('rw_pwa_installed', 'true');
-                }
-                deferredPrompt = null;
-            }
-        });
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => navigator.serviceWorker.register('/service-worker.js'));
+        if ("getInstalledRelatedApps" in navigator) {
+          const relatedApps = await navigator.getInstalledRelatedApps();
+          if (relatedApps.length > 0) {
+            showAlreadyInstalledUI();
+            return;
+          }
         }
 
-        runSystemCheck();
+        const ua = navigator.userAgent.toLowerCase();
+        if (/iphone|ipad|ipod/.test(ua)) {
+          document.getElementById("iosAction").style.display = "block";
+        } else if (/android/.test(ua)) {
+          document.getElementById("androidAction").style.display = "block";
+        } else {
+          document.getElementById("desktopAction").style.display = "block";
+        }
+      }
+
+      // AUTO-CORRECTION: If Android triggers an install prompt, the app isn't installed.
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+
+        // If our flag says "installed" but the browser wants to prompt, clear the flag.
+        if (localStorage.getItem("rw_pwa_installed") === "true") {
+          localStorage.removeItem("rw_pwa_installed");
+          window.location.reload();
+        }
+      });
+
+      window.addEventListener("appinstalled", () => {
+        localStorage.setItem("rw_pwa_installed", "true");
+        document.getElementById("installUI").style.display = "none";
+        document.getElementById("successPrompt").style.display = "flex";
+      });
+
+      document
+        .getElementById("androidInstallBtn")
+        .addEventListener("click", async () => {
+          if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === "accepted") {
+              localStorage.setItem("rw_pwa_installed", "true");
+            }
+            deferredPrompt = null;
+          }
+        });
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () =>
+          navigator.serviceWorker.register("/service-worker.js")
+        );
+      }
+
+      const hubBoard = document.getElementById("heroHubBoard");
+      const hubToggle = document.getElementById("hubToggleBtn");
+      const hubOverlay = document.getElementById("hubOverlay");
+
+ 
+      
+   
+            function toggleHeroHub() {
+        const isOpen = hubBoard.classList.toggle("open");
+        
+        // Sync the sidebar animation with the board
+        const sidebar = document.getElementById("heroHubSidebar");
+        sidebar.classList.toggle("open");
+
+        // Force the iframe to load its source when opening
+        const iframe = document.getElementById("hubIframe");
+        if (isOpen && (!iframe.src || iframe.src.includes("about:blank"))) {
+            iframe.src = "hub.html";
+        }
+
+        hubToggle.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
+        hubOverlay.style.display = isOpen ? "block" : "none";
+      }
+
+      
+      
+      
+      
+
+      hubToggle.addEventListener("click", toggleHeroHub);
+      hubOverlay.addEventListener("click", toggleHeroHub);
+
+      // Function for your backend to update the badge
+      function updateHubBadge(count) {
+        const badge = document.getElementById("hubBadgeCounter");
+        badge.innerText = count;
+        badge.style.display = count > 0 ? "block" : "none";
+      }
+
+      runSystemCheck();
     </script>
-</body>
+  </body>
 </html>
-
