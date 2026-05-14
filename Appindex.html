@@ -18,20 +18,20 @@
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
-    /> 
+    />
     <meta name="theme-color" content="#EE611C" />
-    <style>
+    <style> 
       :root {
         --accent: #ee611c;
-        --bg: #ffffff; 
+        --bg: #ffffff;
         --text: #0f172a;
-        --muted: #64748b;  
-      }     
- 
-      body,  
-      html {  
+        --muted: #64748b;
+      }
+
+      body,
+      html {
         margin: 0;
-        padding: 0; 
+        padding: 0;
         width: 100%;
         height: 100%;
         font-family: -apple-system, system-ui, sans-serif;
@@ -42,7 +42,7 @@
 
       iframe {
         width: 100vw;
-        height: 100vh; 
+        height: 100vh;
         border: none;
         display: none;
         position: absolute;
@@ -60,7 +60,7 @@
         flex-direction: column;
         align-items: center;
         padding: 60px 20px;
-        overflow-y: auto;  
+        overflow-y: auto;
         text-align: center;
       }
 
@@ -111,7 +111,7 @@
         overflow: hidden;
         max-height: 0;
         opacity: 0;
-        transition: max-height 0.4s ease, opacity 0.3s ease; 
+        transition: max-height 0.4s ease, opacity 0.3s ease;
         font-size: 13px;
         padding: 0 18px;
         line-height: 1.6;
@@ -186,11 +186,7 @@
         border: none;
       }
 
-     
-
-      
-      
-            /* 1. Sidebar - Vertical Bar on the Left */
+      /* 1. Sidebar - Vertical Bar on the Left */
       #heroHubSidebar {
         pointer-events: auto; /* Made clickable */
         position: fixed;
@@ -198,7 +194,7 @@
         top: 0;
         width: 50px;
         height: 100%;
-        background: var(--accent);/* orange accent*/
+        background: var(--accent); /* orange accent*/
         z-index: 1000;
         display: none; /* Hidden until enterApp() is called */
         flex-direction: column;
@@ -277,12 +273,9 @@
         left: 0; /* Slides into the space left by the sidebar */
       }
 
-      
-      
-       
-            #appFrame {
+      #appFrame {
         width: calc(100vw - 50px);
-        height: 100vh; 
+        height: 100vh;
         border: none;
         display: none;
         position: absolute;
@@ -291,18 +284,13 @@
         z-index: 1;
       }
 
-      
-      
-      
-
-       #hubIframe {
+      #hubIframe {
         width: 100%;
         height: 100%;
         border: none;
         display: block;
         position: relative;
       }
-      
 
       /* Overlay to close by clicking the remaining 5% */
       #hubOverlay {
@@ -312,6 +300,153 @@
         z-index: 998;
         display: none;
         backdrop-filter: blur(2px);
+      }
+
+      /* --- PRO SHELL MODAL STYLES --- */
+      .shell-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(5px);
+        z-index: 100000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .shell-modal-content {
+        background: white;
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        border-radius: 24px;
+        padding: 30px;
+        position: relative;
+        overflow-y: auto;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+      .shell-close-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #f1f5f9;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-weight: 900;
+        color: var(--text);
+        cursor: pointer;
+      }
+      .shell-input {
+        width: 100%;
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 15px;
+        font-size: 14px;
+        background: #f8fafc;
+        font-family: inherit;
+        box-sizing: border-box;
+      }
+      .shell-submit-btn {
+        width: 100%;
+        padding: 18px;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        font-weight: 800;
+        font-size: 16px;
+        cursor: pointer;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+      }
+      .shell-upsell-link {
+        display: block;
+        color: var(--accent);
+        font-weight: 800;
+        font-size: 14px;
+        text-decoration: none;
+        margin-top: 10px;
+      }
+      .shell-upsell-link:hover {
+        text-decoration: underline;
+      }
+      .shell-divider {
+        border: 0;
+        height: 1px;
+        background: #e2e8f0;
+        margin: 25px 0;
+      }
+
+      /* Campaign Manager Cards */
+      .shell-mini-post {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 10px;
+        text-align: left;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .shell-post-actions button {
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 800;
+        font-size: 11px;
+        cursor: pointer;
+        margin-left: 5px;
+        transition: 0.2s;
+      }
+      .shell-post-actions button:active {
+        transform: scale(0.95);
+      }
+      .btn-edit {
+        background: #f1f5f9;
+        color: var(--text);
+      }
+      .btn-delete {
+        background: #fee2e2;
+        color: #ef4444;
+      }
+
+      /* Social Links Builder Styles */
+      .social-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .social-row select {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        font-size: 13px;
+        font-family: inherit;
+      }
+      .social-row input {
+        flex: 2;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        font-size: 13px;
+        font-family: inherit;
+      }
+      .social-row button {
+        background: #fee2e2;
+        color: #ef4444;
+        border: none;
+        border-radius: 8px;
+        padding: 0 12px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .social-row button:active {
+        transform: scale(0.95);
       }
     </style>
   </head>
@@ -430,6 +565,203 @@
       <iframe src="hub.html" id="hubIframe"></iframe>
     </div>
 
+    <div id="proShellModal" class="shell-modal">
+      <div class="shell-modal-content">
+        <button
+          class="shell-close-btn"
+          onclick="document.getElementById('proShellModal').style.display='none'"
+        >
+          ✕
+        </button>
+
+        <div id="shellLoginSection">
+          <h2 style="margin-top: 0; font-weight: 900">Pro Hero Login</h2>
+          <p style="color: var(--muted); font-size: 14px; margin-bottom: 25px">
+            Access your marketing dashboard & fleet dispatch tools.
+          </p>
+          <input
+            type="email"
+            id="shellLoginEmail"
+            placeholder="Email Address"
+            class="shell-input"
+          />
+          <input
+            type="password"
+            id="shellLoginPassword"
+            placeholder="Password"
+            class="shell-input"
+          />
+          <button id="shellLoginBtn" class="shell-submit-btn">LOGIN</button>
+
+          <div
+            style="
+              background: #fff9f6;
+              border: 2px solid var(--accent);
+              border-radius: 16px;
+              padding: 20px;
+              margin-top: 20px;
+            "
+          >
+            <p style="margin: 0 0 10px 0; font-size: 24px">📈</p>
+            <a
+              href="pro-hero.html"
+              class="shell-upsell-link"
+              style="margin: 0; line-height: 1.4"
+              >Advertise with RoadWatch Heroes<br />Sign up now!</a
+            >
+          </div>
+        </div>
+
+        <div id="shellDashboardSection" style="display: none">
+          <h2 style="margin-top: 0; font-weight: 900">Marketing Dashboard</h2>
+
+          <div style="text-align: left">
+            <label
+              style="font-size: 11px; font-weight: 800; color: var(--muted)"
+              >BUSINESS IDENTITY</label
+            >
+
+            <div style="margin-top: 5px; margin-bottom: 15px">
+              <label style="font-size: 12px; font-weight: 600"
+                >Business Logo (Square):</label
+              >
+              <input
+                type="file"
+                id="shellBizLogo"
+                accept="image/*"
+                class="shell-input"
+                style="margin-bottom: 0; padding: 10px"
+              />
+            </div>
+
+            <input
+              type="text"
+              id="shellBizName"
+              placeholder="Business Name"
+              class="shell-input"
+            />
+            <input
+              type="tel"
+              id="shellBizPhone"
+              placeholder="Dispatch Phone Number (For 'Call Now')"
+              class="shell-input"
+            />
+
+            <div
+              style="
+                margin-bottom: 15px;
+                background: #f8fafc;
+                padding: 15px;
+                border-radius: 12px;
+                border: 1px solid #e2e8f0;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 10px;
+                "
+              >
+                <label
+                  style="font-size: 12px; font-weight: 800; color: var(--muted)"
+                  >SOCIAL LINKS</label
+                >
+                <button
+                  id="addSocialBtn"
+                  type="button"
+                  style="
+                    background: var(--accent);
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    font-weight: 900;
+                    font-size: 11px;
+                    cursor: pointer;
+                    padding: 6px 12px;
+                  "
+                >
+                  + ADD
+                </button>
+              </div>
+              <div id="socialLinksContainer"></div>
+            </div>
+
+            <hr class="shell-divider" />
+
+            <label
+              style="font-size: 11px; font-weight: 800; color: var(--muted)"
+              >CREATE NEW AD</label
+            >
+
+            <div style="margin-top: 5px; margin-bottom: 15px">
+              <label style="font-size: 12px; font-weight: 600"
+                >Promo Image (Required):</label
+              >
+              <input
+                type="file"
+                id="shellPromoImage"
+                accept="image/*"
+                class="shell-input"
+                style="margin-bottom: 0; padding: 10px"
+              />
+            </div>
+
+            <select id="shellPostCategory" class="shell-input">
+              <option value="Towing">Towing</option>
+              <option value="Mechanic">Mechanic</option>
+              <option value="Detailing">Detailing</option>
+              <option value="Tires">Tires</option>
+              <option value="Locksmith">Locksmith</option>
+              <option value="Tint">Tint</option>
+              <option value="Glass">Glass</option>
+              <option value="Battery">Battery</option>
+              <option value="Wraps">Wraps</option>
+              <option value="Bodywork">Bodywork</option>
+              <option value="Audio">Audio</option>
+              <option value="Upholstery">Upholstery</option>
+              <option value="Alignment">Alignment</option>
+              <option value="Oil">Oil</option>
+              <option value="Transmission">Transmission</option>
+            </select>
+            <textarea
+              id="shellPostDesc"
+              placeholder="Promo Description (e.g. 10% off today!)"
+              class="shell-input"
+              rows="3"
+            ></textarea>
+            <button
+              id="shellPublishBtn"
+              class="shell-submit-btn"
+              style="background: #10b981"
+            >
+              PUBLISH TO HUB
+            </button>
+
+            <hr class="shell-divider" />
+
+            <label
+              style="font-size: 11px; font-weight: 800; color: var(--muted)"
+              >YOUR ACTIVE CAMPAIGNS</label
+            >
+            <div id="shellActivePosts" style="margin-top: 10px">
+              <p
+                style="
+                  font-size: 13px;
+                  color: var(--muted);
+                  text-align: center;
+                  font-style: italic;
+                "
+              >
+                No active posts yet.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       let deferredPrompt;
       const cover = document.getElementById("coverPage");
@@ -437,44 +769,43 @@
       const dropdown = document.getElementById("legalDropdown");
 
       // Toggle dropdown
-      
-      // FIXED TOGGLE LOGIC
-      document.getElementById("triggerHeader").addEventListener("click", function() {
-        // 1. Explicitly find the parent container
-        const dropdownContainer = document.querySelector('.legal-dropdown');
-        const content = document.getElementById('legalContent');
-        
-        // 2. Toggle the class
-        const isOpen = dropdownContainer.classList.toggle('open');
-        
-        // 3. Force the browser to calculate the new height
-        if (isOpen) {
-          content.style.maxHeight = "1000px"; 
-          content.style.opacity = "1";
-        } else {
-          content.style.maxHeight = "0";
-          content.style.opacity = "0";
-        }
 
-        // 4. Unlock the TOS checkbox wrapper
-        document.getElementById("tosWrapper").classList.add("unlocked");
-      });
+      document
+        .getElementById("triggerHeader")
+        .addEventListener("click", function () {
+          const dropdownContainer = document.getElementById("legalDropdown");
+          const content = document.getElementById("legalContent");
 
-     
-            // Toggle TOS agreement 
+          // Toggle the class for state tracking
+          const isOpen = dropdownContainer.classList.toggle("open");
+
+          // Force the browser to render the exact heights and padding inline
+          if (isOpen) {
+            content.style.maxHeight = "1000px";
+            content.style.opacity = "1";
+            content.style.padding = "18px";
+          } else {
+            content.style.maxHeight = "0px";
+            content.style.opacity = "0";
+            content.style.padding = "0 18px";
+          }
+
+          // Unlock the TOS checkbox wrapper
+          document.getElementById("tosWrapper").classList.add("unlocked");
+        });
+
+      // Toggle TOS agreement
       document
         .getElementById("tosAgree")
         .addEventListener("change", function () {
           const isAgreed = this.checked;
-          
+
           // This line now unlocks Install buttons AND the Maybe Later button
-          document
-            .querySelectorAll(".browser-only-btn")
-            .forEach((btn) => {
-                btn.classList.toggle("ready", isAgreed);
-                btn.style.pointerEvents = isAgreed ? "auto" : "none";
-                btn.style.opacity = isAgreed ? "1" : "0.3";
-            });
+          document.querySelectorAll(".browser-only-btn").forEach((btn) => {
+            btn.classList.toggle("ready", isAgreed);
+            btn.style.pointerEvents = isAgreed ? "auto" : "none";
+            btn.style.opacity = isAgreed ? "1" : "0.3";
+          });
 
           const iosInstr = document.getElementById("iosInstructions");
           const iosLock = document.getElementById("iosLockText");
@@ -482,9 +813,7 @@
           if (iosLock) iosLock.style.display = isAgreed ? "none" : "block";
         });
 
-      
-
-            function enterApp() {
+      function enterApp() {
         // 1. Hide the entry gate
         cover.style.display = "none";
 
@@ -495,13 +824,9 @@
         const sidebar = document.getElementById("heroHubSidebar");
         sidebar.style.display = "flex";
         sidebar.style.pointerEvents = "auto";
-        
+
         // The CSS handles the hidden state naturally now, no inline pin needed.
       }
-
-      
-      
-      
 
       // Manual recovery for users who deleted the app
       function resetInstallationState() {
@@ -600,12 +925,9 @@
       const hubToggle = document.getElementById("hubToggleBtn");
       const hubOverlay = document.getElementById("hubOverlay");
 
- 
-      
-   
-            function toggleHeroHub() {
+      function toggleHeroHub() {
         const isOpen = hubBoard.classList.toggle("open");
-        
+
         // Sync the sidebar animation with the board
         const sidebar = document.getElementById("heroHubSidebar");
         sidebar.classList.toggle("open");
@@ -613,17 +935,12 @@
         // Force the iframe to load its source when opening
         const iframe = document.getElementById("hubIframe");
         if (isOpen && (!iframe.src || iframe.src.includes("about:blank"))) {
-            iframe.src = "hub.html";
+          iframe.src = "hub.html";
         }
 
         hubToggle.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
         hubOverlay.style.display = isOpen ? "block" : "none";
       }
-
-      
-      
-      
-      
 
       hubToggle.addEventListener("click", toggleHeroHub);
       hubOverlay.addEventListener("click", toggleHeroHub);
@@ -636,6 +953,350 @@
       }
 
       runSystemCheck();
+    </script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+      import {
+        getDatabase,
+        ref,
+        onValue,
+        push,
+        update,
+        remove,
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+      import {
+        getStorage,
+        ref as storageRef,
+        uploadBytes,
+        getDownloadURL,
+        deleteObject,
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+
+      // Your exact project credentials
+      const firebaseConfig = {
+        apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
+        authDomain: "roadsidehero-104ea.firebaseapp.com",
+        databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
+        projectId: "roadsidehero-104ea",
+        storageBucket: "roadsidehero-104ea.firebasestorage.app",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getDatabase(app);
+
+      const storage = getStorage(app);
+      let allPostsData = {}; // Cache to hold post data for editing
+
+      const socialContainer = document.getElementById("socialLinksContainer");
+      window.createSocialRow = (platform = "Website", url = "") => {
+        const row = document.createElement("div");
+        row.className = "social-row";
+        row.innerHTML = `
+          <select>
+            <option value="Website" ${
+              platform === "Website" ? "selected" : ""
+            }>🌐 Website</option>
+            <option value="Facebook" ${
+              platform === "Facebook" ? "selected" : ""
+            }>📘 Facebook</option>
+            <option value="Instagram" ${
+              platform === "Instagram" ? "selected" : ""
+            }>📸 Instagram</option>
+            <option value="TikTok" ${
+              platform === "TikTok" ? "selected" : ""
+            }>🎵 TikTok</option>
+            <option value="X" ${
+              platform === "X" ? "selected" : ""
+            }>✖️ X</option>
+            <option value="Yelp" ${
+              platform === "Yelp" ? "selected" : ""
+            }>⭐ Yelp</option>
+          </select>
+          <input type="url" placeholder="Paste URL" value="${url}">
+          <button type="button" onclick="this.parentElement.remove()">✕</button>
+        `;
+        socialContainer.appendChild(row);
+      };
+      document
+        .getElementById("addSocialBtn")
+        .addEventListener("click", () => window.createSocialRow());
+
+      function getSocialLinks() {
+        const links = [];
+        socialContainer.querySelectorAll(".social-row").forEach((row) => {
+          const platform = row.querySelector("select").value;
+          const url = row.querySelector("input").value.trim();
+          if (url) links.push({ platform, url });
+        });
+        return links;
+      }
+
+      let currentUserId = null;
+
+      // 1. Sidebar Icon Click Listener (Opens Gatekeeper)
+      document
+        .getElementById("sidebarUserIcon")
+        .addEventListener("click", () => {
+          document.getElementById("proShellModal").style.display = "flex";
+
+          // Reset Lead Analytics Badge when they check their profile
+          window.updateHubBadge(0);
+          if (currentUserId) {
+            update(ref(db, `profiles/${currentUserId}`), { unreadLeads: 0 });
+          }
+        });
+
+      // 2. Authentication State Listener
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUserId = user.uid;
+          document.getElementById("shellLoginSection").style.display = "none";
+          document.getElementById("shellDashboardSection").style.display =
+            "block";
+
+          // Load Profile Data (Name, Phone, Leads)
+          onValue(ref(db, `profiles/${currentUserId}`), (snap) => {
+            const data = snap.val() || {};
+            // Only auto-fill if the input is currently empty
+            if (!document.getElementById("shellBizName").value) {
+              document.getElementById("shellBizName").value =
+                data.companyName || data.name || "";
+              document.getElementById("shellBizPhone").value =
+                data.dispatchPhone || "";
+            }
+
+            // Check for new leads to trigger the red badge
+            if (
+              data.unreadLeads > 0 &&
+              document.getElementById("proShellModal").style.display !== "flex"
+            ) {
+              window.updateHubBadge(data.unreadLeads);
+            }
+          });
+
+          // Live Listener for Active Campaigns (Bottom of Profile)
+          onValue(ref(db, "businessPosts"), (snap) => {
+            const posts = snap.val() || {};
+            // Filter down to ONLY posts owned by this specific Pro
+            const myPosts = Object.entries(posts).filter(
+              ([id, p]) => p.ownerId === currentUserId
+            );
+            const container = document.getElementById("shellActivePosts");
+
+            if (myPosts.length === 0) {
+              container.innerHTML =
+                '<p style="font-size: 13px; color: var(--muted); text-align: center; font-style: italic;">No active posts yet.</p>';
+              return;
+            }
+
+            container.innerHTML = "";
+            myPosts.forEach(([id, post]) => {
+              container.innerHTML += `
+                    <div class="shell-mini-post">
+                        <div style="flex: 1; padding-right: 10px;">
+                            <div style="font-weight: 900; font-size: 14px; color: var(--accent); text-transform: uppercase;">${
+                              post.category
+                            }</div>
+                            <div style="font-size: 13px; color: var(--text); margin-top: 4px; line-height: 1.3;">${post.description.substring(
+                              0,
+                              45
+                            )}${post.description.length > 45 ? "..." : ""}</div>
+                        </div>
+                        <div class="shell-post-actions">
+                            <button class="btn-edit" onclick="window.editPost('${id}', '${post.description.replace(
+                /'/g,
+                "\\'"
+              )}', '${post.category}')">EDIT</button>
+                            <button class="btn-delete" onclick="window.deletePost('${id}')">DEL</button>
+                        </div>
+                    </div>
+                 `;
+            });
+          });
+        } else {
+          currentUserId = null;
+          document.getElementById("shellLoginSection").style.display = "block";
+          document.getElementById("shellDashboardSection").style.display =
+            "none";
+        }
+      });
+
+      // 3. Login Action
+      document.getElementById("shellLoginBtn").addEventListener("click", () => {
+        const email = document.getElementById("shellLoginEmail").value;
+        const pass = document.getElementById("shellLoginPassword").value;
+        if (!email || !pass)
+          return alert("Please enter your Pro email and password.");
+
+        document.getElementById("shellLoginBtn").innerText = "LOADING...";
+        signInWithEmailAndPassword(auth, email, pass)
+          .then(() => {
+            document.getElementById("shellLoginBtn").innerText = "LOGIN";
+          })
+          .catch((err) => {
+            alert("Login failed. Check your credentials.");
+            document.getElementById("shellLoginBtn").innerText = "LOGIN";
+          });
+      });
+
+      let editingPostId = null;
+      document
+        .getElementById("shellPublishBtn")
+        .addEventListener("click", async () => {
+          const bizName = document.getElementById("shellBizName").value;
+          const phone = document.getElementById("shellBizPhone").value;
+          const desc = document.getElementById("shellPostDesc").value;
+          const cat = document.getElementById("shellPostCategory").value;
+          const logoFile = document.getElementById("shellBizLogo").files[0];
+          const promoFile = document.getElementById("shellPromoImage").files[0];
+
+          if (!bizName || !phone || !desc) {
+            return alert(
+              "Please fill out your Business Name, Phone, and Description."
+            );
+          }
+
+          const btn = document.getElementById("shellPublishBtn");
+          btn.innerText = "UPLOADING...";
+          btn.style.opacity = "0.7";
+          btn.style.pointerEvents = "none";
+
+          let finalLogoUrl =
+            document.getElementById("shellBizLogo").dataset.existing || "";
+          let finalPromoUrl =
+            document.getElementById("shellPromoImage").dataset.existing || "";
+
+          try {
+            if (logoFile) {
+              const sRef = storageRef(
+                storage,
+                `hub_ads/${currentUserId}/logo_${Date.now()}`
+              );
+              await uploadBytes(sRef, logoFile);
+              finalLogoUrl = await getDownloadURL(sRef);
+            }
+            if (promoFile) {
+              const sRef = storageRef(
+                storage,
+                `hub_ads/${currentUserId}/promo_${Date.now()}`
+              );
+              await uploadBytes(sRef, promoFile);
+              finalPromoUrl = await getDownloadURL(sRef);
+            }
+
+            const postData = {
+              ownerId: currentUserId,
+              businessName: bizName,
+              phone: phone,
+              description: desc,
+              category: cat,
+              logoUrl: finalLogoUrl,
+              promoUrl: finalPromoUrl,
+              socialLinks: getSocialLinks(),
+              timestamp: Date.now(),
+            };
+
+            if (editingPostId) {
+              await update(ref(db, `businessPosts/${editingPostId}`), postData);
+              editingPostId = null;
+            } else {
+              await push(ref(db, "businessPosts"), postData);
+            }
+
+            document.getElementById("shellPostDesc").value = "";
+            document.getElementById("shellBizLogo").value = "";
+            document.getElementById("shellPromoImage").value = "";
+            document.getElementById("shellBizLogo").dataset.existing = "";
+            document.getElementById("shellPromoImage").dataset.existing = "";
+            socialContainer.innerHTML = "";
+
+            btn.innerText = "PUBLISH TO HUB";
+            btn.style.background = "#10b981";
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+          } catch (e) {
+            console.error(e);
+            alert("Error uploading images.");
+            btn.innerText = "PUBLISH TO HUB";
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+          }
+        });
+
+      window.deletePost = async (postId) => {
+        if (
+          confirm(
+            "Are you sure you want to delete this ad? It will be removed from the Hub instantly."
+          )
+        ) {
+          const post = allPostsData[postId];
+          if (post) {
+            try {
+              if (post.logoUrl && post.logoUrl.includes("firebasestorage")) {
+                await deleteObject(storageRef(storage, post.logoUrl));
+              }
+            } catch (e) {}
+            try {
+              if (post.promoUrl && post.promoUrl.includes("firebasestorage")) {
+                await deleteObject(storageRef(storage, post.promoUrl));
+              }
+            } catch (e) {}
+          }
+          remove(ref(db, `businessPosts/${postId}`));
+        }
+      };
+
+      window.editPost = (postId) => {
+        const post = allPostsData[postId];
+        if (!post) return;
+
+        editingPostId = postId;
+        document.getElementById("shellPostDesc").value = post.description || "";
+        document.getElementById("shellPostCategory").value =
+          post.category || "Towing";
+
+        document.getElementById("shellBizLogo").dataset.existing =
+          post.logoUrl || "";
+        document.getElementById("shellPromoImage").dataset.existing =
+          post.promoUrl || "";
+        document.getElementById("shellBizLogo").value = "";
+        document.getElementById("shellPromoImage").value = "";
+
+        socialContainer.innerHTML = "";
+        if (post.socialLinks) {
+          post.socialLinks.forEach((link) =>
+            window.createSocialRow(link.platform, link.url)
+          );
+        }
+
+        const btn = document.getElementById("shellPublishBtn");
+        btn.innerText = "UPDATE POST";
+        btn.style.background = "var(--text)";
+
+        document.querySelector(".shell-modal-content").scrollTop = 0;
+      };
+
+      window.editPost = (postId, desc, cat) => {
+        editingPostId = postId;
+        document.getElementById("shellPostDesc").value = desc;
+        document.getElementById("shellPostCategory").value = cat;
+
+        // Change button to indicate an update state
+        const btn = document.getElementById("shellPublishBtn");
+        btn.innerText = "UPDATE POST";
+        btn.style.background = "var(--text)";
+
+        // Scroll back to top of modal so they see the editor
+        document.querySelector(".shell-modal-content").scrollTop = 0;
+      };
     </script>
   </body>
 </html>
