@@ -593,18 +593,25 @@
                               font-weight: 600;
                             }
 
-                            .footer {
-                              position: fixed;
-                              bottom: 0;
-                              width: 100%;
-                              background: rgba(238, 97, 28, 0.9);
-                              backdrop-filter: blur(10px);
-                              display: flex;
-                              justify-content: center;
-                              align-items: center;
-                              z-index: 200;
-                              border-top: 1px solid rgba(255, 255, 255, 0.2);
-                            }
+                            
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 50px;
+  width: calc(100vw - 50px);
+  background: rgba(238, 97, 28, 0.9);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+      
+
+
+      
                             .footer-icons {
                               display: flex;
                               gap: 100px;
