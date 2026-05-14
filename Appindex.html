@@ -25,9 +25,9 @@
         --accent: #ee611c;
         --bg: #ffffff;
         --text: #0f172a;
-        --muted: #64748b; 
-      }  
-
+        --muted: #64748b;  
+      }    
+ 
       body, 
       html {  
         margin: 0;
@@ -196,7 +196,7 @@
         position: fixed;
         left: 0;
         top: 0;
-        width: 50px;
+        width: 60px;
         height: 100%;
         background: #1e293b; /* Professional Dark Slate */
         z-index: 1000;
@@ -209,7 +209,7 @@
       }
 
       #heroHubSidebar.open {
-        left: 95vw; /* Slides all the way to the right edge */
+        left: 90vw; /* Slides all the way to the right edge */
       }
 
       .hub-user-icon {
@@ -244,19 +244,19 @@
         letter-spacing: 2px;
         margin-top: 40px;
         opacity: 0.8;
-        font-size: 14px;
+        font-size: 22px;
         text-transform: uppercase;
       }
 
       #hubToggleBtn {
         margin-top: auto;
-        margin-bottom: 30px;
+        margin-bottom: 300px;
         background: none;
         border: none;
         color: white;
-        font-size: 24px;
+        font-size: 60px;
         cursor: pointer;
-        transition: transform 0.3s ease;
+        transition: transform 0.4s ease;
       }
 
       /* 2. The Hub Board - 95% Expansion Drawer */
@@ -265,11 +265,11 @@
         position: fixed;
         left: -95vw; /* Start off-screen */
         top: 0;
-        width: 95vw;
+        width: 90vw;
         height: 100%;
         background: white;
         z-index: 999;
-        transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
       }
 
