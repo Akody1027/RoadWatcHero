@@ -23,12 +23,12 @@
     <style>
       :root {
         --accent: #ee611c;
-        --bg: #ffffff;
+        --bg: #ffffff; 
         --text: #0f172a;
         --muted: #64748b;  
-      }    
+      }     
  
-      body, 
+      body,  
       html {  
         margin: 0;
         padding: 0; 
@@ -41,13 +41,13 @@
       }
 
       iframe {
-        width: calc(100vw - 50px);
+        width: 100vw;
         height: 100vh; 
         border: none;
         display: none;
         position: absolute;
         top: 0;
-        left: 50px;
+        left: 0;
         z-index: 1;
       }
 
@@ -213,8 +213,8 @@
       }
 
       .hub-user-icon {
-        width: 45px;
-        height: 45px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         border: 2px solid var(--accent);
         background: #cbd5e1;
@@ -280,7 +280,17 @@
       
       
        
-      
+            #appFrame {
+        width: calc(100vw - 50px);
+        height: 100vh; 
+        border: none;
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 50px;
+        z-index: 1;
+      }
+
       
       
       
