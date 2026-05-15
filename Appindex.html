@@ -20,19 +20,19 @@
       content="black-translucent"
     />
     <meta name="theme-color" content="#EE611C" />
-    <style> 
-      :root {
-        --accent: #ee611c; 
+    <style>
+      :root { 
+        --accent: #ee611c;  
         --bg: #ffffff;
         --text: #0f172a;
         --muted: #64748b;
-      }
+      } 
 
       body,
       html {
         margin: 0;
         padding: 0;
-        width: 100%;
+        width: 100%; 
         height: 100%;
         font-family: -apple-system, system-ui, sans-serif;
         background: var(--bg);
@@ -815,6 +815,28 @@
             class="shell-input"
           />
 
+          <button
+            id="shellSaveProfileBtn"
+            type="button"
+            class="shell-submit-btn"
+            style="background: #3b82f6; margin-top: 5px; margin-bottom: 5px"
+          >
+            SAVE IDENTITY
+          </button>
+          <p
+            id="profileSaveMsg"
+            style="
+              color: #10b981;
+              font-size: 12px;
+              font-weight: 800;
+              display: none;
+              text-align: center;
+              margin-top: 0;
+            "
+          >
+            ✓ Profile Saved Successfully!
+          </p>
+
           <hr class="shell-divider" />
 
           <label style="font-size: 11px; font-weight: 800; color: var(--muted)"
@@ -1438,6 +1460,71 @@
             document.getElementById("shellLoginBtn").innerText = "LOGIN";
           });
       });
+
+      // --- SAVE IDENTITY LOGIC ---
+      document
+        .getElementById("shellSaveProfileBtn")
+        .addEventListener("click", async () => {
+          const bizName = document.getElementById("shellBizName").value;
+          const address = document.getElementById("shellBizAddress").value;
+          const phone = document.getElementById("shellBizPhone").value;
+          const logoFile = document.getElementById("shellBizLogo").files[0];
+
+          if (!bizName || !phone || !address) {
+            return alert(
+              "Please fill out your Business Name, Address, and Phone to save your identity."
+            );
+          }
+
+          const btn = document.getElementById("shellSaveProfileBtn");
+          btn.innerText = "SAVING...";
+          btn.style.opacity = "0.7";
+          btn.style.pointerEvents = "none";
+
+          let finalLogoUrl =
+            document.getElementById("shellBizLogo").dataset.existing || "";
+
+          try {
+            if (logoFile) {
+              const sRef = storageRef(
+                storage,
+                `hub_ads/${currentUserId}/logo_${Date.now()}`
+              );
+              await uploadBytes(sRef, logoFile);
+              finalLogoUrl = await getDownloadURL(sRef);
+            }
+
+            // Save core identity globally to Master Profile
+            await update(ref(db, `profiles/${currentUserId}`), {
+              companyName: bizName,
+              businessAddress: address,
+              dispatchPhone: phone,
+              logoUrl: finalLogoUrl,
+            });
+
+            // Lock it into the local UI cache so it survives reloads
+            document.getElementById("shellBizLogo").dataset.existing =
+              finalLogoUrl;
+
+            // Show Success Message
+            btn.innerText = "SAVE IDENTITY";
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+            document.getElementById("profileSaveMsg").style.display = "block";
+            setTimeout(
+              () =>
+                (document.getElementById("profileSaveMsg").style.display =
+                  "none"),
+              3000
+            );
+          } catch (e) {
+            console.error(e);
+            alert("Error saving profile. Please check your Database Rules.");
+            btn.innerText = "SAVE IDENTITY";
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+          }
+        });
 
       let editingPostId = null;
       document
