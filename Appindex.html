@@ -20,10 +20,10 @@
       content="black-translucent"
     />
     <meta name="theme-color" content="#EE611C" />
-    <style> 
+    <style>
       :root {
         --accent: #ee611c;
-        --bg: #ffffff;
+        --bg: #ffffff; 
         --text: #0f172a;
         --muted: #64748b;
       }
@@ -602,7 +602,7 @@
               margin-top: 20px;
             "
           >
-            <p style="margin: 0 0 10px 0; font-size: 24px">📈</p>
+            <p style="margin: 0 0 10px 0; font-size: 24px"></p>
             <a
               href="pro-hero.html"
               class="shell-upsell-link"
@@ -1085,6 +1085,8 @@
           // Live Listener for Active Campaigns (Bottom of Profile)
           onValue(ref(db, "businessPosts"), (snap) => {
             const posts = snap.val() || {};
+            allPostsData = posts;
+
             // Filter down to ONLY posts owned by this specific Pro
             const myPosts = Object.entries(posts).filter(
               ([id, p]) => p.ownerId === currentUserId
@@ -1111,10 +1113,13 @@
                             )}${post.description.length > 45 ? "..." : ""}</div>
                         </div>
                         <div class="shell-post-actions">
-                            <button class="btn-edit" onclick="window.editPost('${id}', '${post.description.replace(
-                /'/g,
-                "\\'"
-              )}', '${post.category}')">EDIT</button>
+                         
+                         
+                                <button class="btn-edit" onclick="window.editPost('${id}')">EDIT</button>
+
+              
+              
+              
                             <button class="btn-delete" onclick="window.deletePost('${id}')">DEL</button>
                         </div>
                     </div>
@@ -1281,20 +1286,6 @@
         btn.innerText = "UPDATE POST";
         btn.style.background = "var(--text)";
 
-        document.querySelector(".shell-modal-content").scrollTop = 0;
-      };
-
-      window.editPost = (postId, desc, cat) => {
-        editingPostId = postId;
-        document.getElementById("shellPostDesc").value = desc;
-        document.getElementById("shellPostCategory").value = cat;
-
-        // Change button to indicate an update state
-        const btn = document.getElementById("shellPublishBtn");
-        btn.innerText = "UPDATE POST";
-        btn.style.background = "var(--text)";
-
-        // Scroll back to top of modal so they see the editor
         document.querySelector(".shell-modal-content").scrollTop = 0;
       };
     </script>
