@@ -2,10 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="user-scalable=no"
-    />
+  
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
     <title>ROADWATCHERO</title>
     <link rel="manifest" href="/manifest.json" />
     <link
@@ -996,8 +995,27 @@
       const appFrame = document.getElementById("appFrame");
       const dropdown = document.getElementById("legalDropdown");
 
-      // Toggle dropdown
+    
+        function adjustViewport() {
+            const width = window.screen.width;
+            let scale = 1.0;
+            
+            // If the screen is narrower than 450px (like the S26 Ultra), zoom out
+            if (width < 450) {
+                scale = width / 450; // This creates a proportional zoom-out
+            }
 
+            const viewport = document.querySelector('meta[name="viewport"]');
+            viewport.setAttribute('content', `width=device-width, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`);
+        }
+
+        // Run it immediately and if the screen orientation changes
+        adjustViewport();
+        window.addEventListener('resize', adjustViewport);
+
+
+
+      
       document
         .getElementById("triggerHeader")
         .addEventListener("click", function () {
