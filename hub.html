@@ -290,6 +290,7 @@
       .feed-area.grid-view .post-card {
         margin: 0;
         max-width: 100%;
+
         border-radius: 12px;
       }
       .feed-area.grid-view .post-header {
@@ -299,8 +300,8 @@
         gap: 6px;
       }
       .feed-area.grid-view .post-user-icon {
-        width: 44px;
-        height: 44px;
+        width: 50px;
+        height: 50px;
         margin-bottom: 4px;
       }
       .feed-area.grid-view .post-biz-name {
@@ -354,6 +355,54 @@
         color: var(--text);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       }
+
+      /* --- POST MODAL --- */
+      .post-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(4px);
+        z-index: 100000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .post-modal-content {
+        background: var(--surface);
+        width: 100%;
+        max-width: 500px;
+        max-height: 90vh;
+        border-radius: 20px;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+      .post-modal-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        font-weight: 900;
+        cursor: pointer;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+      .post-card {
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+      .post-card:active {
+        transform: scale(0.98);
+      }
     </style>
   </head>
   <body>
@@ -375,72 +424,72 @@
 
       <div id="filterSidebar" class="sidebar">
         <div class="sidebar-content">
-        <div class="layout-toggle-wrapper">
-          <button
-            id="btnList"
-            class="layout-toggle-btn active"
-            onclick="window.setLayout('list')"
+          <div class="layout-toggle-wrapper">
+            <button
+              id="btnList"
+              class="layout-toggle-btn active"
+              onclick="window.setLayout('list')"
+            >
+              LIST
+            </button>
+            <button
+              id="btnGrid"
+              class="layout-toggle-btn"
+              onclick="window.setLayout('grid')"
+            >
+              GRID
+            </button>
+          </div>
+
+          <label class="input-label">Keywords</label>
+          <input
+            type="text"
+            class="input-box"
+            placeholder="Search businesses..."
+          />
+
+          <label class="input-label">Location</label>
+          <input type="text" class="input-box" placeholder="City or Zip" />
+
+          <label class="input-label"
+            >Radius (Miles):
+            <span id="rVal" style="color: var(--accent)">25</span></label
           >
-            LIST
-          </button>
-          <button
-            id="btnGrid"
-            class="layout-toggle-btn"
-            onclick="window.setLayout('grid')"
-          >
-            GRID
-          </button>
-        </div>
+          <input
+            type="range"
+            min="5"
+            max="100"
+            value="25"
+            class="input-box"
+            style="
+              padding: 0;
+              border: none;
+              background: none;
+              accent-color: var(--accent);
+            "
+            oninput="document.getElementById('rVal').innerText=this.value"
+          />
 
-        <label class="input-label">Keywords</label>
-        <input
-          type="text"
-          class="input-box"
-          placeholder="Search businesses..."
-        />
-
-        <label class="input-label">Location</label>
-        <input type="text" class="input-box" placeholder="City or Zip" />
-
-        <label class="input-label"
-          >Radius (Miles):
-          <span id="rVal" style="color: var(--accent)">25</span></label
-        >
-        <input
-          type="range"
-          min="5"
-          max="100"
-          value="25"
-          class="input-box"
-          style="
-            padding: 0;
-            border: none;
-            background: none;
-            accent-color: var(--accent);
-          "
-          oninput="document.getElementById('rVal').innerText=this.value"
-        />
-
-        <label class="input-label" style="margin-top: 20px">Categories</label>
-        <div class="cat-list">
-          <div class="cat-row">Towing</div>
-          <div class="cat-row">Mechanic</div>
-          <div class="cat-row">Detailing</div>
-          <div class="cat-row">Tires</div>
-          <div class="cat-row">Locksmith</div>
-          <div class="cat-row">Tint</div>
-          <div class="cat-row">Glass</div>
-          <div class="cat-row">Battery</div>
-          <div class="cat-row">Wraps</div>
-          <div class="cat-row">Bodywork</div>
-          <div class="cat-row">Audio</div>
-          <div class="cat-row">Upholstery</div>
-          <div class="cat-row">Alignment</div>
-          <div class="cat-row">Oil</div>
-          <div class="cat-row">Transmission</div>
+          <label class="input-label" style="margin-top: 20px">Categories</label>
+          <div class="cat-list">
+            <div class="cat-row">Towing</div>
+            <div class="cat-row">Mechanic</div>
+            <div class="cat-row">Detailing</div>
+            <div class="cat-row">Tires</div>
+            <div class="cat-row">Locksmith</div>
+            <div class="cat-row">Tint</div>
+            <div class="cat-row">Glass</div>
+            <div class="cat-row">Battery</div>
+            <div class="cat-row">Wraps</div>
+            <div class="cat-row">Bodywork</div>
+            <div class="cat-row">Audio</div>
+            <div class="cat-row">Upholstery</div>
+            <div class="cat-row">Alignment</div>
+            <div class="cat-row">Oil</div>
+            <div class="cat-row">Transmission</div>
+          </div>
         </div>
       </div>
-</div>
       <div class="feed-area" id="marketplaceFeed">
         <div id="feedPlaceholder" class="empty-feed-msg">
           <h3 style="margin-bottom: 5px; color: var(--text)">
@@ -450,8 +499,14 @@
         </div>
       </div>
     </div>
-   
-  
+
+    <div
+      id="postModal"
+      class="post-modal"
+      onclick="if(event.target === this) window.closePostModal()"
+    >
+      <div class="post-modal-content" id="postModalContent"></div>
+    </div>
 
     <script type="module">
       // Using the exact version from your home.html file
@@ -497,17 +552,56 @@
         }
       };
 
+      // --- MODAL LOGIC ---
+      window.closePostModal = () => {
+        document.getElementById("postModal").style.display = "none";
+      };
+
+      window.openPostModal = (key) => {
+        const post = window.allHubPosts[key];
+        if (!post) return;
+
+        const modalContent = document.getElementById("postModalContent");
+
+        // Inject post data into the enlarged modal
+        modalContent.innerHTML = `
+          <button class="post-modal-close" onclick="window.closePostModal()">✕</button>
+          <div class="post-header">
+              <img src="${
+                post.logoUrl || "https://via.placeholder.com/36"
+              }" class="post-user-icon">
+              <div class="post-biz-name">${
+                post.businessName || "Pro Hero"
+              }</div>
+          </div>
+          <div class="post-image-square" style="aspect-ratio: auto; max-height: 60vh;">
+              <img src="${
+                post.promoUrl || "https://via.placeholder.com/500"
+              }" alt="Business Ad" style="height: auto; max-height: 60vh;">
+          </div>
+          <div class="post-footer">
+              <p class="post-desc" style="font-size: 16px;">${
+                post.description || "Professional automotive services."
+              }</p>
+              <a href="tel:${
+                post.phone || "#"
+              }" style="text-decoration:none;" onclick="event.stopPropagation();">
+                  <button class="post-btn">CALL NOW</button>
+              </a>
+          </div>
+        `;
+        document.getElementById("postModal").style.display = "flex";
+      };
+
       // Real-Time Listener for Business Posts
-      // (Assuming you save marketplace posts to a 'businessPosts' node)
       const feedContainer = document.getElementById("marketplaceFeed");
       const postsRef = ref(db, "businessPosts");
 
       onValue(postsRef, (snapshot) => {
         const data = snapshot.val();
-        feedContainer.innerHTML = ""; // Clear feed for new data
+        feedContainer.innerHTML = "";
 
         if (!data) {
-          // Keep the structural ghost card layout visible as a placeholder if empty
           feedContainer.innerHTML = `
                     <div class="empty-feed-msg">
                         <h3 style="margin-bottom: 5px; color: var(--text);">No Active Posts</h3>
@@ -527,10 +621,13 @@
           return;
         }
 
-        // Render live posts
-        Object.values(data).forEach((post) => {
+        // Cache live data globally so the modal can access it by ID
+        window.allHubPosts = data;
+
+        // Render live posts with Modal Onclick Triggers
+        Object.entries(data).forEach(([key, post]) => {
           const card = `
-                    <div class="post-card">
+                    <div class="post-card" onclick="window.openPostModal('${key}')">
                         <div class="post-header">
                             <img src="${
                               post.logoUrl || "https://via.placeholder.com/36"
@@ -551,7 +648,7 @@
                             }</p>
                             <a href="tel:${
                               post.phone || "#"
-                            }" style="text-decoration:none;">
+                            }" style="text-decoration:none;" onclick="event.stopPropagation();">
                                 <button class="post-btn">CALL NOW</button>
                             </a>
                         </div>
