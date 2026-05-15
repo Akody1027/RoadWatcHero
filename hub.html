@@ -1,223 +1,514 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Hero Hub</title>
 
     <style>
-        :root { --accent: #EE611C; --bg: #f8fafc; --surface: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0; }
-        body { margin: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
-        * { box-sizing: border-box; }
+      :root {
+        --accent: #ee611c;
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: #e2e8f0;
+      }
+      body {
+        margin: 0;
+        font-family: -apple-system, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow: hidden;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      * {
+        box-sizing: border-box;
+      }
 
-        /* --- HEADER BRANDING --- */
-        .hub-header { 
-            background: var(--surface); 
-            height: 70px; 
-            padding: 0 20px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-            z-index: 100;
-        }
-        .header-logo { width: 33%; display: flex; align-items: center; }
-        .header-logo img { height: 40px; width: auto; }
-        
-        .header-title { 
-            width: 45%; 
-            text-align: center; 
-            font-size: 18px; 
-            font-weight: 900; 
-            letter-spacing: 0.5px; 
-        }
-        .title-roadwatch { color: var(--text); }
-        .title-hero { color: var(--accent); }
-        .title-hub { color: var(--muted); font-weight: 700; }
-        
-        .header-empty { width: 33%; }
+      /* --- HEADER BRANDING --- */
+      .hub-header {
+        background: var(--surface);
+        height: 70px;
+        padding: 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+        z-index: 100;
+      }
+      .header-logo {
+        width: 33%;
+        display: flex;
+        align-items: center;
+      }
+      .header-logo img {
+        height: 40px;
+        width: auto;
+      }
 
-        /* --- MAIN LAYOUT (SIDEBAR + FEED) --- */
-        .app-body { 
-            display: flex; 
-            flex: 1; 
-            overflow: hidden; 
-            position: relative;
-        }
+      .header-title {
+        width: 60%;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+      }
+      .title-roadwatch {
+        color: var(--text);
+      }
+      .title-hero {
+        color: var(--accent);
+      }
+      .title-hub {
+        color: var(--muted);
+        font-weight: 700;
+      }
 
-        /* --- COLLAPSIBLE SIDEBAR (40% -> 25%) --- */
-        .sidebar { 
-            width: 40%; 
-            background: var(--surface); 
-            border-right: 1px solid var(--border); 
-            display: flex; 
-            flex-direction: column; 
-            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow-y: auto;
-            position: relative;
-        }
-        .sidebar.collapsed { width: 25%; }
+      .header-empty {
+        width: 33%;
+      }
 
-        /* Sidebar Toggle Button */
-        .sidebar-toggle {
-            position: sticky;
-            top: 0;
-            background: var(--bg);
-            border: none;
-            border-bottom: 1px solid var(--border);
-            padding: 12px;
-            text-align: right;
-            font-size: 12px;
-            font-weight: 800;
-            color: var(--accent);
-            cursor: pointer;
-            z-index: 10;
-        }
-        .sidebar-toggle:hover { background: #f1f5f9; }
+      /* --- MAIN LAYOUT (SIDEBAR + FEED) --- */
+      .app-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        position: relative;
+      }
 
-        .sidebar-content { padding: 20px; }
-        .input-label { font-size: 10px; font-weight: 800; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; display: block; }
-        .input-box { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); font-size: 14px; outline: none; }
-        
-        /* Clean Categories */
-        .cat-row { padding: 14px 0; border-bottom: 1px solid var(--bg); font-size: 14px; font-weight: 700; cursor: pointer; color: var(--text); transition: color 0.2s; }
-        .cat-row:hover { color: var(--accent); }
-        .cat-row:last-child { border-bottom: none; }
+      /* --- COLLAPSIBLE SIDEBAR (40% -> 25%) --- */
+      .sidebar {
+        width: 40%;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow-y: auto;
+        position: relative;
+      }
+      .sidebar.collapsed {
+        width: 25%;
+      }
 
-        /* --- MARKETPLACE FEED --- */
-        .feed-area { 
-            flex: 1; 
-            background: var(--bg); 
-            padding: 20px; 
-            overflow-y: auto; 
-            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+      /* Sidebar Toggle Button */
+      .sidebar-toggle {
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        border: none;
+        border-bottom: 1px solid var(--border);
+        padding: 12px;
+        text-align: right;
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--accent);
+        cursor: pointer;
+        z-index: 10;
+      }
+      .sidebar-toggle:hover {
+        background: #f1f5f9;
+      }
 
-        /* Structured Post Card */
-        .post-card { 
-            background: var(--surface); 
-            border: 1px solid var(--border); 
-            border-radius: 16px; 
-            margin: 0 auto 25px auto; 
-            max-width: 500px; 
-            overflow: hidden; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-        .post-header { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid var(--bg); }
-        .post-user-icon { width: 36px; height: 36px; border-radius: 50%; background: #e2e8f0; border: 2px solid var(--accent); flex-shrink: 0; }
-        .post-biz-name { flex: 1; text-align: center; font-weight: 900; font-size: 15px; color: var(--text); padding-right: 36px; /* Offsets icon for true center */ }
-        
-        .post-image-square { width: 100%; aspect-ratio: 1 / 1; background: #e2e8f0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .post-image-square img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .post-footer { padding: 15px; }
-        .post-desc { font-size: 14px; color: var(--muted); margin-top: 0; margin-bottom: 15px; line-height: 1.4; }
-        .post-btn { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; text-transform: uppercase; }
+      .sidebar-content {
+        padding: 20px;
+      }
+      .input-label {
+        font-size: 10px;
+        font-weight: 800;
+        color: var(--muted);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        display: block;
+      }
+      .input-box {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg);
+        font-size: 14px;
+        outline: none;
+      }
 
-        .empty-feed-msg { text-align: center; color: var(--muted); padding: 40px 20px; }
+      /* Clean Categories */
+      .cat-row {
+        padding: 14px 0;
+        border-bottom: 1px solid var(--bg);
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        color: var(--text);
+        transition: color 0.2s;
+      }
+      .cat-row:hover {
+        color: var(--accent);
+      }
+      .cat-row:last-child {
+        border-bottom: none;
+      }
+
+      /* --- MARKETPLACE FEED --- */
+      .feed-area {
+        flex: 1;
+        background: var(--bg);
+        padding: 20px;
+        overflow-y: auto;
+        transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      /* Structured Post Card */
+      .post-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        margin: 0 auto 25px auto;
+        max-width: 500px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      }
+      .post-header {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid var(--bg);
+      }
+      .post-user-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        border: 2px solid var(--accent);
+        flex-shrink: 0;
+      }
+      .post-biz-name {
+        flex: 1;
+        text-align: center;
+        font-weight: 900;
+        font-size: 15px;
+        color: var(--text);
+        padding-right: 36px; /* Offsets icon for true center */
+      }
+
+      .post-image-square {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      .post-image-square img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .post-footer {
+        padding: 15px;
+      }
+      .post-desc {
+        font-size: 14px;
+        color: var(--muted);
+        margin-top: 0;
+        margin-bottom: 15px;
+        line-height: 1.4;
+      }
+      .post-btn {
+        width: 100%;
+        padding: 14px;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 14px;
+        cursor: pointer;
+        text-transform: uppercase;
+      }
+
+      .empty-feed-msg {
+        text-align: center;
+        color: var(--muted);
+        padding: 40px 20px;
+      }
+
+      /* --- SIDEBAR OVERRIDES --- */
+      .sidebar {
+        width: 60% !important;
+      }
+      .sidebar.collapsed {
+        width: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+      }
+      .sidebar.collapsed .sidebar-toggle,
+      .sidebar.collapsed .sidebar-content {
+        display: none;
+      }
+
+      /* --- ALWAYS VISIBLE FLOATING BUTTON --- */
+      .fab-btn {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        width: 56px;
+        height: 56px;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 24px;
+        box-shadow: 0 4px 12px rgba(238, 97, 28, 0.4);
+        cursor: pointer;
+        z-index: 1000;
+        display: flex; /* Changed from none to always show */
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+      }
+      .fab-btn:active {
+        transform: scale(0.95);
+      }
+
+      /* --- GRID LAYOUT OVERRIDES --- */
+      .feed-area.grid-view {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        align-content: start;
+      }
+      .feed-area.grid-view .post-card {
+        margin: 0;
+        max-width: 100%;
+        border-radius: 12px;
+      }
+      .feed-area.grid-view .post-header {
+        padding: 10px;
+        flex-direction: column;
+        text-align: center;
+        gap: 6px;
+      }
+      .feed-area.grid-view .post-user-icon {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 4px;
+      }
+      .feed-area.grid-view .post-biz-name {
+        padding-right: 0;
+        font-size: 13px;
+        line-height: 1.2;
+      }
+      .feed-area.grid-view .post-footer {
+        padding: 12px;
+      }
+      .feed-area.grid-view .post-desc {
+        font-size: 12px;
+        margin-bottom: 12px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .feed-area.grid-view .post-btn {
+        padding: 10px;
+        font-size: 12px;
+      }
+      .feed-area.grid-view .empty-feed-msg {
+        grid-column: 1 / -1;
+      }
+
+      /* --- SEGMENTED LAYOUT TOGGLE --- */
+      .layout-toggle-wrapper {
+        display: flex;
+        background: #e2e8f0;
+        border-radius: 8px;
+        padding: 4px;
+        margin-bottom: 20px;
+        gap: 4px;
+      }
+      .layout-toggle-btn {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        background: transparent;
+        font-size: 11px;
+        font-weight: 900;
+        color: var(--muted);
+        cursor: pointer;
+        transition: 0.2s;
+        text-transform: uppercase;
+      }
+      .layout-toggle-btn.active {
+        background: var(--surface);
+        color: var(--text);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <header class="hub-header">
-        <div class="header-logo">
-            <img src="roadwatchlogo.png" alt="RoadWatch Hero">
-        </div>
-        <div class="header-title">
-            <span class="title-roadwatch">ROADWATC</span><span class="title-hero">HERO-HUB</span>
-        </div>
-        <div class="header-empty"></div>
+      <div class="header-logo">
+        <img src="roadwatchlogo.png" alt="RoadWatch Hero" />
+      </div>
+      <div class="header-title">
+        <span class="title-roadwatch">ROADWATC</span
+        ><span class="title-hero">HERO-HUB</span>
+      </div>
+      <div class="header-empty"></div>
     </header>
 
     <div class="app-body">
-        
-        <div id="filterSidebar" class="sidebar">
-            <button class="sidebar-toggle" id="toggleBtn" onclick="toggleSidebar()">[—] COLLAPSE</button>
-            
-            <div class="sidebar-content">
-                <label class="input-label">Keywords</label>
-                <input type="text" class="input-box" placeholder="Search businesses...">
+      <button id="fabSettings" class="fab-btn" onclick="window.toggleSidebar()">
+        ⚙️
+      </button>
 
-                <label class="input-label">Location</label>
-                <input type="text" class="input-box" placeholder="City or Zip">
-
-                <label class="input-label">Radius (Miles): <span id="rVal" style="color:var(--accent);">25</span></label>
-                <input type="range" min="5" max="100" value="25" class="input-box" style="padding:0; border:none; background:none; accent-color:var(--accent);" oninput="document.getElementById('rVal').innerText=this.value">
-
-                <label class="input-label" style="margin-top: 20px;">Categories</label>
-                <div class="cat-list">
-                    <div class="cat-row">Towing</div>
-                    <div class="cat-row">Mechanic</div>
-                    <div class="cat-row">Detailing</div>
-                    <div class="cat-row">Tires</div>
-                    <div class="cat-row">Locksmith</div>
-                    <div class="cat-row">Tint</div>
-                    <div class="cat-row">Glass</div>
-                    <div class="cat-row">Battery</div>
-                    <div class="cat-row">Wraps</div>
-                    <div class="cat-row">Bodywork</div>
-                    <div class="cat-row">Audio</div>
-                    <div class="cat-row">Upholstery</div>
-                    <div class="cat-row">Alignment</div>
-                    <div class="cat-row">Oil</div>
-                    <div class="cat-row">Transmission</div>
-                </div>
-            </div>
+      <div id="filterSidebar" class="sidebar">
+        <div class="sidebar-content">
+        <div class="layout-toggle-wrapper">
+          <button
+            id="btnList"
+            class="layout-toggle-btn active"
+            onclick="window.setLayout('list')"
+          >
+            LIST
+          </button>
+          <button
+            id="btnGrid"
+            class="layout-toggle-btn"
+            onclick="window.setLayout('grid')"
+          >
+            GRID
+          </button>
         </div>
 
-        <div class="feed-area" id="marketplaceFeed">
-            
-            <div id="feedPlaceholder" class="empty-feed-msg">
-                <h3 style="margin-bottom: 5px; color: var(--text);">Connecting to Hub...</h3>
-                <p style="font-size: 13px;">Waiting for local businesses to post.</p>
-            </div>
+        <label class="input-label">Keywords</label>
+        <input
+          type="text"
+          class="input-box"
+          placeholder="Search businesses..."
+        />
 
+        <label class="input-label">Location</label>
+        <input type="text" class="input-box" placeholder="City or Zip" />
+
+        <label class="input-label"
+          >Radius (Miles):
+          <span id="rVal" style="color: var(--accent)">25</span></label
+        >
+        <input
+          type="range"
+          min="5"
+          max="100"
+          value="25"
+          class="input-box"
+          style="
+            padding: 0;
+            border: none;
+            background: none;
+            accent-color: var(--accent);
+          "
+          oninput="document.getElementById('rVal').innerText=this.value"
+        />
+
+        <label class="input-label" style="margin-top: 20px">Categories</label>
+        <div class="cat-list">
+          <div class="cat-row">Towing</div>
+          <div class="cat-row">Mechanic</div>
+          <div class="cat-row">Detailing</div>
+          <div class="cat-row">Tires</div>
+          <div class="cat-row">Locksmith</div>
+          <div class="cat-row">Tint</div>
+          <div class="cat-row">Glass</div>
+          <div class="cat-row">Battery</div>
+          <div class="cat-row">Wraps</div>
+          <div class="cat-row">Bodywork</div>
+          <div class="cat-row">Audio</div>
+          <div class="cat-row">Upholstery</div>
+          <div class="cat-row">Alignment</div>
+          <div class="cat-row">Oil</div>
+          <div class="cat-row">Transmission</div>
         </div>
+      </div>
+</div>
+      <div class="feed-area" id="marketplaceFeed">
+        <div id="feedPlaceholder" class="empty-feed-msg">
+          <h3 style="margin-bottom: 5px; color: var(--text)">
+            Connecting to Hub...
+          </h3>
+          <p style="font-size: 13px">Waiting for local businesses to post.</p>
+        </div>
+      </div>
     </div>
+   
+  
 
     <script type="module">
-        // Using the exact version from your home.html file
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+      // Using the exact version from your home.html file
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+      import {
+        getDatabase,
+        ref,
+        onValue,
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-        // Your exact credentials from home.html
-        const firebaseConfig = {
-            apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
-            authDomain: "roadsidehero-104ea.firebaseapp.com",
-            databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
-            projectId: "roadsidehero-104ea",
-            storageBucket: "roadsidehero-104ea.firebasestorage.app"
-        };
+      // Your exact credentials from home.html
+      const firebaseConfig = {
+        apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
+        authDomain: "roadsidehero-104ea.firebaseapp.com",
+        databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
+        projectId: "roadsidehero-104ea",
+        storageBucket: "roadsidehero-104ea.firebasestorage.app",
+      };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
 
-        // Sidebar Toggle Logic
-        window.toggleSidebar = () => {
-            const sidebar = document.getElementById('filterSidebar');
-            const btn = document.getElementById('toggleBtn');
-            const isCollapsed = sidebar.classList.toggle('collapsed');
-            
-            if(isCollapsed) {
-                btn.innerText = "[+] EXPAND";
-            } else {
-                btn.innerText = "[—] COLLAPSE";
-            }
-        };
+      // Sidebar Toggle Logic (FAB is now always visible)
+      window.toggleSidebar = () => {
+        const sidebar = document.getElementById("filterSidebar");
+        sidebar.classList.toggle("collapsed");
+      };
 
-        // Real-Time Listener for Business Posts
-        // (Assuming you save marketplace posts to a 'businessPosts' node)
-        const feedContainer = document.getElementById('marketplaceFeed');
-        const postsRef = ref(db, 'businessPosts');
+      // Grid vs List Segmented Toggle Logic
+      window.setLayout = (mode) => {
+        const feed = document.getElementById("marketplaceFeed");
+        const btnList = document.getElementById("btnList");
+        const btnGrid = document.getElementById("btnGrid");
 
-        onValue(postsRef, (snapshot) => {
-            const data = snapshot.val();
-            feedContainer.innerHTML = ''; // Clear feed for new data
+        if (mode === "grid") {
+          feed.classList.add("grid-view");
+          btnGrid.classList.add("active");
+          btnList.classList.remove("active");
+        } else {
+          feed.classList.remove("grid-view");
+          btnList.classList.add("active");
+          btnGrid.classList.remove("active");
+        }
+      };
 
-            if (!data) {
-                // Keep the structural ghost card layout visible as a placeholder if empty
-                feedContainer.innerHTML = `
+      // Real-Time Listener for Business Posts
+      // (Assuming you save marketplace posts to a 'businessPosts' node)
+      const feedContainer = document.getElementById("marketplaceFeed");
+      const postsRef = ref(db, "businessPosts");
+
+      onValue(postsRef, (snapshot) => {
+        const data = snapshot.val();
+        feedContainer.innerHTML = ""; // Clear feed for new data
+
+        if (!data) {
+          // Keep the structural ghost card layout visible as a placeholder if empty
+          feedContainer.innerHTML = `
                     <div class="empty-feed-msg">
                         <h3 style="margin-bottom: 5px; color: var(--text);">No Active Posts</h3>
                         <p style="font-size: 13px;">Local businesses will appear here.</p>
@@ -233,37 +524,42 @@
                         </div>
                     </div>
                 `;
-                return;
-            }
+          return;
+        }
 
-            
-            // Render live posts
-            Object.values(data).forEach(post => {
-                const card = `
+        // Render live posts
+        Object.values(data).forEach((post) => {
+          const card = `
                     <div class="post-card">
                         <div class="post-header">
-                            <img src="${post.logoUrl || 'https://via.placeholder.com/36'}" class="post-user-icon">
-                            <div class="post-biz-name">${post.businessName || 'Pro Hero'}</div>
+                            <img src="${
+                              post.logoUrl || "https://via.placeholder.com/36"
+                            }" class="post-user-icon">
+                            <div class="post-biz-name">${
+                              post.businessName || "Pro Hero"
+                            }</div>
                         </div>
                         <div class="post-image-square">
-                            <img src="${post.promoUrl || 'https://via.placeholder.com/500'}" alt="Business Ad">
+                            <img src="${
+                              post.promoUrl || "https://via.placeholder.com/500"
+                            }" alt="Business Ad">
                         </div>
                         <div class="post-footer">
-                            <p class="post-desc">${post.description || 'Professional automotive services.'}</p>
-                            <a href="tel:${post.phone || '#'}" style="text-decoration:none;">
+                            <p class="post-desc">${
+                              post.description ||
+                              "Professional automotive services."
+                            }</p>
+                            <a href="tel:${
+                              post.phone || "#"
+                            }" style="text-decoration:none;">
                                 <button class="post-btn">CALL NOW</button>
                             </a>
                         </div>
                     </div>
                 `;
-                feedContainer.innerHTML += card;
-            });
-
-
-
-
-            
+          feedContainer.innerHTML += card;
         });
+      });
     </script>
-</body>
+  </body>
 </html>
