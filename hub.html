@@ -236,16 +236,17 @@
                 return;
             }
 
+            
             // Render live posts
             Object.values(data).forEach(post => {
                 const card = `
                     <div class="post-card">
                         <div class="post-header">
-                            <img src="${post.userIcon || 'https://via.placeholder.com/36'}" class="post-user-icon">
+                            <img src="${post.logoUrl || 'https://via.placeholder.com/36'}" class="post-user-icon">
                             <div class="post-biz-name">${post.businessName || 'Pro Hero'}</div>
                         </div>
                         <div class="post-image-square">
-                            <img src="${post.imageUrl || 'https://via.placeholder.com/500'}" alt="Business Ad">
+                            <img src="${post.promoUrl || 'https://via.placeholder.com/500'}" alt="Business Ad">
                         </div>
                         <div class="post-footer">
                             <p class="post-desc">${post.description || 'Professional automotive services.'}</p>
@@ -257,6 +258,11 @@
                 `;
                 feedContainer.innerHTML += card;
             });
+
+
+
+
+            
         });
     </script>
 </body>
