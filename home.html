@@ -6,7 +6,7 @@
     <meta
       name="viewport"
       <meta
-      name="viewport" 
+      name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
 
@@ -2591,6 +2591,47 @@
       </div>
     </div>
 
+    <div id="dispatchModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header-row" style="margin-bottom: 10px">
+          <div style="flex: 1"></div>
+          <h3
+            style="
+              margin: 0;
+              color: var(--accent);
+              text-align: center;
+              font-size: 24px;
+            "
+          >
+            DISPATCH JOB
+          </h3>
+          <div style="flex: 1; display: flex; justify-content: flex-end">
+            <button
+              class="close-x-btn"
+              onclick="window.closeModal('dispatchModal')"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+        <p
+          style="
+            text-align: center;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 15px;
+            font-weight: 600;
+          "
+        >
+          Select a driver to assign this SOS request.
+        </p>
+        <div
+          id="dispatchDriverList"
+          style="max-height: 60vh; overflow-y: auto; padding-bottom: 20px"
+        ></div>
+      </div>
+    </div>
+
       <div id="pinModal" class="modal">
         <div class="modal-content">
           <div class="modal-header-row" style="margin-bottom: 5px">
@@ -2677,7 +2718,7 @@
               style="border-color: var(--success); color: var(--success)"
               onclick="window.smsPinMessage()"
             >
-              <span style="font-size: 24px; margin-bottom: 5px"></span>
+              <span style="font-size: 24px; margin-bottom: 5px">💬</span>
               SEND SMS
             </button>
           </div>
@@ -2719,8 +2760,8 @@
           </div>
         </div>
       </div>
-    
     <div id="arcadeModal" class="modal">
+
       <div class="modal-content" style="height: 85vh">
         <div class="modal-header-row">
           <div style="flex: 1"></div>
@@ -5758,6 +5799,53 @@
           `Hey ${driver.name}, your RoadWatcHero Driver PIN is ${driver.pin}. Log in here: https://roadwatchero.com/driver.html`
         );
         window.location.href = `sms:${driver.phone}?body=${msg}`;
+      };
+
+      window.openDispatchMenu = () => {
+        if (!window.currentViewedSosId) return alert("Error: No job selected.");
+
+        const list = document.getElementById("dispatchDriverList");
+        list.innerHTML = "";
+
+        if (!window.fleetDrivers || window.fleetDrivers.length === 0) {
+          list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--muted); font-size:13px; font-style:italic;">No drivers available. Add drivers in your Fleet Manager.</div>`;
+        } else {
+          window.fleetDrivers.forEach((driver) => {
+            const safeDriverId = "fleet_" + driver.phone.replace(/\D/g, "");
+            list.innerHTML += `
+              <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:15px; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0;">
+                <div>
+                  <div style="font-weight:800; font-size:15px; color:var(--text);">${driver.name}</div>
+                  <div style="font-size:12px; color:var(--muted); font-weight:600; margin-top:2px;">${driver.phone}</div>
+                </div>
+                <button onclick="window.assignJobToDriver('${safeDriverId}')" style="background:var(--accent); color:white; border:none; padding:10px 15px; border-radius:12px; font-weight:800; font-size:12px; cursor:pointer; box-shadow:var(--shadow);">
+                  ASSIGN
+                </button>
+              </div>
+            `;
+          });
+        }
+
+        window.openModal("dispatchModal");
+      };
+
+      window.assignJobToDriver = (driverId) => {
+        const sosId = window.currentViewedSosId;
+        if (!sosId) return;
+
+        update(ref(db, `sosRequests/${sosId}`), {
+          driverId: driverId,
+          assignmentTimestamp: Date.now(),
+        })
+          .then(() => {
+            alert("Job successfully dispatched to driver!");
+            window.closeModal("dispatchModal");
+            window.closeModal("detailsModal");
+          })
+          .catch((err) => {
+            alert("Error dispatching job. Please check your connection.");
+            console.error(err);
+          });
       };
     </script>
   </body>
