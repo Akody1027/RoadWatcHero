@@ -5,7 +5,10 @@
     <title>RoadWatcHero</title>
     <meta
       name="viewport"
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta
+      name="viewport" 
+      content="width=device-width, initial-scale=1.0"
+    />
 
     <!-- Google Maps with Geometry -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry,places"></script>
@@ -1048,12 +1051,6 @@
         border-color: #cbd5e1;
         color: #94a3b8;
       }
-
-
-
-
-
-      
     </style>
   </head>
 
@@ -1378,9 +1375,6 @@
       </div>
       <div class="footer">
         <div class="footer-icons">
-          
-          
-          
           <div style="position: relative">
             <img
               src="Historyicon.png"
@@ -1388,10 +1382,7 @@
               onclick="window.openModal('notifModal')"
             />
           </div>
-          
-          
-          
-          
+
           <img
             src="thishomeicon.png"
             class="icon-btn"
@@ -1516,12 +1507,34 @@
           </p>
           <div id="detImgScroller" class="det-img-scroller"></div>
         </div>
-        
-        <div id="detVehicleInfo" style="display: none; background: #eff6ff; padding: 15px; border-radius: 12px; border: 1px solid #dbeafe; margin-bottom: 15px;">
-        <p style="font-size: 11px; font-weight: bold; color: #1e40af; margin-bottom: 4px;">VEHICLE IDENTIFICATION</p>
-        <div id="detVehicleData" style="font-weight: 800; font-size: 15px; color: #1e3a8a;"></div>
+
+        <div
+          id="detVehicleInfo"
+          style="
+            display: none;
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #dbeafe;
+            margin-bottom: 15px;
+          "
+        >
+          <p
+            style="
+              font-size: 11px;
+              font-weight: bold;
+              color: #1e40af;
+              margin-bottom: 4px;
+            "
+          >
+            VEHICLE IDENTIFICATION
+          </p>
+          <div
+            id="detVehicleData"
+            style="font-weight: 800; font-size: 15px; color: #1e3a8a"
+          ></div>
         </div>
-        
+
         <p
           style="
             font-size: 11px;
@@ -2018,70 +2031,68 @@
               oninput="window.checkFormReady()"
             />
 
-          <input
-            type="tel"
-            id="phoneNumberInput"
-            placeholder="Enter your phone number"
-            oninput="window.checkFormReady()"
-          />
+            <input
+              type="tel"
+              id="phoneNumberInput"
+              placeholder="Enter your phone number"
+              oninput="window.checkFormReady()"
+            />
 
-          <div id="verifiedMechanic"></div>
+            <div id="verifiedMechanic"></div>
 
-          <label>TOW DESTINATION</label>
-          <input
-            type="text"
-            id="towDestinationInput"
-            placeholder="Enter destination address"
-            oninput="window.checkFormReady()"
-          />
-        </div>
+            <label>TOW DESTINATION</label>
+            <input
+              type="text"
+              id="towDestinationInput"
+              placeholder="Enter destination address"
+              oninput="window.checkFormReady()"
+            />
+          </div>
 
-        <button
-          class="submit-btn"
-          id="submitSosBtn"
-          onclick="window.submitSOS()"
-          disabled
-        >
-          FIND HERO
-        </button>
-
-        <p
-          style="
-            text-align: center;
-            margin-top: 5%;
-            color: var(--accent);
-            font-size: 22px;
-            font-weight: 400;
-          "
-        >
-          --OR--
-        </p>
-
-        <div style="text-align: center; margin-top: 5%" width="100%">
-          <a href="jobboard.html">
-            <button
-              class="jbutton"
-              style="
-                font-size: 18px;
-                color: var(--accent);
-                background: transparent;
-                border: 2px solid var(--accent);
-                width: 100%;
-                border-radius: 15px;
-                padding: 15px;
-                font-weight: 600;
-              "
-            >
-              POST TO JOB BOARD
-            </button></a
+          <button
+            class="submit-btn"
+            id="submitSosBtn"
+            onclick="window.submitSOS()"
+            disabled
           >
+            FIND HERO
+          </button>
+
+          <p
+            style="
+              text-align: center;
+              margin-top: 5%;
+              color: var(--accent);
+              font-size: 22px;
+              font-weight: 400;
+            "
+          >
+            --OR--
+          </p>
+
+          <div style="text-align: center; margin-top: 5%" width="100%">
+            <a href="jobboard.html">
+              <button
+                class="jbutton"
+                style="
+                  font-size: 18px;
+                  color: var(--accent);
+                  background: transparent;
+                  border: 2px solid var(--accent);
+                  width: 100%;
+                  border-radius: 15px;
+                  padding: 15px;
+                  font-weight: 600;
+                "
+              >
+                POST TO JOB BOARD
+              </button></a
+            >
+          </div>
         </div>
       </div>
     </div>
-</div>
-    
-    
-    
+
     <div id="cancelConfirmModal" class="modal">
       <div class="modal-content">
         <h3>Cancel SOS?</h3>
@@ -2364,26 +2375,6 @@
                 Both
               </button>
             </div>
-            
-            
-            
-            
-            <div class="toggle-wrapper" style="background: white; border: 1px solid #e2e8f0; margin-bottom: 10px; padding: 10px 15px;">
-  <span class="toggle-label" style="font-weight: 800">Mechanic Shop Mode</span>
-  <label class="toggle-switch">
-    <input type="checkbox" id="mechanicModeToggle" onchange="window.toggleShopAddress(this)" />
-    <span class="slider"></span>
-  </label>
-</div>
-
-<div id="shopAddressPanel" style="display: none; background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px;">
-  <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 5px; display: block;">BUSINESS / SHOP ADDRESS</label>
-  <input type="text" id="profileBusinessAddress" placeholder="123 Shop St..." style="margin-bottom: 0" />
-</div>
-            
-            
-
-            
 
             <div
               class="toggle-wrapper"
@@ -2394,7 +2385,57 @@
                 padding: 10px 15px;
               "
             >
-              
+              <span class="toggle-label" style="font-weight: 800"
+                >Mechanic Shop Mode</span
+              >
+              <label class="toggle-switch">
+                <input
+                  type="checkbox"
+                  id="mechanicModeToggle"
+                  onchange="window.toggleShopAddress(this)"
+                />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div
+              id="shopAddressPanel"
+              style="
+                display: none;
+                background: white;
+                padding: 15px;
+                border-radius: 12px;
+                border: 1px solid #e2e8f0;
+                margin-bottom: 10px;
+              "
+            >
+              <label
+                style="
+                  font-size: 11px;
+                  font-weight: bold;
+                  color: var(--muted);
+                  margin-bottom: 5px;
+                  display: block;
+                "
+                >BUSINESS / SHOP ADDRESS</label
+              >
+              <input
+                type="text"
+                id="profileBusinessAddress"
+                placeholder="123 Shop St..."
+                style="margin-bottom: 0"
+              />
+            </div>
+
+            <div
+              class="toggle-wrapper"
+              style="
+                background: white;
+                border: 1px solid #e2e8f0;
+                margin-bottom: 10px;
+                padding: 10px 15px;
+              "
+            >
               <span class="toggle-label" style="font-weight: 800"
                 >Fleet Dispatch Mode</span
               >
@@ -2551,6 +2592,135 @@
     </div>
 
     <div id="arcadeModal" class="modal">
+      <div id="pinModal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header-row" style="margin-bottom: 5px">
+            <div style="flex: 1"></div>
+            <h3
+              style="
+                margin: 0;
+                color: var(--accent);
+                text-align: center;
+                font-size: 24px;
+              "
+            >
+              DRIVER PIN
+            </h3>
+            <div style="flex: 1; display: flex; justify-content: flex-end">
+              <button
+                class="close-x-btn"
+                onclick="window.closeModal('pinModal')"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-bottom: 20px">
+            <div
+              id="pinModalDriverName"
+              style="font-size: 18px; font-weight: 900; color: var(--text)"
+            >
+              Driver Name
+            </div>
+            <div
+              id="pinModalDriverPhone"
+              style="font-size: 14px; font-weight: 600; color: var(--muted)"
+            >
+              555-555-5555
+            </div>
+          </div>
+
+          <div
+            style="
+              background: #f8fafc;
+              border: 2px dashed #cbd5e1;
+              border-radius: 20px;
+              padding: 30px;
+              text-align: center;
+              margin-bottom: 20px;
+            "
+          >
+            <div
+              style="
+                font-size: 12px;
+                font-weight: 800;
+                color: var(--muted);
+                margin-bottom: 10px;
+              "
+            >
+              ACTIVE LOGIN PIN
+            </div>
+            <div
+              id="pinModalDisplay"
+              style="
+                font-size: 40px;
+                font-weight: 900;
+                color: var(--accent);
+                letter-spacing: 5px;
+              "
+            >
+              ------
+            </div>
+          </div>
+
+          <div class="command-grid" style="margin-bottom: 20px">
+            <button
+              class="cmd-btn"
+              style="border-color: var(--text)"
+              onclick="window.copyPinMessage()"
+            >
+              <span style="font-size: 24px; margin-bottom: 5px">📋</span>
+              COPY
+            </button>
+            <button
+              class="cmd-btn"
+              style="border-color: var(--success); color: var(--success)"
+              onclick="window.smsPinMessage()"
+            >
+              <span style="font-size: 24px; margin-bottom: 5px">💬</span>
+              SEND SMS
+            </button>
+          </div>
+
+          <div
+            style="
+              background: #fff0f0;
+              border: 1px solid #fca5a5;
+              border-radius: 15px;
+              padding: 15px;
+              text-align: center;
+            "
+          >
+            <div
+              style="
+                font-size: 12px;
+                font-weight: 800;
+                color: var(--danger);
+                margin-bottom: 8px;
+              "
+            >
+              Forget your PIN? Create a new one.
+            </div>
+            <button
+              onclick="window.generateDriverPin()"
+              style="
+                background: white;
+                color: var(--danger);
+                border: 1px solid var(--danger);
+                padding: 10px 20px;
+                border-radius: 10px;
+                font-weight: 800;
+                font-size: 12px;
+                cursor: pointer;
+              "
+            >
+              REGENERATE PIN
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="modal-content" style="height: 85vh">
         <div class="modal-header-row">
           <div style="flex: 1"></div>
@@ -3106,16 +3276,12 @@
 
       // NEW: Initialize Auth
       const auth = getAuth(app);
-      
+
       // EXPOSE NAVIGATION TO WINDOW SCOPE
 
-
       window.openJobBoard = () => {
-          window.location.href = "jobboard.html";
+        window.location.href = "jobboard.html";
       };
-
- 
-      
 
       if (!localStorage.getItem("heroUserId"))
         localStorage.setItem(
@@ -3123,12 +3289,7 @@
           "u_" + Math.random().toString(36).substr(2, 9)
         );
       let myId = localStorage.getItem("heroUserId");
-      
-      
 
-
-
-      
       let map,
         seekerMiniMap,
         userLocation,
@@ -3191,7 +3352,7 @@
         const model = document.getElementById("vehModel").value.trim();
         const color = document.getElementById("vehColor").value.trim();
         const plate = document.getElementById("vehPlate").value.trim();
-        
+
         const btn = document.getElementById("submitSosBtn");
 
         let isReady = false;
@@ -3485,12 +3646,9 @@
         } catch (e) {
           console.warn("History API blocked, continuing safely.");
         }
-    
 
         // Aggressively scrub the form's memory and visuals every time it is opened
         if (id === "requestModal") {
-          
-
           damageImgList = [];
           document.getElementById("damagePreviewList").innerHTML = "";
           document.getElementById("reqIssue").value = "";
@@ -3520,11 +3678,6 @@
         }
       };
 
-      
-      
-      
-      
-      
       window.closeModal = (id) => {
         document.getElementById(id).style.display = "none";
 
@@ -3553,7 +3706,7 @@
           if (history.state && history.state.modalOpen) {
             history.back();
           }
-        } catch(e) {}
+        } catch (e) {}
       };
 
       // NEW: Intercept the phone's physical back button / back swipe
@@ -3683,7 +3836,10 @@
           list.innerHTML += `
                           <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #e2e8f0; font-size:13px;">
                               <div><b style="color:var(--text);">${d.name}</b><br><span style="color:var(--muted);">${d.phone}</span></div>
-                              <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" style="width:16px; height:16px; cursor:pointer;" onclick="window.removeFleetDriver(${index})">
+                              <div style="display:flex; gap:15px; align-items:center;">
+                                <div onclick="window.openPinModal(${index})" style="cursor:pointer; font-size:11px; font-weight:800; background:var(--text); color:white; padding:6px 12px; border-radius:8px; box-shadow: var(--shadow);">PIN</div>
+                                <img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" style="width:16px; height:16px; cursor:pointer;" onclick="window.removeFleetDriver(${index})">
+                              </div>
                           </div>
                       `;
         });
@@ -4092,14 +4248,14 @@
         const r = sosCache[id];
         if (!r) return;
         const isHelper = r.helperId === myId;
-        
+
         // Inside window.viewRequest(id)
         const vehInfoBox = document.getElementById("detVehicleInfo");
         const vehData = document.getElementById("detVehicleData");
 
         if (r.isTowTruckRequest && r.vehMake) {
-        vehInfoBox.style.display = "block";
-        vehData.innerHTML = `
+          vehInfoBox.style.display = "block";
+          vehData.innerHTML = `
         ${r.vehYear} ${r.vehMake} ${r.vehModel}<br>
         <span style="font-size: 13px; font-weight: 600;">Color: ${r.vehColor}</span><br>
         <span style="font-size: 13px; font-weight: 600; color: var(--accent);">Plate: ${r.vehPlate}</span>
@@ -4111,8 +4267,8 @@
         const detImgContainer = document.getElementById("detImgContainer");
         const detImgScroller = document.getElementById("detImgScroller");
         detImgScroller.innerHTML = "";
-        let imagesToDisplay = []; 
-        if (r.damagePic) imagesToDisplay.push(r.damagePic); 
+        let imagesToDisplay = [];
+        if (r.damagePic) imagesToDisplay.push(r.damagePic);
         if (r.damagePics && Array.isArray(r.damagePics))
           imagesToDisplay = r.damagePics;
 
@@ -4210,10 +4366,8 @@
 
           document.getElementById("detBidSection").style.display = "none";
 
-          
-          
           let navLink = `https://maps.google.com/?q=${r.lat},${r.lng}`;
-          
+
           if (r.isTowTruckRequest && r.towDestination)
             navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(
               r.towDestination
@@ -5378,7 +5532,7 @@
               document.getElementById("towDestinationInput").value =
                 myActive.towDestination;
               document
-                .getElementById("towDestinationInput") 
+                .getElementById("towDestinationInput")
                 .setAttribute("required", "required");
             }
           } else {
@@ -5409,9 +5563,8 @@
         )
           updateSeekerMiniMap(myActiveSOS, profilesCache[myActiveSOS.helperId]);
       });
-      
 
-  window.saveProfile = () => {
+      window.saveProfile = () => {
         const radiusEl = document.getElementById("profileRadius");
         const nameEl = document.getElementById("profileName");
         const bioEl = document.getElementById("profileBio");
@@ -5429,14 +5582,18 @@
           radius: myRadius,
           prefersTowTruckRequests: towReqEl ? towReqEl.checked : false,
           prefersRoadsideRequests: roadReqEl ? roadReqEl.checked : true,
-          mechanicModeActive: document.getElementById("mechanicModeToggle")?.checked || false,
+          mechanicModeActive:
+            document.getElementById("mechanicModeToggle")?.checked || false,
           baseRate: document.getElementById("profileBaseRate")?.value || 0,
           pricePerMile: document.getElementById("profilePerMile")?.value || 0,
-          dispatchPhone: document.getElementById("profileDispatchPhone")?.value || "",
-          businessAddress: document.getElementById("profileBusinessAddress")?.value || "",
+          dispatchPhone:
+            document.getElementById("profileDispatchPhone")?.value || "",
+          businessAddress:
+            document.getElementById("profileBusinessAddress")?.value || "",
           heroType: profileEditRole || "tow_truck",
-          fleetModeActive: document.getElementById("fleetModeToggle")?.checked || false,
-          fleetDrivers: window.fleetDrivers || []
+          fleetModeActive:
+            document.getElementById("fleetModeToggle")?.checked || false,
+          fleetDrivers: window.fleetDrivers || [],
         });
 
         if (profileRadiusCircle) {
@@ -5446,26 +5603,29 @@
         if (map && userLocation) map.setCenter(userLocation);
         window.closeModal("profileModal");
       };
-  
-      
-      
 
-      window.openProfile = async function() {
+      window.openProfile = async function () {
         window.openModal("profileModal");
         const snap = await get(ref(db, `profiles/${myId}`));
         if (snap.exists()) {
           const d = snap.val();
-          if(document.getElementById("profileName")) document.getElementById("profileName").value = d.name || "";
-          if(document.getElementById("profileBio")) document.getElementById("profileBio").value = d.bio || "";
-          if (d.pic && document.getElementById("profileDisplayPic")) document.getElementById("profileDisplayPic").src = d.pic;
+          if (document.getElementById("profileName"))
+            document.getElementById("profileName").value = d.name || "";
+          if (document.getElementById("profileBio"))
+            document.getElementById("profileBio").value = d.bio || "";
+          if (d.pic && document.getElementById("profileDisplayPic"))
+            document.getElementById("profileDisplayPic").src = d.pic;
 
           const shopToggle = document.getElementById("mechanicModeToggle");
           const shopPanel = document.getElementById("shopAddressPanel");
-          const shopAddrInput = document.getElementById("profileBusinessAddress");
+          const shopAddrInput = document.getElementById(
+            "profileBusinessAddress"
+          );
 
           if (shopToggle && shopPanel) {
             // Fix: Check for both possible variable names from your previous versions
-            const isMechanic = d.mechanicModeActive === true || d.mechanicModeToggle === true;
+            const isMechanic =
+              d.mechanicModeActive === true || d.mechanicModeToggle === true;
             shopToggle.checked = isMechanic;
             shopPanel.style.display = isMechanic ? "block" : "none";
             if (isMechanic && shopAddrInput) {
@@ -5475,9 +5635,11 @@
 
           const currentRadius = d.radius || myRadius;
           myRadius = currentRadius;
-          if(document.getElementById("profileRadius")) document.getElementById("profileRadius").value = currentRadius;
-          if(document.getElementById("radiusVal")) document.getElementById("radiusVal").innerText = currentRadius;
-     
+          if (document.getElementById("profileRadius"))
+            document.getElementById("profileRadius").value = currentRadius;
+          if (document.getElementById("radiusVal"))
+            document.getElementById("radiusVal").innerText = currentRadius;
+
           document.getElementById("prefersTowTruckRequests").checked =
             d.prefersTowTruckRequests === true;
 
@@ -5487,7 +5649,7 @@
             d.pricePerMile || "";
 
           document.getElementById("profileDispatchPhone").value =
-            d.dispatchPhone || ""; 
+            d.dispatchPhone || "";
 
           if (document.getElementById("profileBusinessAddress")) {
             document.getElementById("profileBusinessAddress").value =
@@ -5525,9 +5687,6 @@
             d.prefersRoadsideRequests !== false;
         }
       };
-      
-
-      
 
       window.confirmDeleteActivityPrompt = (id) => {
         activityToDeleteId = id;
@@ -5547,9 +5706,59 @@
         }
       };
 
+      window.currentDriverIndex = null;
 
+      window.openPinModal = (index) => {
+        window.currentDriverIndex = index;
+        const driver = window.fleetDrivers[index];
 
-      
+        document.getElementById("pinModalDriverName").innerText = driver.name;
+        document.getElementById("pinModalDriverPhone").innerText = driver.phone;
+
+        if (driver.pin) {
+          document.getElementById("pinModalDisplay").innerText = driver.pin;
+        } else {
+          document.getElementById("pinModalDisplay").innerText = "------";
+          window.generateDriverPin();
+        }
+
+        window.openModal("pinModal");
+      };
+
+      window.generateDriverPin = () => {
+        if (window.currentDriverIndex === null) return;
+        const newPin = Math.floor(100000 + Math.random() * 900000).toString();
+
+        window.fleetDrivers[window.currentDriverIndex].pin = newPin;
+        document.getElementById("pinModalDisplay").innerText = newPin;
+
+        update(ref(db, `profiles/${myId}`), {
+          fleetDrivers: window.fleetDrivers,
+        });
+      };
+
+      window.copyPinMessage = () => {
+        const driver = window.fleetDrivers[window.currentDriverIndex];
+        const msg = `Hey ${driver.name}, your RoadWatcHero Driver PIN is ${driver.pin}. Log in here: https://roadwatchero.com/driver.html`;
+        navigator.clipboard
+          .writeText(msg)
+          .then(() => {
+            alert("Message copied to clipboard!");
+          })
+          .catch((err) => {
+            alert(
+              "Failed to copy text. Please try selecting and copying manually."
+            );
+          });
+      };
+
+      window.smsPinMessage = () => {
+        const driver = window.fleetDrivers[window.currentDriverIndex];
+        const msg = encodeURIComponent(
+          `Hey ${driver.name}, your RoadWatcHero Driver PIN is ${driver.pin}. Log in here: https://roadwatchero.com/driver.html`
+        );
+        window.location.href = `sms:${driver.phone}?body=${msg}`;
+      };
     </script>
   </body>
 </html>
