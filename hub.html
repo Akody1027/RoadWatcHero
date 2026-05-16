@@ -398,11 +398,47 @@
       }
       .post-card {
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: transform 0.1s;
       }
       .post-card:active {
         transform: scale(0.98);
       }
+      
+      @keyframes fabPulse {
+        0% { box-shadow: 0 0 0 2px rgba(238, 97, 28, 0.4); }
+        20 { box-shadow: 0 0 0 10px rgba(238, 97, 28, 0.5);  }
+        60% { box-shadow: 0 0 0 10px rgba(238, 97, 28, 0.5); }
+        80% { box-shadow: 0 0 0 10px rgba(238, 97, 28, 0.4) }
+        100% { box-shadow: 0 0 0 2px rgba(238, 97, 28, 0.4);  }
+
+
+      }
+      .fab-btn {
+        font-size: 35px;
+        position: fixed; 
+        bottom: 20px; 
+        left: 20px; 
+        width: 66px;
+        height: 66px;
+        background: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 24px;
+        box-shadow: 0 4px 12px rgba(238, 97, 28, 0.4);
+        cursor: pointer;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+        animation: fabPulse 2.5s infinite cubic-bezier(0.66, 0, 0, 1);
+        opacity:70%;
+      }
+      .fab-btn:active {
+        transform: scale(0.95);
+      }
+      
     </style>
   </head>
   <body>
@@ -421,8 +457,7 @@
       <button id="fabSettings" class="fab-btn" onclick="window.toggleSidebar()">
         ⚙️
       </button>
-
-      <div id="filterSidebar" class="sidebar">
+      <div id="filterSidebar" class="sidebar collapsed">
         <div class="sidebar-content">
           <div class="layout-toggle-wrapper">
             <button
