@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Driver Login | RoadWatcHero</title>
+  <title>Driver Dashboard | RoadWatcHero</title>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry"></script>
+
   <style>
     :root {
       --bg: #f8fafc;
@@ -12,230 +15,347 @@
       --muted: #64748b;
       --accent: #ee611c;
       --danger: #ef4444;
+      --success: #22c55e;
+      --tow-blue: #2563eb;
       --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      font-family: -apple-system, system-ui, sans-serif;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, sans-serif; }
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); }
 
-    body, html {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #loginContainer {
-      width: 100%;
-      max-width: 400px;
-      padding: 30px;
-      text-align: center;
-    }
-
-    #loginContainer img {
-      width: 200px;
-      margin-bottom: 20px;
-      filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
-    }
-
-    h2 {
-      margin-top: 0;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 5px;
-    }
-
-    p.subtitle {
-      font-size: 14px;
-      color: var(--muted);
-      margin-bottom: 30px;
-      font-weight: 500;
-    }
-
-    .input-group {
-      margin-bottom: 20px;
-      text-align: left;
-    }
-
-    .input-group label {
-      display: block;
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--muted);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
-
-    input {
-      width: 100%;
-      padding: 16px;
-      border-radius: 14px;
-      border: 2px solid #e2e8f0;
-      font-size: 16px;
-      font-weight: 600;
-      background: white;
-      transition: border-color 0.2s ease;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 18px;
-      background: var(--accent);
-      color: white;
-      border: none;
-      border-radius: 16px;
-      font-weight: 800;
-      font-size: 16px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(238, 97, 28, 0.3);
-      transition: transform 0.1s ease;
-      margin-top: 10px;
-    }
-
-    .submit-btn:active {
-      transform: scale(0.98);
-    }
-
-    /* GLASS LOADING OVERLAY */
-    #loadingOverlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
-      z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: opacity 0.3s ease;
-    }
-
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid rgba(238, 97, 28, 0.2);
-      border-top: 5px solid var(--accent);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
+    /* LOADING SPINNER */
+    #loadingOverlay { position: fixed; inset: 0; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px); z-index: 9999; display: flex; justify-content: center; align-items: center; transition: opacity 0.3s; }
+    .spinner { width: 50px; height: 50px; border: 5px solid rgba(238, 97, 28, 0.2); border-top: 5px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
-    .loader-hidden { opacity: 0; visibility: hidden; }
+    .loader-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    /* VIEWS */
+    .view { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; flex-direction: column; }
+    .view-active { display: flex; }
+
+    /* LOGIN UI */
+    #loginView { align-items: center; justify-content: center; background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%); padding: 30px; text-align: center; }
+    #loginView img { width: 200px; margin-bottom: 20px; }
+    .input-group { margin-bottom: 20px; text-align: left; width: 100%; max-width: 400px; }
+    .input-group label { display: block; font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+    input { width: 100%; padding: 16px; border-radius: 14px; border: 2px solid #e2e8f0; font-size: 16px; font-weight: 600; background: white; }
+    input:focus { outline: none; border-color: var(--accent); }
+    .submit-btn { width: 100%; max-width: 400px; padding: 18px; background: var(--accent); color: white; border: none; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(238, 97, 28, 0.3); margin-top: 10px; }
+
+    /* DASHBOARD UI */
+    #driverMap { flex: 1; width: 100%; }
+    
+    #topBar { position: absolute; top: 15px; left: 15px; right: 15px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-radius: 20px; box-shadow: var(--shadow); z-index: 10; display: flex; justify-content: space-between; align-items: center; }
+    .status-dot { width: 10px; height: 10px; background: var(--success); border-radius: 50%; display: inline-block; margin-right: 8px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+
+    #bottomPanel { position: absolute; bottom: 0; left: 0; width: 100%; background: white; border-radius: 30px 30px 0 0; box-shadow: 0 -10px 25px rgba(0,0,0,0.1); padding: 25px 20px; z-index: 10; max-height: 50vh; display: flex; flex-direction: column; }
+    
+    .job-card { background: #f8fafc; border: 2px solid var(--tow-blue); border-radius: 20px; padding: 20px; margin-bottom: 15px; }
+    .job-card.empty { border-color: #e2e8f0; text-align: center; padding: 30px; color: var(--muted); font-weight: 700; }
+    
+    .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+    .action-btn { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: var(--text); cursor: pointer; text-decoration: none; }
+    .action-btn.primary { background: var(--warning); border-color: var(--warning); color: white; grid-column: span 4; font-size: 14px; padding: 15px; }
+    .action-btn.done { background: var(--success); border-color: var(--success); color: white; grid-column: span 4; font-size: 14px; padding: 15px; }
+
+    #lineupContainer { overflow-x: auto; display: flex; gap: 10px; padding-bottom: 10px; }
+    .lineup-item { background: white; border: 1px solid #e2e8f0; border-radius: 15px; padding: 12px 15px; min-width: 200px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+    
+    /* MODALS */
+    .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
+    .modal-content { height: 90vh; background: white; width: 100%; border-radius: 32px 32px 0 0; padding: 30px; display: flex; flex-direction: column; }
+    .close-x-btn { background: var(--accent); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; }
+    #chatBox { flex: 1; overflow-y: auto; background: #f8fafc; border-radius: 20px; padding: 15px; margin-bottom: 15px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 10px; }
+    .msg { padding: 12px 16px; border-radius: 18px; max-width: 80%; font-size: 14px; }
+    .msg-me { align-self: flex-end; background: var(--accent); color: white; border-bottom-right-radius: 4px; }
+    .msg-them { align-self: flex-start; background: white; color: var(--text); border-bottom-left-radius: 4px; border: 1px solid #e2e8f0; }
   </style>
 </head>
 <body>
 
-  <div id="loadingOverlay" class="loader-hidden">
-    <div class="spinner"></div>
+  <div id="loadingOverlay"><div class="spinner"></div></div>
+
+  <div id="loginView" class="view view-active">
+    <img src="roadwatchlogo.png" alt="RoadWatcHero" onerror="this.src='https://via.placeholder.com/200x50?text=RoadWatcHero'">
+    <h2 style="margin: 0 0 5px 0;">Driver Portal</h2>
+    <p style="font-size: 14px; color: var(--muted); margin-bottom: 30px; font-weight: 500;">Enter your dispatch credentials.</p>
+
+    <div class="input-group"><label>Phone Number</label><input type="tel" id="driverPhone" placeholder="e.g. 555-555-5555"></div>
+    <div class="input-group"><label>6-Digit PIN</label><input type="number" id="driverPin" placeholder="------"></div>
+    <button class="submit-btn" onclick="window.submitDriverLogin()">SECURE LOGIN</button>
   </div>
 
-  <div id="loginContainer">
-    <img src="roadwatchlogo.png" alt="RoadWatcHero" onerror="this.src='https://via.placeholder.com/200x50?text=RoadWatcHero'">
-    <h2>Driver Portal</h2>
-    <p class="subtitle">Enter the credentials provided by your dispatcher.</p>
-
-    <div class="input-group">
-      <label>Phone Number</label>
-      <input type="tel" id="driverPhone" placeholder="e.g. 555-555-5555">
+  <div id="dashboardView" class="view">
+    <div id="topBar">
+      <div style="font-weight: 900; font-size: 16px;"><span class="status-dot"></span><span id="headerDriverName">Driver</span></div>
+      <button onclick="window.logoutDriver()" style="background: none; border: none; font-size: 12px; font-weight: 800; color: var(--danger); cursor: pointer;">LOGOUT</button>
     </div>
+    
+    <div id="driverMap"></div>
 
-    <div class="input-group">
-      <label>6-Digit PIN</label>
-      <input type="number" id="driverPin" placeholder="------">
+    <div id="bottomPanel">
+      <div id="activeJobCard"></div>
+      
+      <div style="font-size: 11px; font-weight: 900; color: var(--muted); margin: 15px 0 10px 0;">YOUR LINEUP</div>
+      <div id="lineupContainer"></div>
     </div>
+  </div>
 
-    <button class="submit-btn" onclick="window.submitDriverLogin()">SECURE LOGIN</button>
+  <div id="chatModal" class="modal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="margin:0; color: var(--accent);">Dispatch Chat</h3>
+        <button class="close-x-btn" onclick="document.getElementById('chatModal').style.display='none'">✕</button>
+      </div>
+      <div id="chatBox"></div>
+      <div style="display: flex; gap: 10px;">
+        <input id="chatInput" placeholder="Type message..." style="margin: 0; flex:1;">
+        <button onclick="window.sendTextMsg()" style="background: var(--accent); color: white; border: none; padding: 0 20px; border-radius: 15px; font-weight: bold;">SEND</button>
+      </div>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getDatabase, ref, get, onValue, update, push } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
       authDomain: "roadsidehero-104ea.firebaseapp.com",
       databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
       projectId: "roadsidehero-104ea",
-      storageBucket: "roadsidehero-104ea.firebasestorage.app",
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    let map, userLocation, driverMarker;
+    let jobMarkers = [];
+    let myDriverId = localStorage.getItem("heroUserId");
+    let myShopId = localStorage.getItem("shopId");
+    let activeChatId = null;
+
+    // --- 1. INIT & AUTH ---
+    window.onload = () => {
+      if (myDriverId && localStorage.getItem("heroRole") === "fleet_driver") {
+        showDashboard();
+      } else {
+        document.getElementById('loadingOverlay').classList.add('loader-hidden');
+      }
+    };
+
     window.submitDriverLogin = async () => {
       const phoneInput = document.getElementById('driverPhone').value.trim();
       const pinInput = document.getElementById('driverPin').value.trim();
+      if (!phoneInput || !pinInput) return alert("Please enter Phone and PIN.");
 
-      if (!phoneInput || !pinInput) {
-        return alert("Please enter both your Phone Number and PIN.");
-      }
-
-      const loader = document.getElementById('loadingOverlay');
-      loader.classList.remove('loader-hidden');
-
+      document.getElementById('loadingOverlay').classList.remove('loader-hidden');
       try {
-        // Query the entire profiles node to hunt for the shop that owns this driver
         const snap = await get(ref(db, 'profiles'));
         if (snap.exists()) {
           const allProfiles = snap.val();
-          let matchFound = false;
-
           for (const shopId in allProfiles) {
             const shop = allProfiles[shopId];
-            
-            // If the shop is a Pro and has an active fleet
-            if (shop.isPro && shop.fleetDrivers && Array.isArray(shop.fleetDrivers)) {
-              
-              // Hunt for the driver in their array
-              const matchingDriver = shop.fleetDrivers.find(d => d.phone === phoneInput && d.pin === pinInput);
-              
-              if (matchingDriver) {
-                // WE FOUND A MATCH!
-                matchFound = true;
-
-                // 1. Generate a unique ID for this device based on their phone
-                const safeDriverId = "fleet_" + phoneInput.replace(/\D/g,'');
-
-                // 2. Save the credentials securely to the device
-                localStorage.setItem("heroUserId", safeDriverId);
+            if (shop.isPro && shop.fleetDrivers) {
+              const match = shop.fleetDrivers.find(d => d.phone === phoneInput && d.pin === pinInput);
+              if (match) {
+                myDriverId = "fleet_" + phoneInput.replace(/\D/g,'');
+                myShopId = shopId;
+                localStorage.setItem("heroUserId", myDriverId);
                 localStorage.setItem("heroRole", "fleet_driver");
                 localStorage.setItem("shopId", shopId);
-                localStorage.setItem("driverName", matchingDriver.name);
-
-                // 3. Redirect them into the main app experience
-                // IMPORTANT: Ensure this matches your main file name!
-                window.location.href = "home (16).html"; 
-                break; 
+                localStorage.setItem("driverName", match.name);
+                return showDashboard();
               }
             }
           }
-
-          if (!matchFound) {
-            alert("Invalid Credentials. Please verify your Phone and PIN with your dispatcher.");
-          }
-        } else {
-          alert("No dispatchers found in the system.");
+          alert("Invalid Credentials.");
         }
-      } catch (error) {
-        console.error("Login Error:", error);
-        alert("A network error occurred. Please try again.");
-      } finally {
-        loader.classList.add('loader-hidden');
+      } catch (e) { alert("Network Error."); } 
+      finally { document.getElementById('loadingOverlay').classList.add('loader-hidden'); }
+    };
+
+    window.logoutDriver = () => {
+      localStorage.clear();
+      location.reload();
+    };
+
+    // --- 2. DASHBOARD & MAP INIT ---
+    function showDashboard() {
+      document.getElementById("loginView").classList.remove("view-active");
+      document.getElementById("dashboardView").classList.add("view-active");
+      document.getElementById("headerDriverName").innerText = localStorage.getItem("driverName") || "Driver";
+      document.getElementById('loadingOverlay').classList.add('loader-hidden');
+
+      initMap();
+      startLocationWatch();
+      listenToJobs();
+    }
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("driverMap"), {
+        center: { lat: 39.8283, lng: -98.5795 }, zoom: 4, disableDefaultUI: true, gestureHandling: "greedy"
+      });
+    }
+
+    function startLocationWatch() {
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition((p) => {
+          userLocation = { lat: p.coords.latitude, lng: p.coords.longitude };
+          
+          if (!driverMarker) {
+            driverMarker = new google.maps.Marker({
+              position: userLocation, map: map,
+              icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#2563eb", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }
+            });
+            map.setCenter(userLocation);
+            map.setZoom(13);
+          } else {
+            driverMarker.setPosition(userLocation);
+          }
+          
+          // Save location so dispatcher can see them
+          update(ref(db, `profiles/${myShopId}/driverLocations/${myDriverId}`), userLocation);
+        }, (err) => console.error(err), { enableHighAccuracy: true });
       }
+    }
+
+    // --- 3. QUEUE LOGIC ---
+    function listenToJobs() {
+      onValue(ref(db, "sosRequests"), (snap) => {
+        const data = snap.val() || {};
+        let myJobs = [];
+
+        // Find all jobs assigned to this driver that aren't finalized
+        Object.entries(data).forEach(([id, r]) => {
+          if (r.driverId === myDriverId && ['accepted', 'arrived'].includes(r.status)) {
+            myJobs.push({ id, ...r });
+          }
+        });
+
+        // Sort by oldest assigned first
+        myJobs.sort((a, b) => (a.assignmentTimestamp || a.timestamp) - (b.assignmentTimestamp || b.timestamp));
+
+        renderQueue(myJobs);
+        renderMapMarkers(myJobs);
+      });
+    }
+
+    function renderQueue(jobs) {
+      const activeCard = document.getElementById("activeJobCard");
+      const lineupCont = document.getElementById("lineupContainer");
+
+      if (jobs.length === 0) {
+        activeCard.innerHTML = `<div class="job-card empty">📡 Waiting for dispatch...</div>`;
+        lineupCont.innerHTML = `<div style="font-size:12px; color:var(--muted); font-style:italic;">Queue is empty.</div>`;
+        return;
+      }
+
+      // The Active Job (Index 0)
+      const active = jobs[0];
+      const dist = userLocation && active.lat ? (google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userLocation.lat, userLocation.lng), new google.maps.LatLng(active.lat, active.lng)) / 1609.34).toFixed(1) : "?";
+      
+      let navLink = `https://maps.google.com/?q=$${active.lat},${active.lng}`;
+      if (active.towDestination) navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(active.towDestination)}`;
+
+      let actionBtnHTML = "";
+      if (active.status === "accepted") {
+        actionBtnHTML = `<div class="action-btn primary" onclick="window.markStatus('${active.id}', 'arrived')">I'M HERE</div>`;
+      } else if (active.status === "arrived") {
+        actionBtnHTML = `<div class="action-btn done" onclick="window.markStatus('${active.id}', 'completed')">JOB DONE</div>`;
+      }
+
+      activeCard.innerHTML = `
+        <div class="job-card" style="border-color: ${active.status === 'arrived' ? 'var(--warning)' : 'var(--tow-blue)'};">
+          <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:10px;">
+            <div>
+              <div style="font-weight:900; font-size:16px; color:var(--text);">${active.vehicle}</div>
+              <div style="font-size:12px; font-weight:700; color:var(--muted); margin-top:2px;">${dist} miles away</div>
+            </div>
+            <span style="background: ${active.status === 'arrived' ? 'var(--warning)' : 'var(--tow-blue)'}; color:white; padding:4px 10px; border-radius:8px; font-size:10px; font-weight:800; text-transform:uppercase;">${active.status}</span>
+          </div>
+          <div style="font-size:13px; font-weight:600; color:var(--text);">${active.issue}</div>
+          
+          <div class="action-grid">
+            <a href="tel:${active.phoneNumber || ''}" class="action-btn" style="${!active.phoneNumber ? 'opacity:0.3; pointer-events:none;' : ''}">📞 CALL</a>
+            <div class="action-btn" onclick="window.openChat('${active.id}_${active.ownerId}')">💬 CHAT</div>
+            <a href="${navLink}" target="_blank" class="action-btn" style="grid-column: span 2; background:var(--bg);">🗺️ NAVIGATE</a>
+            ${actionBtnHTML}
+          </div>
+        </div>
+      `;
+
+      // The Lineup (Index 1+)
+      lineupCont.innerHTML = "";
+      if (jobs.length === 1) {
+        lineupCont.innerHTML = `<div style="font-size:12px; color:var(--muted); font-style:italic;">No upcoming jobs in queue.</div>`;
+      } else {
+        for (let i = 1; i < jobs.length; i++) {
+          const j = jobs[i];
+          lineupCont.innerHTML += `
+            <div class="lineup-item">
+              <div style="font-size:10px; font-weight:800; color:var(--muted); margin-bottom:4px;">#${i} IN LINEUP</div>
+              <div style="font-weight:800; font-size:14px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${j.vehicle}</div>
+              <div style="font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${j.issue}</div>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function renderMapMarkers(jobs) {
+      jobMarkers.forEach(m => m.setMap(null));
+      jobMarkers = [];
+      const bounds = new google.maps.LatLngBounds();
+      if (userLocation) bounds.extend(userLocation);
+
+      jobs.forEach((j, index) => {
+        if (j.lat && j.lng) {
+          const isFirst = index === 0;
+          const marker = new google.maps.Marker({
+            position: { lat: j.lat, lng: j.lng },
+            map: map,
+            icon: {
+              path: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z",
+              fillColor: isFirst ? "#2563eb" : "#94a3b8", // Blue for active, gray for lineup
+              fillOpacity: 1, strokeWeight: 2, strokeColor: "#ffffff", scale: isFirst ? 1.5 : 1.2,
+              anchor: new google.maps.Point(12, 12),
+            }
+          });
+          jobMarkers.push(marker);
+          bounds.extend({ lat: j.lat, lng: j.lng });
+        }
+      });
+      if (jobs.length > 0 && userLocation) map.fitBounds(bounds);
+    }
+
+    // --- 4. ACTIONS ---
+    window.markStatus = (id, newStatus) => {
+      update(ref(db, `sosRequests/${id}`), { status: newStatus });
+    };
+
+    window.openChat = (chatId) => {
+      activeChatId = chatId;
+      document.getElementById('chatModal').style.display = 'flex';
+      
+      onValue(ref(db, `chats/${activeChatId}`), (snap) => {
+        const box = document.getElementById("chatBox");
+        box.innerHTML = "";
+        const data = snap.val() || {};
+        Object.values(data).forEach(m => {
+          const side = m.sender === myDriverId || m.sender === myShopId ? "msg-me" : "msg-them";
+          box.innerHTML += `<div class="msg ${side}">${m.text || "Photo"}</div>`;
+        });
+        box.scrollTop = box.scrollHeight;
+      });
+    };
+
+    window.sendTextMsg = () => {
+      const input = document.getElementById("chatInput");
+      if (!input.value.trim() || !activeChatId) return;
+      push(ref(db, `chats/${activeChatId}`), { sender: myDriverId, text: input.value, timestamp: Date.now(), read: false });
+      input.value = "";
     };
   </script>
 </body>
