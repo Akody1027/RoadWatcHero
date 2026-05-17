@@ -1400,13 +1400,9 @@
             src="usericon.png"
             class="icon-btn"
             onclick="window.openProfile()"
-          />
-          
-          
-          
-          
-          
-          <img
+          /> 
+     
+          <img 
                     src="menuicon.PNG"
                     class="icon-btn"
                     onclick="window.openModal('heroMenuModal')"
@@ -1416,7 +1412,7 @@
             </div>
 
             <div id="heroMenuModal" class="modal" style="justify-content: flex-end;">
-              <div class="modal-content" style="width: 50%; height: 80vh; min-height: 50vh; max-width: none; border-radius: 32px 0 0 0; padding: 25px; position: relative;">
+              <div class="modal-content" style="width: 50%; height: 80vh; min-height: 50vh; max-width: none;  padding: 25px; position: relative;">
                 <button class="close-x-btn" onclick="window.closeModal('heroMenuModal')" style="position: absolute; top: 15px; right: 15px; width: 30px; height: 30px; font-size: 14px;">✕</button>
                 <h3 style="margin-top: 0; font-size: 20px; text-align: center; color: var(--accent); margin-bottom: 20px;">More</h3>
                  
@@ -1679,7 +1675,7 @@
             "
           >
             <img
-              src="complete.png"
+              src="here.png"
               alt="I'm Here"
               style="
                 width: auto;
@@ -4440,14 +4436,14 @@
 
           let navLink = `https://maps.google.com/?q=${r.lat},${r.lng}`;
 
-          if (r.isTowTruckRequest && r.towDestination)
+          if (r.isTowTruckRequest && r.towDestination) 
             navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(
               r.towDestination
             )}`;
           detNavBtn.href = navLink;
 
           if (r.status === "accepted") {
-            detStatusBtn.innerHTML = `<img src="here.png" alt="I'm Here" style="width:28px; height:28px; margin-bottom:5px;"/> I'M HERE`;
+            detStatusBtn.innerHTML = `<img src="here.png" alt="I'm Here" style="width:28px; height:28px; margin-bottom:5px; filter: drop-shadow(0px 0px 3px #ee611c);"/> I'M HERE`;
             detStatusBtn.style.background = "var(--warning)";
             detStatusBtn.style.borderColor = "var(--warning)";
             detStatusBtn.onclick = () => {
@@ -4455,7 +4451,7 @@
               window.closeModal("detailsModal");
             };
           } else {
-            detStatusBtn.innerHTML = `<img src="done.png" alt="Job Done" style="width:28px; height:28px; margin-bottom:5px;"/> JOB DONE`;
+            detStatusBtn.innerHTML = `<img src="complete.png" alt="Job Done" style="width:auto; height:28px; margin-bottom:5px; filter: drop-shadow(0px 0px 2px #ee611c);"/> JOB DONE`;
             detStatusBtn.style.background = "var(--success)";
             detStatusBtn.style.borderColor = "var(--success)";
             detStatusBtn.onclick = () => {
