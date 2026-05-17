@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <title>RoadWatcHero</title>
     <meta
-      name="viewport"
-      <meta
+      name="viewport" 
+      <meta 
       name="viewport"
       content="width=device-width, initial-scale=1.0"
-    />
+    /> 
 
     <!-- Google Maps with Geometry -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry,places"></script>
@@ -18,7 +18,7 @@
                               --bg: #f8fafc;
                               --card: #ffffff;
                               --text: #0f172a;
-                              --muted: black;
+                              --muted: black; 
                               --accent: #ee611c;
                               --danger: #ee611c;
                               --success: #22c55e;
@@ -1401,12 +1401,42 @@
             class="icon-btn"
             onclick="window.openProfile()"
           />
-
+          
+          
+          
+          
+          
           <img
-            src="toolicon.png"
-            class="icon-btn"
-            onclick="window.openJobBoard()"
-          />
+                    src="menuicon.PNG"
+                    class="icon-btn"
+                    onclick="window.openModal('heroMenuModal')"
+                  />
+                </div> 
+            </div>
+
+            <div id="heroMenuModal" class="modal" style="justify-content: flex-end;">
+              <div class="modal-content" style="width: 50%; height: 80vh; min-height: 50vh; max-width: none; border-radius: 32px 0 0 0; padding: 25px; position: relative;">
+                <button class="close-x-btn" onclick="window.closeModal('heroMenuModal')" style="position: absolute; top: 15px; right: 15px; width: 30px; height: 30px; font-size: 14px;">✕</button>
+                <h3 style="margin-top: 0; font-size: 20px; text-align: center; color: var(--accent); margin-bottom: 20px;">More</h3>
+                 
+                <div style="display: flex;   gap: 15px;">
+                  <div onclick="window.location.href='jobboard.html'" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; text-align: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <img src="toolicon.png" style="width: 45px; height: 45px; margin-bottom: 8px; filter: drop-shadow(0px 0px 2px var(--accent));" />
+                    <div style="font-size: 12px; font-weight: 900; color: var(--text);">Job Board</div>
+                  </div>
+                  
+                  <div onclick="window.location.href='driver.html'" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; 
+                                                  padding: 15px; text-align: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <img src="driver.png" style="width: 45px; height: 45px; margin-bottom: 8px; filter: drop-shadow(0px 0px 2px var(--accent));" />
+                    <div style="font-size: 12px; font-weight: 900; color: var(--text);">Driver App</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+          
+
+      
         </div>
       </div>
     </div>
@@ -5266,6 +5296,10 @@
           const completed = document.getElementById("completionConfirmState");
           const cancelBtn = document.getElementById("cancelSosBtn");
           const msgList = document.getElementById("seekerMessagesList");
+          
+          
+          
+  
 
           if (myActiveSOS.status === "open") {
             // 1. MAKE SURE PARENT UI IS VISIBLE FIRST!
@@ -5273,6 +5307,12 @@
             matched.style.display = "none";
             completed.style.display = "none";
             cancelBtn.style.display = "block";
+            
+            
+            
+            
+            
+            
 
             // 2. NOW IT IS SAFE TO TRIGGER THE MAP (With a tiny delay to let the browser draw the card)
             setTimeout(() => {
@@ -5371,7 +5411,21 @@
             matched.style.display = "block";
             completed.style.display = "none";
             cancelBtn.style.display = "block";
-            const hero = profilesCache[myActiveSOS.helperId] || {};
+            let hero = profilesCache[myActiveSOS.helperId] || {};
+
+            
+            
+            if (myActiveSOS.driverId && hero.driverLocations && hero.driverLocations[myActiveSOS.driverId]) {
+              hero.lat = hero.driverLocations[myActiveSOS.driverId].lat;
+              hero.lng = hero.driverLocations[myActiveSOS.driverId].lng;
+              
+              if (hero.fleetDrivers) {
+                const activeDriver = hero.fleetDrivers.find(d => "fleet_" + d.phone.replace(/\D/g, "") === myActiveSOS.driverId);
+                if (activeDriver) hero.name = `${hero.companyName || hero.name} (Driver: ${activeDriver.name})`;
+              }
+            }
+            
+            
             document.getElementById("matchName").innerText =
               hero.name || "Roadside Hero";
             document.getElementById("matchPic").src =
@@ -5597,13 +5651,25 @@
             r.ownerId === myId &&
             (r.status === "accepted" || r.status === "arrived")
         );
+        
+        
         if (
           myActiveSOS &&
           myActiveSOS.helperId &&
           profilesCache[myActiveSOS.helperId]
-        )
-          updateSeekerMiniMap(myActiveSOS, profilesCache[myActiveSOS.helperId]);
-      });
+        ) {
+          let trackingHero = { ...profilesCache[myActiveSOS.helperId] };
+          
+          if (myActiveSOS.driverId && trackingHero.driverLocations && trackingHero.driverLocations[myActiveSOS.driverId]) {
+            trackingHero.lat = trackingHero.driverLocations[myActiveSOS.driverId].lat;
+            trackingHero.lng = trackingHero.driverLocations[myActiveSOS.driverId].lng;
+          }
+          
+          updateSeekerMiniMap(myActiveSOS, trackingHero); 
+        }
+});
+      
+  
 
       window.saveProfile = () => {
         const radiusEl = document.getElementById("profileRadius");
@@ -5833,7 +5899,7 @@
         const sosId = window.currentViewedSosId;
         if (!sosId) return;
 
-        update(ref(db, `sosRequests/${sosId}`), {
+        update(ref(db, `sosRequests/${sosId}`), { 
           driverId: driverId,
           assignmentTimestamp: Date.now(),
         })
