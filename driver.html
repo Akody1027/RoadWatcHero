@@ -354,12 +354,12 @@
         transform: scale(0.95);
       }
 
-      #lineupContainer {
-        overflow-x: auto;
+       #lineupContainer {
+         margin-top:5%;
         display: flex;
-        gap: 10px;
+        flex-direction: column;
+        gap: 15px;
         padding-bottom: 250px;
-        background-color: ;
       }
       .lineup-item {
         background: white;
@@ -1062,154 +1062,135 @@
         });
       }
 
+      
+      
+      
+      
       function renderQueue(jobs) {
-        const activeCard = document.getElementById("activeJobCard");
-        const lineupCont = document.getElementById("lineupContainer");
+              const activeCard = document.getElementById("activeJobCard");
+              const lineupCont = document.getElementById("lineupContainer");
 
-        if (jobs.length === 0) {
-          activeCard.innerHTML = `<div class="job-card empty">📡 Waiting for dispatch...</div>`;
-          lineupCont.innerHTML = `<div style="font-size:12px; color:var(--muted); font-style:italic;">Queue is empty.</div>`;
-          return;
-        }
+              if (jobs.length === 0) {
+                activeCard.innerHTML = `<div class="job-card empty">📡 Waiting for dispatch...</div>`;
+                lineupCont.innerHTML = `<div style="font-size:12px; color:var(--muted); font-style:italic;">Queue is empty.</div>`;
+                return;
+              }
 
-        // The Active Job (Index 0)
-        const active = jobs[0];
-        const dist =
-          userLocation && active.lat
-            ? (
-                google.maps.geometry.spherical.computeDistanceBetween(
-                  new google.maps.LatLng(userLocation.lat, userLocation.lng),
-                  new google.maps.LatLng(active.lat, active.lng)
-                ) / 1609.34
-              ).toFixed(1)
-            : "?";
+              const generateCardContent = (job, isActive) => {
+                const dist = userLocation && job.lat
+                  ? (google.maps.geometry.spherical.computeDistanceBetween(
+                      new google.maps.LatLng(userLocation.lat, userLocation.lng),
+                      new google.maps.LatLng(job.lat, job.lng)
+                    ) / 1609.34).toFixed(1)
+                  : "?";
 
-        let navLink = `https://maps.google.com/?q=$${active.lat},${active.lng}`;
-        if (active.towDestination)
-          navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(
-            active.towDestination
-          )}`;
-
-        let actionBtnHTML = "";
-        if (active.status === "accepted") {
-          actionBtnHTML = `<div class="action-btn primary" onclick="window.markStatus('${active.id}', 'arrived')">I'M HERE</div>`;
-        } else if (active.status === "arrived") {
-          actionBtnHTML = `<div class="action-btn done" onclick="window.markStatus('${active.id}', 'completed')">JOB DONE</div>`;
-        }
-
-        activeCard.innerHTML = `
-              <div class="job-card" style="border-color: ${
-                active.status === "arrived"
-                  ? "var(--warning)"
-                  : "var(--tow-blue)"
-              };">
-                <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:10px;">
-                  <div>
-                    <div style="font-weight:900; font-size:16px; color:var(--text);">${
-                      active.vehicle
-                    }</div>
-                    <div style="font-size:12px; font-weight:700; color:var(--muted); margin-top:2px;">${dist} miles away</div>
-                  </div>
-                  <span style="background: ${
-                    active.status === "arrived"
-                      ? "var(--warning)"
-                      : "var(--tow-blue)"
-                  }; color:white; padding:4px 10px; border-radius:8px; font-size:10px; font-weight:800; text-transform:uppercase;">${
-          active.status
-        }</span>
-                </div>
-
-
-
-      <div class="job-details-block">
-                  <div class="job-detail-row">
-                    <span class="job-detail-label">Vehicle Type</span>
-                    <span class="job-detail-value">${
-                      active.vehicle || "N/A"
-                    }</span>
-                  </div>
-                  ${
-                    active.vehMake || active.vehModel
-                      ? `
-                  <div class="job-detail-row">
-                    <span class="job-detail-label">Make / Model</span>
-                    <span class="job-detail-value">${active.vehYear || ""} ${
-                          active.vehMake || ""
-                        } ${active.vehModel || ""}</span>
-                  </div>
-                  <div class="job-detail-row">
-                    <span class="job-detail-label">Color</span>
-                    <span class="job-detail-value">${
-                      active.vehColor || "N/A"
-                    }</span>
-                  </div>
-                  <div class="job-detail-row">
-                    <span class="job-detail-label">Plate</span>
-                    <span class="job-detail-value" style="color:var(--tow-blue); font-family:monospace; letter-spacing:1px; font-size:14px;">${
-                      active.vehPlate || "N/A"
-                    }</span>
-                  </div>
-                  `
-                      : ""
+                let imageBlock = `<div style="background:#f1f5f9; color:var(--muted); font-size:11px; font-weight:800; text-align:center; padding:15px; border-radius:12px; margin-bottom:15px; border:1px dashed #cbd5e1;">NO DAMAGE IMAGES UPLOADED</div>`;
+                
+                if (job.damageImages) {
+                  let imgArr = Array.isArray(job.damageImages) ? job.damageImages : [job.damageImages];
+                  if (imgArr.length > 0) {
+                    imageBlock = `<div style="display:flex; gap:10px; overflow-x:auto; margin-bottom:15px; padding-bottom:5px;">` +
+                      imgArr.map(src => `<img src="${src}" style="height:90px; width:90px; object-fit:cover; border-radius:12px; border:1px solid #e2e8f0; flex-shrink:0;" onclick="window.open('${src}', '_blank')">`).join('') +
+                      `</div>`;
                   }
-                  <div class="job-detail-row">
-                    <span class="job-detail-label">Issue</span>
-                    <span class="job-detail-value">${
-                      active.issue || "N/A"
-                    }</span>
-                  </div>
-                  <div class="job-detail-row">
-                    <span class="job-detail-label">Destination</span>
-                    <span class="job-detail-value">${
-                      active.towDestination || "Not specified"
-                    }</span>
-                  </div>
-                </div>
+                }
 
+                const borderColor = isActive 
+                  ? (job.status === "arrived" ? "var(--warning)" : "var(--tow-blue)") 
+                  : "#94a3b8";
+                  
+                const statusBg = isActive
+                  ? (job.status === "arrived" ? "var(--warning)" : "var(--tow-blue)")
+                  : "#94a3b8";
 
+                return `
+                  <div class="job-card" style="border-color: ${borderColor}; ${!isActive ? 'min-width: 320px; flex-shrink: 0; margin-bottom: 0;' : ''}">
+                    <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:15px;">
+                      <div>
+                        ${!isActive ? `<div style="font-size:10px; font-weight:800; color:var(--muted); margin-bottom:4px;">IN LINEUP</div>` : ''}
+                        <div style="font-weight:900; font-size:16px; color:var(--text);">${job.vehicle}</div>
+                        <div style="font-size:12px; font-weight:700; color:var(--muted); margin-top:2px;">${dist} miles away</div>
+                      </div>
+                      <span style="background: ${statusBg}; color:white; padding:4px 10px; border-radius:8px; font-size:10px; font-weight:800; text-transform:uppercase;">${job.status}</span>
+                    </div>
 
+                    ${imageBlock}
 
-       <div class="action-grid">
-                  <a href="tel:${
-                    active.phoneNumber || ""
-                  }" class="action-btn" style="${
-          !active.phoneNumber ? "opacity:0.3; pointer-events:none;" : ""
-        } ">
-                      <img src="phone1.png" alt="Call" style="height:30px; width:auto;filter: drop-shadow(0 0 2px var(--accent)); ">
-                  </a>
-                  <div class="action-btn" onclick="window.openChat('${
-                    active.id
-                  }_${active.ownerId}')">
-                      <img src="Chaticon.png" alt="User Chat" style="height:30px; width:auto; filter: drop-shadow(0 0 2px var(--accent));">
-                  </div>
-
-                  <a href="${navLink}" target="_blank" class="action-btn" style="">
-                      <img src="navigate.png" alt="Navigate" style="height:30px; width:auto; filter:drop-shadow(0 0 2px var(--accent));">
-                  </a>
-                  ${actionBtnHTML}
-                </div>
-
-
-              </div>
-            `;
-
-        // The Lineup (Index 1+)
-        lineupCont.innerHTML = "";
-        if (jobs.length === 1) {
-          lineupCont.innerHTML = `<div style="font-size:12px; color:var(--muted); font-style:italic;">No upcoming jobs in queue.</div>`;
-        } else {
-          for (let i = 1; i < jobs.length; i++) {
-            const j = jobs[i];
-            lineupCont.innerHTML += `
-                  <div class="lineup-item">
-                    <div style="font-size:10px; font-weight:800; color:var(--muted); margin-bottom:4px;">#${i} IN LINEUP</div>
-                    <div style="font-weight:800; font-size:14px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${j.vehicle}</div>
-                    <div style="font-size:12px; color:var(--muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${j.issue}</div>
-                  </div>
+                    <div class="job-details-block">
+                      <div class="job-detail-row">
+                        <span class="job-detail-label">Vehicle Type</span>
+                        <span class="job-detail-value">${job.vehicle || "N/A"}</span>
+                      </div>
+                      ${job.vehMake || job.vehModel ? `
+                      <div class="job-detail-row">
+                        <span class="job-detail-label">Make / Model</span>
+                        <span class="job-detail-value">${job.vehYear || ""} ${job.vehMake || ""} ${job.vehModel || ""}</span>
+                      </div>
+                      <div class="job-detail-row">
+                        <span class="job-detail-label">Color</span>
+                        <span class="job-detail-value">${job.vehColor || "N/A"}</span>
+                      </div>
+                      <div class="job-detail-row">
+                        <span class="job-detail-label">Plate</span>
+                        <span class="job-detail-value" style="color:var(--tow-blue); font-family:monospace; letter-spacing:1px; font-size:14px;">${job.vehPlate || "N/A"}</span>
+                      </div>` : ""}
+                      <div class="job-detail-row">
+                        <span class="job-detail-label">Issue</span>
+                        <span class="job-detail-value">${job.issue || "N/A"}</span>
+                      </div>
+                      <div class="job-detail-row">
+                        <span class="job-detail-label">Destination</span>
+                        <span class="job-detail-value">${job.towDestination || "Not specified"}</span>
+                      </div>
+                    </div>
                 `;
-          }
-        }
-      }
+              };
+
+              const active = jobs[0];
+              let navLink = `https://maps.google.com/?q=$${active.lat},${active.lng}`;
+              if (active.towDestination) navLink += `&destination_place_id=null&destination_address=${encodeURIComponent(active.towDestination)}`;
+
+              let actionBtnHTML = "";
+              if (active.status === "accepted") {
+                actionBtnHTML = `<div class="action-btn primary" onclick="window.markStatus('${active.id}', 'arrived')">I'M HERE</div>`;
+              } else if (active.status === "arrived") {
+                actionBtnHTML = `<div class="action-btn done" onclick="window.markStatus('${active.id}', 'completed')">JOB DONE</div>`;
+              }
+
+              activeCard.innerHTML = generateCardContent(active, true) + `
+                    <div class="action-grid">
+                      <a href="tel:${active.phoneNumber || ""}" class="action-btn" style="${!active.phoneNumber ? "opacity:0.3; pointer-events:none;" : ""} ">
+                          <img src="phone1.png" alt="Call" style="height:30px; width:auto;filter: drop-shadow(0 0 2px var(--accent)); ">
+                      </a>
+                      <div class="action-btn" onclick="window.openChat('${active.id}_${active.ownerId}')">
+                          <img src="Chaticon.png" alt="User Chat" style="height:30px; width:auto; filter: drop-shadow(0 0 2px var(--accent));">
+                      </div>
+                      <a href="${navLink}" target="_blank" class="action-btn">
+                          <img src="navigate.png" alt="Navigate" style="height:30px; width:auto; filter:drop-shadow(0 0 2px var(--accent));">
+                      </a>
+                      ${actionBtnHTML}
+                    </div>
+                  </div>
+              `;
+
+              lineupCont.innerHTML = "";
+              if (jobs.length === 1) {
+                lineupCont.innerHTML = `<div style="font-size:12px; color:var(--muted); font-style:italic;">No upcoming jobs in queue.</div>`;
+              } else {
+                for (let i = 1; i < jobs.length; i++) {
+                  lineupCont.innerHTML += generateCardContent(jobs[i], false) + `</div>`;
+                }
+              }
+            }
+      
+      
+
+      
+      
+      
+      
+      
+      
 
       function renderMapMarkers(jobs) {
         jobMarkers.forEach((m) => m.setMap(null));
