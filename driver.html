@@ -241,13 +241,13 @@
         padding-bottom: 0;
       }
       .job-detail-label {
-        font-size: 10px;
+        font-size: 15px;
         font-weight: 800;
         color: var(--muted);
         text-transform: uppercase;
       }
       .job-detail-value {
-        font-size: 12px;
+        font-size: 15px;
         font-weight: 700;
         color: var(--text);
         text-align: right;
@@ -1085,7 +1085,7 @@
                     ) / 1609.34).toFixed(1)
                   : "?";
 
-                let imageBlock = `<div style="background:#f1f5f9; color:var(--muted); font-size:11px; font-weight:800; text-align:center; padding:15px; border-radius:12px; margin-bottom:15px; border:1px dashed #cbd5e1;">NO DAMAGE IMAGES UPLOADED</div>`;
+                let imageBlock = `<div style="background:#f1f5f9; color:var(--muted); font-size:15px; font-weight:800; text-align:center; padding:15px; border-radius:12px; margin-bottom:15px; border:1px dashed #cbd5e1;">NO DAMAGE IMAGES UPLOADED</div>`;
                 
                 if (job.damageImages) {
                   let imgArr = Array.isArray(job.damageImages) ? job.damageImages : [job.damageImages];
@@ -1106,14 +1106,16 @@
 
                 return `
                   <div class="job-card" style="border-color: ${borderColor}; ${!isActive ? 'min-width: 320px; flex-shrink: 0; margin-bottom: 0;' : ''}">
+                  
                     <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:15px;">
                       <div>
-                        ${!isActive ? `<div style="font-size:10px; font-weight:800; color:var(--muted); margin-bottom:4px;">IN LINEUP</div>` : ''}
-                        <div style="font-weight:900; font-size:16px; color:var(--text);">${job.vehicle}</div>
+                        ${!isActive ? `` : ''}
                         <div style="font-size:12px; font-weight:700; color:var(--muted); margin-top:2px;">${dist} miles away</div>
                       </div>
                       <span style="background: ${statusBg}; color:white; padding:4px 10px; border-radius:8px; font-size:10px; font-weight:800; text-transform:uppercase;">${job.status}</span>
                     </div>
+
+
 
                     ${imageBlock}
 
@@ -1163,6 +1165,7 @@
                       <a href="tel:${active.phoneNumber || ""}" class="action-btn" style="${!active.phoneNumber ? "opacity:0.3; pointer-events:none;" : ""} ">
                           <img src="phone1.png" alt="Call" style="height:30px; width:auto;filter: drop-shadow(0 0 2px var(--accent)); ">
                       </a>
+                      
                       <div class="action-btn" onclick="window.openChat('${active.id}_${active.ownerId}')">
                           <img src="Chaticon.png" alt="User Chat" style="height:30px; width:auto; filter: drop-shadow(0 0 2px var(--accent));">
                       </div>
@@ -1280,7 +1283,7 @@
         list.innerHTML = `
                 <div class="hub-thread" onclick="window.openChat('dispatch_' + myShopId)" style="background: #ffffff; border-bottom: 2px solid var(--accent);">
                   <div>
-                    <div style="font-weight:900; font-size:15px; color:var(--accent);">🏢 Dispatch Center</div>
+                    <div style="font-weight:900; font-size:15px; color:var(--accent);"> Dispatch Center</div>
                     <div style="font-size:12px; font-weight:700; color:var(--muted); margin-top:2px;">Main Office Chat</div>
                   </div>
                   <div style="color:var(--accent); font-weight:900; font-size:24px;">›</div>
