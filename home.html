@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5451,7 +5454,12 @@
             } else {
               matchTowDestination.style.display = "none";
             }
-            updateSeekerMiniMap(myActiveSOS, hero);
+            
+              setTimeout(() => {
+              updateSeekerMiniMap(myActiveSOS, hero);
+            }, 50);
+ 
+           
           } else if (myActiveSOS.status === "completed") {
             msgList.style.display = "none";
             searching.style.display = "none";
