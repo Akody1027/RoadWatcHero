@@ -1365,15 +1365,17 @@
           onValue(ref(db, `profiles/${currentUserId}`), (snap) => {
             const data = snap.val() || {};
 
-            // Auto-fill core identity
-            if (!document.getElementById("shellBizName").value) {
-              document.getElementById("shellBizName").value =
-                data.companyName || data.name || "";
-              document.getElementById("shellBizPhone").value =
-                data.dispatchPhone || "";
-              document.getElementById("shellBizAddress").value =
-                data.businessAddress || "";
+            
+            // Auto-fill core identity using a session flag to beat browser cache
+            if (!document.getElementById("shellBizName").dataset.loaded) {
+              document.getElementById("shellBizName").value = data.companyName || data.name || "";
+              document.getElementById("shellBizPhone").value = data.dispatchPhone || "";
+              document.getElementById("shellBizAddress").value = data.businessAddress || "";
+              
+              // Lock the fields so real-time lead updates don't erase user typing later
+              document.getElementById("shellBizName").dataset.loaded = "true";
             }
+
 
             // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
             if (data.logoUrl) {
