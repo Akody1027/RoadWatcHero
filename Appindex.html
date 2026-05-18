@@ -2,9 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-  
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>ROADWATCHERO</title>
     <link rel="manifest" href="/manifest.json" />
     <link
@@ -20,19 +20,19 @@
     />
     <meta name="theme-color" content="#EE611C" />
     <style>
-      :root { 
-        --accent: #ee611c;  
+      :root {
+        --accent: #ee611c;
         --bg: #ffffff;
-        --text: #0f172a;
+        --text: #0f172a; 
         --muted: #64748b;
-      } 
+      }
 
       body,
       html {
         margin: 0;
         padding: 0;
-        width: 100%; 
-        height: 100%;
+        width: 100%;
+        height: 100%; 
         font-family: -apple-system, system-ui, sans-serif;
         background: var(--bg);
         color: var(--text);
@@ -995,27 +995,26 @@
       const appFrame = document.getElementById("appFrame");
       const dropdown = document.getElementById("legalDropdown");
 
-    
-        function adjustViewport() {
-            const width = window.screen.width;
-            let scale = 1.0;
-            
-            // If the screen is narrower than 450px (like the S26 Ultra), zoom out
-            if (width < 450) {
-                scale = width / 450; // This creates a proportional zoom-out
-            }
+      function adjustViewport() {
+        const width = window.screen.width;
+        let scale = 1.0;
 
-            const viewport = document.querySelector('meta[name="viewport"]');
-            viewport.setAttribute('content', `width=device-width, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`);
+        // If the screen is narrower than 450px (like the S26 Ultra), zoom out
+        if (width < 450) {
+          scale = width / 450; // This creates a proportional zoom-out
         }
 
-        // Run it immediately and if the screen orientation changes
-        adjustViewport();
-        window.addEventListener('resize', adjustViewport);
+        const viewport = document.querySelector('meta[name="viewport"]');
+        viewport.setAttribute(
+          "content",
+          `width=device-width, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`
+        );
+      }
 
+      // Run it immediately and if the screen orientation changes
+      adjustViewport();
+      window.addEventListener("resize", adjustViewport);
 
-
-      
       document
         .getElementById("triggerHeader")
         .addEventListener("click", function () {
@@ -1358,24 +1357,26 @@
         if (user) {
           currentUserId = user.uid;
           document.getElementById("shellLoginSection").style.display = "none";
-          document.getElementById("shellDashboardSection").style.display =
+
+          document.getElementById("dashboardFormsContainer").style.display =
             "block";
 
           // Load Profile Data (Name, Phone, Address, Logo, Leads)
           onValue(ref(db, `profiles/${currentUserId}`), (snap) => {
             const data = snap.val() || {};
 
-            
             // Auto-fill core identity using a session flag to beat browser cache
             if (!document.getElementById("shellBizName").dataset.loaded) {
-              document.getElementById("shellBizName").value = data.companyName || data.name || "";
-              document.getElementById("shellBizPhone").value = data.dispatchPhone || "";
-              document.getElementById("shellBizAddress").value = data.businessAddress || "";
-              
+              document.getElementById("shellBizName").value =
+                data.companyName || data.name || "";
+              document.getElementById("shellBizPhone").value =
+                data.dispatchPhone || "";
+              document.getElementById("shellBizAddress").value =
+                data.businessAddress || "";
+
               // Lock the fields so real-time lead updates don't erase user typing later
               document.getElementById("shellBizName").dataset.loaded = "true";
             }
-
 
             // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
             if (data.logoUrl) {
