@@ -265,6 +265,7 @@
         opacity: 0.8;
         font-size: 22px;
         text-transform: uppercase;
+        white-space:nowrap;
       }
 
       #hubToggleBtn {
@@ -291,6 +292,17 @@
         transition: left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
       }
+
+      
+       @media screen and (min-width: 480px) {
+
+
+                #heroHubBoard {
+                  width: 88vw;
+                }
+
+         
+       }
 
       #heroHubBoard.open {
         left: 0; /* Slides into the space left by the sidebar */
