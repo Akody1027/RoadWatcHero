@@ -19,6 +19,30 @@
       content="black-translucent"
     />
     <meta name="theme-color" content="#EE611C" />
+
+
+  <script>
+    (function() {
+      const minWidth = 360;
+      if (window.screen.width < minWidth) {
+        const scale = window.screen.width / minWidth;
+        const meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = `width=${minWidth}, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`;
+        document.head.appendChild(meta);
+      } else {
+        const meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+        document.head.appendChild(meta);
+      }
+    })();
+  </script>
+    
+
+
+
+    
     <style>
       :root {
         --accent: #ee611c;
