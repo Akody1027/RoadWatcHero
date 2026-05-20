@@ -6,7 +6,7 @@
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    /> 
+    />
     <script src="https://js.stripe.com/v3/"></script>
     <style>
       :root {
@@ -383,11 +383,73 @@
           required
         />
 
-        <div class="price-tag">$49 <span>/ month</span></div>
+        <div
+          style="
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+          "
+        >
+          <div
+            id="tierAdvertising"
+            onclick="window.selectTier('YOUR_999_PRICE_ID_HERE', 'Advertising Hub', 9.99)"
+            style="
+              flex: 1;
+              border: 2px solid var(--accent);
+              border-radius: 12px;
+              padding: 15px;
+              text-align: center;
+              cursor: pointer;
+              background: rgba(238, 97, 28, 0.05);
+            "
+          >
+            <div style="font-weight: 900; color: var(--text); font-size: 15px">
+              Hero Advertising
+            </div>
+            <div
+              style="
+                font-size: 20px;
+                font-weight: 900;
+                color: var(--accent);
+                margin: 5px 0;
+              "
+            >
+              $9.99<span style="font-size: 11px; color: var(--muted)">/mo</span>
+            </div>
+          </div>
+          <div
+            id="tierFleet"
+            onclick="window.selectTier('price_1TSrFO02cjd265jFe2pbYDuO', 'Pro Fleet', 29.99)"
+            style="
+              flex: 1;
+              border: 2px solid #e2e8f0;
+              border-radius: 12px;
+              padding: 15px;
+              text-align: center;
+              cursor: pointer;
+              background: white;
+            "
+          >
+            <div style="font-weight: 900; color: var(--text); font-size: 15px">
+              Pro Responder
+            </div>
+            <div
+              style="
+                font-size: 20px;
+                font-weight: 900;
+                color: var(--accent);
+                margin: 5px 0;
+              "
+            >
+              $29.99<span style="font-size: 11px; color: var(--muted)"
+                >/mo</span
+              >
+            </div>
+          </div>
+        </div>
 
-        <button class="submit-btn" onclick="goToPayment()">
-          CONTINUE
-        </button>
+        <button class="submit-btn" onclick="goToPayment()">CONTINUE</button>
         <p
           style="
             font-size: 11px;
@@ -417,7 +479,7 @@
               id="btnTowSetup"
               onclick="window.selectRole('tow_truck', 'setup')"
             >
-               Towing
+              Towing
             </button>
             <button
               type="button"
@@ -425,7 +487,7 @@
               id="btnMechanicSetup"
               onclick="window.selectRole('mechanic', 'setup')"
             >
-               Mechanic
+              Mechanic
             </button>
             <button
               type="button"
@@ -433,7 +495,7 @@
               id="btnBothSetup"
               onclick="window.selectRole('both', 'setup')"
             >
-               Both
+              Both
             </button>
           </div>
 
@@ -481,8 +543,10 @@
             id="finalPayBtn"
             onclick="window.processFinalSetup()"
           >
-            ACTIVATE PRO ACCOUNT - $49/mo
+            ACTIVATE PRO ACCOUNT -
+            <span id="dynamicPriceDisplay">$9.99</span>/mo
           </button>
+
           <div class="spinner" id="modalSpinner"></div>
 
           <div class="warning-text">
@@ -541,8 +605,7 @@
           </button>
         </div>
 
-
-<button
+        <button
           id="billingBtn"
           class="submit-btn"
           style="
@@ -557,21 +620,43 @@
         >
           💳 Manage Billing & Card
         </button>
-        
-        
-        
-        <label style="font-size:12px; font-weight:bold; color:var(--muted); margin-left:5px;">SERVICE PROVIDED</label>
-        <div class="role-toggle" style="margin-top: 5px;">
-            <button type="button" class="role-btn" id="btnTowEdit" onclick="window.selectRole('tow_truck', 'edit')">Towing</button>
-            <button type="button" class="role-btn" id="btnMechanicEdit" onclick="window.selectRole('mechanic', 'edit')">Mechanic</button>
-            <button type="button" class="role-btn" id="btnBothEdit" onclick="window.selectRole('both', 'edit')">Both</button>
+
+        <label
+          style="
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--muted);
+            margin-left: 5px;
+          "
+          >SERVICE PROVIDED</label
+        >
+        <div class="role-toggle" style="margin-top: 5px">
+          <button
+            type="button"
+            class="role-btn"
+            id="btnTowEdit"
+            onclick="window.selectRole('tow_truck', 'edit')"
+          >
+            Towing
+          </button>
+          <button
+            type="button"
+            class="role-btn"
+            id="btnMechanicEdit"
+            onclick="window.selectRole('mechanic', 'edit')"
+          >
+            Mechanic
+          </button>
+          <button
+            type="button"
+            class="role-btn"
+            id="btnBothEdit"
+            onclick="window.selectRole('both', 'edit')"
+          >
+            Both
+          </button>
         </div>
-        
-        
-        
-        
-        
-        
+
         <label
           style="
             font-size: 12px;
@@ -593,8 +678,7 @@
           >BUSINESS PHONE</label
         >
         <input type="tel" id="editPhone" placeholder="Loading..." />
-        
-        
+
         <label
           style="
             font-size: 12px;
@@ -604,9 +688,11 @@
           "
           >BUSINESS / SHOP ADDRESS</label
         >
-        <input type="text" id="editAddress" placeholder="123 Main St, City, ST 12345" />
-        
-        
+        <input
+          type="text"
+          id="editAddress"
+          placeholder="123 Main St, City, ST 12345"
+        />
 
         <button
           class="submit-btn"
@@ -663,9 +749,26 @@
       // 3. Attach the function to the window so the HTML button can click it
       // --- APP STATE & STRIPE SETUP ---
 
-      let setupRole = 'tow_truck';
-      let editRole = 'tow_truck';
+      let setupRole = "tow_truck";
+      let editRole = "tow_truck";
       let isCheckingOut = false;
+      let selectedPriceId = "YOUR_999_PRICE_ID_HERE";
+      let selectedTierPrice = 9.99;
+
+      window.selectTier = (priceId, name, price) => {
+        selectedPriceId = priceId;
+        selectedTierPrice = price;
+
+        document.getElementById("tierAdvertising").style.borderColor =
+          price === 9.99 ? "var(--accent)" : "#e2e8f0";
+        document.getElementById("tierAdvertising").style.background =
+          price === 9.99 ? "rgba(238, 97, 28, 0.05)" : "white";
+
+        document.getElementById("tierFleet").style.borderColor =
+          price === 29.99 ? "var(--accent)" : "#e2e8f0";
+        document.getElementById("tierFleet").style.background =
+          price === 29.99 ? "rgba(238, 97, 28, 0.05)" : "white";
+      };
 
       // Initialize Stripe
       // IMPORTANT: Swap this pk_live key to your pk_test_ key before testing!
@@ -696,6 +799,13 @@
         const card = document.getElementById("modalCard");
 
         overlay.style.display = "flex";
+        
+         document.getElementById("dynamicPriceDisplay").innerText = "$" + selectedTierPrice;
+
+        
+        
+        
+        
 
         // Mount Stripe Elements ONLY after the modal is visible
         cardElement.mount("#card-element");
@@ -778,9 +888,10 @@
         // Pre-fill the inputs with their database data
         document.getElementById("editCompany").value = data.companyName || "";
         document.getElementById("editPhone").value = data.businessPhone || "";
-        document.getElementById("editAddress").value = data.businessAddress || "";
-        window.selectRole(data.heroType || 'tow_truck', 'edit');
-        
+        document.getElementById("editAddress").value =
+          data.businessAddress || "";
+        window.selectRole(data.heroType || "tow_truck", "edit");
+
         const overlay = document.getElementById("settingsModalOverlay");
         const card = document.getElementById("settingsCard");
 
@@ -810,17 +921,17 @@
         const newCompany = document.getElementById("editCompany").value;
         const newPhone = document.getElementById("editPhone").value;
         const newAddress = document.getElementById("editAddress").value;
-        
+
         const uid = auth.currentUser.uid;
 
         try {
-            // Update the database
-            await update(ref(db, 'users/' + uid), {
-                companyName: newCompany,
-                businessPhone: newPhone,
-                heroType: editRole,
-                businessAddress: newAddress
-            });
+          // Update the database
+          await update(ref(db, "users/" + uid), {
+            companyName: newCompany,
+            businessPhone: newPhone,
+            heroType: editRole,
+            businessAddress: newAddress,
+          });
 
           // Show success
           btn.style.background = "var(--success)";
@@ -844,30 +955,35 @@
         });
       };
 
-// --- 4. MODAL UI CONTROLS ---
-    window.selectRole = (role, context) => {
+      // --- 4. MODAL UI CONTROLS ---
+      window.selectRole = (role, context) => {
         // Decide which modal we are updating
-        const prefix = context === 'setup' ? 'Setup' : 'Edit';
-        
-        // Save to the correct state variable
-        if (context === 'setup') setupRole = role;
-        if (context === 'edit') editRole = role;
-        
-        // Clear all active states in that specific modal
-        document.getElementById(`btnTow${prefix}`).classList.remove('active');
-        document.getElementById(`btnMechanic${prefix}`).classList.remove('active');
-        document.getElementById(`btnBoth${prefix}`).classList.remove('active');
-        
-        // Highlight the clicked button
-        if(role === 'tow_truck') document.getElementById(`btnTow${prefix}`).classList.add('active');
-        if(role === 'mechanic') document.getElementById(`btnMechanic${prefix}`).classList.add('active');
-        if(role === 'both') document.getElementById(`btnBoth${prefix}`).classList.add('active');
-    };
+        const prefix = context === "setup" ? "Setup" : "Edit";
 
+        // Save to the correct state variable
+        if (context === "setup") setupRole = role;
+        if (context === "edit") editRole = role;
+
+        // Clear all active states in that specific modal
+        document.getElementById(`btnTow${prefix}`).classList.remove("active");
+        document
+          .getElementById(`btnMechanic${prefix}`)
+          .classList.remove("active");
+        document.getElementById(`btnBoth${prefix}`).classList.remove("active");
+
+        // Highlight the clicked button
+        if (role === "tow_truck")
+          document.getElementById(`btnTow${prefix}`).classList.add("active");
+        if (role === "mechanic")
+          document
+            .getElementById(`btnMechanic${prefix}`)
+            .classList.add("active");
+        if (role === "both")
+          document.getElementById(`btnBoth${prefix}`).classList.add("active");
+      };
 
       // --- 5. FINAL PROCESSING (Live Stripe & Google Cloud Sync) ---
-      
-      
+
       // --- CUSTOMER BILLING PORTAL ---
       window.openCustomerPortal = async () => {
         if (!window.currentStripeCustomerId) {
@@ -882,7 +998,8 @@
 
         try {
           // Your exact Portal Cloud Function URL
-          const backendUrl = "https://createportalsession-1068443635940.us-central1.run.app";
+          const backendUrl =
+            "https://createportalsession-1068443635940.us-central1.run.app";
 
           const response = await fetch(backendUrl, {
             method: "POST",
@@ -891,7 +1008,7 @@
               customerId: window.currentStripeCustomerId,
               returnUrl: window.location.href, // Sends them back to your app
             }),
-          }); 
+          });
 
           const result = await response.json();
 
@@ -907,14 +1024,7 @@
           btn.disabled = false;
         }
       };
-      
-      
-       
-      
-      
-      
-      
-      
+
       window.processFinalSetup = async () => {
         const company = document.getElementById("companyName").value;
         const phone = document.getElementById("businessPhone").value;
@@ -969,7 +1079,7 @@
               companyName: company,
               phone: phone,
               heroType: setupRole,
-              priceId: "price_1TSrFO02cjd265jFe2pbYDuO", // <--- PASTE YOUR Stripe price_... ID HERE!
+              priceId: selectedPriceId,  // <--- PASTE YOUR Stripe price_... ID HERE!
             }),
           });
 
