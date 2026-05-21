@@ -39,9 +39,10 @@
                             body,
                             button,
                             input,
+
                             div:not(#map):not(#seekerMap) {
                               transition: background-color 0.2s ease, color 0.2s ease,
-                                border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
+                                border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease; border-radius:;
                             }
 
                             /* STRICT FIX: Prevent Google Maps internals from glitching during zoom/pan */
@@ -50,7 +51,7 @@
                               transition: none !important;
                             }
 
-                            /* GLASS LOADING OVERLAY */
+                            /* GLASS LOADING OVERLAY */             
                             #loadingOverlay {
                               position: fixed;
                               inset: 0;
@@ -69,8 +70,8 @@
                               height: 60px;
                               border: 6px solid rgba(238, 97, 28, 0.2); /* Light orange track */
                               border-top: 6px solid #ee611c; /* ACCENT ORANGE spinner */
-                              border-radius: 50%;
-                              animation: spin 3s linear infinite;
+                              border-radius: 8%;
+                              animation: spin 3s linear infinite; 
                             }
 
                             @keyframes spin {
@@ -129,7 +130,7 @@
                               padding: 30px;
                               text-align: center;
                               z-index: 100;
-                              background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+                              background: linear-gradient(180deg, #ffffff 0%, #bdbdbd 100%);
                             }
                             #landingPage img {
                               width: 240px;
@@ -138,9 +139,9 @@
                             }
                             .mode-btn {
                               width: 100%;
-                              max-width: 320px;
+                              max-width: 320px; 
                               padding: 20px;
-                              border-radius: 18px;
+                              border-radius: 10px;
                               font-size: 18px;
                               font-weight: 700;
                               border: none;
@@ -428,10 +429,10 @@
                             }
                             .modal-content {
                               height: 95vh;
-                              background: white;
+                              background:linear-gradient(180deg, #ffffff 0%, #bdbdbd 100%);
                               width: 100%;
                               max-width: 600px;
-                              border-radius: 32px 32px 0 0;
+                              border-radius: 2px 32px 0 0;
                               padding: 30px;
                               max-height: 95vh;
                               overflow-y: auto;
@@ -452,7 +453,7 @@
                               gap: 12px;
                               padding: 15px;
                               background: #f8fafc;
-                              border-radius: 20px;
+                              border-radius: 10px;
                               margin-bottom: 12px;
                               border: 1px solid #e2e8f0;
                               position: relative;
@@ -496,9 +497,15 @@
                               background: white;
                               color: var(--text);
                               border-bottom-left-radius: 4px;
-                              border: 1px solid #e2e8f0;
+                              border: 1px solid #e2e8f0; 
                             }
 
+                            .heroh3{
+                                color: #ee611c;
+                            }
+      
+      
+      
                             .vehicle-grid {
                               display: flex;
                               grid-template-columns: repeat(2, 1fr);
@@ -508,7 +515,7 @@
                               background-color:white;
                               padding: 15px;
                               border: 2px solid #f1f5f9;
-                              border-radius: 10px;
+                              border-radius: 8px;
                               text-align: center;
                               cursor: pointer;
                               font-weight: 700;
@@ -521,7 +528,7 @@
                             }
                             .tip-btn {
                               border: 2px solid #f1f5f9;
-                              border-radius: 10px;
+                              border-radius: 8px;
                               padding: 12px;
                               flex: 1;
                               text-align: center;
@@ -535,11 +542,11 @@
                             }
 
                             input,
-                            textarea,
+                            textarea, 
                             select {
                               width: 100%;
                               padding: 15px;
-                              border-radius: 14px;
+                              border-radius: 8px;
                               border: 1px solid #e2e8f0;
                               margin-bottom: 12px;
                               font-size: 15px;
@@ -552,14 +559,15 @@
                               background: #ee611c;
                               color: white;
                               border: none;
-                              border-radius: 16px;
+                              border-radius: 8px;
                               font-weight: 700;
                               cursor: pointer;
                               font-size: 16px;
+                              margin-top:10%;
                             }
 
                                  #jbtn{
-                                 border-radius: 20px;
+                                 border-radius: 8px;
 
                              }
 
@@ -632,7 +640,7 @@
                               background: #ee611c;
                               border: none;
                               padding: 12px;
-                              border-radius: 12px;
+                              border-radius: 8px;
                               box-shadow: var(--shadow);
                               cursor: pointer;
                               z-index: 5;
@@ -673,7 +681,7 @@
                               background: white;
                               color: #2563eb;
                               border: 2px solid #2563eb;
-                              border-radius: 16px;
+                              border-radius: 8px;
                               font-weight: 700;
                               cursor: pointer;
                               font-size: 16px;
@@ -690,7 +698,7 @@
                               display: none;
                             }
                             .phone-input-group label {
-                              font-size: 11px;
+                              font-size: 11px; 
                               font-weight: bold;
                               color: var(--muted);
                               margin-bottom: 8px;
@@ -737,12 +745,11 @@
                               margin-top: -30px;
                             }
                             .modal-header-row h3 {
-                              margin: 0;
+                              margin-top:;
                               color: var(--accent);
                               flex: 1;
                               text-align: center;
                               font-size: 30px;
-                              margin-left: -60px;
                             }
                             .close-x-btn {
                               background: var(--accent);
@@ -768,7 +775,7 @@
                               width: 50%;
                               background: whitesmoke;
                               border: 2px solid var(--accent);
-                              border-radius: 16px;
+                              border-radius: 8px;
                               padding: 12px 25px;
                               cursor: pointer;
                               transition: 0.2s;
@@ -799,7 +806,7 @@
                               width: 100%;
                               height: 90%;
                               object-fit: cover;
-                              border-radius: 15px;
+                              border-radius: 8px;
                               flex-shrink: 0;
                               cursor: pointer;
                               border: 1px solid #e2e8f0;
@@ -820,7 +827,7 @@
                               flex: 1;
                               padding: 12px;
                               border: 2px solid #e2e8f0;
-                              border-radius: 12px;
+                              border-radius: 8px;
                               background: white;
                               cursor: pointer;
                               font-weight: 700;
@@ -843,7 +850,7 @@
                               justify-content: space-between;
                               background: #f8fafc;
                               padding: 15px 20px;
-                              border-radius: 20px;
+                              border-radius: 8px;
                               margin-bottom: 15px;
                             }
                             .toggle-label {
@@ -866,7 +873,7 @@
                               inset: 0;
                               background-color: var(--accent);
                               transition: 0.4s;
-                              border-radius: 34px;
+                              border-radius: 18px;
                             }
                             .slider:before {
                               position: absolute;
@@ -912,7 +919,7 @@
                       background-color: #fee2e2; /* Red bg */
                       border: 2px solid #fbbf24; /* Yellow outline */
                       margin-bottom: 12px;
-                      border-radius: 14px;
+                      border-radius: 8px;
                       padding: 12px;
                       display: none; /* Controlled by toggleTowTruckRequest */
                       flex-direction: column;
@@ -929,7 +936,7 @@
                     }
 
                     .pro-scroller {
-                      display: flex;
+                      display: flex; 
                       gap: 12px;
                       overflow-x: auto;
                       padding-bottom: 5px;
@@ -978,9 +985,9 @@
 
 
                     .form-wrapper{
-                      background-color:whitesmoke;
+                      background-color:;
                       padding:2%;
-                      border-radius:15px;
+                      border-radius:8px;
                       margin-bottom:20%;
 
 
@@ -992,10 +999,10 @@
         position: absolute;
         top: 15px;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%); 
         background: white;
         padding: 6px 14px;
-        border-radius: 20px;
+        border-radius: 20px; 
         font-size: 11px;
         font-weight: 800;
         color: var(--text);
@@ -1919,9 +1926,9 @@
     <div id="requestModal" class="modal">
       <div class="modal-content">
         <div class="modal-header-row" style="padding-top: 10px">
-          <div style="flex: 1"></div>
+          <div style=></div>
 
-          <h3 style="display: flex">Find Hero</h3>
+          <h3 style=>Find Hero</h3>
 
           <button
             class="close-x-btn"
@@ -1994,12 +2001,13 @@
           <button
             onclick="document.getElementById('damageInput').click()"
             style="
+                   height:100px;
               width: 100%;
               padding: 15px;
-              border-radius: 16px;
+              border-radius: 8px;
               border: 2px dashed #cbd5e1;
-              background: none;
-              margin-bottom: 15px;
+              background: white;
+              margin-bottom: 25px;
               cursor: pointer;
               font-weight: bold;
               color: var(--muted);
@@ -2107,10 +2115,10 @@
                 style="
                   font-size: 18px;
                   color: var(--accent);
-                  background: transparent;
+                  background: whitesmoke;
                   border: 2px solid var(--accent);
                   width: 100%;
-                  border-radius: 15px;
+                  border-radius: 8px;
                   padding: 15px;
                   font-weight: 600;
                 "
@@ -2154,7 +2162,7 @@
 
     <div id="profileModal" class="modal">
       <div class="modal-content">
-        <h3>Hero Profile</h3>
+        <h3 class="heroh3">Hero Profile</h3>
         <div style="text-align: center; margin-bottom: 20px">
           <img
             id="profileDisplayPic"
@@ -2564,7 +2572,7 @@
             text-align: center;
             color: var(--accent);
             font-weight: 800;
-            font-size: 14px;
+            font-size: 16px;
             text-decoration: none;
             margin-top: 10px;
           "
@@ -5106,7 +5114,7 @@
                 : r.status === "canceled"
                 ? "#ef4444"
                 : "#2563eb";
-            history.innerHTML += `<div class="history-item" style="padding:15px; background:#f8fafc; border-radius:15px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;"><div><span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; background:${sCol};">${
+            history.innerHTML += `<div class="history-item" style="padding:15px; background:#f8fafc; border-radius:8px; margin-bottom:10px; border:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;"><div><span class="status-pill" style="font-size:10px; font-weight:800; padding:3px 8px; border-radius:6px; color:white; background:${sCol};">${
               r.status
             }</span><b>${r.vehicle}${
               isTowTruck ? " (Tow)" : ""
@@ -5905,7 +5913,7 @@
       window.assignJobToDriver = (driverId) => {
         const sosId = window.currentViewedSosId;
         if (!sosId) return;
-
+ 
         update(ref(db, `sosRequests/${sosId}`), { 
           driverId: driverId,
           assignmentTimestamp: Date.now(),
