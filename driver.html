@@ -379,7 +379,7 @@
   backdrop-filter: blur(4px);
   display: none;
   justify-content: center;
-  align-items: flex-end; /* Or center, depending on your preference */
+  align-items: center; /* Or center, depending on your preference */
   z-index: 1000;
   overflow: hidden; /* Prevents the whole screen from scrolling */
 }
@@ -388,7 +388,8 @@
   background: white;
   width: 100%;
   max-width: 600px;
-  max-height: 90vh; /* Limits height so it doesn't overflow the viewport */
+  height: 90vh;
+  max-height: 90vh;/* Limits height so it doesn't overflow the viewport */
   overflow-y: auto; /* THIS IS THE FIX: Enables vertical scrolling inside the content */
   border-radius: 20px 20px 0 0;
   padding: 20px;
