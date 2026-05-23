@@ -7,7 +7,7 @@
     <meta charset="UTF-8" />
     <title>RoadWatcHero</title>
     <meta
-      name="viewport" 
+      name="viewport"  
       <meta 
       name="viewport"
       content="width=device-width, initial-scale=1.0"
@@ -21,8 +21,8 @@
                               --bg: #f8fafc;
                               --card: #ffffff;
                               --text: #0f172a;
-                              --muted: black; 
-                              --accent: #ee611c; 
+                              --muted: black;  
+                              --accent: #ee611c;  
                               --danger: #ee611c;
                               --success: #22c55e; 
                               --warning: #f59e0b;
@@ -237,6 +237,21 @@
                               font-weight: 700;
                               color: var(--text);
                             }
+      
+      
+      
+                            .map-tip-badge {
+                              text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+                              background: rgba(255,255,255,0.95);
+                              padding: 2px 6px;
+                              border-radius: 8px;
+                              border: 1.5px solid #22c55e;
+                              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            }
+      
+      
+      
+      
                             .map-close-btn {
                               position: absolute;
                               top: 15px;
@@ -541,6 +556,40 @@
                               color: var(--success);
                             }
 
+      
+      
+      
+      
+      /* Custom Range Slider */
+                            input[type=range] {
+                              -webkit-appearance: none;
+                              width: 100%;
+                              background: transparent;
+                            }
+                            input[type=range]::-webkit-slider-thumb {
+                              -webkit-appearance: none;
+                              height: 20px;
+                              width: 20px;
+                              border-radius: 50%;
+                              background: var(--accent);
+                              cursor: pointer;
+                              margin-top: -8px;
+                            }
+                            input[type=range]::-webkit-slider-runnable-track {
+                              width: 100%;
+                              height: 6px;
+                              cursor: pointer;
+                              background: #e2e8f0;
+                              border-radius: 4px;
+                            }
+      
+      
+      
+      
+      
+      
+      
+      
                             input,
                             textarea, 
                             select {
@@ -1227,6 +1276,15 @@
             style="max-height: 200px; overflow-y: auto"
           ></div>
         </div>
+        
+        
+        <div id="enticeSection" style="margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+          <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; text-transform: uppercase;">Not getting responses?</p>
+          <button onclick="window.increaseTipPrompt()" style="background: white; color: var(--success); border: 2px solid var(--success); padding: 12px; width: 100%; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: var(--shadow);">
+            💰 ADJUST TIP AMOUNT
+          </button>
+        </div>
+
       </div>
 
       <!-- Seeker Messages List -->
@@ -1305,6 +1363,17 @@
             ></p>
           </div>
         </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
+              <a id="seekerCallHeroBtn" href="#" class="submit-btn" style="flex: 1; background: whitesmoke; color: var(--text); border: 2px solid var(--accent); margin-top: 0; padding: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span style="font-size: 18px;">📞</span> CALL
+              </a>
+              <button onclick="window.handleSeekerChatClick()" class="submit-btn" style="flex: 1; margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span style="font-size: 18px;">💬</span> CHAT
+              </button>
+            </div>
+        
+        
         <div id="seekerMapContainer">
           <div id="seekerMap"></div>
           <button
@@ -1370,8 +1439,26 @@
         RE-CENTER
       </button>
 
-      <a href="jobboard.html"> <button class="jb-btn">JOB BOARD</button></a>
-
+<div style="position: absolute; top: 20px; left: 20px; z-index: 5;">
+        <button class="jb-btn" style="margin-left: 0; position: relative; top: 0; left: 0; font-size:30px; padding:1% ;" onclick="document.getElementById('mapFilterMenu').style.display = document.getElementById('mapFilterMenu').style.display === 'none' ? 'block' : 'none'">
+          ⚙️ 
+        </button>
+        <div id="mapFilterMenu" style="display: none; background: white; padding: 15px; border-radius: 12px; box-shadow: var(--shadow); margin-top: 10px; border: 1px solid #e2e8f0; width: 220px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 13px; font-weight: 700;">Mechanic Shops</span>
+            <label class="toggle-switch" style="transform: scale(0.8);"><input type="checkbox" id="mapToggleMechanic" onchange="window.syncMapFilters(this, 'prefersMechanicRequests')" /><span class="slider"></span></label>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 13px; font-weight: 700;">Roadside SOS</span>
+            <label class="toggle-switch" style="transform: scale(0.8);"><input type="checkbox" id="mapToggleRoadside" onchange="window.syncMapFilters(this, 'prefersRoadsideRequests')" /><span class="slider"></span></label>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 13px; font-weight: 700;">Towing SOS</span>
+            <label class="toggle-switch" style="transform: scale(0.8);"><input type="checkbox" id="mapToggleTow" onchange="window.syncMapFilters(this, 'prefersTowTruckRequests')" /><span class="slider"></span></label>
+          </div>
+        </div>
+      </div>
+      
       <div
         id="statusIndicator"
         style="background: #94a3b8"
@@ -1444,9 +1531,9 @@
           
 
           </div>
-    </div>
+          </div>
+          </div>
 
-        </div>
 
     <div id="detailsModal" class="modal">
       <div class="modal-content">
@@ -1542,7 +1629,14 @@
           >
             PHOTOS
           </p>
-          <div id="detImgScroller" class="det-img-scroller"></div>
+          
+          
+          
+          
+          <img id="detMainImage" src="" style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 10px; border: 1px solid #e2e8f0; display: none;" onclick="window.enlargeImage(this.src)">
+          <div id="detImgScroller" class="det-img-scroller" style="gap: 10px; padding-bottom: 5px;"></div>
+          
+          
         </div>
 
         <div
@@ -2236,6 +2330,18 @@
             oninput="window.updateRadiusLive(this.value)"
           />
         </div>
+        
+        
+        
+        <div class="toggle-wrapper">
+          <span class="toggle-label">Show Mechanic Shops</span
+          ><label class="toggle-switch"
+            ><input type="checkbox" id="prefersMechanicRequests" onchange="window.syncMapFilters(this, 'prefersMechanicRequests')" /><span
+              class="slider"
+            ></span
+          ></label>
+        </div>
+        
 
         <div class="toggle-wrapper">
           <span class="toggle-label">Show Roadside SOS</span
@@ -2385,6 +2491,11 @@
             >
               👑 Pro Status Active
             </div>
+            
+            
+            <div id="proDateDisplay" style="text-align: center; font-size: 11px; color: var(--muted); font-weight: 700; margin-top: -10px; margin-bottom: 15px;"></div>
+            
+            
 
             <label
               style="
@@ -2599,28 +2710,54 @@
         </button>
         
         
-        <h3 style="color:  var(--accent);">Activity History</h3>
+        
+        <h3 style="color: var(--accent); margin: 0;">Activity History</h3>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;text-align:right; ">
+        <span onclick="window.clearAllHistoryPrompt()" style="color: var(--danger); font-size: 13px; font-weight: 800; cursor: 
+                                                              pointer; text-decoration: underline; padding-right: 40px;">Delete All</span>
+        </div>
+        
         <div id="notifHistory"></div>
 
       </div>
     </div>
-    <div id="deleteConfirmModal" class="modal">
-      <div class="modal-content">
+
+
+
+
+<div id="deleteConfirmModal" class="modal" style="z-index: 1010;">
+      <div class="modal-content"> 
         <h3>Confirm Deletion</h3>
         <p>Are you sure you want to delete this activity?</p>
         <button
           class="submit-btn"
           style="background: var(--danger); margin-bottom: 10px"
           onclick="window.confirmDeleteActivity()"
-        >
-          Delete</button
-        ><span
+        > 
+          Delete
+        </button>
+        <span
           class="cancel-link"
-          onclick="window.closeModal('deleteConfirmModal')"
-          >Cancel</span
-        >
+          onclick="window.closeSubModal('deleteConfirmModal')"
+        >Cancel</span>
       </div>
     </div>
+
+    <div id="clearAllConfirmModal" class="modal" style="z-index: 1010;">
+      <div class="modal-content">
+        <h3>Clear All History?</h3>
+        <p>Are you sure you want to delete all completed and canceled jobs? Active jobs will remain.</p>
+        <button class="submit-btn" style="background: var(--danger); margin-bottom: 10px" onclick="window.confirmClearAll()">Clear All</button>
+        <span class="cancel-link" onclick="window.closeSubModal('clearAllConfirmModal')">Cancel</span>
+      </div>
+    </div>
+
+
+
+
+
+
     <div id="deleteChatConfirmModal" class="modal">
       <div class="modal-content">
         <h3>Delete Chat?</h3>
@@ -3349,6 +3486,12 @@
         uploadBytes,
         getDownloadURL,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+      
+      
+      
+      import { getMessaging, getToken, onMessage, isSupported } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-messaging.js";
+      
+      
 
       const firebaseConfig = {
         apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
@@ -3365,6 +3508,42 @@
 
       // NEW: Initialize Auth
       const auth = getAuth(app);
+      
+     
+      let messaging = null;
+      isSupported().then((supported) => {
+        if (supported) {
+          messaging = getMessaging(app);
+          onMessage(messaging, (payload) => {
+            const sound = document.getElementById("notificationSound");
+            if (sound) sound.play().catch((e) => console.error(e));
+          });
+        }
+      });
+
+      window.requestNotificationPermissions = async () => {
+        if (!messaging) {
+            console.warn("Push notifications not supported in this browser/environment.");
+            return;
+        }
+        try {
+          const permission = await Notification.requestPermission();
+          if (permission === "granted") {
+            const token = await getToken(messaging, { 
+              vapidKey: "BAot7yhPw7bfYR8s3p3jYw-1DJhpipNJF9mtP3csRU2KAcG2-TVrwzM1b5dR-igCFYkT3oIJ8zITDSyWXHLtPJ0" 
+            });
+            
+            if (token) {
+              update(ref(db, `profiles/${myId}`), {
+                fcmToken: token,
+                notificationsEnabled: true
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Notification permission denied or failed to get token.", error);
+        }
+      };
 
       // EXPOSE NAVIGATION TO WINDOW SCOPE
 
@@ -3413,6 +3592,28 @@
       let destLng = null;
 
       // --- PROFILE SERVICE TYPE SELECTION ---
+      
+      
+      
+      window.syncMapFilters = (checkbox, field) => {
+        // Optimistically update both the Profile UI and the Map UI
+        if (document.getElementById(field)) document.getElementById(field).checked = checkbox.checked;
+        const mapToggleMap = {
+            'prefersMechanicRequests': 'mapToggleMechanic',
+            'prefersRoadsideRequests': 'mapToggleRoadside',
+            'prefersTowTruckRequests': 'mapToggleTow'
+        };
+        const mapId = mapToggleMap[field];
+        if (document.getElementById(mapId)) document.getElementById(mapId).checked = checkbox.checked;
+
+        // Push directly to Firebase so it saves instantly
+        update(ref(db, `profiles/${myId}`), {
+          [field]: checkbox.checked
+        });
+      };
+      
+
+      
       let profileEditRole = "tow_truck"; // Default
       window.selectProfileRole = (role) => {
         profileEditRole = role;
@@ -3541,7 +3742,13 @@
       window.triggerNativeLocation = () => {
         // We must call this directly without checking permissions first,
         // otherwise Apple/Safari security blocks the native pop-up.
+        
+        
         window.startLocationWatch();
+        
+        window.requestNotificationPermissions();
+        
+        
       };
 
       window.evaluateBannerState = () => {
@@ -3885,6 +4092,9 @@
               : {};
             profileData.isPro = true;
             profileData.id = secureUid;
+          
+          
+          if (!profileData.proJoinDate) profileData.proJoinDate = Date.now();
 
             await set(ref(db, `profiles/${secureUid}`), profileData);
             if (oldTempId !== secureUid)
@@ -3897,6 +4107,10 @@
             document.getElementById("proLoginSection").style.display = "none";
             document.getElementById("proDashboardSection").style.display =
               "block";
+          
+          
+          
+          
 
             btn.innerText = "Verify & Unlock";
             btn.disabled = false;
@@ -4280,22 +4494,25 @@
         (snapshot) => {
           chatCache = snapshot.val() || {};
           let unreadCount = 0;
+          
+          
+          
+          
           let latestMessageTimestampInActiveChat = 0;
           Object.keys(chatCache).forEach((chatId) => {
             const messages = chatCache[chatId];
-            const involvesMe =
-              chatId.includes(myId) ||
-              Object.values(sosCache).some(
-                (r) =>
-                  r.ownerId === myId &&
-                  chatId.startsWith(
-                    Object.keys(sosCache).find((k) => sosCache[k] === r) + "_"
-                  )
-              );
-            if (involvesMe) {
+            
+            // STRICT FILTER: Only count unread messages for ACTIVE jobs to prevent ghost badges.
+            const isRelatedToActiveJob = Object.entries(sosCache).some(([jobId, r]) => {
+                return (r.ownerId === myId || r.helperId === myId) && 
+                       ["open", "accepted", "arrived"].includes(r.status) &&
+                       chatId.includes(jobId);
+            });
+
+            if (isRelatedToActiveJob) {
               Object.values(messages).forEach((message) => {
                 if (message.sender !== myId && message.read === false)
-                  unreadCount++;
+                  unreadCount++; 
                 if (
                   message.timestamp &&
                   message.timestamp > latestMessageTimestampInActiveChat
@@ -4304,18 +4521,21 @@
               });
             }
           });
+     
+           
+          
+          
           const chatModalOpen =
             document.getElementById("chatModal").style.display === "flex";
+          
           if (
             !isInitialLoadForChatListener &&
-            unreadCount > 0 &&
-            latestMessageTimestampInActiveChat >
-              lastProcessedMessageTimestamp &&
-            !chatModalOpen
+            latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp
           ) {
             const sound = document.getElementById("notificationSound");
             if (sound) sound.play().catch((e) => console.error(e));
           }
+              
           if (
             latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp
           )
@@ -4363,20 +4583,29 @@
         if (r.damagePics && Array.isArray(r.damagePics))
           imagesToDisplay = r.damagePics;
 
-        // FIX: Always show the container so the "PHOTOS" label is visible
-        detImgContainer.style.display = "block";
 
-        // FIX: Always show the container so the "PHOTOS" label is visible
+// FIX: Always show the container so the "PHOTOS" label is visible
         detImgContainer.style.display = "block";
+        const detMainImage = document.getElementById("detMainImage");
 
         if (imagesToDisplay.length > 0) {
+          detMainImage.src = imagesToDisplay[0];
+          detMainImage.style.display = "block";
+          
           imagesToDisplay.forEach((src) => {
             const img = document.createElement("img");
             img.src = src;
-            img.onclick = () => window.enlargeImage(src);
+            if (src === imagesToDisplay[0]) img.style.border = "3px solid var(--accent)";
+            
+            img.onclick = () => {
+              detMainImage.src = src;
+              Array.from(detImgScroller.children).forEach(child => child.style.border = "1px solid #e2e8f0");
+              img.style.border = "3px solid var(--accent)";
+            };
             detImgScroller.appendChild(img);
           });
         } else {
+          detMainImage.style.display = "none";
           // FIX: Inject the exact styled dashed-box from the Job Board
           detImgScroller.innerHTML = `
               <div style="width: 100%; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 15px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; box-sizing: border-box;">
@@ -4571,8 +4800,19 @@
                 }
               } else {
                 sneakPeekBoard.style.display = "none";
+                
+                const bidCount = r.bids ? Object.keys(r.bids).length : 0;
+                proUpsellBoard.innerHTML = `
+                  <p style="font-size: 18px; margin: 0 0 5px 0">🔒</p>
+                  <p style="font-size: 12px; font-weight: 700; color: var(--muted); margin: 0;">
+                    ${bidCount} competing bid${bidCount === 1 ? '' : 's'} hidden.
+                  </p>
+                  <a href="pro-hero.html" style="font-size: 11px; color: var(--accent); font-weight: 800; text-decoration: none;">Upgrade to Pro to unlock →</a>
+                `;
                 proUpsellBoard.style.display = "block";
               }
+ 
+              
             } else {
               // Standard Roadside Request Logic (Non-Tow)
               document.getElementById("detBidSection").style.display = "none";
@@ -4610,6 +4850,26 @@
         };
       };
       window.enterHeroMode = () => {
+        
+        
+        window.increaseTipPrompt = () => {
+          const activeSosId = Object.keys(sosCache).find(
+              (k) => sosCache[k].ownerId === myId && sosCache[k].status === "open"
+          );
+          if (!activeSosId) return;
+
+          const currentTip = sosCache[activeSosId].tip || 0;
+          const addedAmount = prompt(`Your current tip is $${currentTip}. How much additional tip would you like to add? (e.g. 10)`);
+          
+          if (addedAmount && !isNaN(addedAmount) && Number(addedAmount) > 0) {
+              const newTotal = Number(currentTip) + Number(addedAmount);
+              update(ref(db, `sosRequests/${activeSosId}`), { tip: newTotal }).then(() => {
+                  alert(`Tip updated to $${newTotal}! Heroes nearby will see the new amount.`);
+              });
+          }
+      };
+        
+        
         window.switchView("heroUI");
         if (!map) initMap();
 
@@ -4626,6 +4886,18 @@
           helperAcknowledged: false,
           eta: eta,
         });
+        
+        
+        const chatId = `${sosId}_${myId}`;
+        push(ref(db, `chats/${chatId}`), {
+          sender: myId,
+          text: `✅ I'm on my way! My ETA is ${eta}.`,
+          timestamp: Date.now(),
+          read: false,
+        });
+        
+        
+        
         window.closeModal("detailsModal");
         document.getElementById("activeTask").classList.add("expanded");
       };
@@ -4644,6 +4916,19 @@
           update(ref(db, `sosRequests/${active[0]}`), {
             status: "completed",
           });
+        
+        
+        
+        const chatId = `${active[0]}_${myId}`;
+          push(ref(db, `chats/${chatId}`), {
+            sender: myId,
+            text: `✅ I have marked this job as completed. Drive safe!`,
+            timestamp: Date.now(),
+            read: false,
+          });
+        
+        
+        
       };
       window.acknowledgeCancel = () => {
         const canceledTask = Object.entries(sosCache).find(
@@ -4966,6 +5251,50 @@
           currentHeroProfile.prefersTowTruckRequests === true;
         const prefersRoadside =
           currentHeroProfile.prefersRoadsideRequests !== false;
+        
+        
+        const prefersMechanic =
+          currentHeroProfile.prefersMechanicRequests === true;
+
+        // Sync map dropdown visuals on load
+        if (document.getElementById('mapToggleMechanic')) {
+            document.getElementById('mapToggleMechanic').checked = prefersMechanic;
+            document.getElementById('mapToggleRoadside').checked = prefersRoadside;
+            document.getElementById('mapToggleTow').checked = prefersTowTruck;
+        }
+
+        // Render Verified Mechanics on Map
+        Object.entries(profilesCache).forEach(([pid, pro]) => {
+           if (pro.isPro && (pro.heroType === "mechanic" || pro.heroType === "both") && pro.businessAddress && pro.lat && pro.lng) {
+              const markerId = "mech_" + pid;
+              if (prefersMechanic && pid !== myId) {
+                 if (map && map instanceof google.maps.Map) {
+                    if (!markers[markerId]) {
+                       const marker = new google.maps.Marker({
+                          position: { lat: pro.lat, lng: pro.lng },
+                          map: map,
+                          icon: {
+                            url: "heromapicon.png",
+                            scaledSize: new google.maps.Size(32, 32),
+                            anchor: new google.maps.Point(16, 16),
+                          }
+                       });
+                       // Clicking a mechanic could open their shop info, currently does nothing but shows location
+                       markers[markerId] = marker;
+                    } else {
+                       markers[markerId].setMap(map);
+                    }
+                 }
+              } else {
+                 if (markers[markerId]) {
+                    markers[markerId].setMap(null);
+                    delete markers[markerId];
+                 }
+              }
+           }
+        });
+        
+        
 
         Object.entries(sosCache).forEach(([id, r]) => {
           const isTowTruck = r.isTowTruckRequest === true;
@@ -4989,6 +5318,16 @@
             const iconToUse = isTowTruck
               ? getTowTruckSplitIcon("#2563eb", "#60a5fa")
               : getMarkerIcon("#EE611C");
+            // Offset the label so it sits top-right
+            iconToUse.labelOrigin = new google.maps.Point(24, -8);
+
+            const tipLabel = (r.tip && Number(r.tip) > 0) ? {
+              text: "$" + r.tip,
+              color: "#22c55e",
+              fontSize: "13px",
+              fontWeight: "900",
+              className: "map-tip-badge"
+            } : null;
 
             // NEW: Strict instance check prevents InvalidValueError
             if (map && map instanceof google.maps.Map) {
@@ -4997,14 +5336,18 @@
                   position: { lat: r.lat, lng: r.lng },
                   map: map,
                   icon: iconToUse,
+                  label: tipLabel,
                 });
                 marker.addListener("click", () => window.viewRequest(id));
                 markers[id] = marker;
               } else {
                 markers[id].setIcon(iconToUse);
+                markers[id].setLabel(tipLabel);
                 markers[id].setMap(map);
               }
             }
+    
+            
           } else if (
             r.helperId === myId &&
             (r.status === "accepted" || r.status === "arrived")
@@ -5249,6 +5592,9 @@
             map: broadcastMiniMap,
             icon: seekerOwnIcon,
           });
+          
+
+          
           broadcastMarkers.push(userMarker);
 
           // 2. Filter Nearby Heroes & Add Orange Cross Markers
@@ -5268,8 +5614,13 @@
                 const hm = new google.maps.Marker({
                   position: heroPos,
                   map: broadcastMiniMap,
-                  icon: getMarkerIcon("#EE611C"), // Orange Cross
+                  icon: {
+                    url: "heromapicon.png",
+                    scaledSize: new google.maps.Size(32, 32),
+                    anchor: new google.maps.Point(16, 16),
+                  }
                 });
+
                 broadcastMarkers.push(hm);
                 bounds.extend(heroPos);
               }
@@ -5456,11 +5807,19 @@
                 : `Arriving in ${myActiveSOS.eta || "..."}`;
 
             const matchHeroPhone = document.getElementById("matchHeroPhone");
+            const seekerCallBtn = document.getElementById("seekerCallHeroBtn");
+            
             if (myActiveSOS.isTowTruckRequest && hero.dispatchPhone) {
               matchHeroPhone.innerHTML = `📞 Dispatch: <a href="tel:${hero.dispatchPhone}" style="color:var(--text); text-decoration: underline;">${hero.dispatchPhone}</a>`;
               matchHeroPhone.style.display = "block";
+              
+             if (seekerCallBtn) { seekerCallBtn.href = "tel:" + hero.dispatchPhone; seekerCallBtn.style.display = "flex"; }
+              
             } else {
               matchHeroPhone.style.display = "none";
+              
+              if (seekerCallBtn) { seekerCallBtn.style.display = "none"; }
+              
             }
 
             const matchTowDestination = document.getElementById(
@@ -5557,19 +5916,18 @@
         const expandBtn = container.querySelector(".map-expand-btn");
         const closeBtn = container.querySelector(".map-close-btn");
         container.classList.toggle("expanded");
+        
+        
         if (container.classList.contains("expanded")) {
           expandBtn.style.display = "none";
           closeBtn.style.display = "flex";
-          google.maps.event.trigger(seekerMiniMap, "resize");
-          if (seekerMiniMap && seekerUserMarker && seekerHeroMarker) {
-            const bounds = new google.maps.LatLngBounds();
-            bounds.extend(seekerUserMarker.getPosition());
-            bounds.extend(seekerHeroMarker.getPosition());
-            seekerMiniMap.fitBounds(bounds);
-          }
         } else {
           expandBtn.style.display = "block";
           closeBtn.style.display = "none";
+        }
+
+        // FIX: Wait for the CSS transition to finish before recalculating map bounds
+        setTimeout(() => {
           google.maps.event.trigger(seekerMiniMap, "resize");
           if (seekerMiniMap && seekerUserMarker && seekerHeroMarker) {
             const bounds = new google.maps.LatLngBounds();
@@ -5577,7 +5935,9 @@
             bounds.extend(seekerHeroMarker.getPosition());
             seekerMiniMap.fitBounds(bounds);
           }
-        }
+        }, 300);
+        
+ 
       };
 
       function startTowTruckAnimation() {
@@ -5799,6 +6159,22 @@
             document.getElementById("proLoginSection").style.display = "none";
             document.getElementById("proDashboardSection").style.display =
               "block";
+            
+            
+            
+            const dateDisplay = document.getElementById("proDateDisplay");
+            if (dateDisplay) {
+                if (d.proJoinDate) {
+                    dateDisplay.innerText = "Member since: " + new Date(d.proJoinDate).toLocaleDateString();
+                } else {
+                    dateDisplay.innerText = "Active Membership";
+                }
+            }
+             
+            
+            
+            
+            
 
             // Load their fleet
             const fleetToggle = document.getElementById("fleetModeToggle");
@@ -5820,16 +6196,46 @@
         }
       };
 
+
+      // Sub-modal logic bypasses history.pushState so the main modal stays open!
+      window.openSubModal = (id) => {
+        document.getElementById(id).style.display = "flex";
+      };
+
+      window.closeSubModal = (id) => {
+        document.getElementById(id).style.display = "none";
+      };
+
       window.confirmDeleteActivityPrompt = (id) => {
         activityToDeleteId = id;
-        window.openModal("deleteConfirmModal");
+        window.openSubModal("deleteConfirmModal");
       };
+
+      window.clearAllHistoryPrompt = () => {
+        window.openSubModal("clearAllConfirmModal");
+      };
+
+      window.confirmClearAll = () => {
+        let itemsDeleted = 0;
+        Object.entries(sosCache).forEach(([id, r]) => {
+            if ((r.ownerId === myId || r.helperId === myId) &&
+                ["completed", "finalized", "canceled"].includes(r.status)) {
+                remove(ref(db, `sosRequests/${id}`));
+                itemsDeleted++;
+            }
+        });
+        window.closeSubModal("clearAllConfirmModal");
+        if (itemsDeleted > 0) alert("All history cleared.");
+        else alert("No completed or canceled history to clear.");
+      };
+
       window.confirmDeleteActivity = () => {
         if (activityToDeleteId) {
           remove(ref(db, `sosRequests/${activityToDeleteId}`))
             .then(() => {
               activityToDeleteId = null;
-              window.closeModal("deleteConfirmModal");
+              window.closeSubModal("deleteConfirmModal");
+              alert("Item deleted.");
             })
             .catch((error) => {
               console.error("Error deleting activity:", error);
@@ -5837,6 +6243,12 @@
             });
         }
       };
+      
+      
+      
+      
+      
+      
 
       window.currentDriverIndex = null;
 
@@ -5923,7 +6335,7 @@
       window.assignJobToDriver = (driverId) => {
         const sosId = window.currentViewedSosId;
         if (!sosId) return;
- 
+  
         update(ref(db, `sosRequests/${sosId}`), { 
           driverId: driverId,
           assignmentTimestamp: Date.now(),
