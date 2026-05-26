@@ -1,6 +1,9 @@
 
 
 
+
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -4541,17 +4544,21 @@
 
             if (isRelatedToActiveJob) {
               Object.values(messages).forEach((message) => {
-                if (message.sender !== myId && message.read === false)
-                  unreadCount++; 
-                if (
-                  message.timestamp &&
-                  message.timestamp > latestMessageTimestampInActiveChat
-                )
-                  latestMessageTimestampInActiveChat = message.timestamp;
+                
+                
+                                      if (message.sender !== myId) {
+                        if (message.read === false) unreadCount++; 
+                        if (message.timestamp && message.timestamp >       latestMessageTimestampInActiveChat) {
+                          latestMessageTimestampInActiveChat = message.timestamp;
+                        }
+                      }
+
+                
+                
               });
             }
           });
-     
+      
            
           
           
@@ -6436,4 +6443,4 @@ if (notificationToggle) {
       
     </script>
   </body>
-</html>
+</html>0
