@@ -9,8 +9,11 @@
   <head>
     <meta charset="UTF-8" />
     <title>RoadWatcHero</title>
- 
-      <meta name="viewport" content="width=device-width, initial-scale=1.0"/> 
+
+      <meta 
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    /> 
  
     <!-- Google Maps with Geometry -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry,places"></script>
@@ -112,7 +115,8 @@
                           width: 100vw;
                           height: 100dvh;
                           position: fixed;
-                          inset: 0;
+                          top: 0;
+                          left: 0;
                           z-index: 10;
                           background: white;
                           overflow-y: auto;
@@ -640,8 +644,9 @@
                             }
 
                  .footer {
-                          position: absolute;
+                          position: fixed;
                           bottom: 0;
+                          left: 0;
                           width: 100%;
                           background: var(--accent);
                           backdrop-filter: blur(10px);
@@ -6439,4 +6444,4 @@ if (notificationToggle) {
       
     </script>
   </body>
-</html>0
+</html>
