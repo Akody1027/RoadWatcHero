@@ -561,6 +561,31 @@
         onValue,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
+      
+      
+      
+      // --- ANALYTICS HELPER ---
+      window.incrementStat = async (uid, type) => {
+        const ref = firebase.database().ref(`profiles/${uid}`);
+        ref.transaction((profile) => {
+          if (profile) {
+            profile[type] = (profile[type] || 0) + 1;
+            profile.unreadLeads = (profile.unreadLeads || 0) + 1;
+          }
+          return profile;
+        });
+      };
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       // Your exact credentials from home.html
       const firebaseConfig = {
         apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
@@ -669,9 +694,9 @@
         window.allHubPosts = data;
 
         // Render live posts with Modal Onclick Triggers
-        Object.entries(data).forEach(([key, post]) => {
+      Object.entries(data).forEach(([key, post]) => {
           const card = `
-                    <div class="post-card" onclick="window.openPostModal('${key}')">
+                    <div class="post-card" onclick="window.incrementStat('${post.ownerId}', 'postClicks'); window.openPostModal('${key}')">
                         <div class="post-header">
                             <img src="${
                               post.logoUrl || "https://via.placeholder.com/36"
@@ -692,7 +717,7 @@
                             }</p>
                             <a href="tel:${
                               post.phone || "#"
-                            }" style="text-decoration:none;" onclick="event.stopPropagation();">
+                            }" style="text-decoration:none;" onclick="event.stopPropagation(); window.incrementStat('${post.ownerId}', 'callClicks');">
                                 <button class="post-btn">CALL NOW</button>
                             </a>
                         </div>
@@ -700,6 +725,10 @@
                 `;
           feedContainer.innerHTML += card;
         });
+        
+        
+        
+        
       });
     </script>
   </body>
