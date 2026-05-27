@@ -1101,6 +1101,9 @@
 
       let currentUserId = null;
 
+      
+      
+      
       // --- LIVE PREVIEW & UPLOADER UI LOGIC ---
       const updatePreview = () => {
         document.getElementById("previewName").innerText =
@@ -1119,42 +1122,43 @@
       // Handle Circular Logo Upload Preview
       document
         .getElementById("shellBizLogo")
-        .addEventListener("change", function (e) {
+        .addEventListener("change", async function (e) {
           const file = e.target.files[0];
           if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-              document.getElementById(
-                "logoCirclePreview"
-              ).style.backgroundImage = `url(${e.target.result})`;
-              document
-                .getElementById("logoCirclePreview")
-                .querySelector(".logo-plus-badge").style.display = "none";
-              document.getElementById("previewLogo").src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+            try {
+              const compressedBlob = await compressImage(file);
+              e.target.compressedBlob = compressedBlob;
+              const objectUrl = URL.createObjectURL(compressedBlob);
+              document.getElementById("logoCirclePreview").style.backgroundImage = `url(${objectUrl})`;
+              document.getElementById("logoCirclePreview").querySelector(".logo-plus-badge").style.display = "none";
+              document.getElementById("previewLogo").src = objectUrl;
+            } catch (err) {
+              alert("System Error: " + err.message);
+            }
           }
         });
 
       // Handle Promo Image Upload Preview
       document
         .getElementById("shellPromoImage")
-        .addEventListener("change", function (e) {
+        .addEventListener("change", async function (e) {
           const file = e.target.files[0];
           if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-              document.getElementById(
-                "promoRectPreview"
-              ).style.backgroundImage = `url(${e.target.result})`;
-              document.getElementById("promoRectPreview").innerHTML = ""; // hide text
-              document.getElementById("previewPromo").src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+            try {
+              const compressedBlob = await compressImage(file);
+              e.target.compressedBlob = compressedBlob;
+              const objectUrl = URL.createObjectURL(compressedBlob);
+              document.getElementById("promoRectPreview").style.backgroundImage = `url(${objectUrl})`;
+              document.getElementById("promoRectPreview").innerHTML = ""; 
+              document.getElementById("previewPromo").src = objectUrl;
+            } catch (err) {
+              alert("System Error: " + err.message);
+            }
           }
         });
-
       // ----------------------------------------
+      
+
 
       // 1. Sidebar Icon Click Listener (Opens Gatekeeper)
       document
@@ -1367,10 +1371,10 @@
       document
         .getElementById("shellSaveProfileBtn")
         .addEventListener("click", async () => {
-          const bizName = document.getElementById("shellBizName").value;
+        const bizName = document.getElementById("shellBizName").value;
           const address = document.getElementById("shellBizAddress").value;
           const phone = document.getElementById("shellBizPhone").value;
-          const logoFile = document.getElementById("shellBizLogo").files[0];
+          const logoBlob = document.getElementById("shellBizLogo").compressedBlob;
 
           if (!bizName || !phone || !address) {
             return alert(
@@ -1386,15 +1390,24 @@
           let finalLogoUrl = document.getElementById("shellBizLogo").dataset.existing || "";
 
           try {
-            if (logoFile) {
-              const compressedLogo = await compressImage(logoFile);
+            if (logoBlob) {
               const sRef = storageRef(
                 storage,
                 `hub_ads/${currentUserId}/logo_${Date.now()}.jpg`
               );
-              await uploadBytes(sRef, compressedLogo);
+              await uploadBytes(sRef, logoBlob);
               finalLogoUrl = await getDownloadURL(sRef);
             }
+        
+        
+        
+        
+        
+            
+            
+            
+            
+            
 
             await update(ref(db, `profiles/${currentUserId}`), {
               companyName: bizName,
@@ -1434,13 +1447,14 @@
       document
         .getElementById("shellPublishBtn")
         .addEventListener("click", async () => {
-          const bizName = document.getElementById("shellBizName").value;
+        
+        const bizName = document.getElementById("shellBizName").value;
           const address = document.getElementById("shellBizAddress").value;
           const phone = document.getElementById("shellBizPhone").value;
           const desc = document.getElementById("shellPostDesc").value;
           const cat = document.getElementById("shellPostCategory").value;
-          const logoFile = document.getElementById("shellBizLogo").files[0];
-          const promoFile = document.getElementById("shellPromoImage").files[0];
+          const logoBlob = document.getElementById("shellBizLogo").compressedBlob;
+          const promoBlob = document.getElementById("shellPromoImage").compressedBlob;
 
           if (!bizName || !phone || !address || !desc) {
             return alert(
@@ -1457,24 +1471,31 @@
           let finalPromoUrl = document.getElementById("shellPromoImage").dataset.existing || "";
 
           try {
-            if (logoFile) {
-              const compressedLogo = await compressImage(logoFile);
+            if (logoBlob) {
               const sRef = storageRef(
                 storage,
                 `hub_ads/${currentUserId}/logo_${Date.now()}.jpg`
               );
-              await uploadBytes(sRef, compressedLogo);
+              await uploadBytes(sRef, logoBlob);
               finalLogoUrl = await getDownloadURL(sRef);
             }
-            if (promoFile) {
-              const compressedPromo = await compressImage(promoFile);
+            if (promoBlob) {
               const sRef = storageRef(
                 storage,
                 `hub_ads/${currentUserId}/promo_${Date.now()}.jpg`
               );
-              await uploadBytes(sRef, compressedPromo);
+              await uploadBytes(sRef, promoBlob);
               finalPromoUrl = await getDownloadURL(sRef);
             }
+        
+        
+        
+    
+            
+            
+            
+            
+            
 
             await update(ref(db, `profiles/${currentUserId}`), {
               companyName: bizName,
@@ -1506,6 +1527,8 @@
             document.getElementById("shellPostDesc").value = "";
             document.getElementById("shellPromoImage").value = "";
             document.getElementById("shellPromoImage").dataset.existing = "";
+            document.getElementById("shellBizLogo").compressedBlob = null;
+            document.getElementById("shellPromoImage").compressedBlob = null;
 
             document.getElementById("promoRectPreview").style.backgroundImage = "none";
             document.getElementById("promoRectPreview").innerHTML = "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
