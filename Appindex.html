@@ -942,7 +942,17 @@
             No active posts yet.
           </p>
         </div>
-      </div>
+
+         <button
+          onclick="window.shellSignOut()"
+          class="shell-submit-btn"
+          style="background: transparent; color: #ef4444; border: 2px solid #ef4444; margin-top: 40px; box-shadow: none;"
+        >
+          SIGN OUT
+        </button>
+
+          
+        </div>
     </div>
 </div>
 
@@ -1009,6 +1019,7 @@
         getAuth,
         signInWithEmailAndPassword,
         onAuthStateChanged,
+        signOut,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
       import {
         getDatabase,
@@ -1280,7 +1291,7 @@
 
           
           document.getElementById("shellLoginSection").style.display = "block";
-          document.getElementById("shellDashboardSection").style.display =
+          document.getElementById("dashboardFormsContainer").style.display =
             "none";
         }
       });
@@ -1542,6 +1553,20 @@
 
         document.querySelector(".shell-modal-content").scrollTop = 0;
       };
+
+
+
+        window.shellSignOut = () => {
+        signOut(auth).then(() => {
+          document.querySelector(".shell-modal-content").scrollTop = 0;
+        }).catch((error) => {
+          console.error("Sign out error:", error);
+          alert("Error signing out.");
+        });
+      };
+
+
+      
     </script>
   </body>
 </html>
