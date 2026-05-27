@@ -644,14 +644,6 @@
 
 
 
-
-
-
-
-
-
-
-
     
     <iframe src="home.html" id="appFrame"></iframe>
 
@@ -793,6 +785,33 @@
           </p>
 
           <hr class="shell-divider" />
+        
+        
+        <div id="proStatusSection" style="display:none; background: #fffdf0; border: 1px solid #fde68a; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+        <div style="color: #b45309; font-weight: 800; font-size: 1.1em;">👑 Pro Status Active</div>
+        <div id="memberSinceText" style="font-size: 0.85em; color: #92400e; margin-bottom: 15px;"></div>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <div style="flex:1; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
+                <div style="font-size: 0.7em; color: #666;">AD CLICKS</div>
+                <div id="statPostClicks" style="font-weight: 700; font-size: 1.2em;">0</div>
+            </div>
+            <div style="flex:1; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
+                <div style="font-size: 0.7em; color: #666;">CALLS</div>
+                <div id="statCallClicks" style="font-weight: 700; font-size: 1.2em;">0</div>
+            </div>
+        </div>
+        <button onclick="window.location.href='pro-hero.html'" style="width: 100%; padding: 10px; background: #ee611c; color: white; border: none; border-radius: 6px; font-weight: 600;">MANAGE SUBSCRIPTION</button>
+        <button onclick="window.confirm('Delete account? This cannot be undone.') && window.deleteMyAccount()" style="width: 100%; padding: 10px; background: transparent; color: #ef4444; border: none; margin-top: 10px; font-size: 0.8em;">Delete Account</button>
+      </div>
+        
+        
+        
+        
+        
+           <hr class="shell-divider" />
+
+        
 
           <div style="width: 100%; text-align: center">
             <label
@@ -1355,10 +1374,19 @@
       
       
       
-      
+       
       
 
-      
+      window.incrementStat = async (uid, type) => {
+        const ref = firebase.database().ref(`profiles/${uid}`);
+        ref.transaction((profile) => {
+          if (profile) {
+            profile[type] = (profile[type] || 0) + 1;
+            profile.unreadLeads = (profile.unreadLeads || 0) + 1;
+          }
+          return profile;
+        });
+      };
       
       
       
@@ -1623,6 +1651,29 @@
         document.querySelector(".shell-modal-content").scrollTop = 0;
       };
 
+      
+      
+      // Reset badge
+        firebase.database().ref(`profiles/${user.uid}`).update({ unreadLeads: 0 });
+        document.getElementById("badgeCounter").style.display = "none";
+        
+        // Refresh Stats UI
+        const pSnap = await firebase.database().ref(`profiles/${user.uid}`).once('value');
+        const p = pSnap.val();
+        if (p.isPro) {
+            document.getElementById("proStatusSection").style.display = "block";
+            document.getElementById("memberSinceText").innerText = `Member since: ${new Date(p.createdAt).toLocaleDateString()}`;
+            document.getElementById("statPostClicks").innerText = p.postClicks || 0;
+            document.getElementById("statCallClicks").innerText = p.callClicks || 0;
+        }
+      
+      
+      
+      
+      
+      
+      
+      
 
 
         window.shellSignOut = () => {
@@ -1634,7 +1685,15 @@
         });
       };
 
-
+window.deleteMyAccount = async () => {
+        const user = firebase.auth().currentUser;
+        if (user) {
+          // 1. Wipe DB, 2. Wipe Auth, 3. Redirect
+          await firebase.database().ref(`profiles/${user.uid}`).remove();
+          await user.delete();
+          window.location.reload();
+        }
+      };
       
     </script>
   </body>
