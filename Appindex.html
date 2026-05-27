@@ -216,7 +216,7 @@
         height: 100%;
         background: var(--accent); /* orange accent*/
         z-index: 1000;
-        display: none; /* Hidden until enterApp() is called */
+        display: flex; /* Hidden until enterApp() is called */
         flex-direction: column;
         align-items: center;
         padding-top: 20px;
@@ -305,7 +305,7 @@
         height: 100%;
         height: -webkit-fill-available;
         border: none;
-        display: none;
+        display: block;
         position: absolute;
         top: 0;
         left: 50px;
@@ -641,105 +641,18 @@
       }
     </style>
   </head>
-  <body id="mainBody">
-    <div id="coverPage">
-      <img src="roadwatchlogo.png" alt="Logo" class="logo" />
 
-      <div id="browserSection">
-        <div id="installUI">
-          <h1>RoadWatchHero</h1>
-          <p class="description">
-            Please review our safety policies and install the app to your home
-            screen to continue.
-          </p>
 
-          <div class="legal-dropdown" id="legalDropdown">
-            <div class="legal-header" id="triggerHeader">
-              <span>1. REVIEW SAFETY & PRIVACY</span>
-              <span>▼</span>
-            </div>
-            <div id="legalContent">
-              <p>
-                <strong>GPS TRACKING:</strong> This app uses real-time location
-                during SOS sessions.
-              </p>
-              <p>
-                <strong>PRIVACY:</strong> We do not save your identity or
-                personal files.
-              </p>
-            </div>
-          </div>
 
-          <label class="tos-check" id="tosWrapper">
-            <input type="checkbox" id="tosAgree" />
-            <span>2. I agree to proceed at my own risk.</span>
-          </label>
 
-          <div id="androidAction" style="display: none">
-            <button id="androidInstallBtn" class="proceed-btn browser-only-btn">
-              INSTALL APP
-            </button>
-          </div>
 
-          <div id="iosAction" style="display: none">
-            <p id="iosLockText" style="color: var(--muted); font-size: 13px">
-              Complete steps 1 and 2 to see instructions.
-            </p>
-            <div
-              id="iosInstructions"
-              style="
-                display: none;
-                text-align: left;
-                font-size: 14px;
-                font-weight: 600;
-              "
-            >
-              <p>
-                1. Tap <strong>Share</strong> (
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/IOS_7_Share_Icon.svg/1200px-IOS_7_Share_Icon.svg.png"
-                  width="12"
-                />
-                )
-              </p>
-              <p>2. Select <strong>'Add to Home Screen'</strong></p>
-            </div>
-          </div>
 
-          <div id="desktopAction" style="display: none">
-            <button
-              class="proceed-btn browser-only-btn ready"
-              onclick="enterApp()"
-            >
-              Launch Web App
-            </button>
-          </div>
 
-          <button
-            id="bypassBtn"
-            class="reset-link browser-only-btn"
-            style="
-              width: 100%;
-              color: var(--muted);
-              margin-top: 25px;
-              font-weight: 800;
-              text-transform: uppercase;
-            "
-            onclick="enterApp()"
-          >
-            MAYBE LATER
-          </button>
-        </div>
 
-        <div id="successPrompt">
-          <h2>Please open installed app.</h2>
-          <p style="color: var(--muted); font-size: 14px">
-            Find the RoadWatchHero icon on your home screen to begin.
-          </p>
-        </div>
-      </div>
-    </div>
 
+
+
+    
     <iframe src="home.html" id="appFrame"></iframe>
 
     <div id="heroHubSidebar">
@@ -1033,176 +946,26 @@
       </div>
     </div>
 
-    <script>
-      let deferredPrompt;
-      const cover = document.getElementById("coverPage");
-      const appFrame = document.getElementById("appFrame");
-      const dropdown = document.getElementById("legalDropdown");
-
+   <script>
       function adjustViewport() {
         const width = window.screen.width;
         let scale = 1.0;
 
-        // If the screen is narrower than 450px (like the S26 Ultra), zoom out
         if (width < 450) {
-          scale = width / 450; // This creates a proportional zoom-out
+          scale = width / 450; 
         }
 
         const viewport = document.querySelector('meta[name="viewport"]');
-        viewport.setAttribute(
-          "content",
-          `width=device-width, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`
-        );
+        if (viewport) {
+          viewport.setAttribute(
+            "content",
+            `width=device-width, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`
+          );
+        }
       }
 
-      // Run it immediately and if the screen orientation changes
       adjustViewport();
       window.addEventListener("resize", adjustViewport);
-
-      document
-        .getElementById("triggerHeader")
-        .addEventListener("click", function () {
-          const dropdownContainer = document.getElementById("legalDropdown");
-          const content = document.getElementById("legalContent");
-
-          // Toggle the class for state tracking
-          const isOpen = dropdownContainer.classList.toggle("open");
-
-          // Force the browser to render the exact heights and padding inline
-          if (isOpen) {
-            content.style.maxHeight = "1000px";
-            content.style.opacity = "1";
-            content.style.padding = "18px";
-          } else {
-            content.style.maxHeight = "0px";
-            content.style.opacity = "0";
-            content.style.padding = "0 18px";
-          }
-
-          // Unlock the TOS checkbox wrapper
-          document.getElementById("tosWrapper").classList.add("unlocked");
-        });
-
-      // Toggle TOS agreement
-      document
-        .getElementById("tosAgree")
-        .addEventListener("change", function () {
-          const isAgreed = this.checked;
-
-          // This line now unlocks Install buttons AND the Maybe Later button
-          document.querySelectorAll(".browser-only-btn").forEach((btn) => {
-            btn.classList.toggle("ready", isAgreed);
-            btn.style.pointerEvents = isAgreed ? "auto" : "none";
-            btn.style.opacity = isAgreed ? "1" : "0.3";
-          });
-
-          const iosInstr = document.getElementById("iosInstructions");
-          const iosLock = document.getElementById("iosLockText");
-          if (iosInstr) iosInstr.style.display = isAgreed ? "block" : "none";
-          if (iosLock) iosLock.style.display = isAgreed ? "none" : "block";
-        });
-
-      function enterApp() {
-        // 1. Hide the entry gate
-        cover.style.display = "none";
-
-        // 2. Show the core app map
-        appFrame.style.display = "block";
-
-        // 3. Trigger the Hero Hub Sidebar
-        const sidebar = document.getElementById("heroHubSidebar");
-        sidebar.style.display = "flex";
-        sidebar.style.pointerEvents = "auto";
-
-        // The CSS handles the hidden state naturally now, no inline pin needed.
-      }
-
-      // Manual recovery for users who deleted the app
-      function resetInstallationState() {
-        localStorage.removeItem("rw_pwa_installed");
-        window.location.reload();
-      }
-
-      function showAlreadyInstalledUI() {
-        document.getElementById("installUI").style.display = "none";
-        const success = document.getElementById("successPrompt");
-        success.style.display = "flex";
-        success.innerHTML = `
-                <h2>App Already Installed</h2>
-                <p style="color: var(--muted); font-size: 14px; margin-bottom: 25px;">You've already added RoadWatchHero to your home screen.</p>
-                <div style="padding: 20px; background: #fff9f6; border: 2px solid var(--accent); border-radius: 18px; color: var(--accent); font-weight: 800; font-size: 16px;">
-                    PLEASE OPEN THE APP FROM YOUR HOME SCREEN TO CONTINUE.
-                </div>
-                <button class="reset-link" onclick="resetInstallationState()">
-                    App deleted? Reset installation status
-                </button>
-            `;
-      }
-
-      async function runSystemCheck() {
-        const isStandalone =
-          window.matchMedia("(display-mode: standalone)").matches ||
-          window.navigator.standalone === true;
-
-        if (isStandalone) {
-          localStorage.setItem("rw_pwa_installed", "true");
-          enterApp();
-          return;
-        }
-
-        if (localStorage.getItem("rw_pwa_installed") === "true") {
-          showAlreadyInstalledUI();
-          return;
-        }
-
-        if ("getInstalledRelatedApps" in navigator) {
-          const relatedApps = await navigator.getInstalledRelatedApps();
-          if (relatedApps.length > 0) {
-            showAlreadyInstalledUI();
-            return;
-          }
-        }
-
-        const ua = navigator.userAgent.toLowerCase();
-        if (/iphone|ipad|ipod/.test(ua)) {
-          document.getElementById("iosAction").style.display = "block";
-        } else if (/android/.test(ua)) {
-          document.getElementById("androidAction").style.display = "block";
-        } else {
-          document.getElementById("desktopAction").style.display = "block";
-        }
-      }
-
-      // AUTO-CORRECTION: If Android triggers an install prompt, the app isn't installed.
-      window.addEventListener("beforeinstallprompt", (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-
-        // If our flag says "installed" but the browser wants to prompt, clear the flag.
-        if (localStorage.getItem("rw_pwa_installed") === "true") {
-          localStorage.removeItem("rw_pwa_installed");
-          window.location.reload();
-        }
-      });
-
-      window.addEventListener("appinstalled", () => {
-        localStorage.setItem("rw_pwa_installed", "true");
-        document.getElementById("installUI").style.display = "none";
-        document.getElementById("successPrompt").style.display = "flex";
-      });
-
-      document
-        .getElementById("androidInstallBtn")
-        .addEventListener("click", async () => {
-          if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === "accepted") {
-              localStorage.setItem("rw_pwa_installed", "true");
-            }
-            deferredPrompt = null;
-          }
-        });
 
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () =>
@@ -1216,12 +979,9 @@
 
       function toggleHeroHub() {
         const isOpen = hubBoard.classList.toggle("open");
-
-        // Sync the sidebar animation with the board
         const sidebar = document.getElementById("heroHubSidebar");
         sidebar.classList.toggle("open");
 
-        // Force the iframe to load its source when opening
         const iframe = document.getElementById("hubIframe");
         if (isOpen && (!iframe.src || iframe.src.includes("about:blank"))) {
           iframe.src = "hub.html";
@@ -1234,14 +994,13 @@
       hubToggle.addEventListener("click", toggleHeroHub);
       hubOverlay.addEventListener("click", toggleHeroHub);
 
-      // Function for your backend to update the badge
       function updateHubBadge(count) {
         const badge = document.getElementById("hubBadgeCounter");
-        badge.innerText = count;
-        badge.style.display = count > 0 ? "block" : "none";
+        if (badge) {
+          badge.innerText = count;
+          badge.style.display = count > 0 ? "block" : "none";
+        }
       }
-
-      runSystemCheck();
     </script>
 
     <script type="module">
