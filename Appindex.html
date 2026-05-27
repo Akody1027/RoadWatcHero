@@ -1313,6 +1313,31 @@
             document.getElementById("shellLoginBtn").innerText = "LOGIN";
           });
       });
+      
+      
+      // --- IMAGE COMPRESSION HELPER ---
+      const compressImage = async (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement("canvas");
+              const MAX_WIDTH = 800; 
+              const scaleSize = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
+              canvas.width = img.width * scaleSize;
+              canvas.height = img.height * scaleSize;
+              const ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.7);
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      };
 
       // --- SAVE IDENTITY LOGIC ---
       document
@@ -1334,20 +1359,19 @@
           btn.style.opacity = "0.7";
           btn.style.pointerEvents = "none";
 
-          let finalLogoUrl =
-            document.getElementById("shellBizLogo").dataset.existing || "";
+          let finalLogoUrl = document.getElementById("shellBizLogo").dataset.existing || "";
 
           try {
             if (logoFile) {
+              const compressedLogo = await compressImage(logoFile);
               const sRef = storageRef(
                 storage,
-                `hub_ads/${currentUserId}/logo_${Date.now()}`
+                `hub_ads/${currentUserId}/logo_${Date.now()}.jpg`
               );
-              await uploadBytes(sRef, logoFile);
+              await uploadBytes(sRef, compressedLogo);
               finalLogoUrl = await getDownloadURL(sRef);
             }
 
-            // Save core identity globally to Master Profile
             await update(ref(db, `profiles/${currentUserId}`), {
               companyName: bizName,
               businessAddress: address,
@@ -1355,25 +1379,20 @@
               logoUrl: finalLogoUrl,
             });
 
-            // Lock it into the local UI cache so it survives reloads
-            document.getElementById("shellBizLogo").dataset.existing =
-              finalLogoUrl;
+            document.getElementById("shellBizLogo").dataset.existing = finalLogoUrl;
 
-            // Show Success Message
-            btn.innerText = "SAVE IDENTITY";
+            btn.innerText = "SAVE";
             btn.style.opacity = "1";
             btn.style.pointerEvents = "auto";
             document.getElementById("profileSaveMsg").style.display = "block";
             setTimeout(
-              () =>
-                (document.getElementById("profileSaveMsg").style.display =
-                  "none"),
+              () => (document.getElementById("profileSaveMsg").style.display = "none"),
               3000
             );
           } catch (e) {
             console.error(e);
             alert("Error saving profile. Please check your Database Rules.");
-            btn.innerText = "SAVE IDENTITY";
+            btn.innerText = "SAVE";
             btn.style.opacity = "1";
             btn.style.pointerEvents = "auto";
           }
@@ -1402,30 +1421,29 @@
           btn.style.opacity = "0.7";
           btn.style.pointerEvents = "none";
 
-          let finalLogoUrl =
-            document.getElementById("shellBizLogo").dataset.existing || "";
-          let finalPromoUrl =
-            document.getElementById("shellPromoImage").dataset.existing || "";
+          let finalLogoUrl = document.getElementById("shellBizLogo").dataset.existing || "";
+          let finalPromoUrl = document.getElementById("shellPromoImage").dataset.existing || "";
 
           try {
             if (logoFile) {
+              const compressedLogo = await compressImage(logoFile);
               const sRef = storageRef(
                 storage,
-                `hub_ads/${currentUserId}/logo_${Date.now()}`
+                `hub_ads/${currentUserId}/logo_${Date.now()}.jpg`
               );
-              await uploadBytes(sRef, logoFile);
+              await uploadBytes(sRef, compressedLogo);
               finalLogoUrl = await getDownloadURL(sRef);
             }
             if (promoFile) {
+              const compressedPromo = await compressImage(promoFile);
               const sRef = storageRef(
                 storage,
-                `hub_ads/${currentUserId}/promo_${Date.now()}`
+                `hub_ads/${currentUserId}/promo_${Date.now()}.jpg`
               );
-              await uploadBytes(sRef, promoFile);
+              await uploadBytes(sRef, compressedPromo);
               finalPromoUrl = await getDownloadURL(sRef);
             }
 
-            // 1. Save core identity globally to Master Profile
             await update(ref(db, `profiles/${currentUserId}`), {
               companyName: bizName,
               businessAddress: address,
@@ -1433,7 +1451,6 @@
               logoUrl: finalLogoUrl,
             });
 
-            // 2. Prepare the Ad Post Data
             const postData = {
               ownerId: currentUserId,
               businessName: bizName,
@@ -1454,19 +1471,14 @@
               await push(ref(db, "businessPosts"), postData);
             }
 
-            // Reset strictly the Ad-specific fields (Identity stays!)
             document.getElementById("shellPostDesc").value = "";
             document.getElementById("shellPromoImage").value = "";
             document.getElementById("shellPromoImage").dataset.existing = "";
 
-            document.getElementById("promoRectPreview").style.backgroundImage =
-              "none";
-            document.getElementById("promoRectPreview").innerHTML =
-              "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
-            document.getElementById("previewPromo").src =
-              "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
-            document.getElementById("previewDesc").innerText =
-              "Your promo description will appear here.";
+            document.getElementById("promoRectPreview").style.backgroundImage = "none";
+            document.getElementById("promoRectPreview").innerHTML = "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
+            document.getElementById("previewPromo").src = "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
+            document.getElementById("previewDesc").innerText = "Your promo description will appear here.";
 
             socialContainer.innerHTML = "";
 
@@ -1482,6 +1494,8 @@
             btn.style.pointerEvents = "auto";
           }
         });
+      
+      
 
       window.deletePost = async (postId) => {
         if (
