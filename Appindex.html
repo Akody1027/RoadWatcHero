@@ -8,7 +8,7 @@
     <title>ROADWATCHERO</title>
     <link rel="manifest" href="/manifest.json" />
     <link
-      rel="apple-touch-icon"
+      rel="apple-touch-icon" 
       href="https://www.roadwatchero.com/icon-192x192.png"
     />
     <link rel="icon" href="/roadwatch.ico" type="image/x-icon" />
@@ -1214,7 +1214,11 @@
                 document.getElementById("shellLoginSection").style.display = "none";
                 document.getElementById("dashboardFormsContainer").style.display = "block";
 
-      
+      // Initialize Pro Stats
+                document.getElementById("proStatusSection").style.display = "block";
+                document.getElementById("memberSinceText").innerText = `Member since: ${new Date(data.createdAt || Date.now()).toLocaleDateString()}`;
+                document.getElementById("statPostClicks").innerText = data.postClicks || 0;
+                document.getElementById("statCallClicks").innerText = data.callClicks || 0;
 
 
 
@@ -1653,19 +1657,7 @@
 
       
       
-      // Reset badge
-        firebase.database().ref(`profiles/${user.uid}`).update({ unreadLeads: 0 });
-        document.getElementById("badgeCounter").style.display = "none";
-        
-        // Refresh Stats UI
-        const pSnap = await firebase.database().ref(`profiles/${user.uid}`).once('value');
-        const p = pSnap.val();
-        if (p.isPro) {
-            document.getElementById("proStatusSection").style.display = "block";
-            document.getElementById("memberSinceText").innerText = `Member since: ${new Date(p.createdAt).toLocaleDateString()}`;
-            document.getElementById("statPostClicks").innerText = p.postClicks || 0;
-            document.getElementById("statCallClicks").innerText = p.callClicks || 0;
-        }
+   
       
       
       
