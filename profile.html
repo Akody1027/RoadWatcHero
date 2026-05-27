@@ -1,325 +1,183 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pro Hero Profile</title>
-    
+    <title>Pro Directory</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
-        /* CSS Reset & Variables */
         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f4f6f8;
-            --text-dark: #1a1a1a;
-            --text-muted: #666666;
-            --accent-color: #007bff;
-            --accent-dark: #1f2937;
-            --star-color: #f5c518;
-            --border-radius: 12px;
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --accent: #ee611c;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
         }
         
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        body { background-color: var(--bg-secondary); color: var(--text-dark); -webkit-font-smoothing: antialiased; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        body { background: var(--bg-primary); color: var(--text-dark); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
-        /* Main Container */
-        .profile-container { max-width: 600px; margin: 0 auto; background: var(--bg-primary); min-height: 100vh; position: relative; padding-bottom: 100px; }
-
-        /* Header / Identity */
-        .pro-header { display: grid; grid-template-columns: 90px 1fr; gap: 20px; padding: 30px 20px 20px; align-items: center; border-bottom: 1px solid #eaeaea; }
-        .pro-avatar { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .pro-info h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
-        .rating-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; }
-        .rating-badge:active { background: #e0e0e0; }
-        .star { color: var(--star-color); font-size: 16px; }
+        /* --- NETFLIX FEED STYLES --- */
+        .feed-container { padding: 20px 0 100px 0; }
+        .category-row { margin-bottom: 30px; }
+        .category-header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; margin-bottom: 12px; }
+        .category-title { font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .see-all-btn { font-size: 12px; font-weight: 700; color: var(--accent); cursor: pointer; text-transform: uppercase; }
         
-        /* Floating Modules */
-        .hidden { display: none !important; }
-        .collapse-module { margin: 10px 20px; padding: 20px; background: var(--bg-primary); border: 1px solid #eaeaea; border-radius: var(--border-radius); box-shadow: 0 8px 24px rgba(0,0,0,0.04); animation: slideDown 0.3s ease-out; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Sections */
-        .section-block { padding: 25px 20px; border-bottom: 1px solid #eaeaea; }
-        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
+        .horizontal-lane { display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 10px 20px; scroll-snap-type: x mandatory; scrollbar-width: none; }
+        .horizontal-lane::-webkit-scrollbar { display: none; }
         
-        /* Business Details */
-        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eaeaea; font-size: 15px; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { color: var(--text-muted); font-weight: 500; }
-        .detail-value { font-weight: 600; text-align: right; max-width: 60%; }
+        .pro-card { position: relative; min-width: 260px; height: 160px; border-radius: 16px; overflow: hidden; scroll-snap-align: start; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.08); background: #e2e8f0; }
+        .pro-card-bg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .pro-card:active .pro-card-bg { transform: scale(1.05); }
+        
+        .pro-card-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 15px; display: flex; align-items: flex-end; gap: 12px; }
+        .pro-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; background: #fff; }
+        .pro-info { color: white; }
+        .pro-name { font-size: 15px; font-weight: 800; margin-bottom: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .pro-rating { font-size: 12px; font-weight: 600; color: #fde047; }
 
-        /* Image Gallery Lane */
-        .gallery-lane { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 10px; scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; }
-        .gallery-lane::-webkit-scrollbar { display: none; }
-        .gallery-image { height: 160px; min-width: 240px; border-radius: var(--border-radius); object-fit: cover; scroll-snap-align: start; background: #eee; }
+        /* --- 95x95 PROFILE MODAL STYLES --- */
+        #profileModal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(5px); z-index: 10000; display: none; align-items: center; justify-content: center; }
+        .modal-content { width: 95vw; height: 95vh; max-width: 500px; background: var(--bg-card); border-radius: 20px; position: relative; overflow-y: auto; display: flex; flex-direction: column; }
+        
+        .modal-header-img { width: 100%; height: 180px; object-fit: cover; background: #e2e8f0; }
+        .close-modal-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; font-weight: bold; cursor: pointer; z-index: 10; backdrop-filter: blur(4px); }
+        
+        .modal-identity { display: flex; gap: 15px; padding: 0 20px; transform: translateY(-30px); margin-bottom: -15px; }
+        .modal-avatar { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--bg-card); object-fit: cover; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .modal-title-block { padding-top: 35px; }
+        .modal-name { font-size: 20px; font-weight: 900; color: var(--text-dark); }
+        
+        .modal-section { padding: 20px; border-bottom: 1px solid #f1f5f9; }
+        .modal-section h3 { font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .modal-text { font-size: 14px; line-height: 1.5; font-weight: 500; }
+        
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px; background: #f8fafc; margin-top: auto; }
+        .btn { padding: 16px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; border: none; cursor: pointer; color: white; text-transform: uppercase; }
+        .btn-call { background: #1e293b; }
+        .btn-book { background: var(--accent); }
 
-        /* Booking Inputs */
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 600; color: var(--text-muted); }
-        .ui-input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; background: var(--bg-primary); appearance: none; }
-        .ui-input:focus { outline: none; border-color: var(--accent-color); }
-        .btn-submit { width: 100%; background: var(--accent-color); color: #fff; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
-        .btn-submit:active { opacity: 0.8; }
-
-        /* Sticky Bottom CTA */
-        .sticky-footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 15px 20px 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); border-top: 1px solid #eaeaea; z-index: 100; max-width: 600px; margin: 0 auto; }
-        .cta-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; color: #fff; }
-        .btn-call { background: var(--accent-dark); }
-        .btn-message { background: var(--accent-color); }
-
-        /* Loading Overlay */
-        #loadingOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); z-index: 999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Universal Upsell Bar */
+        .upsell-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; color: white; padding: 15px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; z-index: 500; }
+        .upsell-footer span { color: var(--accent); font-weight: 800; }
     </style>
 </head>
 <body>
 
-    <div class="profile-container" id="appContainer">
-        
-        <div id="loadingOverlay">
-            <div class="spinner"></div>
-            <p style="margin-top: 15px; font-weight: 600; color: #666;">Loading Profile...</p>
+    <div class="feed-container" id="feedContainer">
         </div>
 
-        <header class="pro-header">
-            <img id="uiAvatar" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Profile" class="pro-avatar">
-            <div class="pro-info">
-                <h1 id="uiShopName">...</h1>
-                <div class="rating-badge" id="toggleReviewsBtn">
-                    <span class="star">★</span>
-                    <span id="uiRating">0.0</span> 
-                    <span style="color: #888; font-weight: 400;">(<span id="uiReviewCount">0</span>) ▾</span>
+    <div class="upsell-footer" onclick="triggerParentLogin()">
+        <div>Own an auto business?</div>
+        <span>BECOME A PRO ❯</span>
+    </div>
+
+    <div id="profileModal">
+        <div class="modal-content">
+            <button class="close-modal-btn" onclick="closeModal()">✕</button>
+            <img id="modalCover" src="" class="modal-header-img">
+            
+            <div class="modal-identity">
+                <img id="modalAvatar" src="" class="modal-avatar">
+                <div class="modal-title-block">
+                    <div class="modal-name" id="modalName">Shop Name</div>
+                    <div class="pro-rating">★ <span id="modalRating">5.0</span> (<span id="modalReviews">0</span> Reviews)</div>
                 </div>
             </div>
-        </header>
 
-        <div id="reviewsModule" class="collapse-module hidden">
-            <h3 class="section-title">Verified Reviews</h3>
-            <div id="reviewsList" style="margin-bottom: 15px; font-size: 14px; color: #555;">
-                No reviews yet.
+            <div class="modal-section">
+                <h3>About the Pro</h3>
+                <div class="modal-text" id="modalDesc">Loading description...</div>
             </div>
-            <button class="btn-submit" style="background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px;">Write a Review</button>
+            
+            <div class="modal-section">
+                <h3>Business Info</h3>
+                <div class="modal-text"><strong>Address:</strong> <span id="modalAddress">...</span></div>
+                <div class="modal-text" style="margin-top:8px;"><strong>Status:</strong> <span style="color: #10b981;">Available Now</span></div>
+            </div>
+
+            <div class="action-grid">
+                <button class="btn btn-call" onclick="alert('Calling Pro...')">Call Now</button>
+                <button class="btn btn-book" onclick="alert('Routing to Booking Dashboard...')">Book Service</button>
+            </div>
         </div>
-
-        <section class="section-block">
-            <h2 class="section-title">Business Details</h2>
-            <div class="detail-row">
-                <span class="detail-label">Location</span>
-                <span class="detail-value" id="uiAddress">...</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Hours</span>
-                <span class="detail-value" id="uiHours">...</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Direct Phone</span>
-                <span class="detail-value" id="uiPhone">...</span>
-            </div>
-        </section>
-
-        <section class="section-block" id="gallerySection">
-            <h2 class="section-title">Recent Work</h2>
-            <div class="gallery-lane" id="uiGallery">
-                </div>
-        </section>
-
-        <section class="section-block" style="border-bottom: none;">
-            <h2 class="section-title">Request Service</h2>
-            <div class="input-group">
-                <label>Service Needed</label>
-                <select id="bookingService" class="ui-input">
-                    <option value="" disabled selected>Select an option...</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>Requested Date & Time</label>
-                <input type="datetime-local" id="bookingTime" class="ui-input">
-            </div>
-            <button id="submitBookingBtn" class="btn-submit">Send Request</button>
-        </section>
-
-        <div class="sticky-footer">
-            <button id="actionCall" class="cta-btn btn-call">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                Call
-            </button>
-            <button id="actionMessage" class="cta-btn btn-message">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                Message
-            </button>
-        </div>
-
     </div>
 
     <script>
-        // 1. Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
-        
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        // Dummy Data for immediate UI testing without needing a populated database
+        const dummyPros = [
+            { id: "1", category: "Towing", name: "Apex Recovery", rating: 4.9, reviews: 128, cover: "https://images.unsplash.com/photo-1605648817215-56029272af45?w=500&q=80", avatar: "https://via.placeholder.com/150", address: "Highway 80", desc: "24/7 Heavy Duty Towing & Recovery." },
+            { id: "2", category: "Towing", name: "City Flatbeds", rating: 4.7, reviews: 84, cover: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=500&q=80", avatar: "https://via.placeholder.com/150", address: "Downtown Metro", desc: "Damage-free flatbed transport." },
+            { id: "3", category: "Mechanic", name: "Anderson Auto", rating: 4.8, reviews: 312, cover: "https://images.unsplash.com/photo-1619642751034-765df664ae02?w=500&q=80", avatar: "https://via.placeholder.com/150", address: "123 Main St", desc: "Full service diagnostic and repair." },
+            { id: "4", category: "Mechanic", name: "Mobile Wrenches", rating: 5.0, reviews: 45, cover: "https://images.unsplash.com/photo-1503328427499-d92d1fa3ce40?w=500&q=80", avatar: "https://via.placeholder.com/150", address: "Mobile Service", desc: "We come to your driveway." },
+            { id: "5", category: "Detailing", name: "Showroom Shine", rating: 4.9, reviews: 201, cover: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=500&q=80", avatar: "https://via.placeholder.com/150", address: "Westside Auto Mall", desc: "Ceramic coating and interior restoration." }
+        ];
+
+        // Organize Data by Category
+        function renderFeed() {
+            const feedContainer = document.getElementById('feedContainer');
+            const categories = [...new Set(dummyPros.map(pro => pro.category))];
+
+            categories.forEach(category => {
+                const prosInCategory = dummyPros.filter(p => p.category === category);
+                
+                // Create Category Row
+                const rowHTML = `
+                    <div class="category-row">
+                        <div class="category-header">
+                            <div class="category-title">${category}</div>
+                            <div class="see-all-btn">See All</div>
+                        </div>
+                        <div class="horizontal-lane">
+                            ${prosInCategory.map(pro => `
+                                <div class="pro-card" onclick="openModal('${pro.id}')">
+                                    <img class="pro-card-bg" src="${pro.cover}" alt="${pro.name}">
+                                    <div class="pro-card-overlay">
+                                        <img class="pro-avatar" src="${pro.avatar}">
+                                        <div class="pro-info">
+                                            <div class="pro-name">${pro.name}</div>
+                                            <div class="pro-rating">★ ${pro.rating} (${pro.reviews})</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                feedContainer.innerHTML += rowHTML;
+            });
         }
-        const db = firebase.firestore();
 
-        // 2. Extract Target Profile ID from URL (e.g., profile.html?id=hero123)
-        const urlParams = new URLSearchParams(window.location.search);
-        const heroId = urlParams.get('id');
-
-        // DOM Elements
-        const overlay = document.getElementById('loadingOverlay');
-        const reviewsToggle = document.getElementById('toggleReviewsBtn');
-        const reviewsModule = document.getElementById('reviewsModule');
-        const submitBookingBtn = document.getElementById('submitBookingBtn');
-
-        // 3. UI Interaction Logic
-        reviewsToggle.addEventListener('click', () => {
-            reviewsModule.classList.toggle('hidden');
-        });
-
-        // 4. Fetch and Hydrate Data
-        async function loadProfile() {
-            if (!heroId) {
-                alert("Invalid Profile Link");
-                return;
-            }
-
-            try {
-                const doc = await db.collection('shops').doc(heroId).get();
-                if (!doc.exists) {
-                    alert("Profile not found.");
-                    return;
-                }
-
-                const data = doc.data();
-
-                // Hydrate Header
-                document.getElementById('uiShopName').textContent = data.shopName || "Automotive Pro";
-                document.getElementById('uiAvatar').src = data.profileImageUrl || "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-                document.getElementById('uiRating').textContent = data.averageRating ? data.averageRating.toFixed(1) : "0.0";
-                document.getElementById('uiReviewCount').textContent = data.reviewCount || 0;
-
-                // Hydrate Business Details
-                document.getElementById('uiAddress').textContent = data.address || "Mobile Service";
-                document.getElementById('uiHours').textContent = data.hours || "Contact for availability";
-                document.getElementById('uiPhone').textContent = data.phone || "N/A";
-
-                // Setup CTA Buttons
-                document.getElementById('actionCall').onclick = () => window.location.href = `tel:${data.phone}`;
-                document.getElementById('actionMessage').onclick = () => {
-                    // Route to internal messaging if auth exists, else native SMS
-                    const currentUser = firebase.auth().currentUser;
-                    if(currentUser) {
-                        alert("Routing to internal Hero Messaging App...");
-                        // Trigger your internal chat routing here
-                    } else {
-                        window.location.href = `sms:${data.phone}`;
-                    }
-                };
-
-                // Hydrate Gallery
-                const galleryLane = document.getElementById('uiGallery');
-                if (data.galleryImages && data.galleryImages.length > 0) {
-                    data.galleryImages.forEach(url => {
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.className = 'gallery-image';
-                        galleryLane.appendChild(img);
-                    });
-                } else {
-                    document.getElementById('gallerySection').style.display = 'none';
-                }
-
-                // Hydrate Booking Services
-                const serviceSelect = document.getElementById('bookingService');
-                if (data.services && data.services.length > 0) {
-                    data.services.forEach(service => {
-                        const opt = document.createElement('option');
-                        opt.value = service.id || service.name;
-                        opt.textContent = `${service.name} - $${service.price}`;
-                        serviceSelect.appendChild(opt);
-                    });
-                } else {
-                    const opt = document.createElement('option');
-                    opt.textContent = "Standard Diagnostic/Service";
-                    opt.value = "standard";
-                    serviceSelect.appendChild(opt);
-                }
-
-                // Remove Loading Overlay
-                overlay.style.display = 'none';
-
-            } catch (error) {
-                console.error("Error fetching profile:", error);
-                alert("Error loading profile data.");
+        // Open 95x95 Modal
+        function openModal(proId) {
+            const pro = dummyPros.find(p => p.id === proId);
+            if(pro) {
+                document.getElementById('modalCover').src = pro.cover;
+                document.getElementById('modalAvatar').src = pro.avatar;
+                document.getElementById('modalName').innerText = pro.name;
+                document.getElementById('modalRating').innerText = pro.rating;
+                document.getElementById('modalReviews').innerText = pro.reviews;
+                document.getElementById('modalDesc').innerText = pro.desc;
+                document.getElementById('modalAddress').innerText = pro.address;
+                
+                document.getElementById('profileModal').style.display = 'flex';
             }
         }
 
-        // 5. Submit Booking to Hero Dashboard Sync
-        submitBookingBtn.addEventListener('click', async () => {
-            const serviceId = document.getElementById('bookingService').value;
-            const timeSlot = document.getElementById('bookingTime').value;
+        function closeModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
 
-            if (!serviceId || !timeSlot) {
-                alert("Please select a service and requested time.");
-                return;
-            }
+        // Cross-Communication: Triggers the Gatekeeper login in index.html
+        function triggerParentLogin() {
+            window.parent.postMessage("OPEN_PRO_LOGIN", "*");
+        }
 
-            // Ensure Seeker is logged in to book
-            const currentUser = firebase.auth().currentUser;
-            if (!currentUser) {
-                alert("Please log in or create an account to book this Pro.");
-                // Redirect to your auth flow
-                return;
-            }
-
-            submitBookingBtn.disabled = true;
-            submitBookingBtn.textContent = "Sending...";
-
-            const batch = db.batch();
-
-            // Inject into Hero's Booking Dashboard
-            const bookingRef = db.collection('shops').doc(heroId).collection('bookings').doc();
-            batch.set(bookingRef, {
-                serviceId: serviceId,
-                requestedTime: timeSlot,
-                status: "pending",
-                seekerId: currentUser.uid,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            // Inject Notification into Hero's Messaging Dashboard
-            const chatRef = db.collection('chats').doc();
-            batch.set(chatRef, {
-                heroId: heroId,
-                seekerId: currentUser.uid,
-                lastMessage: `Automated: New Booking Request for ${timeSlot}`,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            try {
-                await batch.commit();
-                alert("Booking Request Sent! The Pro will review and confirm shortly.");
-                document.getElementById('bookingTime').value = '';
-            } catch (err) {
-                console.error("Booking Error:", err);
-                alert("Failed to send booking. Please try again.");
-            } finally {
-                submitBookingBtn.disabled = false;
-                submitBookingBtn.textContent = "Send Request";
-            }
-        });
-
-        // Initialize Call
-        document.addEventListener('DOMContentLoaded', loadProfile);
+        // Initialize Feed
+        document.addEventListener("DOMContentLoaded", renderFeed);
 
     </script>
 </body>
