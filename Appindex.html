@@ -1389,13 +1389,21 @@
               () => (document.getElementById("profileSaveMsg").style.display = "none"),
               3000
             );
-          } catch (e) {
+            
+            
+            
+            
+            } catch (e) {
             console.error(e);
-            alert("Error saving profile. Please check your Database Rules.");
+            alert("System Error: " + e.message);
             btn.innerText = "SAVE";
             btn.style.opacity = "1";
             btn.style.pointerEvents = "auto";
           }
+
+        
+        
+        
         });
 
       let editingPostId = null;
