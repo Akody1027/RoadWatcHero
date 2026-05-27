@@ -1,3 +1,12 @@
+
+
+
+
+
+
+ 
+ 
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -18,8 +27,8 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="theme-color" content="#EE611C" /> 
-    <script>
+    <meta name="theme-color" content="#EE611C" />  
+    <script> 
       (function () {
         const minWidth = 450;
         if (window.screen.width < minWidth) {
@@ -639,6 +648,72 @@
         font-size: 14px;
         text-transform: uppercase;
       }
+      
+      
+
+              
+      
+      /* --- TOP PRO PROFILE BAR (INSIDE HUB DRAWER) --- */
+      #proTopBar {
+        position: absolute; /* Anchors relative to the white drawer */
+        top: 0; 
+        left: 0; 
+        width: 100%;
+        height: 40px;
+        background: var(--accent);
+        color: white;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 14px;
+        letter-spacing: 1px;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .pro-top-arrow {
+        margin-left: 8px;
+        font-size: 16px;
+        transition: transform 0.4s ease;
+      }
+      #proTopBar.open .pro-top-arrow {
+        transform: rotate(180deg);
+      }
+      #proTopBoard {
+        position: absolute;
+        top: -100%; /* Hidden upward inside the drawer */
+        left: 0;
+        width: 100%;
+        height: 100%; 
+        background: var(--bg);
+        z-index: 999;
+        transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        padding-top: 40px; /* Keeps iframe content below the orange bar */
+        box-sizing: border-box;
+      }
+      #proTopBoard.open {
+        top: 0; /* Drops down inside the drawer */
+      }
+      #profileIframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+      }
+      /* Adjust hub iframe so it sits below the orange bar */
+      #hubIframe {
+        width: 100%;
+        height: calc(100% - 40px);
+        margin-top: 40px;
+        border: none;
+        display: block;
+        position: relative;
+      }
+
+      
+      
+      
     </style>
   </head>
 
@@ -646,8 +721,19 @@
 
     
     <iframe src="home.html" id="appFrame"></iframe>
+  
+  
+  
+
+  
+  
+  
+  
+  
 
     <div id="heroHubSidebar">
+        
+      
       <div class="hub-user-icon" id="sidebarUserIcon">
         <div class="hub-badge" id="hubBadgeCounter">0</div>
       </div>
@@ -658,7 +744,15 @@
     <div id="hubOverlay"></div>
 
     <div id="heroHubBoard">
+      
+            <div id="proTopBar">
+        PRO HERO PROFILES <span class="pro-top-arrow" id="proTopArrow">▼</span>
+      </div>
+      <div id="proTopBoard">
+        <iframe src="profile.html" id="profileIframe"></iframe>
+      </div>
       <iframe src="hub.html" id="hubIframe"></iframe>
+
     </div>
 
     <div id="proShellModal" class="shell-modal">
@@ -667,7 +761,7 @@
           class="shell-close-btn"
           onclick="document.getElementById('proShellModal').style.display='none'"
         >
-          ✕
+          ✕ 
         </button>
 
         <div id="shellLoginSection">
@@ -1008,24 +1102,94 @@
       const hubBoard = document.getElementById("heroHubBoard");
       const hubToggle = document.getElementById("hubToggleBtn");
       const hubOverlay = document.getElementById("hubOverlay");
+           // References for Top Profile Board
+      const topBar = document.getElementById("proTopBar");
+      const topBoard = document.getElementById("proTopBoard");
 
-      function toggleHeroHub() {
-        const isOpen = hubBoard.classList.toggle("open");
+     
+     
+     
+     
+     
+    
+     
+           function toggleHeroHub(e) {
+        if (e) e.stopPropagation();
         const sidebar = document.getElementById("heroHubSidebar");
-        sidebar.classList.toggle("open");
+        if (!hubBoard || !sidebar) return; // Failsafe
 
-        const iframe = document.getElementById("hubIframe");
-        if (isOpen && (!iframe.src || iframe.src.includes("about:blank"))) {
-          iframe.src = "hub.html";
+        const isOpening = !hubBoard.classList.contains("open");
+
+        if (isOpening) {
+          hubBoard.classList.add("open");
+          sidebar.classList.add("open");
+          if (hubToggle) hubToggle.style.transform = "rotate(180deg)";
+          if (hubOverlay) hubOverlay.style.display = "block";
+
+          const iframe = document.getElementById("hubIframe");
+          if (iframe && (!iframe.src || iframe.src.includes("about:blank"))) {
+            iframe.src = "hub.html";
+          }
+        } else {
+          // Only close everything if we are actively shutting the main hub
+          closeAllPanels(); 
         }
-
-        hubToggle.style.transform = isOpen ? "rotate(180deg)" : "rotate(0deg)";
-        hubOverlay.style.display = isOpen ? "block" : "none";
       }
 
-      hubToggle.addEventListener("click", toggleHeroHub);
-      hubOverlay.addEventListener("click", toggleHeroHub);
+      function toggleTopProfile(e) {
+        if (e) e.stopPropagation(); 
+        if (!topBoard || !topBar) return; 
 
+        const isOpening = !topBoard.classList.contains("open");
+
+        if (isOpening) {
+          topBoard.classList.add("open");
+          topBar.classList.add("open");
+
+          const iframe = document.getElementById("profileIframe");
+          if (iframe && (!iframe.src || iframe.src.includes("about:blank"))) {
+            iframe.src = "profile.html"; 
+          }
+        } else {
+          // ONLY close the dropdown menu, do NOT close the main hub
+          topBoard.classList.remove("open");
+          topBar.classList.remove("open");
+        }
+      }
+
+      function closeAllPanels() {
+        const sidebar = document.getElementById("heroHubSidebar");
+        if (hubBoard) hubBoard.classList.remove("open");
+        if (sidebar) sidebar.classList.remove("open");
+        if (hubToggle) hubToggle.style.transform = "rotate(0deg)";
+        
+        if (topBoard) topBoard.classList.remove("open");
+        if (topBar) topBar.classList.remove("open");
+        
+        if (hubOverlay) hubOverlay.style.display = "none";
+      }
+
+      // Bind Event Listeners safely
+      if (hubToggle) hubToggle.addEventListener("click", toggleHeroHub);
+      if (topBar) topBar.addEventListener("click", toggleTopProfile);
+      if (hubOverlay) hubOverlay.addEventListener("click", closeAllPanels);
+
+      // Listen for cross-iframe messages to trigger the Gatekeeper Modal
+      window.addEventListener("message", (event) => {
+        if (event.data === "OPEN_PRO_LOGIN") {
+          closeAllPanels();
+          const modal = document.getElementById("proShellModal");
+          if (modal) modal.style.display = "flex";
+        }
+      });
+
+     
+     
+     
+     
+     
+     
+     
       function updateHubBadge(count) {
         const badge = document.getElementById("hubBadgeCounter");
         if (badge) {
@@ -1662,7 +1826,7 @@
       
       
       
-      
+       
       
       
       
