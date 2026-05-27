@@ -1159,14 +1159,29 @@
       onAuthStateChanged(auth, (user) => {
         if (user) {
           currentUserId = user.uid;
-          document.getElementById("shellLoginSection").style.display = "none";
 
-          document.getElementById("dashboardFormsContainer").style.display =
-            "block";
+// Load Profile Data (Name, Phone, Address, Logo, Leads)
+              onValue(ref(db, `profiles/${currentUserId}`), (snap) => {
+                const data = snap.val() || {};
 
-          // Load Profile Data (Name, Phone, Address, Logo, Leads)
-          onValue(ref(db, `profiles/${currentUserId}`), (snap) => {
-            const data = snap.val() || {};
+                // THE PRO GATEKEEPER: Verify Stripe payment status
+                if (data.isPro !== true) {
+                  document.getElementById("shellLoginSection").style.display = "block";
+                  document.getElementById("dashboardFormsContainer").style.display = "none";
+                  const loginBtn = document.getElementById("shellLoginBtn");
+                  if (loginBtn) loginBtn.innerText = "PRO SUBSCRIPTION REQUIRED";
+                  return; // Stop execution, keep dashboard hidden!
+                }
+
+                // If they are a verified Pro, unlock the dashboard
+                document.getElementById("shellLoginSection").style.display = "none";
+                document.getElementById("dashboardFormsContainer").style.display = "block";
+
+      
+
+
+
+            
 
             // Auto-fill core identity using a session flag to beat browser cache
             if (!document.getElementById("shellBizName").dataset.loaded) {
@@ -1261,6 +1276,9 @@
           });
         } else {
           currentUserId = null;
+
+
+          
           document.getElementById("shellLoginSection").style.display = "block";
           document.getElementById("shellDashboardSection").style.display =
             "none";
