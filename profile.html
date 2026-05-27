@@ -1,0 +1,326 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pro Hero Profile</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+    <style>
+        /* CSS Reset & Variables */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f4f6f8;
+            --text-dark: #1a1a1a;
+            --text-muted: #666666;
+            --accent-color: #007bff;
+            --accent-dark: #1f2937;
+            --star-color: #f5c518;
+            --border-radius: 12px;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-secondary); color: var(--text-dark); -webkit-font-smoothing: antialiased; }
+
+        /* Main Container */
+        .profile-container { max-width: 600px; margin: 0 auto; background: var(--bg-primary); min-height: 100vh; position: relative; padding-bottom: 100px; }
+
+        /* Header / Identity */
+        .pro-header { display: grid; grid-template-columns: 90px 1fr; gap: 20px; padding: 30px 20px 20px; align-items: center; border-bottom: 1px solid #eaeaea; }
+        .pro-avatar { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .pro-info h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+        .rating-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-secondary); border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+        .rating-badge:active { background: #e0e0e0; }
+        .star { color: var(--star-color); font-size: 16px; }
+        
+        /* Floating Modules */
+        .hidden { display: none !important; }
+        .collapse-module { margin: 10px 20px; padding: 20px; background: var(--bg-primary); border: 1px solid #eaeaea; border-radius: var(--border-radius); box-shadow: 0 8px 24px rgba(0,0,0,0.04); animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Sections */
+        .section-block { padding: 25px 20px; border-bottom: 1px solid #eaeaea; }
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
+        
+        /* Business Details */
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eaeaea; font-size: 15px; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-label { color: var(--text-muted); font-weight: 500; }
+        .detail-value { font-weight: 600; text-align: right; max-width: 60%; }
+
+        /* Image Gallery Lane */
+        .gallery-lane { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 10px; scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; }
+        .gallery-lane::-webkit-scrollbar { display: none; }
+        .gallery-image { height: 160px; min-width: 240px; border-radius: var(--border-radius); object-fit: cover; scroll-snap-align: start; background: #eee; }
+
+        /* Booking Inputs */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 600; color: var(--text-muted); }
+        .ui-input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; background: var(--bg-primary); appearance: none; }
+        .ui-input:focus { outline: none; border-color: var(--accent-color); }
+        .btn-submit { width: 100%; background: var(--accent-color); color: #fff; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+        .btn-submit:active { opacity: 0.8; }
+
+        /* Sticky Bottom CTA */
+        .sticky-footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 15px 20px 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); border-top: 1px solid #eaeaea; z-index: 100; max-width: 600px; margin: 0 auto; }
+        .cta-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; color: #fff; }
+        .btn-call { background: var(--accent-dark); }
+        .btn-message { background: var(--accent-color); }
+
+        /* Loading Overlay */
+        #loadingOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); z-index: 999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="profile-container" id="appContainer">
+        
+        <div id="loadingOverlay">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; font-weight: 600; color: #666;">Loading Profile...</p>
+        </div>
+
+        <header class="pro-header">
+            <img id="uiAvatar" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Profile" class="pro-avatar">
+            <div class="pro-info">
+                <h1 id="uiShopName">...</h1>
+                <div class="rating-badge" id="toggleReviewsBtn">
+                    <span class="star">★</span>
+                    <span id="uiRating">0.0</span> 
+                    <span style="color: #888; font-weight: 400;">(<span id="uiReviewCount">0</span>) ▾</span>
+                </div>
+            </div>
+        </header>
+
+        <div id="reviewsModule" class="collapse-module hidden">
+            <h3 class="section-title">Verified Reviews</h3>
+            <div id="reviewsList" style="margin-bottom: 15px; font-size: 14px; color: #555;">
+                No reviews yet.
+            </div>
+            <button class="btn-submit" style="background: transparent; color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px;">Write a Review</button>
+        </div>
+
+        <section class="section-block">
+            <h2 class="section-title">Business Details</h2>
+            <div class="detail-row">
+                <span class="detail-label">Location</span>
+                <span class="detail-value" id="uiAddress">...</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Hours</span>
+                <span class="detail-value" id="uiHours">...</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Direct Phone</span>
+                <span class="detail-value" id="uiPhone">...</span>
+            </div>
+        </section>
+
+        <section class="section-block" id="gallerySection">
+            <h2 class="section-title">Recent Work</h2>
+            <div class="gallery-lane" id="uiGallery">
+                </div>
+        </section>
+
+        <section class="section-block" style="border-bottom: none;">
+            <h2 class="section-title">Request Service</h2>
+            <div class="input-group">
+                <label>Service Needed</label>
+                <select id="bookingService" class="ui-input">
+                    <option value="" disabled selected>Select an option...</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Requested Date & Time</label>
+                <input type="datetime-local" id="bookingTime" class="ui-input">
+            </div>
+            <button id="submitBookingBtn" class="btn-submit">Send Request</button>
+        </section>
+
+        <div class="sticky-footer">
+            <button id="actionCall" class="cta-btn btn-call">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                Call
+            </button>
+            <button id="actionMessage" class="cta-btn btn-message">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                Message
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // 2. Extract Target Profile ID from URL (e.g., profile.html?id=hero123)
+        const urlParams = new URLSearchParams(window.location.search);
+        const heroId = urlParams.get('id');
+
+        // DOM Elements
+        const overlay = document.getElementById('loadingOverlay');
+        const reviewsToggle = document.getElementById('toggleReviewsBtn');
+        const reviewsModule = document.getElementById('reviewsModule');
+        const submitBookingBtn = document.getElementById('submitBookingBtn');
+
+        // 3. UI Interaction Logic
+        reviewsToggle.addEventListener('click', () => {
+            reviewsModule.classList.toggle('hidden');
+        });
+
+        // 4. Fetch and Hydrate Data
+        async function loadProfile() {
+            if (!heroId) {
+                alert("Invalid Profile Link");
+                return;
+            }
+
+            try {
+                const doc = await db.collection('shops').doc(heroId).get();
+                if (!doc.exists) {
+                    alert("Profile not found.");
+                    return;
+                }
+
+                const data = doc.data();
+
+                // Hydrate Header
+                document.getElementById('uiShopName').textContent = data.shopName || "Automotive Pro";
+                document.getElementById('uiAvatar').src = data.profileImageUrl || "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+                document.getElementById('uiRating').textContent = data.averageRating ? data.averageRating.toFixed(1) : "0.0";
+                document.getElementById('uiReviewCount').textContent = data.reviewCount || 0;
+
+                // Hydrate Business Details
+                document.getElementById('uiAddress').textContent = data.address || "Mobile Service";
+                document.getElementById('uiHours').textContent = data.hours || "Contact for availability";
+                document.getElementById('uiPhone').textContent = data.phone || "N/A";
+
+                // Setup CTA Buttons
+                document.getElementById('actionCall').onclick = () => window.location.href = `tel:${data.phone}`;
+                document.getElementById('actionMessage').onclick = () => {
+                    // Route to internal messaging if auth exists, else native SMS
+                    const currentUser = firebase.auth().currentUser;
+                    if(currentUser) {
+                        alert("Routing to internal Hero Messaging App...");
+                        // Trigger your internal chat routing here
+                    } else {
+                        window.location.href = `sms:${data.phone}`;
+                    }
+                };
+
+                // Hydrate Gallery
+                const galleryLane = document.getElementById('uiGallery');
+                if (data.galleryImages && data.galleryImages.length > 0) {
+                    data.galleryImages.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.className = 'gallery-image';
+                        galleryLane.appendChild(img);
+                    });
+                } else {
+                    document.getElementById('gallerySection').style.display = 'none';
+                }
+
+                // Hydrate Booking Services
+                const serviceSelect = document.getElementById('bookingService');
+                if (data.services && data.services.length > 0) {
+                    data.services.forEach(service => {
+                        const opt = document.createElement('option');
+                        opt.value = service.id || service.name;
+                        opt.textContent = `${service.name} - $${service.price}`;
+                        serviceSelect.appendChild(opt);
+                    });
+                } else {
+                    const opt = document.createElement('option');
+                    opt.textContent = "Standard Diagnostic/Service";
+                    opt.value = "standard";
+                    serviceSelect.appendChild(opt);
+                }
+
+                // Remove Loading Overlay
+                overlay.style.display = 'none';
+
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+                alert("Error loading profile data.");
+            }
+        }
+
+        // 5. Submit Booking to Hero Dashboard Sync
+        submitBookingBtn.addEventListener('click', async () => {
+            const serviceId = document.getElementById('bookingService').value;
+            const timeSlot = document.getElementById('bookingTime').value;
+
+            if (!serviceId || !timeSlot) {
+                alert("Please select a service and requested time.");
+                return;
+            }
+
+            // Ensure Seeker is logged in to book
+            const currentUser = firebase.auth().currentUser;
+            if (!currentUser) {
+                alert("Please log in or create an account to book this Pro.");
+                // Redirect to your auth flow
+                return;
+            }
+
+            submitBookingBtn.disabled = true;
+            submitBookingBtn.textContent = "Sending...";
+
+            const batch = db.batch();
+
+            // Inject into Hero's Booking Dashboard
+            const bookingRef = db.collection('shops').doc(heroId).collection('bookings').doc();
+            batch.set(bookingRef, {
+                serviceId: serviceId,
+                requestedTime: timeSlot,
+                status: "pending",
+                seekerId: currentUser.uid,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // Inject Notification into Hero's Messaging Dashboard
+            const chatRef = db.collection('chats').doc();
+            batch.set(chatRef, {
+                heroId: heroId,
+                seekerId: currentUser.uid,
+                lastMessage: `Automated: New Booking Request for ${timeSlot}`,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            try {
+                await batch.commit();
+                alert("Booking Request Sent! The Pro will review and confirm shortly.");
+                document.getElementById('bookingTime').value = '';
+            } catch (err) {
+                console.error("Booking Error:", err);
+                alert("Failed to send booking. Please try again.");
+            } finally {
+                submitBookingBtn.disabled = false;
+                submitBookingBtn.textContent = "Send Request";
+            }
+        });
+
+        // Initialize Call
+        document.addEventListener('DOMContentLoaded', loadProfile);
+
+    </script>
+</body>
+</html>
