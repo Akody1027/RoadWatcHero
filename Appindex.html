@@ -2,15 +2,14 @@
 
 
 
-
-
+   
  
+     
+   
  
-
-<!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8" /> 
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -654,15 +653,44 @@
               
       
       /* --- TOP PRO PROFILE BAR (INSIDE HUB DRAWER) --- */
+ 
+      .pro-top-arrow {
+        rotate:90deg; 
+        margin-left: 35px;
+        font-size: 30px;
+        transition: transform 0.4s ease;
+      }
+      #proTopBar.open .pro-top-arrow {
+        transform: rotate(180deg);
+      }
+      
+      
+      
+      /* --- PULL-DOWN SHADE STYLES --- */
+      #proTopBoard {
+        position: absolute;
+        /* Hides the board in the ceiling, leaving 105px showing (65px for logo header + 40px for orange handle) */
+        top: calc(-100% + 105px); 
+        left: 0;
+        width: 100%;
+        height: calc(100% - 65px); /* Fits perfectly under the logo header */
+        background: var(--bg);
+        z-index: 1000;
+        transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        box-sizing: border-box;
+      }
+      #proTopBoard.open {
+        top: 65px; /* Drops down perfectly flush beneath the logo header */
+      }
+      
       #proTopBar {
-        position: absolute; /* Anchors relative to the white drawer */
-        top: 0; 
+        position: absolute; 
+        bottom: 0; /* Anchored to the BOTTOM of the sliding board */
         left: 0; 
         width: 100%;
         height: 40px;
         background: var(--accent);
         color: white;
-        z-index: 1000;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -670,66 +698,41 @@
         font-size: 14px;
         letter-spacing: 1px;
         cursor: pointer;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
       }
-      .pro-top-arrow {
-        margin-left: 8px;
-        font-size: 16px;
-        transition: transform 0.4s ease;
-      }
-      #proTopBar.open .pro-top-arrow {
-        transform: rotate(180deg);
-      }
-      #proTopBoard {
-        position: absolute;
-        top: -100%; /* Hidden upward inside the drawer */
-        left: 0;
-        width: 100%;
-        height: 100%; 
-        background: var(--bg);
-        z-index: 999;
-        transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        padding-top: 40px; /* Keeps iframe content below the orange bar */
-        box-sizing: border-box;
-      }
-      #proTopBoard.open {
-        top: 0; /* Drops down inside the drawer */
-      }
+      
+
+ 
+      
       #profileIframe {
         width: 100%;
-        height: 100%;
+        height: calc(100% - 40px); /* Leaves space for the orange handle at the bottom */
         border: none;
         display: block;
       }
-      /* Adjust hub iframe so it sits below the orange bar */
+      
+      /* Adjust main Hub iframe so it sits beneath the handle when closed */
       #hubIframe {
         width: 100%;
-        height: calc(100% - 40px);
-        margin-top: 40px;
+        height: calc(100% - 105px); 
+        margin-top: 105px;
         border: none;
         display: block;
         position: relative;
       }
+      
+      
+      
+      
 
       
       
       
     </style>
   </head>
-
-
-
-    
+f
     <iframe src="home.html" id="appFrame"></iframe>
-  
-  
-  
 
-  
-  
-  
-  
-  
 
     <div id="heroHubSidebar">
         
@@ -743,14 +746,16 @@
 
     <div id="hubOverlay"></div>
 
-    <div id="heroHubBoard">
+    <div id="heroHubBoard"> 
       
-            <div id="proTopBar">
-        PRO HERO PROFILES <span class="pro-top-arrow" id="proTopArrow">▼</span>
-      </div>
+
       <div id="proTopBoard">
         <iframe src="profile.html" id="profileIframe"></iframe>
+        <div id="proTopBar">
+        PRO HERO FEED <span class="pro-top-arrow" id="proTopArrow">❯</span>
+        </div>
       </div>
+
       <iframe src="hub.html" id="hubIframe"></iframe>
 
     </div>
@@ -1839,7 +1844,7 @@
           console.error("Sign out error:", error);
           alert("Error signing out.");
         });
-      };
+      }; 
 
 window.deleteMyAccount = async () => {
         const user = firebase.auth().currentUser;
