@@ -1,3 +1,7 @@
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -71,7 +75,7 @@
         height: 50px;
         border: 5px solid rgba(238, 97, 28, 0.2);
         border-top: 5px solid var(--accent);
-        border-radius: 50%;
+        border-radius: 10%;
         animation: spin 1s linear infinite;
       }
       @keyframes spin {
@@ -80,7 +84,7 @@
         }
       }
       .loader-hidden {
-        opacity: 0;
+        opacity: 0; 
         visibility: hidden;
         pointer-events: none;
       }
@@ -89,7 +93,7 @@
       .view {
         display: none;
         width: 100%;
-        height: 100%;
+        height: 100%; 
         position: absolute;
         top: 0;
         left: 0;
@@ -140,7 +144,7 @@
       }
       .submit-btn {
         width: 100%;
-        max-width: 400px;
+        max-width:;
         padding: 18px;
         background: var(--accent);
         color: white;
@@ -581,15 +585,15 @@
         class="fab-btn"
         onclick="window.toggleDashboard()"
         style="font-size: 35px"
-      >
+      > 
         ⚙️
       </button>
 
       <div id="driverMap"></div>
 
       <div id="bottomPanel">
-        <div style="width: 100%; text-align: center; margin-bottom: 2%">
-          <h1 style="text-align: center">Pro Hero</h1>
+        <div style="width: 100%; text-align: center; margin-bottom: 5%">
+          <h1 style="text-align: center; color: var(--accent);">Towing Hero</h1>
         </div>
 
         <div id="activeJobCard"></div>
@@ -750,11 +754,11 @@
             color: var(--muted);
             margin-bottom: 4px;
             display: block;
-            margin-top: 15px;
+            margin-top: 15px; 
           "
-          >PHONE NUMBER</label
+          >PHONE NUMBER 🔒</label
         >
-        <input type="tel" id="profPhone" placeholder="e.g. 555-555-5555" />
+        <input type="tel" id="profPhone" placeholder="e.g. 555-555-5555" class="locked-input" readonly/>
 
         <label
           style="
@@ -772,7 +776,7 @@
         <button
           class="submit-btn"
           onclick="window.saveDriverProfile()"
-          style="margin-top: 25px"
+          style="margin-top: 25px; "
         >
           SAVE SETTINGS
         </button>
@@ -786,10 +790,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 50px;
           "
         >
-          <h3 style="margin: 0; color: var(--accent)">Messaging Hub</h3>
+          <h3 style="margin: 0; color: var(--accent)">Messaging Hub</h3> 
           <button
             class="close-x-btn"
             onclick="document.getElementById('hubModal').style.display='none'"
@@ -797,30 +801,19 @@
             ✕
           </button>
         </div>
+        
+        
+        
+        
+        
 
-        <button
-          onclick="window.openChat('dispatch_' + myShopId)"
-          style="
-            width: 100%;
-            padding: 18px;
-            background: var(--bg);
-            border: 2px solid var(--accent);
-            border-radius: 16px;
-            font-weight: 900;
-            color: var(--text);
-            font-size: 14px;
-            margin-bottom: 25px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            transition: 0.2s;
-          "
-        >
-          🏢 CONTACT DISPATCH
-        </button>
 
+        
+        
+        
+        
+        
+        
         <div
           style="
             font-size: 11px;
@@ -1092,7 +1085,7 @@
               const lineupCont = document.getElementById("lineupContainer");
 
               if (jobs.length === 0) {
-                activeCard.innerHTML = `<div class="job-card empty">📡 Waiting for dispatch...</div>`;
+                activeCard.innerHTML = `<div class="job-card empty"> Waiting for dispatch...</div>`;
                 lineupCont.innerHTML = `<div style="font-size:12px; color:var(--muted); font-style:italic;">Queue is empty.</div>`;
                 return;
               }
