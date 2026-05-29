@@ -1,4 +1,7 @@
 
+
+
+
  
 <html lang="en"> 
   <head>
@@ -716,8 +719,67 @@
       
       
       
-      
+            /* --- CREATOR TOGGLE & PROFILE PREVIEW STYLES --- */
+      .creator-toggle-container {
+        display: flex;
+        background: #f1f5f9;
+        border-radius: 12px;
+        padding: 5px;
+        margin-bottom: 25px;
+      }
+      .creator-tab {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        background: transparent;
+        border-radius: 8px;
+        font-weight: 900;
+        font-size: 13px;
+        color: var(--muted);
+        cursor: pointer;
+        transition: 0.3s ease;
+      }
+      .creator-tab.active {
+        background: white;
+        color: var(--accent);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
 
+      .pro-card-preview {
+        position: relative;
+        width: 100%;
+        height: 160px;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #e2e8f0;
+        background-size: cover;
+        background-position: center;
+      }
+      .pro-card-overlay-preview {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+        padding: 15px;
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        text-align: left;
+      }
+      .pro-avatar-preview {
+        width: 45px; height: 45px;
+        border-radius: 50%;
+        border: 2px solid var(--accent);
+        object-fit: cover;
+        background: #fff;
+      }
+      .pro-info-preview { color: white; }
+      .pro-name-preview { font-size: 15px; font-weight: 800; margin-bottom: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+      .pro-rating-preview { font-size: 12px; font-weight: 600; color: #fde047; }
+
+
+      
+      
+      
       
       
       
@@ -905,12 +967,64 @@
 
         
 
-          <div style="width: 100%; text-align: center">
-            <label
-              style="font-size: 20px; font-weight: 800; color: var(--accent)"
-              >CREATE NEW AD</label
-            >
+                  <div class="creator-toggle-container">
+            <button id="tabAdBtn" class="creator-tab active" onclick="window.switchCreatorTab('ad')">CREATE AD</button>
+            <button id="tabProfileBtn" class="creator-tab" onclick="window.switchCreatorTab('profile')">CREATE PROFILE</button>
           </div>
+
+          <div id="profileCreatorSection" style="display: none;">
+            <div class="promo-uploader-wrapper">
+              <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 8px;">Cover Image (Required):</label>
+              <label for="shellCoverImage" class="promo-rectangle" id="coverRectPreview">
+                <span>+ UPLOAD COVER IMAGE</span>
+              </label>
+               <input type="file" id="shellCoverImage" accept="image/jpeg, image/png, image/webp" class="promo-hidden-input" />
+            </div>
+
+            <select id="shellProfileCategory" class="shell-input">
+              <option value="Towing">Towing</option>
+              <option value="Mechanic">Mechanic</option>
+              <option value="Detailing">Detailing</option>
+              <option value="Tires">Tires</option>
+              <option value="Locksmith">Locksmith</option>
+              <option value="Tint">Tint</option>
+              <option value="Glass">Glass</option>
+              <option value="Battery">Battery</option>
+              <option value="Wraps">Wraps</option>
+              <option value="Bodywork">Bodywork</option>
+              <option value="Audio">Audio</option>
+              <option value="Upholstery">Upholstery</option>
+              <option value="Alignment">Alignment</option>
+              <option value="Oil">Oil</option>
+              <option value="Transmission">Transmission</option>
+            </select>
+
+            <textarea id="shellProfileBio" placeholder="About the Pro (e.g. Family owned since 1995...)" class="shell-input" rows="4"></textarea>
+
+            <div class="preview-wrapper" id="liveProfilePreviewBox">
+              <div class="preview-label">PROFILE DIRECTORY PREVIEW</div>
+              <div class="pro-card-preview" id="proCardPreviewFrame">
+                  <div class="pro-card-overlay-preview">
+                      <img src="https://via.placeholder.com/45" class="pro-avatar-preview" id="previewProfileAvatar">
+                      <div class="pro-info-preview">
+                          <div class="pro-name-preview" id="previewProfileName">Business Name</div>
+                          <div class="pro-rating-preview">★ 5.0 (0)</div>
+                      </div>
+                  </div>
+              </div>
+            </div>
+
+            <button id="shellPublishProfileBtn" class="shell-submit-btn" style="background: var(--accent);">
+              PUBLISH PROFILE
+            </button>
+          </div>
+
+          <div id="adCreatorSection">
+
+        
+        
+        
+        
 
           <div class="promo-uploader-wrapper">
             <label
@@ -1039,6 +1153,15 @@
             PUBLISH TO HUB
           </button>
 
+            
+            
+            
+       </div>
+
+            
+            
+            
+            
         <hr class="shell-divider" />
 
         <label style="font-size: 20px; font-weight: 800; color: var(--accent)"
@@ -1221,6 +1344,19 @@
         getDownloadURL,
         deleteObject,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+      
+      
+      
+      import { 
+        getFirestore, 
+        doc, 
+        setDoc 
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+      
+      
+      
+      
 
       // Your exact project credentials
       const firebaseConfig = {
@@ -1235,6 +1371,11 @@
       const auth = getAuth(app);
       const db = getDatabase(app);
 
+      
+      const firestore = getFirestore(app);
+
+      
+      
       const storage = getStorage(app);
       let allPostsData = {}; // Cache to hold post data for editing
 
@@ -1821,7 +1962,122 @@
       
    
       
-      
+            window.switchCreatorTab = (tab) => {
+        const adSection = document.getElementById('adCreatorSection');
+        const profSection = document.getElementById('profileCreatorSection');
+        const adBtn = document.getElementById('tabAdBtn');
+        const profBtn = document.getElementById('tabProfileBtn');
+
+        if (tab === 'ad') {
+          adSection.style.display = 'block';
+          profSection.style.display = 'none';
+          adBtn.classList.add('active');
+          profBtn.classList.remove('active');
+        } else {
+          adSection.style.display = 'none';
+          profSection.style.display = 'block';
+          adBtn.classList.remove('active');
+          profBtn.classList.add('active');
+        }
+      };
+
+      // Background syncer to keep the Profile Preview updated with Global Identity changes
+      setInterval(() => {
+          const currentLogo = document.getElementById("previewLogo")?.src;
+          const profileAvatar = document.getElementById("previewProfileAvatar");
+          if(currentLogo && profileAvatar && profileAvatar.src !== currentLogo) {
+              profileAvatar.src = currentLogo;
+          }
+          const currentName = document.getElementById("shellBizName")?.value || "Business Name";
+          const profileName = document.getElementById("previewProfileName");
+          if(profileName && profileName.innerText !== currentName) {
+              profileName.innerText = currentName;
+          }
+      }, 1000);
+
+      document.getElementById("shellCoverImage").addEventListener("change", async function (e) {
+        const file = e.target.files[0];
+        if (file) {
+          try {
+            const compressedBlob = await compressImage(file);
+            e.target.compressedBlob = compressedBlob;
+            const objectUrl = URL.createObjectURL(compressedBlob);
+            document.getElementById("coverRectPreview").style.backgroundImage = `url(${objectUrl})`;
+            document.getElementById("coverRectPreview").innerHTML = "";
+            document.getElementById("proCardPreviewFrame").style.backgroundImage = `url(${objectUrl})`;
+          } catch (err) {
+            alert("System Error: " + err.message);
+          }
+        }
+      });
+
+      document.getElementById("shellPublishProfileBtn").addEventListener("click", async () => {
+        const bizName = document.getElementById("shellBizName").value;
+        const address = document.getElementById("shellBizAddress").value;
+        const phone = document.getElementById("shellBizPhone").value;
+        const bio = document.getElementById("shellProfileBio").value;
+        const cat = document.getElementById("shellProfileCategory").value;
+        const coverBlob = document.getElementById("shellCoverImage").compressedBlob;
+        let finalLogoUrl = document.getElementById("shellBizLogo").dataset.existing || "";
+
+        if (!bizName || !phone || !address || !bio || !cat) {
+          return alert("Please fill out your Business Name, Address, Phone, Category, and Bio to publish a profile.");
+        }
+
+        if (!coverBlob && !document.getElementById("shellCoverImage").dataset.existing) {
+           return alert("Please upload a Cover Image for your directory card.");
+        }
+
+        const btn = document.getElementById("shellPublishProfileBtn");
+        btn.innerText = "PUBLISHING...";
+        btn.style.opacity = "0.7";
+        btn.style.pointerEvents = "none";
+
+        let finalCoverUrl = document.getElementById("shellCoverImage").dataset.existing || "";
+
+        try {
+          if (coverBlob) {
+            const sRef = storageRef(storage, `hub_profiles/${currentUserId}/cover_${Date.now()}.jpg`);
+            await uploadBytes(sRef, coverBlob);
+            finalCoverUrl = await getDownloadURL(sRef);
+            document.getElementById("shellCoverImage").dataset.existing = finalCoverUrl;
+          }
+
+          // Ensure Realtime Database keeps its global identity up to date
+          await update(ref(db, `profiles/${currentUserId}`), {
+            companyName: bizName,
+            businessAddress: address,
+            dispatchPhone: phone
+          });
+
+          // Blast the profile data directly into Cloud Firestore for instant population in profile.html
+          await setDoc(doc(firestore, "pros", currentUserId), {
+            name: bizName,
+            address: address,
+            phone: phone,
+            desc: bio,
+            category: cat,
+            avatar: finalLogoUrl || "https://via.placeholder.com/45",
+            cover: finalCoverUrl,
+            rating: "5.0",
+            reviews: "0",
+            timestamp: Date.now()
+          });
+
+          alert("Profile Published to Directory Successfully!");
+
+          btn.innerText = "PUBLISH PROFILE";
+          btn.style.opacity = "1";
+          btn.style.pointerEvents = "auto";
+        } catch (e) {
+          console.error(e);
+          alert("Error publishing profile: " + e.message);
+          btn.innerText = "PUBLISH PROFILE";
+          btn.style.opacity = "1";
+          btn.style.pointerEvents = "auto";
+        }
+      });
+
       
       
        
