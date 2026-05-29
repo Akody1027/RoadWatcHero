@@ -1,135 +1,380 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Pro Directory</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
+ 
     <style>
-        :root {
-            --bg-primary: #f8fafc;
-            --bg-card: #ffffff;
-            --accent: #ee611c;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-        body { background: var(--bg-primary); color: var(--text-dark); overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+      :root { 
+        --bg-primary: #f8fafc;
+        --bg-card: #ffffff;
+        --accent: #ee611c;
+        --text-dark: #0f172a; 
+        --text-muted: #64748b;   
+      }
 
-        /* --- NETFLIX FEED STYLES --- */
-        .feed-container { padding: 20px 0 100px 0; }
-        .category-row { margin-bottom: 30px; }
-        .category-header { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; margin-bottom: 12px; }
-        .category-title { font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
-        .see-all-btn { font-size: 12px; font-weight: 700; color: var(--accent); cursor: pointer; text-transform: uppercase; }
-        
-        .horizontal-lane { display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 10px 20px; scroll-snap-type: x mandatory; scrollbar-width: none; }
-        .horizontal-lane::-webkit-scrollbar { display: none; }
-        
-        .pro-card { position: relative; min-width: 260px; height: 160px; border-radius: 16px; overflow: hidden; scroll-snap-align: start; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.08); background: #e2e8f0; }
-        .pro-card-bg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
-        .pro-card:active .pro-card-bg { transform: scale(1.05); }
-        
-        .pro-card-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.9)); padding: 15px; display: flex; align-items: flex-end; gap: 12px; }
-        .pro-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover; background: #fff; }
-        .pro-info { color: white; }
-        .pro-name { font-size: 15px; font-weight: 800; margin-bottom: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .pro-rating { font-size: 12px; font-weight: 600; color: #fde047; }
+      * { 
+        box-sizing: border-box; 
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        background: var(--bg-primary);
+        color: var(--text-dark); 
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+      }
 
-        /* --- 95x95 PROFILE MODAL STYLES --- */
-        #profileModal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(5px); z-index: 10000; display: none; align-items: center; justify-content: center; }
-        .modal-content { width: 95vw; height: 95vh; max-width: 500px; background: var(--bg-card); border-radius: 20px; position: relative; overflow-y: auto; display: flex; flex-direction: column; }
-        
-        .modal-header-img { width: 100%; height: 180px; object-fit: cover; background: #e2e8f0; }
-        .close-modal-btn { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 18px; font-weight: bold; cursor: pointer; z-index: 10; backdrop-filter: blur(4px); }
-        
-        .modal-identity { display: flex; gap: 15px; padding: 0 20px; transform: translateY(-30px); margin-bottom: -15px; }
-        .modal-avatar { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--bg-card); object-fit: cover; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .modal-title-block { padding-top: 35px; }
-        .modal-name { font-size: 20px; font-weight: 900; color: var(--text-dark); }
-        
-        .modal-section { padding: 20px; border-bottom: 1px solid #f1f5f9; }
-        .modal-section h3 { font-size: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-        .modal-text { font-size: 14px; line-height: 1.5; font-weight: 500; }
-        
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px; background: #f8fafc; margin-top: auto; }
-        .btn { padding: 16px; border-radius: 12px; font-weight: 800; font-size: 14px; text-align: center; border: none; cursor: pointer; color: white; text-transform: uppercase; }
-        .btn-call { background: #1e293b; }
-        .btn-book { background: var(--accent); }
+      /* --- NETFLIX FEED STYLES --- */
+      .feed-container {
+        padding: 20px 0 100px 0;
+      }
+      .category-row { 
+        margin-bottom: 30px;
+      }
+      .category-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        margin-bottom: 12px;
+      }
+      .category-title {
+        font-size: 18px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .see-all-btn {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent);
+        cursor: pointer;
+        text-transform: uppercase;
+      }
 
-        /* Universal Upsell Bar */
-        .upsell-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; color: white; padding: 15px; text-align: center; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; z-index: 500; }
-        .upsell-footer span { color: var(--accent); font-weight: 800; }
+      .horizontal-lane {
+        display: flex;
+        overflow-x: auto;
+        gap: 15px;
+        padding: 0 20px 10px 20px;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+      }
+      .horizontal-lane::-webkit-scrollbar {
+        display: none;
+      }
+
+      .pro-card {
+        position: relative;
+        min-width: 260px;
+        height: 160px;
+        border-radius: 16px;
+        overflow: hidden;
+        scroll-snap-align: start;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        background: #e2e8f0;
+      }
+      .pro-card-bg {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+      .pro-card:active .pro-card-bg {
+        transform: scale(1.05);
+      }
+
+      .pro-card-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+        padding: 15px;
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+      }
+      .pro-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: 2px solid var(--accent);
+        object-fit: cover;
+        background: #fff;
+      }
+      .pro-info {
+        color: white;
+      }
+      .pro-name {
+        font-size: 15px;
+        font-weight: 800;
+        margin-bottom: 2px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .pro-rating {
+        font-size: 12px;
+        font-weight: 600;
+        color: #fde047;
+      }
+
+      /* --- 95x95 PROFILE MODAL STYLES --- */
+      #profileModal {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(5px);
+        z-index: 10000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-content {
+        width: 95vw;
+        height: 95vh;
+        max-width: 500px;
+        background: var(--bg-card);
+        border-radius: 20px;
+        position: relative;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .modal-header-img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background: #e2e8f0;
+      }
+      .close-modal-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 10;
+        backdrop-filter: blur(4px);
+      }
+
+      .modal-identity {
+        display: flex;
+        gap: 15px;
+        padding: 0 20px;
+        transform: translateY(-30px);
+        margin-bottom: -15px;
+      }
+      .modal-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 4px solid var(--bg-card);
+        object-fit: cover;
+        background: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .modal-title-block {
+        padding-top: 35px;
+      }
+      .modal-name {
+        font-size: 20px;
+        font-weight: 900;
+        color: var(--text-dark);
+      }
+
+      .modal-section {
+        padding: 20px;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .modal-section h3 {
+        font-size: 14px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+      }
+      .modal-text {
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 500;
+      }
+
+      .action-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 20px;
+        background: #f8fafc;
+        margin-top: auto;
+      }
+      .btn {
+        padding: 16px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 14px;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+        color: white;
+        text-transform: uppercase;
+      }
+      .btn-call {
+        background: #1e293b;
+      }
+      .btn-book {
+        background: var(--accent);
+      }
+
+      /* Universal Upsell Bar */
+      .upsell-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #1e293b;
+        color: white;
+        padding: 15px;
+        text-align: center;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 500;
+      }
+      .upsell-footer span {
+        color: var(--accent);
+        font-weight: 800;
+      }
     </style>
-</head>
-<body>
-
-    <div class="feed-container" id="feedContainer">
-        </div>
-
-
-
-    <div id="profileModal">
-        <div class="modal-content">
-            <button class="close-modal-btn" onclick="closeModal()">✕</button>
-            <img id="modalCover" src="" class="modal-header-img">
-            
-            <div class="modal-identity">
-                <img id="modalAvatar" src="" class="modal-avatar">
-                <div class="modal-title-block">
-                    <div class="modal-name" id="modalName">Shop Name</div>
-                    <div class="pro-rating">★ <span id="modalRating">5.0</span> (<span id="modalReviews">0</span> Reviews)</div>
-                </div>
-            </div>
-
-            <div class="modal-section">
-                <h3>About the Pro</h3>
-                <div class="modal-text" id="modalDesc">Loading description...</div>
-            </div>
-            
-            <div class="modal-section">
-                <h3>Business Info</h3>
-                <div class="modal-text"><strong>Address:</strong> <span id="modalAddress">...</span></div>
-                <div class="modal-text" style="margin-top:8px;"><strong>Status:</strong> <span style="color: #10b981;">Available Now</span></div>
-            </div>
-
-            <div class="action-grid">
-                <button class="btn btn-call" onclick="alert('Calling Pro...')">Call Now</button>
-                <button class="btn btn-book" onclick="alert('Routing to Booking Dashboard...')">Book Service</button>
-            </div>
-        </div>
+  </head>
+  <body>
+    <div
+      style="
+        padding: 0 20px 20px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--bg-primary);
+      "
+    >
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search pros or categories..."
+        style="
+          width: 100%;
+          padding: 12px 16px;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          font-size: 15px;
+          background: #fff;
+        "
+      />
     </div>
 
+    <div class="feed-container" id="feedContainer"></div>
+
+    <div id="profileModal">
+      <div class="modal-content">
+        <button class="close-modal-btn" onclick="closeModal()">✕</button>
+        <img id="modalCover" src="" class="modal-header-img" />
+
+        <div class="modal-identity">
+          <img id="modalAvatar" src="" class="modal-avatar" />
+          <div class="modal-title-block">
+            <div class="modal-name" id="modalName">Shop Name</div>
+            <div class="pro-rating">
+              ★ <span id="modalRating">5.0</span> (<span id="modalReviews"
+                >0</span
+              >
+              Reviews)
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3>About the Pro</h3>
+          <div class="modal-text" id="modalDesc">Loading description...</div>
+        </div>
+
+        <div class="modal-section">
+          <h3>Business Info</h3>
+          <div class="modal-text">
+            <strong>Address:</strong> <span id="modalAddress">...</span>
+          </div>
+          <div class="modal-text" style="margin-top: 8px">
+            <strong>Status:</strong>
+            <span style="color: #10b981">Available Now</span>
+          </div>
+        </div>
+
+        <div class="action-grid">
+          <button class="btn btn-call" onclick="alert('Calling Pro...')">
+            Call Now
+          </button>
+          <button
+            class="btn btn-book"
+            onclick="alert('Routing to Booking Dashboard...')"
+          >
+            Book Service
+          </button>
+        </div>
+      </div>
+    </div>
+ 
     <script>
-        // Dummy Data for immediate UI testing without needing a populated database
-        const dummyPros = [
-            { id: "1", category: "Towing", name: "Apex Recovery", rating: 4.9, reviews: 128, cover: "https://images.unsplash.com/photo-1605648817215-56029272af45?w=500&q=80", avatar: "https://via.placeholder.com/150", address: "Highway 80", desc: "24/7 Heavy Duty Towing & Recovery." },
-            { id: "2", category: "Towing", name: "City Flatbeds", rating: 4.7, reviews: 84, cover: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=500&q=80", avatar: "https://via.placeholder.com/150", address: "Downtown Metro", desc: "Damage-free flatbed transport." },
-            { id: "3", category: "Mechanic", name: "Anderson Auto", rating: 4.8, reviews: 312, cover: "https://images.unsplash.com/photo-1619642751034-765df664ae02?w=500&q=80", avatar: "https://via.placeholder.com/150", address: "123 Main St", desc: "Full service diagnostic and repair." },
-            { id: "4", category: "Mechanic", name: "Mobile Wrenches", rating: 5.0, reviews: 45, cover: "https://images.unsplash.com/photo-1503328427499-d92d1fa3ce40?w=500&q=80", avatar: "https://via.placeholder.com/150", address: "Mobile Service", desc: "We come to your driveway." },
-            { id: "5", category: "Detailing", name: "Showroom Shine", rating: 4.9, reviews: 201, cover: "https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=500&q=80", avatar: "https://via.placeholder.com/150", address: "Westside Auto Mall", desc: "Ceramic coating and interior restoration." }
-        ];
+      
+        const firebaseConfig = {
+        apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
+        authDomain: "roadsidehero-104ea.firebaseapp.com",
+        databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
+        projectId: "roadsidehero-104ea",
+        storageBucket: "roadsidehero-104ea.firebasestorage.app",
+        };
+        firebase.initializeApp(firebaseConfig);
+      
+       
+        let prosData = [];
 
-        // Organize Data by Category
-        function renderFeed() {
-            const feedContainer = document.getElementById('feedContainer');
-            const categories = [...new Set(dummyPros.map(pro => pro.category))];
-
+        async function renderFeed() {
+            const feedContainer = document.getElementById('feedContainer'); 
+            feedContainer.innerHTML = ''; // Clear existing
+            
+           // Fetch from Firestore
+            const snapshot = await firebase.firestore().collection('pros').get();
+            prosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+             
+            const categories = [...new Set(prosData.map(p => p.category))];
+          
             categories.forEach(category => {
-                const prosInCategory = dummyPros.filter(p => p.category === category);
-                
-                // Create Category Row
+                const prosInCategory = prosData.filter(p => p.category === category);
                 const rowHTML = `
                     <div class="category-row">
                         <div class="category-header">
                             <div class="category-title">${category}</div>
-                            <div class="see-all-btn">See All</div>
                         </div>
                         <div class="horizontal-lane">
+                            ${prosInCategory.length === 0 ? getAddBusinessCard(category) : ''}
                             ${prosInCategory.map(pro => `
+     
                                 <div class="pro-card" onclick="openModal('${pro.id}')">
                                     <img class="pro-card-bg" src="${pro.cover}" alt="${pro.name}">
                                     <div class="pro-card-overlay">
@@ -148,34 +393,75 @@
             });
         }
 
-        // Open 95x95 Modal
+      
+      
+      
+      
+      
+      
+
+      // Open 95x95 Modal
         function openModal(proId) {
-            const pro = dummyPros.find(p => p.id === proId);
-            if(pro) {
-                document.getElementById('modalCover').src = pro.cover;
-                document.getElementById('modalAvatar').src = pro.avatar;
-                document.getElementById('modalName').innerText = pro.name;
-                document.getElementById('modalRating').innerText = pro.rating;
-                document.getElementById('modalReviews').innerText = pro.reviews;
-                document.getElementById('modalDesc').innerText = pro.desc;
-                document.getElementById('modalAddress').innerText = pro.address;
-                
-                document.getElementById('profileModal').style.display = 'flex';
-            }
+        const pro = prosData.find((p) => p.id === proId);
+        if (pro) {
+          document.getElementById("modalCover").src = pro.cover;
+          document.getElementById("modalAvatar").src = pro.avatar;
+          document.getElementById("modalName").innerText = pro.name;
+          document.getElementById("modalRating").innerText = pro.rating;
+          document.getElementById("modalReviews").innerText = pro.reviews;
+          document.getElementById("modalDesc").innerText = pro.desc;
+          document.getElementById("modalAddress").innerText = pro.address;
+
+          document.getElementById("profileModal").style.display = "flex";
         }
+      }
 
-        function closeModal() {
-            document.getElementById('profileModal').style.display = 'none';
-        }
+      function closeModal() {
+        document.getElementById("profileModal").style.display = "none";
+      }
+ 
+      // Cross-Communication: Triggers the Gatekeeper login in index.html
+      function triggerParentLogin() {
+        window.parent.postMessage("OPEN_PRO_LOGIN", "*");
+      }
 
-        // Cross-Communication: Triggers the Gatekeeper login in index.html
-        function triggerParentLogin() {
-            window.parent.postMessage("OPEN_PRO_LOGIN", "*");
-        }
+      // Initialize Feed
+      // Initialize and ensure Search is ready
+      document.addEventListener("DOMContentLoaded", async () => {
+          await renderFeed();
+      });
 
-        // Initialize Feed
-        document.addEventListener("DOMContentLoaded", renderFeed);
+      function getAddBusinessCard(category) {
+        return `
+                <div class="pro-card" onclick="triggerParentLogin()" style="border: 2px dashed #cbd5e1; 
+                background: #f1f5f9; display: flex; align-items: center; justify-content: center; text-align: center;">
+                    <div style="padding: 20px; color: #64748b; font-weight: 700;">
+                        + Add Your Business to ${category}
+                    </div>
+                </div>
+            `;
+      }
 
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function (e) {
+          const query = e.target.value.toLowerCase();
+          const rows = document.querySelectorAll(".category-row");
+
+          rows.forEach((row) => {
+            const categoryName = row
+              .querySelector(".category-title")
+              .innerText.toLowerCase();
+            const pros = row.querySelectorAll(".pro-name");
+            let found = categoryName.includes(query);
+
+            pros.forEach((pro) => {
+              if (pro.innerText.toLowerCase().includes(query)) found = true;
+            });
+
+            row.style.display = found ? "block" : "none";
+          });
+        });
     </script>
-</body>
+  </body>
 </html>
