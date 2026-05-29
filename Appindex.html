@@ -17,11 +17,11 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="theme-color" content="#EE611C" />
+    <meta name="theme-color" content="#EE611C" /> 
     <script>
       (function () {
-        const minWidth = 450;
-        if (window.screen.width < minWidth) {
+        const minWidth = 450; 
+        if (window.screen.width < minWidth) { 
           const scale = window.screen.width / minWidth;
           const meta = document.createElement("meta");
           meta.name = "viewport";
@@ -29,7 +29,7 @@
           document.head.appendChild(meta);
         } else {
           const meta = document.createElement("meta");
-          meta.name = "viewport";
+          meta.name = "viewport"; 
           meta.content =
             "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
           document.head.appendChild(meta);
@@ -650,30 +650,40 @@
       #proTopBar.open .pro-top-arrow {
         transform: rotate(180deg);
       }
+      
+      
+      
+      
+      
 
-      /* --- PULL-DOWN SHADE STYLES --- */
+            /* --- PULL-DOWN SHADE STYLES --- */
       #proTopBoard {
         position: absolute;
-        /* Hides the board in the ceiling, leaving 105px showing (65px for logo header + 40px for orange handle) */
-        top: calc(-100% + 105px);
+        /* Drops from the ceiling, resting the 45px handle perfectly at the top */
+        top: calc(-100% + 155px); 
         left: 0;
         width: 100%;
-        height: calc(100% - 65px); /* Fits perfectly under the logo header */
+        /* Adjusted to fit the screen perfectly when dropped to 110px */
+        height: calc(100% - 110px); 
         background: var(--bg);
         z-index: 1000;
         transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         box-sizing: border-box;
       }
       #proTopBoard.open {
-        top: 65px; /* Drops down perfectly flush beneath the logo header */
+        /* Drops down exactly 110px (45px margin + 65px header) to clear the hidden header */
+        top: 110px; 
       }
+
+      
+      
 
       #proTopBar {
         position: absolute;
         bottom: 0; /* Anchored to the BOTTOM of the sliding board */
         left: 0;
         width: 100%;
-        height: 45px;
+        height: 40px;
         background: var(--accent);
         color: white;
         display: flex;
@@ -698,7 +708,7 @@
       /* Adjust main Hub iframe so it sits beneath the handle when closed */
       #hubIframe {
         width: 100%;
-        height: calc(100% - 40px);
+        height: calc(100% - 40px); 
         margin-top: 45px;
         border: none;
         display: block;
