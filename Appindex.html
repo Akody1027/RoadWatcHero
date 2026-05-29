@@ -1,18 +1,13 @@
-
-
-
-
- 
-<html lang="en"> 
+<html lang="en">
   <head>
-    <meta charset="UTF-8" /> 
+    <meta charset="UTF-8" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>ROADWATCHERO</title>
     <link rel="manifest" href="/manifest.json" />
     <link
-      rel="apple-touch-icon" 
+      rel="apple-touch-icon"
       href="https://www.roadwatchero.com/icon-192x192.png"
     />
     <link rel="icon" href="/roadwatch.ico" type="image/x-icon" />
@@ -22,8 +17,8 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="theme-color" content="#EE611C" />  
-    <script> 
+    <meta name="theme-color" content="#EE611C" />
+    <script>
       (function () {
         const minWidth = 450;
         if (window.screen.width < minWidth) {
@@ -50,7 +45,7 @@
         --muted: #64748b;
       }
 
- body,
+      body,
       html {
         margin: 0;
         padding: 0;
@@ -304,7 +299,7 @@
         left: 0; /* Slides into the space left by the sidebar */
       }
 
-#appFrame {
+      #appFrame {
         width: calc(100vw - 50px);
         height: 100%;
         height: -webkit-fill-available;
@@ -643,15 +638,11 @@
         font-size: 14px;
         text-transform: uppercase;
       }
-      
-      
 
-              
-      
       /* --- TOP PRO PROFILE BAR (INSIDE HUB DRAWER) --- */
- 
+
       .pro-top-arrow {
-        rotate:90deg; 
+        rotate: 90deg;
         margin-left: 45px;
         font-size: 50px;
         transition: transform 0.4s ease;
@@ -659,14 +650,12 @@
       #proTopBar.open .pro-top-arrow {
         transform: rotate(180deg);
       }
-      
-      
-      
+
       /* --- PULL-DOWN SHADE STYLES --- */
       #proTopBoard {
         position: absolute;
         /* Hides the board in the ceiling, leaving 105px showing (65px for logo header + 40px for orange handle) */
-        top: calc(-100% + 105px); 
+        top: calc(-100% + 105px);
         left: 0;
         width: 100%;
         height: calc(100% - 65px); /* Fits perfectly under the logo header */
@@ -678,11 +667,11 @@
       #proTopBoard.open {
         top: 65px; /* Drops down perfectly flush beneath the logo header */
       }
-      
+
       #proTopBar {
-        position: absolute; 
+        position: absolute;
         bottom: 0; /* Anchored to the BOTTOM of the sliding board */
-        left: 0; 
+        left: 0;
         width: 100%;
         height: 45px;
         background: var(--accent);
@@ -696,30 +685,27 @@
         cursor: pointer;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
       }
-      
 
- 
-      
       #profileIframe {
         width: 100%;
-        height: calc(100% - 40px); /* Leaves space for the orange handle at the bottom */
+        height: calc(
+          100% - 40px
+        ); /* Leaves space for the orange handle at the bottom */
         border: none;
         display: block;
       }
-      
+
       /* Adjust main Hub iframe so it sits beneath the handle when closed */
       #hubIframe {
         width: 100%;
-        height: calc(100% - 40px); 
+        height: calc(100% - 40px);
         margin-top: 45px;
         border: none;
         display: block;
         position: relative;
       }
-      
-      
-      
-            /* --- CREATOR TOGGLE & PROFILE PREVIEW STYLES --- */
+
+      /* --- CREATOR TOGGLE & PROFILE PREVIEW STYLES --- */
       .creator-toggle-container {
         display: flex;
         background: #f1f5f9;
@@ -742,7 +728,7 @@
       .creator-tab.active {
         background: white;
         color: var(--accent);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
       }
 
       .pro-card-preview {
@@ -757,7 +743,9 @@
       }
       .pro-card-overlay-preview {
         position: absolute;
-        bottom: 0; left: 0; right: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
         background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
         padding: 15px;
         display: flex;
@@ -766,266 +754,466 @@
         text-align: left;
       }
       .pro-avatar-preview {
-        width: 45px; height: 45px;
+        width: 45px;
+        height: 45px;
         border-radius: 50%;
         border: 2px solid var(--accent);
         object-fit: cover;
         background: #fff;
       }
-      .pro-info-preview { color: white; }
-      .pro-name-preview { font-size: 15px; font-weight: 800; margin-bottom: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-      .pro-rating-preview { font-size: 12px; font-weight: 600; color: #fde047; }
+      .pro-info-preview {
+        color: white;
+      }
+      .pro-name-preview {
+        font-size: 15px;
+        font-weight: 800;
+        margin-bottom: 2px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
+      .pro-rating-preview {
+        font-size: 12px;
+        font-weight: 600;
+        color: #fde047;
+      }
 
-
-      
-      
-      
-      
-      
-      
+      .preview-modal-content {
+        width: 100%;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #e2e8f0;
+        text-align: left;
+      }
+      .preview-modal-header-img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        background: #e2e8f0;
+        background-size: cover;
+        background-position: center;
+      }
+      .preview-modal-identity {
+        display: flex;
+        gap: 15px;
+        padding: 0 15px;
+        transform: translateY(-25px);
+        margin-bottom: -15px;
+      }
+      .preview-modal-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 4px solid #ffffff;
+        object-fit: cover;
+        background: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      .preview-modal-title-block {
+        padding-top: 25px;
+      }
+      .preview-modal-name {
+        font-size: 16px;
+        font-weight: 900;
+        color: var(--text);
+      }
+      .preview-modal-section {
+        padding: 15px;
+        border-bottom: 1px solid #f1f5f9;
+      }
+      .preview-modal-section h3 {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+      }
+      .preview-modal-text {
+        font-size: 12px;
+        line-height: 1.5;
+        font-weight: 500;
+        color: var(--text);
+        word-wrap: break-word;
+      }
+      .preview-action-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 15px;
+        background: #f8fafc;
+      }
+      .preview-btn {
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 800;
+        font-size: 12px;
+        text-align: center;
+        border: none;
+        color: white;
+        text-transform: uppercase;
+      }
+      .preview-btn-call {
+        background: #1e293b;
+      }
+      .preview-btn-book {
+        background: var(--accent);
+      }
     </style>
   </head>
 
-    <iframe src="home.html" id="appFrame"></iframe>
+  <iframe src="home.html" id="appFrame"></iframe>
 
+  <div id="heroHubSidebar">
+    <div class="hub-user-icon" id="sidebarUserIcon">
+      <div class="hub-badge" id="hubBadgeCounter">0</div>
+    </div>
+    <div class="hub-vertical-title">HERO ADVERTISING HUB</div>
+    <button id="hubToggleBtn">❯</button>
+  </div>
 
-    <div id="heroHubSidebar">
-        
-      
-      <div class="hub-user-icon" id="sidebarUserIcon">
-        <div class="hub-badge" id="hubBadgeCounter">0</div>
+  <div id="hubOverlay"></div>
+
+  <div id="heroHubBoard">
+    <div id="proTopBoard">
+      <iframe src="profile.html" id="profileIframe"></iframe>
+      <div id="proTopBar">
+        HERO DIRECT <span class="pro-top-arrow" id="proTopArrow">❯</span>
       </div>
-      <div class="hub-vertical-title">HERO ADVERTISING HUB</div>
-      <button id="hubToggleBtn">❯</button>
     </div>
 
-    <div id="hubOverlay"></div>
+    <iframe src="hub.html" id="hubIframe"></iframe>
+  </div>
 
-    <div id="heroHubBoard"> 
-      
+  <div id="proShellModal" class="shell-modal">
+    <div class="shell-modal-content">
+      <button
+        class="shell-close-btn"
+        onclick="document.getElementById('proShellModal').style.display='none'"
+      >
+        ✕
+      </button>
 
-      <div id="proTopBoard">
-        <iframe src="profile.html" id="profileIframe"></iframe>
-        <div id="proTopBar">
-        HERO DIRECT  <span class="pro-top-arrow" id="proTopArrow">❯</span>
-        </div>
-      </div>
+      <div id="shellLoginSection">
+        <h2 style="margin-top: 0; font-weight: 900">Pro Hero Login</h2>
+        <p style="color: var(--muted); font-size: 14px; margin-bottom: 25px">
+          Access your marketing dashboard & fleet dispatch tools.
+        </p>
+        <input
+          type="email"
+          id="shellLoginEmail"
+          placeholder="Email Address"
+          class="shell-input"
+        />
+        <input
+          type="password"
+          id="shellLoginPassword"
+          placeholder="Password"
+          class="shell-input"
+        />
+        <button id="shellLoginBtn" class="shell-submit-btn">LOGIN</button>
 
-      <iframe src="hub.html" id="hubIframe"></iframe>
-
-    </div>
-
-    <div id="proShellModal" class="shell-modal">
-      <div class="shell-modal-content">
-        <button
-          class="shell-close-btn"
-          onclick="document.getElementById('proShellModal').style.display='none'"
+        <div
+          style="
+            background: #fff9f6;
+            border: 2px solid var(--accent);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+          "
         >
-          ✕ 
-        </button>
-
-        <div id="shellLoginSection">
-          <h2 style="margin-top: 0; font-weight: 900">Pro Hero Login</h2>
-          <p style="color: var(--muted); font-size: 14px; margin-bottom: 25px">
-            Access your marketing dashboard & fleet dispatch tools.
-          </p>
-          <input
-            type="email"
-            id="shellLoginEmail"
-            placeholder="Email Address"
-            class="shell-input"
-          />
-          <input
-            type="password"
-            id="shellLoginPassword"
-            placeholder="Password"
-            class="shell-input"
-          />
-          <button id="shellLoginBtn" class="shell-submit-btn">LOGIN</button>
-
-          <div
-            style="
-              background: #fff9f6;
-              border: 2px solid var(--accent);
-              border-radius: 16px;
-              padding: 20px;
-              margin-top: 20px;
-            "
+          <p style="margin: 0 0 10px 0; font-size: 24px"></p>
+          <a
+            href="pro-hero.html"
+            class="shell-upsell-link"
+            style="margin: 0; line-height: 1.4"
+            >Advertise with RoadWatcHero<br />Sign up now!</a
           >
-            <p style="margin: 0 0 10px 0; font-size: 24px"></p>
-            <a
-              href="pro-hero.html"
-              class="shell-upsell-link"
-              style="margin: 0; line-height: 1.4"
-              >Advertise with RoadWatcHero<br />Sign up now!</a
-            >
-          </div>
         </div>
-
-        <div style="text-align: left" id="dashboardFormsContainer">
-          <div
-            style="
-              width: 100%;
-              text-align: center;
-              color: var(--accent);
-              font-size: 20px;
-              font-weight: 800;
-              margin-bottom: 10%;
-            "
-            <label
-            style="font-size: 20px; font-weight: 800; font: var(--accent)"
-          >
-            BUSINESS IDENTITY
-          </div>
-
-          <div class="logo-uploader-wrapper">
-            <label
-              for="shellBizLogo"
-              class="logo-circle"
-              id="logoCirclePreview"
-            >
-              <div class="logo-plus-badge">+</div>
-            </label>
-            
-            
-            <input
-              type="file"
-              id="shellBizLogo"
-              accept="image/jpeg, image/png, image/webp"
-              class="logo-hidden-input"
-            />
-
-          </div>
-
-          <input
-            type="text"
-            id="shellBizName"
-            placeholder="Business Name"
-            class="shell-input"
-          />
-          <input
-            type="text"
-            id="shellBizAddress"
-            placeholder="Business Address (City, State, Zip)"
-            class="shell-input"
-          />
-          <input
-            type="tel"
-            id="shellBizPhone"
-            placeholder="Dispatch Phone Number (For 'Call Now')"
-            class="shell-input"
-          />
-
-          <button
-            id="shellSaveProfileBtn"
-            type="button"
-            class="shell-submit-btn"
-            style="margin-top: 5px; margin-bottom: 5px"
-          >
-            SAVE
-          </button>
-          <p
-            id="profileSaveMsg"
-            style="
-              color: #10b981;
-              font-size: 12px;
-              font-weight: 800;
-              display: none;
-              text-align: center;
-              margin-top: 0;
-            "
-          >
-            ✓ Profile Saved Successfully!
-          </p>
-
-          <hr class="shell-divider" />
-        
-        
-        <div id="proStatusSection" style="display:none; background: #fffdf0; border: 1px solid #fde68a; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-        <div style="color: #b45309; font-weight: 800; font-size: 1.1em;">👑 Pro Status Active</div>
-        <div id="memberSinceText" style="font-size: 0.85em; color: #92400e; margin-bottom: 15px;"></div>
-        
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <div style="flex:1; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
-                <div style="font-size: 0.7em; color: #666;">AD CLICKS</div>
-                <div id="statPostClicks" style="font-weight: 700; font-size: 1.2em;">0</div>
-            </div>
-            <div style="flex:1; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee;">
-                <div style="font-size: 0.7em; color: #666;">CALLS</div>
-                <div id="statCallClicks" style="font-weight: 700; font-size: 1.2em;">0</div>
-            </div>
-        </div>
-        <button onclick="window.location.href='pro-hero.html'" style="width: 100%; padding: 10px; background: #ee611c; color: white; border: none; border-radius: 6px; font-weight: 600;">MANAGE SUBSCRIPTION</button>
-        <button onclick="window.confirm('Delete account? This cannot be undone.') && window.deleteMyAccount()" style="width: 100%; padding: 10px; background: transparent; color: #ef4444; border: none; margin-top: 10px; font-size: 0.8em;">Delete Account</button>
       </div>
-        
-        
-        
-        
-        
-           <hr class="shell-divider" />
 
-        
+      <div style="text-align: left" id="dashboardFormsContainer">
+        <div
+          style="
+            width: 100%;
+            text-align: center;
+            color: var(--accent);
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 10%;
+          "
+          <label
+          style="font-size: 20px; font-weight: 800; font: var(--accent)"
+        >
+          BUSINESS IDENTITY
+        </div>
 
-                  <div class="creator-toggle-container">
-            <button id="tabAdBtn" class="creator-tab active" onclick="window.switchCreatorTab('ad')">CREATE AD</button>
-            <button id="tabProfileBtn" class="creator-tab" onclick="window.switchCreatorTab('profile')">CREATE PROFILE</button>
+        <div class="logo-uploader-wrapper">
+          <label for="shellBizLogo" class="logo-circle" id="logoCirclePreview">
+            <div class="logo-plus-badge">+</div>
+          </label>
+
+          <input
+            type="file"
+            id="shellBizLogo"
+            accept="image/jpeg, image/png, image/webp"
+            class="logo-hidden-input"
+          />
+        </div>
+
+        <input
+          type="text"
+          id="shellBizName"
+          placeholder="Business Name"
+          class="shell-input"
+        />
+        <input
+          type="text"
+          id="shellBizAddress"
+          placeholder="Business Address (City, State, Zip)"
+          class="shell-input"
+        />
+        <input
+          type="tel"
+          id="shellBizPhone"
+          placeholder="Dispatch Phone Number (For 'Call Now')"
+          class="shell-input"
+        />
+
+        <button
+          id="shellSaveProfileBtn"
+          type="button"
+          class="shell-submit-btn"
+          style="margin-top: 5px; margin-bottom: 5px"
+        >
+          SAVE
+        </button>
+        <p
+          id="profileSaveMsg"
+          style="
+            color: #10b981;
+            font-size: 12px;
+            font-weight: 800;
+            display: none;
+            text-align: center;
+            margin-top: 0;
+          "
+        >
+          ✓ Profile Saved Successfully!
+        </p>
+
+        <hr class="shell-divider" />
+
+        <div
+          id="proStatusSection"
+          style="
+            display: none;
+            background: #fffdf0;
+            border: 1px solid #fde68a;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+          "
+        >
+          <div style="color: #b45309; font-weight: 800; font-size: 1.1em">
+            👑 Pro Status Active
           </div>
+          <div
+            id="memberSinceText"
+            style="font-size: 0.85em; color: #92400e; margin-bottom: 15px"
+          ></div>
 
-          <div id="profileCreatorSection" style="display: none;">
-            <div class="promo-uploader-wrapper">
-              <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 8px;">Cover Image (Required):</label>
-              <label for="shellCoverImage" class="promo-rectangle" id="coverRectPreview">
-                <span>+ UPLOAD COVER IMAGE</span>
-              </label>
-               <input type="file" id="shellCoverImage" accept="image/jpeg, image/png, image/webp" class="promo-hidden-input" />
-            </div>
-
-            <select id="shellProfileCategory" class="shell-input">
-              <option value="Towing">Towing</option>
-              <option value="Mechanic">Mechanic</option>
-              <option value="Detailing">Detailing</option>
-              <option value="Tires">Tires</option>
-              <option value="Locksmith">Locksmith</option>
-              <option value="Tint">Tint</option>
-              <option value="Glass">Glass</option>
-              <option value="Battery">Battery</option>
-              <option value="Wraps">Wraps</option>
-              <option value="Bodywork">Bodywork</option>
-              <option value="Audio">Audio</option>
-              <option value="Upholstery">Upholstery</option>
-              <option value="Alignment">Alignment</option>
-              <option value="Oil">Oil</option>
-              <option value="Transmission">Transmission</option>
-            </select>
-
-            <textarea id="shellProfileBio" placeholder="About the Pro (e.g. Family owned since 1995...)" class="shell-input" rows="4"></textarea>
-
-            <div class="preview-wrapper" id="liveProfilePreviewBox">
-              <div class="preview-label">PROFILE DIRECTORY PREVIEW</div>
-              <div class="pro-card-preview" id="proCardPreviewFrame">
-                  <div class="pro-card-overlay-preview">
-                      <img src="https://via.placeholder.com/45" class="pro-avatar-preview" id="previewProfileAvatar">
-                      <div class="pro-info-preview">
-                          <div class="pro-name-preview" id="previewProfileName">Business Name</div>
-                          <div class="pro-rating-preview">★ 5.0 (0)</div>
-                      </div>
-                  </div>
+          <div style="display: flex; gap: 10px; margin-bottom: 15px">
+            <div
+              style="
+                flex: 1;
+                background: #fff;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #eee;
+              "
+            >
+              <div style="font-size: 0.7em; color: #666">AD CLICKS</div>
+              <div
+                id="statPostClicks"
+                style="font-weight: 700; font-size: 1.2em"
+              >
+                0
               </div>
             </div>
+            <div
+              style="
+                flex: 1;
+                background: #fff;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid #eee;
+              "
+            >
+              <div style="font-size: 0.7em; color: #666">CALLS</div>
+              <div
+                id="statCallClicks"
+                style="font-weight: 700; font-size: 1.2em"
+              >
+                0
+              </div>
+            </div>
+          </div>
+          <button
+            onclick="window.location.href='pro-hero.html'"
+            style="
+              width: 100%;
+              padding: 10px;
+              background: #ee611c;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              font-weight: 600;
+            "
+          >
+            MANAGE SUBSCRIPTION
+          </button>
+          <button
+            onclick="window.confirm('Delete account? This cannot be undone.') && window.deleteMyAccount()"
+            style="
+              width: 100%;
+              padding: 10px;
+              background: transparent;
+              color: #ef4444;
+              border: none;
+              margin-top: 10px;
+              font-size: 0.8em;
+            "
+          >
+            Delete Account
+          </button>
+        </div>
 
-            <button id="shellPublishProfileBtn" class="shell-submit-btn" style="background: var(--accent);">
-              PUBLISH PROFILE
-            </button>
+        <hr class="shell-divider" />
+
+        <div class="creator-toggle-container">
+          <button
+            id="tabAdBtn"
+            class="creator-tab active"
+            onclick="window.switchCreatorTab('ad')"
+          >
+            CREATE AD
+          </button>
+          <button
+            id="tabProfileBtn"
+            class="creator-tab"
+            onclick="window.switchCreatorTab('profile')"
+          >
+            CREATE PROFILE
+          </button>
+        </div>
+
+        <div id="profileCreatorSection" style="display: none">
+          <div class="promo-uploader-wrapper">
+            <label
+              style="
+                font-size: 12px;
+                font-weight: 600;
+                display: block;
+                margin-bottom: 8px;
+              "
+              >Cover Image (Required):</label
+            >
+            <label
+              for="shellCoverImage"
+              class="promo-rectangle"
+              id="coverRectPreview"
+            >
+              <span>+ UPLOAD COVER IMAGE</span>
+            </label>
+            <input
+              type="file"
+              id="shellCoverImage"
+              accept="image/jpeg, image/png, image/webp"
+              class="promo-hidden-input"
+            />
           </div>
 
-          <div id="adCreatorSection">
+          <select id="shellProfileCategory" class="shell-input">
+            <option value="Towing">Towing</option>
+            <option value="Mechanic">Mechanic</option>
+            <option value="Detailing">Detailing</option>
+            <option value="Tires">Tires</option>
+            <option value="Locksmith">Locksmith</option>
+            <option value="Tint">Tint</option>
+            <option value="Glass">Glass</option>
+            <option value="Battery">Battery</option>
+            <option value="Wraps">Wraps</option>
+            <option value="Bodywork">Bodywork</option>
+            <option value="Audio">Audio</option>
+            <option value="Upholstery">Upholstery</option>
+            <option value="Alignment">Alignment</option>
+            <option value="Oil">Oil</option>
+            <option value="Transmission">Transmission</option>
+          </select>
 
-        
-        
-        
-        
+          <textarea
+            id="shellProfileBio"
+            placeholder="About the Pro (e.g. Family owned since 1995...)"
+            class="shell-input"
+            rows="4"
+          ></textarea>
 
+          <div class="preview-wrapper" id="liveProfilePreviewBox">
+            <div class="preview-label">PROFILE DIRECTORY PREVIEW</div>
+
+            <div class="preview-modal-content">
+              <div
+                id="previewModalHeaderImg"
+                class="preview-modal-header-img"
+              ></div>
+              <div class="preview-modal-identity">
+                <img
+                  id="previewProfileAvatar"
+                  src="https://via.placeholder.com/60"
+                  class="preview-modal-avatar"
+                />
+                <div class="preview-modal-title-block">
+                  <div class="preview-modal-name" id="previewProfileName">
+                    Business Name
+                  </div>
+                  <div class="pro-rating-preview">★ 5.0 (0 Reviews)</div>
+                </div>
+              </div>
+              <div class="preview-modal-section">
+                <h3>About the Pro</h3>
+                <div class="preview-modal-text" id="previewProfileBio">
+                  Your description will appear here...
+                </div>
+              </div>
+              <div class="preview-modal-section">
+                <h3>Business Info</h3>
+                <div class="preview-modal-text">
+                  <strong>Address:</strong>
+                  <span id="previewProfileAddress">...</span>
+                </div>
+                <div class="preview-modal-text" style="margin-top: 8px">
+                  <strong>Status:</strong>
+                  <span style="color: #10b981">Available Now</span>
+                </div>
+              </div>
+              <div class="preview-action-grid">
+                <div class="preview-btn preview-btn-call">Call Now</div>
+                <div class="preview-btn preview-btn-book">Book Service</div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            id="shellPublishProfileBtn"
+            class="shell-submit-btn"
+            style="background: var(--accent)"
+          >
+            PUBLISH PROFILE
+          </button>
+        </div>
+
+        <div id="adCreatorSection">
           <div class="promo-uploader-wrapper">
             <label
               style="
@@ -1044,7 +1232,7 @@
             >
               <span>+ TAP TO UPLOAD PROMO IMAGE</span>
             </label>
-             <input
+            <input
               type="file"
               id="shellPromoImage"
               accept="image/jpeg, image/png, image/webp"
@@ -1152,16 +1340,8 @@
           >
             PUBLISH TO HUB
           </button>
+        </div>
 
-            
-            
-            
-       </div>
-
-            
-            
-            
-            
         <hr class="shell-divider" />
 
         <label style="font-size: 20px; font-weight: 800; color: var(--accent)"
@@ -1180,210 +1360,190 @@
           </p>
         </div>
 
-         <button
+        <button
           onclick="window.shellSignOut()"
           class="shell-submit-btn"
-          style="background: transparent; color: #ef4444; border: 2px solid #ef4444; margin-top: 40px; box-shadow: none;"
+          style="
+            background: transparent;
+            color: #ef4444;
+            border: 2px solid #ef4444;
+            margin-top: 40px;
+            box-shadow: none;
+          "
         >
           SIGN OUT
         </button>
-
-          
-        </div>
+      </div>
     </div>
-</div>
+  </div>
 
-   <script>
-      function adjustViewport() {
-        const width = window.screen.width;
-        let scale = 1.0;
+  <script>
+    function adjustViewport() {
+      const width = window.screen.width;
+      let scale = 1.0;
 
-        if (width < 450) {
-          scale = width / 450; 
-        }
-
-        const viewport = document.querySelector('meta[name="viewport"]');
-        if (viewport) {
-          viewport.setAttribute(
-            "content",
-            `width=device-width, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`
-          );
-        }
+      if (width < 450) {
+        scale = width / 450;
       }
 
-      adjustViewport();
-      window.addEventListener("resize", adjustViewport);
-
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () =>
-          navigator.serviceWorker.register("/service-worker.js")
+      const viewport = document.querySelector('meta[name="viewport"]');
+      if (viewport) {
+        viewport.setAttribute(
+          "content",
+          `width=device-width, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`
         );
       }
+    }
 
-      const hubBoard = document.getElementById("heroHubBoard");
-      const hubToggle = document.getElementById("hubToggleBtn");
-      const hubOverlay = document.getElementById("hubOverlay");
-           // References for Top Profile Board
-      const topBar = document.getElementById("proTopBar");
-      const topBoard = document.getElementById("proTopBoard");
+    adjustViewport();
+    window.addEventListener("resize", adjustViewport);
 
-     
-     
-     
-     
-     
-    
-     
-           function toggleHeroHub(e) {
-        if (e) e.stopPropagation();
-        const sidebar = document.getElementById("heroHubSidebar");
-        if (!hubBoard || !sidebar) return; // Failsafe
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () =>
+        navigator.serviceWorker.register("/service-worker.js")
+      );
+    }
 
-        const isOpening = !hubBoard.classList.contains("open");
+    const hubBoard = document.getElementById("heroHubBoard");
+    const hubToggle = document.getElementById("hubToggleBtn");
+    const hubOverlay = document.getElementById("hubOverlay");
+    // References for Top Profile Board
+    const topBar = document.getElementById("proTopBar");
+    const topBoard = document.getElementById("proTopBoard");
 
-        if (isOpening) {
-          hubBoard.classList.add("open");
-          sidebar.classList.add("open");
-          if (hubToggle) hubToggle.style.transform = "rotate(180deg)";
-          if (hubOverlay) hubOverlay.style.display = "block";
+    function toggleHeroHub(e) {
+      if (e) e.stopPropagation();
+      const sidebar = document.getElementById("heroHubSidebar");
+      if (!hubBoard || !sidebar) return; // Failsafe
 
-          const iframe = document.getElementById("hubIframe");
-          if (iframe && (!iframe.src || iframe.src.includes("about:blank"))) {
-            iframe.src = "hub.html";
-          }
-        } else {
-          // Only close everything if we are actively shutting the main hub
-          closeAllPanels(); 
+      const isOpening = !hubBoard.classList.contains("open");
+
+      if (isOpening) {
+        hubBoard.classList.add("open");
+        sidebar.classList.add("open");
+        if (hubToggle) hubToggle.style.transform = "rotate(180deg)";
+        if (hubOverlay) hubOverlay.style.display = "block";
+
+        const iframe = document.getElementById("hubIframe");
+        if (iframe && (!iframe.src || iframe.src.includes("about:blank"))) {
+          iframe.src = "hub.html";
         }
+      } else {
+        // Only close everything if we are actively shutting the main hub
+        closeAllPanels();
       }
+    }
 
-      function toggleTopProfile(e) {
-        if (e) e.stopPropagation(); 
-        if (!topBoard || !topBar) return; 
+    function toggleTopProfile(e) {
+      if (e) e.stopPropagation();
+      if (!topBoard || !topBar) return;
 
-        const isOpening = !topBoard.classList.contains("open");
+      const isOpening = !topBoard.classList.contains("open");
 
-        if (isOpening) {
-          topBoard.classList.add("open");
-          topBar.classList.add("open");
+      if (isOpening) {
+        topBoard.classList.add("open");
+        topBar.classList.add("open");
 
-          const iframe = document.getElementById("profileIframe");
-          if (iframe && (!iframe.src || iframe.src.includes("about:blank"))) {
-            iframe.src = "profile.html"; 
-          }
-        } else {
-          // ONLY close the dropdown menu, do NOT close the main hub
-          topBoard.classList.remove("open");
-          topBar.classList.remove("open");
+        const iframe = document.getElementById("profileIframe");
+        if (iframe && (!iframe.src || iframe.src.includes("about:blank"))) {
+          iframe.src = "profile.html";
         }
+      } else {
+        // ONLY close the dropdown menu, do NOT close the main hub
+        topBoard.classList.remove("open");
+        topBar.classList.remove("open");
       }
+    }
 
-      function closeAllPanels() {
-        const sidebar = document.getElementById("heroHubSidebar");
-        if (hubBoard) hubBoard.classList.remove("open");
-        if (sidebar) sidebar.classList.remove("open");
-        if (hubToggle) hubToggle.style.transform = "rotate(0deg)";
-        
-        if (topBoard) topBoard.classList.remove("open");
-        if (topBar) topBar.classList.remove("open");
-        
-        if (hubOverlay) hubOverlay.style.display = "none";
+    function closeAllPanels() {
+      const sidebar = document.getElementById("heroHubSidebar");
+      if (hubBoard) hubBoard.classList.remove("open");
+      if (sidebar) sidebar.classList.remove("open");
+      if (hubToggle) hubToggle.style.transform = "rotate(0deg)";
+
+      if (topBoard) topBoard.classList.remove("open");
+      if (topBar) topBar.classList.remove("open");
+
+      if (hubOverlay) hubOverlay.style.display = "none";
+    }
+
+    // Bind Event Listeners safely
+    if (hubToggle) hubToggle.addEventListener("click", toggleHeroHub);
+    if (topBar) topBar.addEventListener("click", toggleTopProfile);
+    if (hubOverlay) hubOverlay.addEventListener("click", closeAllPanels);
+
+    // Listen for cross-iframe messages to trigger the Gatekeeper Modal
+    window.addEventListener("message", (event) => {
+      if (event.data === "OPEN_PRO_LOGIN") {
+        closeAllPanels();
+        const modal = document.getElementById("proShellModal");
+        if (modal) modal.style.display = "flex";
       }
+    });
 
-      // Bind Event Listeners safely
-      if (hubToggle) hubToggle.addEventListener("click", toggleHeroHub);
-      if (topBar) topBar.addEventListener("click", toggleTopProfile);
-      if (hubOverlay) hubOverlay.addEventListener("click", closeAllPanels);
-
-      // Listen for cross-iframe messages to trigger the Gatekeeper Modal
-      window.addEventListener("message", (event) => {
-        if (event.data === "OPEN_PRO_LOGIN") {
-          closeAllPanels();
-          const modal = document.getElementById("proShellModal");
-          if (modal) modal.style.display = "flex";
-        }
-      });
-
-     
-     
-     
-     
-     
-     
-     
-      function updateHubBadge(count) {
-        const badge = document.getElementById("hubBadgeCounter");
-        if (badge) {
-          badge.innerText = count;
-          badge.style.display = count > 0 ? "block" : "none";
-        }
+    function updateHubBadge(count) {
+      const badge = document.getElementById("hubBadgeCounter");
+      if (badge) {
+        badge.innerText = count;
+        badge.style.display = count > 0 ? "block" : "none";
       }
-    </script>
+    }
+  </script>
 
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-      import {
-        getAuth,
-        signInWithEmailAndPassword,
-        onAuthStateChanged,
-        signOut,
-      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-      import {
-        getDatabase,
-        ref,
-        onValue,
-        push,
-        update,
-        remove,
-      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut,
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      onValue,
+      push,
+      update,
+      remove,
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-      import {
-        getStorage,
-        ref as storageRef,
-        uploadBytes,
-        getDownloadURL,
-        deleteObject,
-      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
-      
-      
-      
-      import { 
-        getFirestore, 
-        doc, 
-        setDoc 
-      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import {
+      getStorage,
+      ref as storageRef,
+      uploadBytes,
+      getDownloadURL,
+      deleteObject,
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
 
-      
-      
-      
-      
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-      // Your exact project credentials
-      const firebaseConfig = {
-        apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
-        authDomain: "roadsidehero-104ea.firebaseapp.com",
-        databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
-        projectId: "roadsidehero-104ea",
-        storageBucket: "roadsidehero-104ea.firebasestorage.app",
-      };
+    // Your exact project credentials
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
+      authDomain: "roadsidehero-104ea.firebaseapp.com",
+      databaseURL: "https://roadsidehero-104ea-default-rtdb.firebaseio.com",
+      projectId: "roadsidehero-104ea",
+      storageBucket: "roadsidehero-104ea.firebasestorage.app",
+    };
 
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-      
-      const firestore = getFirestore(app);
+    const firestore = getFirestore(app);
 
-      
-      
-      const storage = getStorage(app);
-      let allPostsData = {}; // Cache to hold post data for editing
+    const storage = getStorage(app);
+    let allPostsData = {}; // Cache to hold post data for editing
 
-      const socialContainer = document.getElementById("socialLinksContainer");
-      window.createSocialRow = (platform = "Website", url = "") => {
-        const row = document.createElement("div");
-        row.className = "social-row";
-        row.innerHTML = `
+    const socialContainer = document.getElementById("socialLinksContainer");
+    window.createSocialRow = (platform = "Website", url = "") => {
+      const row = document.createElement("div");
+      row.className = "social-row";
+      row.innerHTML = `
           <select>
             <option value="Website" ${
               platform === "Website" ? "selected" : ""
@@ -1405,193 +1565,197 @@
           <input type="url" placeholder="Paste URL" value="${url}">
           <button type="button" onclick="this.parentElement.remove()">✕</button>
         `;
-        socialContainer.appendChild(row);
-      };
-      document
-        .getElementById("addSocialBtn")
-        .addEventListener("click", () => window.createSocialRow());
+      socialContainer.appendChild(row);
+    };
+    document
+      .getElementById("addSocialBtn")
+      .addEventListener("click", () => window.createSocialRow());
 
-      function getSocialLinks() {
-        const links = [];
-        socialContainer.querySelectorAll(".social-row").forEach((row) => {
-          const platform = row.querySelector("select").value;
-          const url = row.querySelector("input").value.trim();
-          if (url) links.push({ platform, url });
-        });
-        return links;
+    function getSocialLinks() {
+      const links = [];
+      socialContainer.querySelectorAll(".social-row").forEach((row) => {
+        const platform = row.querySelector("select").value;
+        const url = row.querySelector("input").value.trim();
+        if (url) links.push({ platform, url });
+      });
+      return links;
+    }
+
+    let currentUserId = null;
+
+    // --- LIVE PREVIEW & UPLOADER UI LOGIC ---
+    const updatePreview = () => {
+      document.getElementById("previewName").innerText =
+        document.getElementById("shellBizName").value || "Business Name";
+      document.getElementById("previewDesc").innerText =
+        document.getElementById("shellPostDesc").value ||
+        "Your promo description will appear here.";
+    };
+    document
+      .getElementById("shellBizName")
+      .addEventListener("input", updatePreview);
+    document
+      .getElementById("shellPostDesc")
+      .addEventListener("input", updatePreview);
+
+    // Handle Circular Logo Upload Preview
+    document
+      .getElementById("shellBizLogo")
+      .addEventListener("change", async function (e) {
+        const file = e.target.files[0];
+        if (file) {
+          try {
+            const compressedBlob = await compressImage(file);
+            e.target.compressedBlob = compressedBlob;
+            const objectUrl = URL.createObjectURL(compressedBlob);
+            document.getElementById(
+              "logoCirclePreview"
+            ).style.backgroundImage = `url(${objectUrl})`;
+            document
+              .getElementById("logoCirclePreview")
+              .querySelector(".logo-plus-badge").style.display = "none";
+            document.getElementById("previewLogo").src = objectUrl;
+          } catch (err) {
+            alert("System Error: " + err.message);
+          }
+        }
+      });
+
+    // Handle Promo Image Upload Preview
+    document
+      .getElementById("shellPromoImage")
+      .addEventListener("change", async function (e) {
+        const file = e.target.files[0];
+        if (file) {
+          try {
+            const compressedBlob = await compressImage(file);
+            e.target.compressedBlob = compressedBlob;
+            const objectUrl = URL.createObjectURL(compressedBlob);
+            document.getElementById(
+              "promoRectPreview"
+            ).style.backgroundImage = `url(${objectUrl})`;
+            document.getElementById("promoRectPreview").innerHTML = "";
+            document.getElementById("previewPromo").src = objectUrl;
+          } catch (err) {
+            alert("System Error: " + err.message);
+          }
+        }
+      });
+    // ----------------------------------------
+
+    // 1. Sidebar Icon Click Listener (Opens Gatekeeper)
+    document.getElementById("sidebarUserIcon").addEventListener("click", () => {
+      document.getElementById("proShellModal").style.display = "flex";
+
+      // Reset Lead Analytics Badge when they check their profile
+      window.updateHubBadge(0);
+      if (currentUserId) {
+        update(ref(db, `profiles/${currentUserId}`), { unreadLeads: 0 });
       }
+    });
 
-      let currentUserId = null;
+    // 2. Authentication State Listener
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserId = user.uid;
 
-      
-      
-      
-      // --- LIVE PREVIEW & UPLOADER UI LOGIC ---
-      const updatePreview = () => {
-        document.getElementById("previewName").innerText =
-          document.getElementById("shellBizName").value || "Business Name";
-        document.getElementById("previewDesc").innerText =
-          document.getElementById("shellPostDesc").value ||
-          "Your promo description will appear here.";
-      };
-      document
-        .getElementById("shellBizName")
-        .addEventListener("input", updatePreview);
-      document
-        .getElementById("shellPostDesc")
-        .addEventListener("input", updatePreview);
+        // Load Profile Data (Name, Phone, Address, Logo, Leads)
+        onValue(ref(db, `profiles/${currentUserId}`), (snap) => {
+          const data = snap.val() || {};
 
-      // Handle Circular Logo Upload Preview
-      document
-        .getElementById("shellBizLogo")
-        .addEventListener("change", async function (e) {
-          const file = e.target.files[0];
-          if (file) {
-            try {
-              const compressedBlob = await compressImage(file);
-              e.target.compressedBlob = compressedBlob;
-              const objectUrl = URL.createObjectURL(compressedBlob);
-              document.getElementById("logoCirclePreview").style.backgroundImage = `url(${objectUrl})`;
-              document.getElementById("logoCirclePreview").querySelector(".logo-plus-badge").style.display = "none";
-              document.getElementById("previewLogo").src = objectUrl;
-            } catch (err) {
-              alert("System Error: " + err.message);
-            }
+          // THE PRO GATEKEEPER: Verify Stripe payment status
+          if (data.isPro !== true) {
+            document.getElementById("shellLoginSection").style.display =
+              "block";
+            document.getElementById("dashboardFormsContainer").style.display =
+              "none";
+            const loginBtn = document.getElementById("shellLoginBtn");
+            if (loginBtn) loginBtn.innerText = "PRO SUBSCRIPTION REQUIRED";
+            return; // Stop execution, keep dashboard hidden!
+          }
+
+          // If they are a verified Pro, unlock the dashboard
+          document.getElementById("shellLoginSection").style.display = "none";
+          document.getElementById("dashboardFormsContainer").style.display =
+            "block";
+
+          // Initialize Pro Stats
+          document.getElementById("proStatusSection").style.display = "block";
+          document.getElementById(
+            "memberSinceText"
+          ).innerText = `Member since: ${new Date(
+            data.createdAt || Date.now()
+          ).toLocaleDateString()}`;
+          document.getElementById("statPostClicks").innerText =
+            data.postClicks || 0;
+          document.getElementById("statCallClicks").innerText =
+            data.callClicks || 0;
+
+          // Auto-fill core identity using a session flag to beat browser cache
+          if (!document.getElementById("shellBizName").dataset.loaded) {
+            document.getElementById("shellBizName").value =
+              data.companyName || data.name || "";
+            document.getElementById("shellBizPhone").value =
+              data.dispatchPhone || "";
+            document.getElementById("shellBizAddress").value =
+              data.businessAddress || "";
+
+            // Lock the fields so real-time lead updates don't erase user typing later
+            document.getElementById("shellBizName").dataset.loaded = "true";
+          }
+
+          // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
+          if (data.logoUrl) {
+            document.getElementById("shellBizLogo").dataset.existing =
+              data.logoUrl;
+
+            document.getElementById(
+              "logoCirclePreview"
+            ).style.backgroundImage = `url(${data.logoUrl})`;
+            document
+              .getElementById("logoCirclePreview")
+              .querySelector(".logo-plus-badge").style.display = "none";
+            document.getElementById("previewLogo").src = data.logoUrl;
+            document.getElementById(
+              "sidebarUserIcon"
+            ).style.backgroundImage = `url(${data.logoUrl})`;
+            document.getElementById("sidebarUserIcon").style.backgroundSize =
+              "cover";
+          }
+
+          // Trigger the live preview text update initially
+          document.getElementById("previewName").innerText =
+            document.getElementById("shellBizName").value || "Business Name";
+
+          if (
+            data.unreadLeads > 0 &&
+            document.getElementById("proShellModal").style.display !== "flex"
+          ) {
+            window.updateHubBadge(data.unreadLeads);
           }
         });
 
-      // Handle Promo Image Upload Preview
-      document
-        .getElementById("shellPromoImage")
-        .addEventListener("change", async function (e) {
-          const file = e.target.files[0];
-          if (file) {
-            try {
-              const compressedBlob = await compressImage(file);
-              e.target.compressedBlob = compressedBlob;
-              const objectUrl = URL.createObjectURL(compressedBlob);
-              document.getElementById("promoRectPreview").style.backgroundImage = `url(${objectUrl})`;
-              document.getElementById("promoRectPreview").innerHTML = ""; 
-              document.getElementById("previewPromo").src = objectUrl;
-            } catch (err) {
-              alert("System Error: " + err.message);
-            }
+        // Live Listener for Active Campaigns (Bottom of Profile)
+        onValue(ref(db, "businessPosts"), (snap) => {
+          const posts = snap.val() || {};
+          allPostsData = posts;
+
+          // Filter down to ONLY posts owned by this specific Pro
+          const myPosts = Object.entries(posts).filter(
+            ([id, p]) => p.ownerId === currentUserId
+          );
+          const container = document.getElementById("shellActivePosts");
+
+          if (myPosts.length === 0) {
+            container.innerHTML =
+              '<p style="font-size: 13px; color: var(--muted); text-align: center; font-style: italic;">No active posts yet.</p>';
+            return;
           }
-        });
-      // ----------------------------------------
-      
 
+          container.innerHTML = "";
 
-      // 1. Sidebar Icon Click Listener (Opens Gatekeeper)
-      document
-        .getElementById("sidebarUserIcon")
-        .addEventListener("click", () => {
-          document.getElementById("proShellModal").style.display = "flex";
-
-          // Reset Lead Analytics Badge when they check their profile
-          window.updateHubBadge(0);
-          if (currentUserId) {
-            update(ref(db, `profiles/${currentUserId}`), { unreadLeads: 0 });
-          }
-        });
-
-      // 2. Authentication State Listener
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          currentUserId = user.uid;
-
-// Load Profile Data (Name, Phone, Address, Logo, Leads)
-              onValue(ref(db, `profiles/${currentUserId}`), (snap) => {
-                const data = snap.val() || {};
-
-                // THE PRO GATEKEEPER: Verify Stripe payment status
-                if (data.isPro !== true) {
-                  document.getElementById("shellLoginSection").style.display = "block";
-                  document.getElementById("dashboardFormsContainer").style.display = "none";
-                  const loginBtn = document.getElementById("shellLoginBtn");
-                  if (loginBtn) loginBtn.innerText = "PRO SUBSCRIPTION REQUIRED";
-                  return; // Stop execution, keep dashboard hidden!
-                }
-
-                // If they are a verified Pro, unlock the dashboard
-                document.getElementById("shellLoginSection").style.display = "none";
-                document.getElementById("dashboardFormsContainer").style.display = "block";
-
-      // Initialize Pro Stats
-                document.getElementById("proStatusSection").style.display = "block";
-                document.getElementById("memberSinceText").innerText = `Member since: ${new Date(data.createdAt || Date.now()).toLocaleDateString()}`;
-                document.getElementById("statPostClicks").innerText = data.postClicks || 0;
-                document.getElementById("statCallClicks").innerText = data.callClicks || 0;
-
-
-
-            
-
-            // Auto-fill core identity using a session flag to beat browser cache
-            if (!document.getElementById("shellBizName").dataset.loaded) {
-              document.getElementById("shellBizName").value =
-                data.companyName || data.name || "";
-              document.getElementById("shellBizPhone").value =
-                data.dispatchPhone || "";
-              document.getElementById("shellBizAddress").value =
-                data.businessAddress || "";
-
-              // Lock the fields so real-time lead updates don't erase user typing later
-              document.getElementById("shellBizName").dataset.loaded = "true";
-            }
-
-            // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
-            if (data.logoUrl) {
-              document.getElementById("shellBizLogo").dataset.existing =
-                data.logoUrl;
-
-              document.getElementById(
-                "logoCirclePreview"
-              ).style.backgroundImage = `url(${data.logoUrl})`;
-              document
-                .getElementById("logoCirclePreview")
-                .querySelector(".logo-plus-badge").style.display = "none";
-              document.getElementById("previewLogo").src = data.logoUrl;
-              document.getElementById(
-                "sidebarUserIcon"
-              ).style.backgroundImage = `url(${data.logoUrl})`;
-              document.getElementById("sidebarUserIcon").style.backgroundSize =
-                "cover";
-            }
-
-            // Trigger the live preview text update initially
-            document.getElementById("previewName").innerText =
-              document.getElementById("shellBizName").value || "Business Name";
-
-            if (
-              data.unreadLeads > 0 &&
-              document.getElementById("proShellModal").style.display !== "flex"
-            ) {
-              window.updateHubBadge(data.unreadLeads);
-            }
-          });
-
-          // Live Listener for Active Campaigns (Bottom of Profile)
-          onValue(ref(db, "businessPosts"), (snap) => {
-            const posts = snap.val() || {};
-            allPostsData = posts;
-
-            // Filter down to ONLY posts owned by this specific Pro
-            const myPosts = Object.entries(posts).filter(
-              ([id, p]) => p.ownerId === currentUserId
-            );
-            const container = document.getElementById("shellActivePosts");
-
-            if (myPosts.length === 0) {
-              container.innerHTML =
-                '<p style="font-size: 13px; color: var(--muted); text-align: center; font-style: italic;">No active posts yet.</p>';
-              return;
-            }
-
-            container.innerHTML = "";
-
-            myPosts.forEach(([id, post]) => {
-              container.innerHTML += `
+          myPosts.forEach(([id, post]) => {
+            container.innerHTML += `
                     <div class="post-card" style="margin-bottom: 25px; border: 2px solid var(--accent);">
                         <div class="post-header">
                             <img src="${
@@ -1616,416 +1780,414 @@
                         </div>
                     </div>
                  `;
-            });
           });
-        } else {
-          currentUserId = null;
+        });
+      } else {
+        currentUserId = null;
 
+        document.getElementById("shellLoginSection").style.display = "block";
+        document.getElementById("dashboardFormsContainer").style.display =
+          "none";
+      }
+    });
 
-          
-          document.getElementById("shellLoginSection").style.display = "block";
-          document.getElementById("dashboardFormsContainer").style.display =
-            "none";
-        }
-      });
+    // 3. Login Action
+    document.getElementById("shellLoginBtn").addEventListener("click", () => {
+      const email = document.getElementById("shellLoginEmail").value;
+      const pass = document.getElementById("shellLoginPassword").value;
+      if (!email || !pass)
+        return alert("Please enter your Pro email and password.");
 
-      // 3. Login Action
-      document.getElementById("shellLoginBtn").addEventListener("click", () => {
-        const email = document.getElementById("shellLoginEmail").value;
-        const pass = document.getElementById("shellLoginPassword").value;
-        if (!email || !pass)
-          return alert("Please enter your Pro email and password.");
+      document.getElementById("shellLoginBtn").innerText = "LOADING...";
+      signInWithEmailAndPassword(auth, email, pass)
+        .then(() => {
+          document.getElementById("shellLoginBtn").innerText = "LOGIN";
+        })
+        .catch((err) => {
+          alert("Login failed. Check your credentials.");
+          document.getElementById("shellLoginBtn").innerText = "LOGIN";
+        });
+    });
 
-        document.getElementById("shellLoginBtn").innerText = "LOADING...";
-        signInWithEmailAndPassword(auth, email, pass)
-          .then(() => {
-            document.getElementById("shellLoginBtn").innerText = "LOGIN";
-          })
-          .catch((err) => {
-            alert("Login failed. Check your credentials.");
-            document.getElementById("shellLoginBtn").innerText = "LOGIN";
-          });
-      });
-      
-      
-      
-      
-      const compressImage = async (file) => {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          const objectUrl = URL.createObjectURL(file);
-          
-          img.onload = () => {
-            URL.revokeObjectURL(objectUrl);
-            const canvas = document.createElement("canvas");
-            const MAX_WIDTH = 800; 
-            const scaleSize = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
-            canvas.width = img.width * scaleSize;
-            canvas.height = img.height * scaleSize;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            canvas.toBlob((blob) => {
+    const compressImage = async (file) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+
+        img.onload = () => {
+          URL.revokeObjectURL(objectUrl);
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 800;
+          const scaleSize = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1;
+          canvas.width = img.width * scaleSize;
+          canvas.height = img.height * scaleSize;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(
+            (blob) => {
               if (blob) resolve(blob);
-              else reject(new Error("Canvas compression failed due to mobile memory limits."));
-            }, "image/jpeg", 0.7);
-          };
-          
-          img.onerror = () => {
-            URL.revokeObjectURL(objectUrl);
-            reject(new Error("Browser could not decode image format."));
-          };
-          
-          img.src = objectUrl;
-        });
-      };
-      
-      
-      
-       
-      
+              else
+                reject(
+                  new Error(
+                    "Canvas compression failed due to mobile memory limits."
+                  )
+                );
+            },
+            "image/jpeg",
+            0.7
+          );
+        };
 
-      window.incrementStat = async (uid, type) => {
-        const ref = firebase.database().ref(`profiles/${uid}`);
-        ref.transaction((profile) => {
-          if (profile) {
-            profile[type] = (profile[type] || 0) + 1;
-            profile.unreadLeads = (profile.unreadLeads || 0) + 1;
-          }
-          return profile;
-        });
-      };
-      
-      
-      
-      
-      
-      
-      
-      
-      // --- SAVE IDENTITY LOGIC ---
-      document
-        .getElementById("shellSaveProfileBtn")
-        .addEventListener("click", async () => {
-        const bizName = document.getElementById("shellBizName").value;
-          const address = document.getElementById("shellBizAddress").value;
-          const phone = document.getElementById("shellBizPhone").value;
-          const logoBlob = document.getElementById("shellBizLogo").compressedBlob;
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("Browser could not decode image format."));
+        };
 
-          if (!bizName || !phone || !address) {
-            return alert(
-              "Please fill out your Business Name, Address, and Phone to save your identity."
-            );
-          }
+        img.src = objectUrl;
+      });
+    };
 
-          const btn = document.getElementById("shellSaveProfileBtn");
-          btn.innerText = "SAVING...";
-          btn.style.opacity = "0.7";
-          btn.style.pointerEvents = "none";
-
-          let finalLogoUrl = document.getElementById("shellBizLogo").dataset.existing || "";
-
-          try {
-            if (logoBlob) {
-              const sRef = storageRef(
-                storage,
-                `hub_ads/${currentUserId}/logo_${Date.now()}.jpg`
-              );
-              await uploadBytes(sRef, logoBlob);
-              finalLogoUrl = await getDownloadURL(sRef);
-            }
-        
-        
-        
-        
-        
-            
-            
-            
-            
-            
-
-            await update(ref(db, `profiles/${currentUserId}`), {
-              companyName: bizName,
-              businessAddress: address,
-              dispatchPhone: phone,
-              logoUrl: finalLogoUrl,
-            });
-
-            document.getElementById("shellBizLogo").dataset.existing = finalLogoUrl;
-
-            btn.innerText = "SAVE";
-            btn.style.opacity = "1";
-            btn.style.pointerEvents = "auto";
-            document.getElementById("profileSaveMsg").style.display = "block";
-            setTimeout(
-              () => (document.getElementById("profileSaveMsg").style.display = "none"),
-              3000
-            );
-            
-            
-            
-            
-            } catch (e) {
-            console.error(e);
-            alert("System Error: " + e.message);
-            btn.innerText = "SAVE";
-            btn.style.opacity = "1";
-            btn.style.pointerEvents = "auto";
-          }
-
-        
-        
-        
-        });
-
-      let editingPostId = null;
-      document
-        .getElementById("shellPublishBtn")
-        .addEventListener("click", async () => {
-        
-        const bizName = document.getElementById("shellBizName").value;
-          const address = document.getElementById("shellBizAddress").value;
-          const phone = document.getElementById("shellBizPhone").value;
-          const desc = document.getElementById("shellPostDesc").value;
-          const cat = document.getElementById("shellPostCategory").value;
-          const logoBlob = document.getElementById("shellBizLogo").compressedBlob;
-          const promoBlob = document.getElementById("shellPromoImage").compressedBlob;
-
-          if (!bizName || !phone || !address || !desc) {
-            return alert(
-              "Please fill out your Business Name, Address, Phone, and Description."
-            );
-          }
-
-          const btn = document.getElementById("shellPublishBtn");
-          btn.innerText = "UPLOADING...";
-          btn.style.opacity = "0.7";
-          btn.style.pointerEvents = "none";
-
-          let finalLogoUrl = document.getElementById("shellBizLogo").dataset.existing || "";
-          let finalPromoUrl = document.getElementById("shellPromoImage").dataset.existing || "";
-
-          try {
-            if (logoBlob) {
-              const sRef = storageRef(
-                storage,
-                `hub_ads/${currentUserId}/logo_${Date.now()}.jpg`
-              );
-              await uploadBytes(sRef, logoBlob);
-              finalLogoUrl = await getDownloadURL(sRef);
-            }
-            if (promoBlob) {
-              const sRef = storageRef(
-                storage,
-                `hub_ads/${currentUserId}/promo_${Date.now()}.jpg`
-              );
-              await uploadBytes(sRef, promoBlob);
-              finalPromoUrl = await getDownloadURL(sRef);
-            }
-        
-        
-        
-    
-            
-            
-            
-            
-            
-
-            await update(ref(db, `profiles/${currentUserId}`), {
-              companyName: bizName,
-              businessAddress: address,
-              dispatchPhone: phone,
-              logoUrl: finalLogoUrl,
-            });
-
-            const postData = {
-              ownerId: currentUserId,
-              businessName: bizName,
-              address: address,
-              phone: phone,
-              description: desc,
-              category: cat,
-              logoUrl: finalLogoUrl,
-              promoUrl: finalPromoUrl,
-              socialLinks: getSocialLinks(),
-              timestamp: Date.now(),
-            };
-
-            if (editingPostId) {
-              await update(ref(db, `businessPosts/${editingPostId}`), postData);
-              editingPostId = null;
-            } else {
-              await push(ref(db, "businessPosts"), postData);
-            }
-
-            document.getElementById("shellPostDesc").value = "";
-            document.getElementById("shellPromoImage").value = "";
-            document.getElementById("shellPromoImage").dataset.existing = "";
-            document.getElementById("shellBizLogo").compressedBlob = null;
-            document.getElementById("shellPromoImage").compressedBlob = null;
-
-            document.getElementById("promoRectPreview").style.backgroundImage = "none";
-            document.getElementById("promoRectPreview").innerHTML = "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
-            document.getElementById("previewPromo").src = "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
-            document.getElementById("previewDesc").innerText = "Your promo description will appear here.";
-
-            socialContainer.innerHTML = "";
-
-            btn.innerText = "PUBLISH TO HUB";
-            btn.style.background = "#10b981";
-            btn.style.opacity = "1";
-            btn.style.pointerEvents = "auto";
-          } catch (e) {
-            console.error(e);
-            alert("Error uploading images.");
-            btn.innerText = "PUBLISH TO HUB";
-            btn.style.opacity = "1";
-            btn.style.pointerEvents = "auto";
-          }
-        });
-      
-      
-
-      window.deletePost = async (postId) => {
-        if (
-          confirm(
-            "Are you sure you want to delete this ad? It will be removed from the Hub instantly."
-          )
-        ) {
-          const post = allPostsData[postId];
-          if (post) {
-            try {
-              if (post.logoUrl && post.logoUrl.includes("firebasestorage")) {
-                await deleteObject(storageRef(storage, post.logoUrl));
-              }
-            } catch (e) {}
-            try {
-              if (post.promoUrl && post.promoUrl.includes("firebasestorage")) {
-                await deleteObject(storageRef(storage, post.promoUrl));
-              }
-            } catch (e) {}
-          }
-          remove(ref(db, `businessPosts/${postId}`));
+    window.incrementStat = async (uid, type) => {
+      const ref = firebase.database().ref(`profiles/${uid}`);
+      ref.transaction((profile) => {
+        if (profile) {
+          profile[type] = (profile[type] || 0) + 1;
+          profile.unreadLeads = (profile.unreadLeads || 0) + 1;
         }
-      };
+        return profile;
+      });
+    };
 
-      window.editPost = (postId) => {
-        const post = allPostsData[postId];
-        if (!post) return;
+    // --- SAVE IDENTITY LOGIC ---
+    document
+      .getElementById("shellSaveProfileBtn")
+      .addEventListener("click", async () => {
+        const bizName = document.getElementById("shellBizName").value;
+        const address = document.getElementById("shellBizAddress").value;
+        const phone = document.getElementById("shellBizPhone").value;
+        const logoBlob = document.getElementById("shellBizLogo").compressedBlob;
 
-        editingPostId = postId;
-        document.getElementById("shellPostDesc").value = post.description || "";
-        document.getElementById("shellPostCategory").value =
-          post.category || "Towing";
+        if (!bizName || !phone || !address) {
+          return alert(
+            "Please fill out your Business Name, Address, and Phone to save your identity."
+          );
+        }
 
-        document.getElementById("shellBizLogo").dataset.existing =
-          post.logoUrl || "";
-        document.getElementById("shellPromoImage").dataset.existing =
-          post.promoUrl || "";
-        document.getElementById("shellBizLogo").value = "";
-        document.getElementById("shellPromoImage").value = "";
+        const btn = document.getElementById("shellSaveProfileBtn");
+        btn.innerText = "SAVING...";
+        btn.style.opacity = "0.7";
+        btn.style.pointerEvents = "none";
 
-        // Push data to the Live Preview Card
+        let finalLogoUrl =
+          document.getElementById("shellBizLogo").dataset.existing || "";
 
-        document.getElementById("promoRectPreview").style.backgroundImage =
-          post.promoUrl ? `url(${post.promoUrl})` : "none";
-        document.getElementById("promoRectPreview").innerHTML = post.promoUrl
-          ? ""
-          : "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
-        document.getElementById("previewDesc").innerText =
-          post.description || "Your promo description will appear here.";
-        document.getElementById("previewPromo").src =
-          post.promoUrl ||
-          "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
-        if (post.logoUrl)
-          document.getElementById("previewLogo").src = post.logoUrl;
+        try {
+          if (logoBlob) {
+            const sRef = storageRef(
+              storage,
+              `hub_ads/${currentUserId}/logo_${Date.now()}.jpg`
+            );
+            await uploadBytes(sRef, logoBlob);
+            finalLogoUrl = await getDownloadURL(sRef);
+          }
 
-        document.getElementById("previewName").innerText =
-          post.businessName || "Business Name";
+          await update(ref(db, `profiles/${currentUserId}`), {
+            companyName: bizName,
+            businessAddress: address,
+            dispatchPhone: phone,
+            logoUrl: finalLogoUrl,
+          });
 
-        socialContainer.innerHTML = "";
-        if (post.socialLinks) {
-          post.socialLinks.forEach((link) =>
-            window.createSocialRow(link.platform, link.url)
+          document.getElementById("shellBizLogo").dataset.existing =
+            finalLogoUrl;
+
+          btn.innerText = "SAVE";
+          btn.style.opacity = "1";
+          btn.style.pointerEvents = "auto";
+          document.getElementById("profileSaveMsg").style.display = "block";
+          setTimeout(
+            () =>
+              (document.getElementById("profileSaveMsg").style.display =
+                "none"),
+            3000
+          );
+        } catch (e) {
+          console.error(e);
+          alert("System Error: " + e.message);
+          btn.innerText = "SAVE";
+          btn.style.opacity = "1";
+          btn.style.pointerEvents = "auto";
+        }
+      });
+
+    let editingPostId = null;
+    document
+      .getElementById("shellPublishBtn")
+      .addEventListener("click", async () => {
+        const bizName = document.getElementById("shellBizName").value;
+        const address = document.getElementById("shellBizAddress").value;
+        const phone = document.getElementById("shellBizPhone").value;
+        const desc = document.getElementById("shellPostDesc").value;
+        const cat = document.getElementById("shellPostCategory").value;
+        const logoBlob = document.getElementById("shellBizLogo").compressedBlob;
+        const promoBlob =
+          document.getElementById("shellPromoImage").compressedBlob;
+
+        if (!bizName || !phone || !address || !desc) {
+          return alert(
+            "Please fill out your Business Name, Address, Phone, and Description."
           );
         }
 
         const btn = document.getElementById("shellPublishBtn");
-        btn.innerText = "UPDATE POST";
-        btn.style.background = "var(--text)";
+        btn.innerText = "UPLOADING...";
+        btn.style.opacity = "0.7";
+        btn.style.pointerEvents = "none";
 
-        document.querySelector(".shell-modal-content").scrollTop = 0;
-      };
+        let finalLogoUrl =
+          document.getElementById("shellBizLogo").dataset.existing || "";
+        let finalPromoUrl =
+          document.getElementById("shellPromoImage").dataset.existing || "";
 
-      
-      
-   
-      
-            window.switchCreatorTab = (tab) => {
-        const adSection = document.getElementById('adCreatorSection');
-        const profSection = document.getElementById('profileCreatorSection');
-        const adBtn = document.getElementById('tabAdBtn');
-        const profBtn = document.getElementById('tabProfileBtn');
+        try {
+          if (logoBlob) {
+            const sRef = storageRef(
+              storage,
+              `hub_ads/${currentUserId}/logo_${Date.now()}.jpg`
+            );
+            await uploadBytes(sRef, logoBlob);
+            finalLogoUrl = await getDownloadURL(sRef);
+          }
+          if (promoBlob) {
+            const sRef = storageRef(
+              storage,
+              `hub_ads/${currentUserId}/promo_${Date.now()}.jpg`
+            );
+            await uploadBytes(sRef, promoBlob);
+            finalPromoUrl = await getDownloadURL(sRef);
+          }
 
-        if (tab === 'ad') {
-          adSection.style.display = 'block';
-          profSection.style.display = 'none';
-          adBtn.classList.add('active');
-          profBtn.classList.remove('active');
-        } else {
-          adSection.style.display = 'none';
-          profSection.style.display = 'block';
-          adBtn.classList.remove('active');
-          profBtn.classList.add('active');
+          await update(ref(db, `profiles/${currentUserId}`), {
+            companyName: bizName,
+            businessAddress: address,
+            dispatchPhone: phone,
+            logoUrl: finalLogoUrl,
+          });
+
+          const postData = {
+            ownerId: currentUserId,
+            businessName: bizName,
+            address: address,
+            phone: phone,
+            description: desc,
+            category: cat,
+            logoUrl: finalLogoUrl,
+            promoUrl: finalPromoUrl,
+            socialLinks: getSocialLinks(),
+            timestamp: Date.now(),
+          };
+
+          if (editingPostId) {
+            await update(ref(db, `businessPosts/${editingPostId}`), postData);
+            editingPostId = null;
+          } else {
+            await push(ref(db, "businessPosts"), postData);
+          }
+
+          document.getElementById("shellPostDesc").value = "";
+          document.getElementById("shellPromoImage").value = "";
+          document.getElementById("shellPromoImage").dataset.existing = "";
+          document.getElementById("shellBizLogo").compressedBlob = null;
+          document.getElementById("shellPromoImage").compressedBlob = null;
+
+          document.getElementById("promoRectPreview").style.backgroundImage =
+            "none";
+          document.getElementById("promoRectPreview").innerHTML =
+            "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
+          document.getElementById("previewPromo").src =
+            "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
+          document.getElementById("previewDesc").innerText =
+            "Your promo description will appear here.";
+
+          socialContainer.innerHTML = "";
+
+          btn.innerText = "PUBLISH TO HUB";
+          btn.style.background = "#10b981";
+          btn.style.opacity = "1";
+          btn.style.pointerEvents = "auto";
+        } catch (e) {
+          console.error(e);
+          alert("Error uploading images.");
+          btn.innerText = "PUBLISH TO HUB";
+          btn.style.opacity = "1";
+          btn.style.pointerEvents = "auto";
         }
-      };
+      });
 
-      // Background syncer to keep the Profile Preview updated with Global Identity changes
-      setInterval(() => {
-          const currentLogo = document.getElementById("previewLogo")?.src;
-          const profileAvatar = document.getElementById("previewProfileAvatar");
-          if(currentLogo && profileAvatar && profileAvatar.src !== currentLogo) {
-              profileAvatar.src = currentLogo;
-          }
-          const currentName = document.getElementById("shellBizName")?.value || "Business Name";
-          const profileName = document.getElementById("previewProfileName");
-          if(profileName && profileName.innerText !== currentName) {
-              profileName.innerText = currentName;
-          }
-      }, 1000);
+    window.deletePost = async (postId) => {
+      if (
+        confirm(
+          "Are you sure you want to delete this ad? It will be removed from the Hub instantly."
+        )
+      ) {
+        const post = allPostsData[postId];
+        if (post) {
+          try {
+            if (post.logoUrl && post.logoUrl.includes("firebasestorage")) {
+              await deleteObject(storageRef(storage, post.logoUrl));
+            }
+          } catch (e) {}
+          try {
+            if (post.promoUrl && post.promoUrl.includes("firebasestorage")) {
+              await deleteObject(storageRef(storage, post.promoUrl));
+            }
+          } catch (e) {}
+        }
+        remove(ref(db, `businessPosts/${postId}`));
+      }
+    };
 
-      document.getElementById("shellCoverImage").addEventListener("change", async function (e) {
+    window.editPost = (postId) => {
+      const post = allPostsData[postId];
+      if (!post) return;
+
+      editingPostId = postId;
+      document.getElementById("shellPostDesc").value = post.description || "";
+      document.getElementById("shellPostCategory").value =
+        post.category || "Towing";
+
+      document.getElementById("shellBizLogo").dataset.existing =
+        post.logoUrl || "";
+      document.getElementById("shellPromoImage").dataset.existing =
+        post.promoUrl || "";
+      document.getElementById("shellBizLogo").value = "";
+      document.getElementById("shellPromoImage").value = "";
+
+      // Push data to the Live Preview Card
+
+      document.getElementById("promoRectPreview").style.backgroundImage =
+        post.promoUrl ? `url(${post.promoUrl})` : "none";
+      document.getElementById("promoRectPreview").innerHTML = post.promoUrl
+        ? ""
+        : "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
+      document.getElementById("previewDesc").innerText =
+        post.description || "Your promo description will appear here.";
+      document.getElementById("previewPromo").src =
+        post.promoUrl ||
+        "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
+      if (post.logoUrl)
+        document.getElementById("previewLogo").src = post.logoUrl;
+
+      document.getElementById("previewName").innerText =
+        post.businessName || "Business Name";
+
+      socialContainer.innerHTML = "";
+      if (post.socialLinks) {
+        post.socialLinks.forEach((link) =>
+          window.createSocialRow(link.platform, link.url)
+        );
+      }
+
+      const btn = document.getElementById("shellPublishBtn");
+      btn.innerText = "UPDATE POST";
+      btn.style.background = "var(--text)";
+
+      document.querySelector(".shell-modal-content").scrollTop = 0;
+    };
+
+    window.switchCreatorTab = (tab) => {
+      const adSection = document.getElementById("adCreatorSection");
+      const profSection = document.getElementById("profileCreatorSection");
+      const adBtn = document.getElementById("tabAdBtn");
+      const profBtn = document.getElementById("tabProfileBtn");
+
+      if (tab === "ad") {
+        adSection.style.display = "block";
+        profSection.style.display = "none";
+        adBtn.classList.add("active");
+        profBtn.classList.remove("active");
+      } else {
+        adSection.style.display = "none";
+        profSection.style.display = "block";
+        adBtn.classList.remove("active");
+        profBtn.classList.add("active");
+      }
+    };
+
+    // Background syncer to keep the Profile Preview updated with Global Identity changes
+    setInterval(() => {
+      const currentLogo = document.getElementById("previewLogo")?.src;
+      const profileAvatar = document.getElementById("previewProfileAvatar");
+      if (currentLogo && profileAvatar && profileAvatar.src !== currentLogo) {
+        profileAvatar.src = currentLogo;
+      }
+      const currentName =
+        document.getElementById("shellBizName")?.value || "Business Name";
+      const profileName = document.getElementById("previewProfileName");
+      if (profileName && profileName.innerText !== currentName) {
+        profileName.innerText = currentName;
+      }
+      const currentAddress =
+        document.getElementById("shellBizAddress")?.value || "...";
+      const profileAddress = document.getElementById("previewProfileAddress");
+      if (profileAddress && profileAddress.innerText !== currentAddress) {
+        profileAddress.innerText = currentAddress;
+      }
+      const currentBio =
+        document.getElementById("shellProfileBio")?.value ||
+        "Your description will appear here...";
+      const profileBio = document.getElementById("previewProfileBio");
+      if (profileBio && profileBio.innerText !== currentBio) {
+        profileBio.innerText = currentBio;
+      }
+    }, 1000);
+
+    document
+      .getElementById("shellCoverImage")
+      .addEventListener("change", async function (e) {
         const file = e.target.files[0];
         if (file) {
           try {
             const compressedBlob = await compressImage(file);
             e.target.compressedBlob = compressedBlob;
             const objectUrl = URL.createObjectURL(compressedBlob);
-            document.getElementById("coverRectPreview").style.backgroundImage = `url(${objectUrl})`;
+            document.getElementById(
+              "coverRectPreview"
+            ).style.backgroundImage = `url(${objectUrl})`;
             document.getElementById("coverRectPreview").innerHTML = "";
-            document.getElementById("proCardPreviewFrame").style.backgroundImage = `url(${objectUrl})`;
+            document.getElementById(
+              "previewModalHeaderImg"
+            ).style.backgroundImage = `url(${objectUrl})`;
           } catch (err) {
             alert("System Error: " + err.message);
           }
         }
       });
 
-      document.getElementById("shellPublishProfileBtn").addEventListener("click", async () => {
+    document
+      .getElementById("shellPublishProfileBtn")
+      .addEventListener("click", async () => {
         const bizName = document.getElementById("shellBizName").value;
         const address = document.getElementById("shellBizAddress").value;
         const phone = document.getElementById("shellBizPhone").value;
         const bio = document.getElementById("shellProfileBio").value;
         const cat = document.getElementById("shellProfileCategory").value;
-        const coverBlob = document.getElementById("shellCoverImage").compressedBlob;
-        let finalLogoUrl = document.getElementById("shellBizLogo").dataset.existing || "";
+        const coverBlob =
+          document.getElementById("shellCoverImage").compressedBlob;
+        let finalLogoUrl =
+          document.getElementById("shellBizLogo").dataset.existing || "";
 
         if (!bizName || !phone || !address || !bio || !cat) {
-          return alert("Please fill out your Business Name, Address, Phone, Category, and Bio to publish a profile.");
+          return alert(
+            "Please fill out your Business Name, Address, Phone, Category, and Bio to publish a profile."
+          );
         }
 
-        if (!coverBlob && !document.getElementById("shellCoverImage").dataset.existing) {
-           return alert("Please upload a Cover Image for your directory card.");
+        if (
+          !coverBlob &&
+          !document.getElementById("shellCoverImage").dataset.existing
+        ) {
+          return alert("Please upload a Cover Image for your directory card.");
         }
 
         const btn = document.getElementById("shellPublishProfileBtn");
@@ -2033,21 +2195,26 @@
         btn.style.opacity = "0.7";
         btn.style.pointerEvents = "none";
 
-        let finalCoverUrl = document.getElementById("shellCoverImage").dataset.existing || "";
+        let finalCoverUrl =
+          document.getElementById("shellCoverImage").dataset.existing || "";
 
         try {
           if (coverBlob) {
-            const sRef = storageRef(storage, `hub_profiles/${currentUserId}/cover_${Date.now()}.jpg`);
+            const sRef = storageRef(
+              storage,
+              `hub_profiles/${currentUserId}/cover_${Date.now()}.jpg`
+            );
             await uploadBytes(sRef, coverBlob);
             finalCoverUrl = await getDownloadURL(sRef);
-            document.getElementById("shellCoverImage").dataset.existing = finalCoverUrl;
+            document.getElementById("shellCoverImage").dataset.existing =
+              finalCoverUrl;
           }
 
           // Ensure Realtime Database keeps its global identity up to date
           await update(ref(db, `profiles/${currentUserId}`), {
             companyName: bizName,
             businessAddress: address,
-            dispatchPhone: phone
+            dispatchPhone: phone,
           });
 
           // Blast the profile data directly into Cloud Firestore for instant population in profile.html
@@ -2061,7 +2228,7 @@
             cover: finalCoverUrl,
             rating: "5.0",
             reviews: "0",
-            timestamp: Date.now()
+            timestamp: Date.now(),
           });
 
           alert("Profile Published to Directory Successfully!");
@@ -2078,33 +2245,25 @@
         }
       });
 
-      
-      
-       
-      
-      
-      
-
-
-        window.shellSignOut = () => {
-        signOut(auth).then(() => {
+    window.shellSignOut = () => {
+      signOut(auth)
+        .then(() => {
           document.querySelector(".shell-modal-content").scrollTop = 0;
-        }).catch((error) => {
+        })
+        .catch((error) => {
           console.error("Sign out error:", error);
           alert("Error signing out.");
         });
-      }; 
+    };
 
-window.deleteMyAccount = async () => {
-        const user = firebase.auth().currentUser;
-        if (user) {
-          // 1. Wipe DB, 2. Wipe Auth, 3. Redirect
-          await firebase.database().ref(`profiles/${user.uid}`).remove();
-          await user.delete();
-          window.location.reload();
-        }
-      };
-      
-    </script>
-  </body>
+    window.deleteMyAccount = async () => {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        // 1. Wipe DB, 2. Wipe Auth, 3. Redirect
+        await firebase.database().ref(`profiles/${user.uid}`).remove();
+        await user.delete();
+        window.location.reload();
+      }
+    };
+  </script>
 </html>
