@@ -2,23 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
+    <meta 
+      name="viewport" 
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Pro Directory</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
  
-    <style>
+    <style> 
       :root { 
-        --bg-primary: #f8fafc;
+        --bg-primary: #f8fafc; 
         --bg-card: #ffffff;
-        --accent: #ee611c;
-        --text-dark: #0f172a; 
-        --text-muted: #64748b;   
+        --accent: #ee611c; 
+        --text-dark: #0f172a;   
+        --text-muted: #64748b;    
       }
-
+  
       * { 
         box-sizing: border-box; 
         margin: 0;
@@ -263,6 +263,19 @@
         color: var(--accent);
         font-weight: 800;
       }
+      
+      .horizontal-lane.expanded {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 15px;
+        overflow-x: visible;
+        padding: 0 20px 20px 20px;
+        scroll-snap-type: none;
+      }
+      
+      
+      
+      
     </style>
   </head>
   <body>
@@ -351,8 +364,8 @@
         };
         firebase.initializeApp(firebaseConfig);
       
-       
-        let prosData = [];
+        
+        let prosData = []; 
 
         async function renderFeed() {
             const feedContainer = document.getElementById('feedContainer'); 
@@ -361,17 +374,29 @@
            // Fetch from Firestore
             const snapshot = await firebase.firestore().collection('pros').get();
             prosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-             
-            const categories = [...new Set(prosData.map(p => p.category))];
+          
+          
+          // Define standard categories to display even if the database is empty
+            // Define standard categories + merge with database categories
+            const standardCategories = ["Towing", "Mechanic", "Detailing", "Tires", "Locksmith", "Tint", "Glass", "Battery", "Wraps", "Bodywork", "Audio", "Upholstery", "Alignment", "Oil", "Transmission", "Miscellaneous" ];
+            const dbCategories = prosData.map(p => p.category);
+            
+            // Merge standard categories with any custom ones found in the database
+            const categories = [...new Set([...standardCategories, ...dbCategories])];
+          
+          
+              
           
             categories.forEach(category => {
                 const prosInCategory = prosData.filter(p => p.category === category);
                 const rowHTML = `
                     <div class="category-row">
-                        <div class="category-header">
+                    <div class="category-header">
                             <div class="category-title">${category}</div>
+                            <div class="see-all-btn" onclick="toggleExpand(this)">See All</div>
                         </div>
-                        <div class="horizontal-lane">
+                        <div class="horizontal-lane" id="lane-${category.replace(/\s+/g, '-')}">
+
                             ${prosInCategory.length === 0 ? getAddBusinessCard(category) : ''}
                             ${prosInCategory.map(pro => `
      
@@ -420,26 +445,44 @@
         document.getElementById("profileModal").style.display = "none";
       }
  
+       
+      
+      
+      
+      function toggleExpand(btn) {
+        const lane = btn.parentElement.nextElementSibling;
+        lane.classList.toggle('expanded');
+        btn.innerText = lane.classList.contains('expanded') ? 'Show Less' : 'See All';
+      }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       // Cross-Communication: Triggers the Gatekeeper login in index.html
       function triggerParentLogin() {
         window.parent.postMessage("OPEN_PRO_LOGIN", "*");
       }
 
-      // Initialize Feed
+      // Initialize Feed 
       // Initialize and ensure Search is ready
       document.addEventListener("DOMContentLoaded", async () => {
           await renderFeed();
       });
 
-      function getAddBusinessCard(category) {
+function getAddBusinessCard(category) {
         return `
-                <div class="pro-card" onclick="triggerParentLogin()" style="border: 2px dashed #cbd5e1; 
-                background: #f1f5f9; display: flex; align-items: center; justify-content: center; text-align: center;">
-                    <div style="padding: 20px; color: #64748b; font-weight: 700;">
-                        + Add Your Business to ${category}
-                    </div>
+            <div class="pro-card" onclick="triggerParentLogin()" style="border: 2px dashed #cbd5e1; background: #f1f5f9; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                <div style="color: #64748b; font-weight: 800; font-size: 14px; padding: 20px;">
+                    + Add Your Business<br>to ${category}
                 </div>
-            `;
+            </div>
+        `;
       }
 
       document
