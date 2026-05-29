@@ -1340,27 +1340,26 @@
           >
             PUBLISH TO HUB
           </button>
-        
 
-        <hr class="shell-divider" />
+          <hr class="shell-divider" />
 
-        <label style="font-size: 20px; font-weight: 800; color: var(--accent)"
-          >MANAGE ADVERTISEMENTS</label
-        >
-        <div id="shellActivePosts" style="margin-top: 10%">
-          <p
-            style="
-              font-size: 13px;
-              color: var(--muted);
-              text-align: center;
-              font-style: italic;
-            "
+          <label style="font-size: 20px; font-weight: 800; color: var(--accent)"
+            >MANAGE ADVERTISEMENTS</label
           >
-            No active posts yet.
-          </p>
+          <div id="shellActivePosts" style="margin-top: 10%">
+            <p
+              style="
+                font-size: 13px;
+                color: var(--muted);
+                text-align: center;
+                font-style: italic;
+              "
+            >
+              No active posts yet.
+            </p>
+          </div>
         </div>
-        </div>
-        
+
         <button
           onclick="window.shellSignOut()"
           class="shell-submit-btn"
@@ -1758,10 +1757,23 @@
           myPosts.forEach(([id, post]) => {
             container.innerHTML += `
                     <div class="post-card" style="margin-bottom: 25px; border: 2px solid var(--accent);">
+                    
+                    
+                    
                         <div class="post-header">
-                            <img src="${
-                              post.logoUrl || "https://via.placeholder.com/36"
-                            }" class="post-user-icon">
+                        
+                                                    <img src="${
+                                                      document.getElementById(
+                                                        "shellBizLogo"
+                                                      ).dataset.existing ||
+                                                      post.logoUrl ||
+                                                      "https://via.placeholder.com/36"
+                                                    }" class="post-user-icon">
+
+                            
+                            
+                            
+                            
                             <div class="post-biz-name">${
                               post.businessName || "Business Name"
                             }</div>
