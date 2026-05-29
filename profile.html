@@ -1,3 +1,7 @@
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -19,7 +23,7 @@
         --text-muted: #64748b;    
       }
   
-      * { 
+      * {  
         box-sizing: border-box; 
         margin: 0;
         padding: 0;
@@ -366,55 +370,52 @@
       
         
         let prosData = []; 
-
-        async function renderFeed() {
+      
+      
+      
+      
+      
+        function renderFeed() {
             const feedContainer = document.getElementById('feedContainer'); 
-            feedContainer.innerHTML = ''; // Clear existing
             
-           // Fetch from Firestore
-            const snapshot = await firebase.firestore().collection('pros').get();
-            prosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          
-          
-          // Define standard categories to display even if the database is empty
-            // Define standard categories + merge with database categories
-            const standardCategories = ["Towing", "Mechanic", "Detailing", "Tires", "Locksmith", "Tint", "Glass", "Battery", "Wraps", "Bodywork", "Audio", "Upholstery", "Alignment", "Oil", "Transmission", "Miscellaneous" ];
-            const dbCategories = prosData.map(p => p.category);
-            
-            // Merge standard categories with any custom ones found in the database
-            const categories = [...new Set([...standardCategories, ...dbCategories])];
-          
-          
+            // Real-time Firestore listener
+            firebase.firestore().collection('pros').onSnapshot((snapshot) => {
+                feedContainer.innerHTML = ''; // Clear existing feed on update
+                prosData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
               
-          
-            categories.forEach(category => {
-                const prosInCategory = prosData.filter(p => p.category === category);
-                const rowHTML = `
-                    <div class="category-row">
-                    <div class="category-header">
-                            <div class="category-title">${category}</div>
-                            <div class="see-all-btn" onclick="toggleExpand(this)">See All</div>
-                        </div>
-                        <div class="horizontal-lane" id="lane-${category.replace(/\s+/g, '-')}">
+                const standardCategories = ["Towing", "Mechanic", "Detailing", "Tires", "Locksmith", "Tint", "Glass", "Battery", "Wraps", "Bodywork", "Audio", "Upholstery", "Alignment", "Oil", "Transmission", "Miscellaneous" ];
+                const dbCategories = prosData.map(p => p.category);
+                const categories = [...new Set([...standardCategories, ...dbCategories])];
+              
+                categories.forEach(category => {
+                    const prosInCategory = prosData.filter(p => p.category === category);
+                    const rowHTML = `
+                        <div class="category-row">
+                        <div class="category-header">
+                                <div class="category-title">${category}</div>
+                                <div class="see-all-btn" onclick="toggleExpand(this)">See All</div>
+                            </div>
+                            <div class="horizontal-lane" id="lane-${category.replace(/\s+/g, '-')}">
 
-                            ${prosInCategory.length === 0 ? getAddBusinessCard(category) : ''}
-                            ${prosInCategory.map(pro => `
-     
-                                <div class="pro-card" onclick="openModal('${pro.id}')">
-                                    <img class="pro-card-bg" src="${pro.cover}" alt="${pro.name}">
-                                    <div class="pro-card-overlay">
-                                        <img class="pro-avatar" src="${pro.avatar}">
-                                        <div class="pro-info">
-                                            <div class="pro-name">${pro.name}</div>
-                                            <div class="pro-rating">★ ${pro.rating} (${pro.reviews})</div>
+                                ${prosInCategory.length === 0 ? getAddBusinessCard(category) : ''}
+                                ${prosInCategory.map(pro => `
+         
+                                    <div class="pro-card" onclick="openModal('${pro.id}')">
+                                        <img class="pro-card-bg" src="${pro.cover}" alt="${pro.name}">
+                                        <div class="pro-card-overlay">
+                                            <img class="pro-avatar" src="${pro.avatar}">
+                                            <div class="pro-info">
+                                                <div class="pro-name">${pro.name}</div>
+                                                <div class="pro-rating">★ ${pro.rating} (${pro.reviews})</div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            `).join('')}
+                                `).join('')}
+                            </div>
                         </div>
-                    </div>
-                `;
-                feedContainer.innerHTML += rowHTML;
+                    `;
+                    feedContainer.innerHTML += rowHTML;
+                });
             });
         }
 
@@ -459,7 +460,7 @@
       
       
       
-      
+       
       
       
       
@@ -472,7 +473,7 @@
       // Initialize Feed 
       // Initialize and ensure Search is ready
       document.addEventListener("DOMContentLoaded", async () => {
-          await renderFeed();
+          renderFeed();
       });
 
 function getAddBusinessCard(category) {
