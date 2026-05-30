@@ -81,7 +81,7 @@
     .toolbar::-webkit-scrollbar { display: none; } /* Hide scrollbar for clean UI */
     .tool-btn {
       flex: 1; min-width: 80px; padding: 12px 10px; background: white; border: 1px solid #e2e8f0;
-      border-radius: 12px; font-weight: 800; font-size: 12px; color: var(--text);
+      border-radius: 5px; font-weight: 800; font-size: 12px; color: var(--text);
       cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex;
       align-items: center; justify-content: center; gap: 5px; transition: 0.2s; white-space: nowrap;
     }
@@ -98,7 +98,7 @@
 
     /* Form Elements */
     input[type="number"], textarea, input[type="range"], input[type="text"] {
-      width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0;
+      width: 100%; padding: 15px; border-radius: 5px; border: 1px solid #e2e8f0;
       margin-bottom: 12px; font-size: 15px; background: #f8fafc; font-family: inherit;
     }
     .submit-btn {
@@ -358,7 +358,16 @@
         </div>
         
         
-
+        <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block; margin-top: 10px;">TARGET BUDGET ($)</label>
+        <input type="number" id="reqBudget" placeholder="e.g. 250" style="color: var(--success); font-weight: 900; font-size: 20px;" />
+        
+        <div class="toggle-wrapper">
+          <span class="toggle-label">Is the vehicle drivable?</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="reqDrivable" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
 
         <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">ISSUE DESCRIPTION</label>
         <textarea id="reqIssue" placeholder="What exactly needs fixing? Be descriptive." rows="3"></textarea>
@@ -390,17 +399,25 @@
     <div class="modal-content" style="position: relative;">
       <button class="close-x-btn" onclick="window.closeModal('jobDetailsModal')">✕</button>
       
-      
-      <div style="margin-bottom: 20px; margin-top: 15px; text-align: center;">
-        <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin: 0 0 4px 0;">TARGET BUDGET</p>
-        <span id="detBudget" style="font-size: 36px; font-weight: 900; color: var(--success); display: block; margin-bottom: 15px;">$0</span>
-        <div id="detVehicleSpecs" style="font-weight: 800; font-size: 16px; color: var(--text); margin-bottom: 12px; display: flex; justify-content: center; gap: 6px;"></div>
-        <div id="detTags" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;"></div>
+      <div id="detTopRow" style="display: flex; justify-content: space-between; align-items: center; width: 80%; margin: 25px auto 20px auto;"></div>
+
+      <div id="detImgScroller" class="preview-scroller" style="display: none; padding-bottom: 15px; justify-content: center;"></div>
+
+      <div style="display: flex; justify-content: space-evenly; margin-bottom: 20px; background: white; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+        <div style="text-align: center; flex: 1;">
+          <div style="font-size: 10px; font-weight: 900; color: var(--muted); margin-bottom: 4px;">YEAR</div>
+          <div id="detYear" style="font-weight: 800; color: var(--text); font-size: 16px;">-</div>
+        </div>
+        <div style="text-align: center; flex: 1; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+          <div style="font-size: 10px; font-weight: 900; color: var(--muted); margin-bottom: 4px;">MAKE</div>
+          <div id="detMake" style="font-weight: 800; color: var(--text); font-size: 16px;">-</div>
+        </div>
+        <div style="text-align: center; flex: 1;">
+          <div style="font-size: 10px; font-weight: 900; color: var(--muted); margin-bottom: 4px;">MODEL</div>
+          <div id="detModel" style="font-weight: 800; color: var(--text); font-size: 16px;">-</div>
+        </div>
       </div>
 
-      
-      <div id="detImgScroller" class="preview-scroller" style="display: none;  padding-bottom: 10px;"></div>
-      
       <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 4px;">ISSUE DESCRIPTION</p>
       <div id="detIssue" style="font-weight: 500; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; word-break: break-word; font-size: 14px; line-height: 1.5;"></div>
       
@@ -824,29 +841,66 @@ window.togglePanel = (panelId, btnEl) => {
             const bidCount = Object.keys(job.bids).length;
             badgeHtml = `<div style="position:absolute; top:-10px; right:-10px; background:var(--accent); color:white; font-size:11px; font-weight:900; padding:6px 12px; border-radius:15px; box-shadow:var(--shadow); z-index:2;">🔔 ${bidCount} Quotes</div>`;
         }
-        const delBtnHtml = (job.ownerId === myId && job.status === 'open') ? `<span onclick="window.deleteJob(event, '${id}')" style="filter: brightness(0) saturate(100%) invert(27%) sepia(91%) saturate(2352%) hue-   rotate(346deg) brightness(104%) contrast(97%); cursor: pointer; font-size: 18px; padding: 5px; margin-left: auto;" title="Delete Job">🗑️</span>` : '';
-        const imgThumb = (job.images && job.images.length > 0) ? `<img src="${job.images[0]}" style="width:auto; height:60px; object-fit:cover; border-radius:10px; flex-shrink:0; border:1px solid #e2e8f0; margin-right:10px;">` : '';
+  
+        const delBtnHtml = (job.ownerId === myId && job.status === 'open') ? `<img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" onclick="window.deleteJob(event, '${id}')" style="position: absolute; top: 18px; left: 12px; width: 20px; height: 20px; cursor: pointer; filter: brightness(0) saturate(100%) invert(27%) sepia(91%) saturate(2352%) hue-rotate(346deg) brightness(104%) contrast(97%); z-index: 5;" title="Delete Job">` : '';
+        
+        const mainImg = (job.images && job.images.length > 0) 
+          ? `<img src="${job.images[0]}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e2e8f0;">` 
+          : `<div style="width: 100%; height: 160px; background: #f1f5f9; border-radius: 12px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 24px; border: 1px dashed #cbd5e1;">📸</div>`;
 
-        feed.innerHTML += `
-          <div class="job-card" onclick="window.openJobDetails('${id}', '${distMilesStr}')">
+        let drivableIcon = job.isDrivable ? '' : '';
+        let drivableText = job.isDrivable ? 'DRIVABLE' : 'NEEDS TOW';
+        let drivableColor = job.isDrivable ? '#166534' : '#991b1b';
+        let distText = distMilesStr !== "?" ? `${distMilesStr} MI` : 'LOCAL';
+        let vYear = job.vehicleYear || '';
+        let vMake = job.vehicleMake || '';
+        let vModel = job.vehicleModel || '';
+
+   
+    feed.innerHTML += `
+          <div class="job-card" onclick="window.openJobDetails('${id}', '${distMilesStr}')" style="padding-top: 20px;">
             ${statusBanner}
             ${badgeHtml}
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom:8px;">
-              <div style="display:flex; align-items:center;">
-                ${imgThumb}
-                <div>
-                  <div class="job-price" style="margin:0;">$${job.budget}</div>
-                  <span style="font-size:11px; font-weight:700; color:var(--muted);">${distMilesStr} mi away</span>
-                </div>
+            ${delBtnHtml}
+            
+            <div style="display: flex; justify-content: space-evenly; align-items: center; margin-bottom: 15px; width: 100%;">
+              <div style="display: flex; flex-direction: column; align-items: center;">
+                <span style="font-size:12px; font-weight:900; color:${drivableColor};">${drivableText}</span>
               </div>
-              ${delBtnHtml}
+              <div style="display: flex; flex-direction: column; align-items: center;">
+                <span style="font-size:13px; font-weight:900; color:var(--muted);">${distText}</span>
+              </div>
+              <div style="display: flex; flex-direction: column; align-items: center;">
+                <span style="font-size:16px; font-weight:900; color:var(--success); line-height:1; margin-bottom:0px;">$${job.budget}</span>
+              </div>
             </div>
-            <div class="job-title">${job.issue}</div>
-            <div class="job-tags">
-              ${job.isDrivable ? '<span class="tag" style="background: #dcfce7; color: #166534;">🚗 Drivable</span>' : '<span class="tag" style="background: #fee2e2; color: #991b1b;">🛻 Needs Tow</span>'}
+
+            ${mainImg}
+
+            <div style="display: flex; justify-content: space-evenly; margin-bottom: 15px; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; padding: 10px 0;">
+              <div style="text-align: center; flex: 1;">
+                <div style="font-size: 9px; font-weight: 900; color: var(--muted); margin-bottom: 2px;">YEAR</div>
+                <div style="font-weight: 800; font-size: 14px; color: var(--text);">${vYear || '--'}</div>
+              </div>
+              <div style="text-align: center; flex: 1; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">
+                <div style="font-size: 9px; font-weight: 900; color: var(--muted); margin-bottom: 2px;">MAKE</div>
+                <div style="font-weight: 800; font-size: 14px; color: var(--text);">${vMake || '--'}</div>
+              </div>
+              <div style="text-align: center; flex: 1;">
+                <div style="font-size: 9px; font-weight: 900; color: var(--muted); margin-bottom: 2px;">MODEL</div>
+                <div style="font-weight: 800; font-size: 14px; color: var(--text);">${vModel || '--'}</div>
+              </div>
+            </div>
+
+            <div style="font-size: 10px; font-weight: 900; color: var(--muted); margin-bottom: 4px;">
+              ISSUE DESCRIPTION
+            </div>
+            <div class="job-title" style="margin: 0; color: var(--text); font-weight: 500; font-size: 13px; word-break: break-all; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: left;">
+              ${job.issue}
             </div>
           </div>
         `;
+        
       });
       
 
@@ -868,21 +922,22 @@ window.togglePanel = (panelId, btnEl) => {
       if(!job) return;
       activeJobIdForDetails = jobId;
 
-      document.getElementById('detBudget').innerText = "$" + job.budget;
-      const year = job.vehicleYear || '';
-      const make = job.vehicleMake || '';
-      const model = job.vehicleModel || '';
-      document.getElementById('detVehicleSpecs').innerText = `${year} ${make} ${model}`.trim();
+     document.getElementById('detYear').innerText = job.vehicleYear || '--'; 
+      document.getElementById('detMake').innerText = job.vehicleMake || '--';
+      document.getElementById('detModel').innerText = job.vehicleModel || '--';
       document.getElementById('detIssue').innerText = job.issue;
-      
-      let tagsHTML = job.isDrivable 
-        ? `<span class="tag" style="background: #dcfce7; color: #166534;">🚗 Drivable</span>` 
-        : `<span class="tag" style="background: #fee2e2; color: #991b1b;">🛻 Needs Tow</span>`;
-      
-      if(distStr !== "?") tagsHTML += `<span class="tag">📍 ${distStr} mi away</span>`;
-      document.getElementById('detTags').innerHTML = tagsHTML;
 
+      let drivableUI = job.isDrivable 
+        ? `<div style="display: flex; flex-direction: column; align-items: center;"><span style="font-size:24px; margin-bottom:4px;"></span><span style="font-size:15px; font-weight:900; color:green;">DRIVABLE</span></div>` 
+        : `<div style="display: flex; flex-direction: column; align-items: center;"><span style="font-size:24px; margin-bottom:4px;"></span><span style="font-size:15px; font-weight:900; color:red;">NEEDS TOW</span></div>`;
       
+      let distUI = distStr !== "?" 
+        ? `<div style="display: flex; flex-direction: column; align-items: center;"><span style="font-size:24px; margin-bottom:4px;"></span><span style="font-size:15px; font-weight:900; color:var(--muted);">${distStr} MILES AWAY</span></div>` 
+        : `<div style="display: flex; flex-direction: column; align-items: center;"><span style="font-size:24px; margin-bottom:4px;"></span><span style="font-size:15px; font-weight:900; color:var(--muted);">LOCAL</span></div>`;
+
+      let budgetUI = `<div style="display: flex; flex-direction: column; align-items: center;"><span style="font-size:24px; font-weight:900; color:var(--success); line-height:1; margin-bottom:4px;">$${job.budget}</span><span style="font-size:10px; font-weight:900; color:var(--muted);">BUDGET</span></div>`;
+
+      document.getElementById('detTopRow').innerHTML = `${drivableUI} ${distUI} ${budgetUI}`;
       
       // Images Gallery with Placeholder Fallback
 const imgScroller = document.getElementById('detImgScroller');
