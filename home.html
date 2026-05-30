@@ -5,25 +5,26 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<html lang="en"> 
+  <head> 
+    <meta charset="UTF-8" /> 
     <title>RoadWatcHero</title>
-
-      <meta 
+   
+      <meta    
       name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    /> 
+      content="width=device-width, initial-scale=1.0" 
+    />  
  
     <!-- Google Maps with Geometry -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry,places"></script>
 
     <style>
                             :root {
-                              --bg: #f8fafc;
-                              --card: #ffffff;
+                              --bg: #f8fafc; 
+                              --card: #ffffff;  
+                              --muted: black;   
                               --text: #0f172a;
-                              --muted: black;  
+
                               --accent: #ee611c;  
                               --danger: #ee611c;
                               --success: #22c55e; 
@@ -1116,14 +1117,95 @@
         border-color: #cbd5e1;
         color: #94a3b8;
       }
+      
+      
+      
+      
+      .ad-scroller-container {
+        width: 100%;
+        overflow: hidden;
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 10px 0;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        display: none; 
+      }
+      .ad-track {
+        display: flex;
+        gap: 15px;
+        width: max-content;
+        animation: scrollAds 25s linear infinite;
+      }
+      .ad-track:hover {
+        animation-play-state: paused;
+      }
+      .ad-card {
+        flex: 0 0 240px;
+        height: 65px;
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        padding: 5px 10px;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      .ad-img {
+        width: 45px;
+        height: 45px;
+        border-radius: 6px;
+        object-fit: cover;
+        margin-right: 10px;
+        border: 1px solid #e2e8f0;
+      }
+      @keyframes scrollAds {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      
+      
     </style>
   </head>
 
   <body>
+    
+    <div id="globalDropBanner" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 15px 25px; border-radius: 12px; font-weight: 800; font-size: 14px; z-index: 10005; box-shadow: 0 10px 25px rgba(238, 97, 28, 0.5); transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 10px; text-align: center; width: 90%; max-width: 400px; pointer-events: none;">
+      <span id="globalDropBannerIcon" style="font-size: 20px;">🔔</span>
+      <span id="globalDropBannerText" style="flex: 1;"></span>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
     <div id="loadingOverlay"> 
       <div class="spinner"></div>
     </div>
 
+    
+    
+    <div id="installAppBanner" style="position: fixed; top: -150px; left: 50%; transform: translateX(-50%); background: white; border: 2px solid var(--accent); color: var(--text); padding: 15px; border-radius: 12px; font-weight: 700; font-size: 13px; z-index: 10004; box-shadow: var(--shadow); transition: top 0.5s ease; display: flex; flex-direction: column; align-items: center; gap: 10px; width: 90%; max-width: 350px;">
+      <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+        <span style="font-size: 18px;">📲</span>
+        <span style="flex: 1; margin-left: 10px;">Install the RoadWatcHero app for the best experience</span>
+        <button onclick="window.dismissInstallBanner()" style="background: none; border: none; font-size: 18px; color: var(--muted); cursor: pointer; padding: 0 5px;">✕</button>
+      </div>
+      <button onclick="window.triggerAppInstall()" style="background: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 14px;">INSTALL NOW</button>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
     <div
       id="persistentLocationBanner"
       style="
@@ -1284,10 +1366,10 @@
         </div>
         
         
-        <div id="enticeSection" style="margin-top: 15px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-          <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; text-transform: uppercase;">Not getting responses?</p>
-          <button onclick="window.increaseTipPrompt()" style="background: white; color: var(--success); border: 2px solid var(--success); padding: 12px; width: 100%; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: var(--shadow);">
-            💰 ADJUST TIP AMOUNT
+ <div id="enticeSection" style="margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; text-align: center;">
+          <p style="font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 10px;">Not getting any help? Try editing your tip amount.</p>
+          <button onclick="window.increaseTipPrompt()" style="background: white; color: var(--accent); border: 2px solid var(--accent); padding: 12px; width: 100%; border-radius: 8px; font-weight: 900; font-size: 14px; cursor: pointer; box-shadow: var(--shadow);">
+            EDIT SOS
           </button>
         </div>
 
@@ -1419,6 +1501,14 @@
 
       <div class="footer">
         <div class="footer-icons">
+          
+          <div id="seekerAdBanner" class="ad-scroller-container">
+        <p style="font-size: 10px; font-weight: 900; color: var(--muted); text-transform: uppercase; margin: 0 0 8px 10px;">⭐ FEATURED PRO HEROES</p>
+        <div id="seekerAdTrack" class="ad-track"></div>
+      </div>
+          
+          
+          
           <div id="footerArcadeBtn" style="position: relative; display: none">
             <img
               src="controlicon.png"
@@ -2719,6 +2809,15 @@
         </button>
  
 
+        <div style="margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px; margin-bottom: 20px;">
+          <h4 style="margin: 0 0 10px 0; color: var(--accent); font-size: 16px;">Contact Admin</h4>
+          <textarea id="adminContactMsg" placeholder="Describe your issue or question" rows="3" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; font-family: inherit; font-size: 13px; margin-bottom: 10px; resize: vertical;"></textarea>
+          <button onclick="window.submitAdminMessage()" style="background: var(--text); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 13px;">SEND TO ADMIN</button>
+        </div>
+        
+        
+        
+        
         <a
           href="pro-hero.html"
           style="
@@ -3586,6 +3685,67 @@
       };
 
       // EXPOSE NAVIGATION TO WINDOW SCOPE
+      
+      
+      
+      
+      window.showDropBanner = (msg, icon = "🔔") => {
+        const banner = document.getElementById("globalDropBanner");
+        document.getElementById("globalDropBannerText").innerText = msg;
+        document.getElementById("globalDropBannerIcon").innerText = icon;
+        const sound = document.getElementById("notificationSound");
+        if (sound) sound.play().catch(e => console.error(e));
+        banner.style.top = "20px";
+        setTimeout(() => {
+          banner.style.top = "-100px";
+        }, 3500);
+      };
+      
+      
+      
+      let deferredPrompt;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+      });
+
+      window.checkInstallPrompt = () => {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        if (isStandalone) return;
+        
+        const lastPrompt = localStorage.getItem('lastInstallPromptTime');
+        const now = Date.now();
+        if (!lastPrompt || (now - parseInt(lastPrompt)) > 86400000) {
+            setTimeout(() => {
+                document.getElementById("installAppBanner").style.top = "20px";
+            }, 2500); 
+        }
+      };
+
+      window.dismissInstallBanner = () => {
+        localStorage.setItem('lastInstallPromptTime', Date.now());
+        document.getElementById("installAppBanner").style.top = "-150px";
+      };
+
+      window.triggerAppInstall = async () => {
+        window.dismissInstallBanner();
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+        } else {
+            alert("To install tap 'Share' then 'Add to Home Screen' on your device");
+        }
+      };
+      
+      
+      
+      
+      
+      
+      
+      
+
 
       window.openJobBoard = () => {
         window.location.href = "jobboard.html";
@@ -3880,7 +4040,7 @@
                 "persistentLocationBanner"
               ).style.display = "none";
             },
-            (err) => {
+            (err) => { 
               console.error(err);
               document.getElementById(
                 "persistentLocationBanner"
@@ -3899,6 +4059,7 @@
         // --- FIX: FORCE THE GLASS OVERLAY TO LIFT ONCE APP LOADS ---
         const loader = document.getElementById("loadingOverlay");
         if (loader) loader.classList.add("loader-hidden");
+        window.checkInstallPrompt();
         
         // Check the URL for "action=openProfile" from the Job Board
         const urlParams = new URLSearchParams(window.location.search);
@@ -4274,6 +4435,23 @@
 
         // --- NEW: AUTOMATED HANDSHAKE (Fixes Ghost Chat) ---
         const chatId = `${sosId}_${winningHeroId}`;
+        
+        
+        const sos = sosCache[sosId];
+        if (sos && sos.isTowTruckRequest && sos.towDestination) {
+            const destMechanic = Object.values(profilesCache).find(p => p.isPro && (p.heroType === "mechanic" || p.heroType === "both") && p.businessAddress === sos.towDestination);
+            if (destMechanic) {
+                push(ref(db, `chats/${sosId}_${destMechanic.id}`), {
+                    sender: myId,
+                    text: `🔧 HEADS UP: A tow truck is bringing a ${sos.vehYear || ''} ${sos.vehMake || ''} ${sos.vehModel || ''} to your shop. ETA: ${agreedEta}. Issue: ${sos.issue}`,
+                    timestamp: Date.now(),
+                    read: false
+                });
+            }
+        }
+        
+         
+      
         push(ref(db, `chats/${chatId}`), {
           sender: myId, // The Seeker sends the message
           text: `✅ I have accepted your quote for $${agreedAmount}. See you in ${agreedEta}!`,
@@ -4285,6 +4463,44 @@
       };
 
       window.launchGame = (url) => {
+        
+        
+        
+        window.loadAdvertisements = () => {
+        onValue(ref(db, 'advertisingHub'), (snap) => {
+          const adTrack = document.getElementById("seekerAdTrack");
+          const adBanner = document.getElementById("seekerAdBanner");
+          if (!snap.exists()) {
+            adBanner.style.display = "none";
+            return;
+          }
+          
+          const ads = snap.val();
+          let adHtml = "";
+          Object.entries(ads).forEach(([adId, ad]) => {
+            adHtml += `
+              <div class="ad-card" onclick="window.location.href='advertisinghub.html?userId=${ad.ownerId}'">
+                <img src="${ad.img || 'https://via.placeholder.com/50'}" class="ad-img">
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-size: 13px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ad.title || 'Local Hero'}</div>
+                  <div style="font-size: 11px; color: var(--accent); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ad.subtitle || 'Tap to view details'}</div>
+                </div>
+              </div>
+            `;
+          });
+
+          adTrack.innerHTML = adHtml + adHtml;
+          adBanner.style.display = "block";
+        });
+      };
+
+      setTimeout(() => { window.loadAdvertisements(); }, 1500); 
+        
+        
+        
+        
+        
+        
         const iframe = document.getElementById("gameIframe");
         if (iframe) {
           iframe.src = url;
@@ -4914,34 +5130,34 @@
           window.openModal("imageEnlargeModal");
         };
       };
-      window.enterHeroMode = () => {
         
         
-        window.increaseTipPrompt = () => {
-          const activeSosId = Object.keys(sosCache).find(
-              (k) => sosCache[k].ownerId === myId && sosCache[k].status === "open"
-          );
-          if (!activeSosId) return;
+window.increaseTipPrompt = () => {
+        const activeSosId = Object.keys(sosCache).find(
+            (k) => sosCache[k].ownerId === myId && sosCache[k].status === "open"
+        );
+        if (!activeSosId) return alert("No active SOS found to edit");
 
-          const currentTip = sosCache[activeSosId].tip || 0;
-          const addedAmount = prompt(`Your current tip is $${currentTip}. How much additional tip would you like to add? (e.g. 10)`);
-          
-          if (addedAmount && !isNaN(addedAmount) && Number(addedAmount) > 0) {
-              const newTotal = Number(currentTip) + Number(addedAmount);
-              update(ref(db, `sosRequests/${activeSosId}`), { tip: newTotal }).then(() => {
-                  alert(`Tip updated to $${newTotal}! Heroes nearby will see the new amount.`);
-              });
-          }
+        const currentTip = sosCache[activeSosId].tip || 0;
+        const addedAmount = prompt(`Not getting help? Let's increase your tip to attract a Hero.\nYour current tip is $${currentTip}.\n\nEnter the ADDITIONAL amount to add (e.g. 5 or 10):`);
+        
+        if (addedAmount && !isNaN(addedAmount) && Number(addedAmount) > 0) {
+            const newTotal = Number(currentTip) + Number(addedAmount);
+            update(ref(db, `sosRequests/${activeSosId}`), { tip: newTotal }).then(() => {
+                window.showDropBanner(`Tip updated to $${newTotal}!`, "💰");
+            });
+        }
       };
-        
-        
+
+      window.enterHeroMode = () => {
         window.switchView("heroUI");
         if (!map) initMap();
-
         window.evaluateBannerState();
-
         window.startLocationWatch();
       };
+        
+        
+     
 
       window.confirmHelp = (sosId) => {
         const eta = document.getElementById("detETA").value;
@@ -5599,23 +5815,60 @@
             }
           });
         }
-        if (nearbySOS.length > 0) {
+        
+        
+        
+        
+if (nearbySOS.length > 0) {
           panelContent += `<div style="margin:10px 0 5px 0; font-weight:900; color:var(--text); text-transform:uppercase; font-size:12px;">Nearby Requests (${nearbySOS.length})</div>`;
           nearbySOS.forEach((s) => {
-            const borderClass = s.isTowTruckRequest
-              ? "status-tow"
-              : "status-roadside";
-            panelContent += `<div class="sos-list-item ${borderClass}" onclick="window.viewRequest('${
-              s.id
-            }')"><div class="sos-info-left"><b>${s.vehicle}${
-              s.isTowTruckRequest ? " (Tow)" : ""
-            }</b><br><small>${s.dist.toFixed(1)} mi • ${
-              s.issue
-            }</small><br><span style="color:var(--success); font-weight:800;">${
-              s.tip > 0 ? "$" + s.tip + " Tip" : "No Tip"
-            }</span></div><button style="background:var(--text); color:white; padding:10px 15px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">VIEW DETAILS</button></div>`;
+            panelContent += `
+              <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; cursor: pointer; overflow: hidden;" onclick="window.viewRequest('${s.id}')">
+                <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: ${s.isTowTruckRequest ? 'var(--tow-blue)' : 'var(--accent)'};"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-left: 10px;">
+                    <div style="font-weight: 900; font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 4px;">
+                        ${s.isTowTruckRequest ? '' : ''} ${s.vehicle} ${s.isTowTruckRequest ? '<span style="font-size:10px; background:#eff6ff; color:#2563eb; padding:2px 6px; border-radius:6px;">TOW</span>' : ''}
+                    </div>
+                    <div style="font-size: 14px; color: var(--muted); font-weight: 700; display: flex; align-items: center;">
+                         ${s.dist.toFixed(1)} mi
+                    </div>
+                    <div>
+                        ${s.tip > 0 ? `<div style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 8px; font-weight: 900; font-size: 14px;">+$${s.tip}</div>` : '<div style="font-size: 11px; color: var(--muted); font-weight: 600;">No Tip</div>'} 
+                    </div>
+                </div>
+                ${(s.damagePics && s.damagePics.length > 0) ? 
+                    `<div style="display: flex; gap: 6px; overflow-x: auto; margin-bottom: 8px; margin-left: 10px; padding-bottom: 4px;">
+                        ${s.damagePics.map(pic => `<img src="${pic}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; flex-shrink: 0;">`).join('')}
+                     </div>` 
+                    : (s.damagePic ? 
+                    `<div style="display: flex; gap: 6px; overflow-x: auto; margin-bottom: 8px; margin-left: 10px; padding-bottom: 4px;">
+                        <img src="${s.damagePic}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; flex-shrink: 0;">
+                     </div>` : 
+                    `<div style="display: flex; gap: 6px; overflow-x: auto; margin-bottom: 8px; margin-left: 10px; padding-bottom: 4px;">
+                        <div style="width: 100%; height: 40px; background: #f8fafc; border-radius: 6px; border: 1px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #94a3b8; text-align: center; flex-shrink: 0;">NO<br>IMGS ADDED</div>
+                        
+                     
+                        
+                     </div>`)
+                }
+                <div style="background: #f8fafc; padding: 10px; border-radius: 8px; font-size: 13px; color: var(--text); font-style: italic; margin-bottom: 12px; margin-left: 10px; border-left: 2px solid #cbd5e1;">
+                    "${s.issue}"
+                </div>
+                <button style="width: calc(100% - 10px); margin-left: 10px; background: whitesmoke; border: 2px solid ${s.isTowTruckRequest ? 'var(--tow-blue)' : 'var(--accent)'}; color: ${s.isTowTruckRequest ? 'var(--tow-blue)' : 'var(--accent)'}; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                    VIEW FULL DETAILS
+                </button>
+              </div>`;
           });
         }
+        
+        
+        
+
+        
+        
+        
+        
+        
         if (activeTasks.length === 0 && nearbySOS.length === 0)
           panelContent = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone inside your ${myRadius} mile radius needs help.</p></div>`;
         tCard.innerHTML = panelContent;
@@ -6120,6 +6373,33 @@
 });
       
   
+      
+      
+      
+      window.submitAdminMessage = () => {
+        const msgInput = document.getElementById("adminContactMsg");
+        const msg = msgInput.value.trim();
+        if (!msg) return alert("Please enter a message first");
+
+        push(ref(db, "adminMessages"), {
+          senderId: myId,
+          message: msg,
+          timestamp: Date.now()
+        }).then(() => {
+          msgInput.value = "";
+          window.showDropBanner("Message sent to Admin", "✅");
+        }).catch((err) => {
+          console.error(err);
+          alert("Failed to send message");
+        });
+      };
+      
+      
+      
+      
+      
+      
+      
 
       window.saveProfile = () => {
         const radiusEl = document.getElementById("profileRadius");
