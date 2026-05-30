@@ -5800,23 +5800,59 @@ window.increaseTipPrompt = () => {
           panelContent += `<div style="margin-bottom:10px; font-weight:900; color:var(--success); text-transform:uppercase; font-size:12px;">Active Jobs (${activeTasks.length})</div>`;
           activeTasks.forEach((task) => {
             if (task.status === "canceled") {
-              panelContent += `<div class="sos-list-item" style="border-color:var(--danger); display:block; text-align:center;"><b style="color:var(--danger)">JOB CANCELED</b><br>Reason: ${
-                task.cancelReason || "None"
-              }<button onclick="window.acknowledgeCancel()" class="submit-btn" style="background:var(--text); padding:8px; font-size:12px; margin-top:5px;">CLOSE</button></div>`;
+              panelContent += `
+              <div style="background: white; border: 1px solid #fca5a5; border-radius: 16px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden; text-align: center;">
+                <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--danger);"></div>
+                <div style="font-weight: 900; font-size: 16px; color: var(--danger); margin-bottom: 5px;">JOB CANCELED</div>
+                <div style="font-size: 13px; color: var(--muted); margin-bottom: 12px;">Reason: ${task.cancelReason || "None"}</div>
+                <button onclick="window.acknowledgeCancel()" style="width: calc(100% - 10px); margin-left: 10px; background: whitesmoke; border: 2px solid var(--text); color: var(--text); padding: 10px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                    CLOSE
+                </button>
+              </div>`;
             } else {
               const chatID = `${task.id}_${myId}`;
-              panelContent += `<div class="sos-list-item status-active"><div class="sos-info-left"><b style="color:var(--success);">IN PROGRESS</b><br><b>${
-                task.vehicle
-              }</b>${task.isTowTruckRequest ? " (Tow)" : ""}<br><small>${
-                task.issue
-              }</small></div><div style="display:flex; flex-direction:column; gap:5px;"><button onclick="window.viewRequest('${
-                task.id
-              }')" style="background:var(--success); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">DETAILS</button><button onclick="window.openChat('${chatID}')" style="background:var(--accent); color:white; padding:10px; border-radius:10px; border:none; font-weight:700; font-size:11px; cursor:pointer;">CHAT</button></div></div>`;
+              panelContent += `
+              <div style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--success);"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-left: 10px;">
+                    <div style="font-weight: 900; font-size: 14px; color: var(--text); display: flex; align-items: center; gap: 4px;">
+                        ${task.isTowTruckRequest ? '' : ''} ${task.vehicle} ${task.isTowTruckRequest ? '<span style="font-size:10px; background:#eff6ff; color:#2563eb; padding:2px 6px; border-radius:6px;">TOW</span>' : ''}
+                    </div>
+                    <div>
+                        <div style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 8px; font-weight: 900; font-size: 11px;">IN PROGRESS</div>
+                    </div>
+                </div>
+                ${(task.damagePics && task.damagePics.length > 0) ? 
+                    `<div style="display: flex; gap: 6px; overflow-x: auto; margin-bottom: 8px; margin-left: 10px; padding-bottom: 4px;">
+                        ${task.damagePics.map(pic => `<img src="${pic}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; flex-shrink: 0;">`).join('')}
+                     </div>` 
+                    : (task.damagePic ? 
+                    `<div style="display: flex; gap: 6px; overflow-x: auto; margin-bottom: 8px; margin-left: 10px; padding-bottom: 4px;">
+                        <img src="${task.damagePic}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0; flex-shrink: 0;">
+                     </div>` : 
+                    `<div style="display: flex; gap: 6px; overflow-x: auto; margin-bottom: 8px; margin-left: 10px; padding-bottom: 4px;">
+                        <div style="width: 100%; height: 40px; background: #f8fafc; border-radius: 6px; border: 1px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #94a3b8; text-align: center; flex-shrink: 0;">NO<br>IMGS ADDED</div>
+                     </div>`)
+                }
+                <div style="background: #f8fafc; padding: 10px; border-radius: 8px; font-size: 13px; color: var(--text); font-style: italic; margin-bottom: 12px; margin-left: 10px; border-left: 2px solid #cbd5e1;">
+                    "${task.issue}"
+                </div>
+                <div style="display: flex; gap: 10px; margin-left: 10px; width: calc(100% - 10px);">
+                    <button onclick="window.viewRequest('${task.id}')" style="flex: 1; background: whitesmoke; border: 2px solid var(--success); color: var(--success); padding: 10px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                        DETAILS
+                    </button>
+                    <button onclick="window.openChat('${chatID}')" style="flex: 1; background: var(--accent); border: 2px solid var(--accent); color: white; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                        CHAT
+                    </button>
+                </div>
+              </div>`;
             }
           });
         }
         
         
+        
+
         
         
 if (nearbySOS.length > 0) {
