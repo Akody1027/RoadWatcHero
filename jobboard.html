@@ -935,7 +935,7 @@ window.togglePanel = (panelId, btnEl) => {
         ? `<div style="display: flex; flex-direction: column; align-items: center;"><span style="font-size:24px; margin-bottom:4px;"></span><span style="font-size:15px; font-weight:900; color:var(--muted);">${distStr} MI</span></div>` 
         : `<div style="display: flex; flex-direction: column; align-items: center;"><span style="font-size:24px; margin-bottom:4px;"></span><span style="font-size:15px; font-weight:900; color:var(--muted);">LOCAL</span></div>`;
 
-      let budgetUI = `<div style="display: flex; flex-direction: column; align-items: center;"><span style="font-size:18px; font-weight:900; color:var(--success); line-height:1; margin-bottom:4px;">$${job.budget}</span><span style="font-size:10px; font-weight:900; color:var(--muted);"></span></div>`;
+      let budgetUI = `<div style="display: flex; flex-direction: column; align-items: center;"><span style="font-size:18px; font-weight:900; color:var(--success); line-height:1; ">$${job.budget}</span><span style="font-size:10px; font-weight:900; color:var(--muted);"></span></div>`;
 
       document.getElementById('detTopRow').innerHTML = `${drivableUI} ${distUI} ${budgetUI}`;
       
