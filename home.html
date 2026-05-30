@@ -3787,6 +3787,32 @@
         
       };
 
+
+
+
+window.onload = () => {
+  // 1. Check the URL for "action=openProfile"
+  const urlParams = new URLSearchParams(window.location.search);
+  const action = urlParams.get('action');
+
+  // 2. If the action exists, open the modal
+  if (action === 'openProfile') {
+    // Replace 'userProfileModal' with the actual ID of your modal in home.html
+    window.openModal('userProfileModal'); 
+    
+    // Optional: Clean the URL so if they refresh, the modal doesn't pop up again
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+};
+
+
+
+
+
+
+
+
+      
       window.evaluateBannerState = () => {
         const banner = document.getElementById("persistentLocationBanner");
         if (navigator.permissions && navigator.permissions.query) {
