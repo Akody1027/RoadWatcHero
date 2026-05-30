@@ -6,10 +6,10 @@
 
 <!DOCTYPE html>
 <html lang="en"> 
-  <head> 
-    <meta charset="UTF-8" /> 
+  <head>  
+    <meta charset="UTF-8" />  
     <title>RoadWatcHero</title>
-    
+     
       <meta    
       name="viewport"
       content="width=device-width, initial-scale=1.0" 
@@ -646,15 +646,16 @@
                               font-weight: 600;
                             }
 
-                            .footer {
-                              position: sticky;
+                             .footer {
+                              position: fixed;
                               bottom: 0;
-                              margin-top: auto;
+                              left: 0;
                               width: 100%;
                               background: var(--accent);
                               backdrop-filter: blur(10px);
-                              z-index: 200;
+                              z-index: 2000;
                               border-top: 1px solid rgba(255, 255, 255, 0.2);
+                              padding-bottom: env(safe-area-inset-bottom);
                             }
                             .footer-icons {
                               display: flex;
@@ -1155,7 +1156,7 @@
       }
       .ad-img {
         width: 45px;
-        height: 45px;
+        height: 145px;
         border-radius: 6px;
         object-fit: cover;
         margin-right: 10px;
@@ -1498,17 +1499,18 @@
           CONFIRM & FINISH
         </button>
       </div>
-
+      
+      
+<div id="seekerAdBanner" class="ad-scroller-container" style="margin-bottom: 70px;">
+      <p style="font-size: 10px; font-weight: 900; color: var(--muted); text-transform: uppercase; margin: 0 0 8px 10px;">⭐ FEATURED PRO HEROES</p>
+      <div id="seekerAdTrack" class="ad-track"></div>
+    </div>
+      
+      
       <div class="footer">
         <div class="footer-icons">
           
-          <div id="seekerAdBanner" class="ad-scroller-container">
-        <p style="font-size: 10px; font-weight: 900; color: var(--muted); text-transform: uppercase; margin: 0 0 8px 10px;">⭐ FEATURED PRO HEROES</p>
-        <div id="seekerAdTrack" class="ad-track"></div>
-      </div>
-          
-          
-          
+ 
           <div id="footerArcadeBtn" style="position: relative; display: none">
             <img
               src="controlicon.png"
@@ -4462,20 +4464,24 @@
         alert("Bid accepted! Connecting you to your Tow Hero now.");
       };
 
-      window.launchGame = (url) => {
-        
-        
-        
-        window.loadAdvertisements = () => {
+  
+ 
+      window.loadAdvertisements = () => {
         onValue(ref(db, 'advertisingHub'), (snap) => {
           const adTrack = document.getElementById("seekerAdTrack");
           const adBanner = document.getElementById("seekerAdBanner");
-          if (!snap.exists()) {
-            adBanner.style.display = "none";
-            return;
+          
+          let ads = {};
+          if (!snap.exists() || !snap.val() || Object.keys(snap.val()).length === 0) {
+            ads = {
+                "dummy1": { ownerId: "admin", img: "heromapicon.png", title: "Your Ad Here", subtitle: "Tap to feature your business" },
+                "dummy2": { ownerId: "admin", img: "roadwatchlogo.png", title: "RoadWatcHero Pro", subtitle: "Upgrade your account today" },
+                "dummy3": { ownerId: "admin", img: "heromapicon.png", title: "Your Ad Here", subtitle: "Reach local seekers instantly" }
+            };
+          } else {
+            ads = snap.val();
           }
           
-          const ads = snap.val();
           let adHtml = "";
           Object.entries(ads).forEach(([adId, ad]) => {
             adHtml += `
@@ -4489,24 +4495,27 @@
             `;
           });
 
-          adTrack.innerHTML = adHtml + adHtml;
-          adBanner.style.display = "block";
+          if (adTrack) adTrack.innerHTML = adHtml + adHtml;
+          if (adBanner) adBanner.style.display = "block";
         });
       };
+      
+      
+      
+ 
+      setTimeout(() => { window.loadAdvertisements(); }, 1500);
 
-      setTimeout(() => { window.loadAdvertisements(); }, 1500); 
-        
-        
-        
-        
-        
-        
+      window.launchGame = (url) => {
         const iframe = document.getElementById("gameIframe");
         if (iframe) {
           iframe.src = url;
           window.openModal("gamePlayerModal");
         }
       };
+        
+        
+        
+ 
 
       window.closeGame = () => {
         const iframe = document.getElementById("gameIframe");
@@ -4806,7 +4815,7 @@
           const chatModalOpen = document.getElementById("chatModal").style.display === "flex";
           
           if (!isInitialLoadForChatListener && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) {
-            const sound = document.getElementById("notificationSound");
+            const sound = document.getElementById("notificationSound"); 
             if (sound) sound.play().catch((e) => console.error(e));
             
             if (!chatModalOpen) {
