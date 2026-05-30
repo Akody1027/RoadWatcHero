@@ -9,7 +9,7 @@
   <head> 
     <meta charset="UTF-8" /> 
     <title>RoadWatcHero</title>
-   
+    
       <meta    
       name="viewport"
       content="width=device-width, initial-scale=1.0" 
@@ -4664,18 +4664,25 @@
 
       window.openChat = async (targetChatId = null) => {
         if (targetChatId) activeChatId = targetChatId;
-        else {
+        else { 
+          
           const currentActiveSOS = Object.values(sosCache).find(
             (r) =>
               (r.ownerId === myId || r.helperId === myId) &&
               (r.status === "accepted" || r.status === "arrived")
           );
-          if (currentActiveSOS)
+          if (currentActiveSOS) {
             activeChatId = `${Object.keys(sosCache).find(
               (key) => sosCache[key] === currentActiveSOS
             )}_${currentActiveSOS.helperId}`;
+          } else {
+             const mechanicChatId = Object.keys(chatCache).find(c => c.includes(myId));
+             if (mechanicChatId) activeChatId = mechanicChatId;
+          }
         }
         if (!activeChatId) return;
+          
+ 
         window.openModal("chatModal");
         const chatSnap = await get(ref(db, `chats/${activeChatId}`));
         if (chatSnap.exists()) {
@@ -4771,67 +4778,52 @@
         (snapshot) => {
           chatCache = snapshot.val() || {};
           let unreadCount = 0;
-          
-          
-          
-          
           let latestMessageTimestampInActiveChat = 0;
+          let latestMessageText = "New message received!";
+          
           Object.keys(chatCache).forEach((chatId) => {
             const messages = chatCache[chatId];
             
-            // STRICT FILTER: Only count unread messages for ACTIVE jobs to prevent ghost badges.
             const isRelatedToActiveJob = Object.entries(sosCache).some(([jobId, r]) => {
-                return (r.ownerId === myId || r.helperId === myId) && 
+                return (r.ownerId === myId || r.helperId === myId || chatId.includes(myId)) && 
                        ["open", "accepted", "arrived"].includes(r.status) &&
                        chatId.includes(jobId);
             });
 
             if (isRelatedToActiveJob) {
               Object.values(messages).forEach((message) => {
-                
-                
-                                      if (message.sender !== myId) {
-                        if (message.read === false) unreadCount++; 
-                        if (message.timestamp && message.timestamp >       latestMessageTimestampInActiveChat) {
-                          latestMessageTimestampInActiveChat = message.timestamp;
-                        }
-                      }
-
-                
-                
+                  if (message.sender !== myId) {
+                    if (message.read === false) unreadCount++; 
+                    if (message.timestamp && message.timestamp > latestMessageTimestampInActiveChat) {
+                      latestMessageTimestampInActiveChat = message.timestamp;
+                      latestMessageText = message.text || "Sent an image";
+                    }
+                  }
               });
             }
           });
       
-           
+          const chatModalOpen = document.getElementById("chatModal").style.display === "flex";
           
-          
-          const chatModalOpen =
-            document.getElementById("chatModal").style.display === "flex";
-          
-          if (
-            !isInitialLoadForChatListener &&
-            latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp
-          ) {
+          if (!isInitialLoadForChatListener && latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) {
             const sound = document.getElementById("notificationSound");
             if (sound) sound.play().catch((e) => console.error(e));
+            
+            if (!chatModalOpen) {
+                window.showDropBanner(latestMessageText, "💬");
+            }
           }
               
-          if (
-            latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp
-          )
+          if (latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) {
             lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
+          }
           currentUnreadCount = unreadCount;
           updateChatBadges(currentUnreadCount);
-          if (isInitialLoadForChatListener)
-            isInitialLoadForChatListener = false;
-          if (
-            document
-              .getElementById("seekerUI")
-              .classList.contains("view-active")
-          )
-            syncUI();
-        },
+          if (isInitialLoadForChatListener) isInitialLoadForChatListener = false;
+          if (document.getElementById("seekerUI").classList.contains("view-active")) syncUI();
+          
+ },
+        
         (error) => console.error("Error fetching chats:", error)
       );
 
@@ -5699,12 +5691,28 @@ window.increaseTipPrompt = () => {
           const lastKnownSOS = window._lastSosCacheState_
             ? window._lastSosCacheState_[id]
             : null;
+          if (lastKnownSOS && lastKnownSOS.status !== r.status) {
+            if (r.ownerId === myId || r.helperId === myId) {
+              const sound = document.getElementById("notificationSound");
+              if (sound) sound.play().catch((e) => console.error(e));
+              
+              if (r.status === "accepted") window.showDropBanner("Job Accepted Hero is on the way", "");
+              else if (r.status === "arrived") window.showDropBanner("Your Hero has arrived", "");
+              else if (r.status === "completed") window.showDropBanner("Job has been completed", "✅");
+              else if (r.status === "canceled") window.showDropBanner("Job was canceled", "🚫");
+            }
+          }
+
           if (
             r.helperId === myId &&
             r.status === "canceled" &&
             lastKnownSOS &&
             lastKnownSOS.status === "accepted"
           ) {
+          
+          
+          
+     
             const sound = document.getElementById("notificationSound");
             if (sound) sound.play().catch((e) => console.error(e));
           }
