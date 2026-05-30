@@ -124,6 +124,16 @@
     .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: 0.4s; border-radius: 50%; }
     input:checked + .slider { background-color: var(--success); }
     input:checked + .slider:before { transform: translateX(22px); }
+    
+    
+    input[type="range"] { accent-color: var(--accent); }
+    #detImgScroller { justify-content: center; }
+    
+    
+    
+    
+    
+    
 
     /* Independently Scrolling Job Feed */
     #feedContainer {
@@ -330,22 +340,25 @@
 
       <div class="toolbar">
         <button class="tool-btn" id="btnPost" onclick="window.togglePanel('postPanel', this)">➕ Add Job</button>
+        
+        
+        
         <button class="tool-btn" id="btnFilter" onclick="window.togglePanel('filterPanel', this)">🎛️ <span id="radiusLabelDisplay">10</span> mi</button>
         <button class="tool-btn" onclick="window.toggleLayout()">🔲 View</button>
         <button class="tool-btn" id="btnMyJobs" onclick="window.toggleMyJobs(this)">👤 My Jobs</button>
       </div>
 
       <div id="postPanel" class="drop-panel">
-        <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">TARGET BUDGET ($)</label>
-        <input type="number" id="reqBudget" placeholder="e.g. 250" style="color: var(--success); font-weight: 900; font-size: 20px;" />
         
-        <div class="toggle-wrapper">
-          <span class="toggle-label">Is the vehicle drivable?</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="reqDrivable" checked />
-            <span class="slider"></span>
-          </label>
+        <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block; margin-top: 10px;">VEHICLE DETAILS</label>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+          <input type="number" id="reqYear" placeholder="Year" style="margin-bottom: 0;" />
+          <input type="text" id="reqMake" placeholder="Make" style="margin-bottom: 0;" />
+          <input type="text" id="reqModel" placeholder="Model" style="margin-bottom: 0;" />
         </div>
+        
+        
+
 
         <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">ISSUE DESCRIPTION</label>
         <textarea id="reqIssue" placeholder="What exactly needs fixing? Be descriptive." rows="3"></textarea>
@@ -377,11 +390,15 @@
     <div class="modal-content" style="position: relative;">
       <button class="close-x-btn" onclick="window.closeModal('jobDetailsModal')">✕</button>
       
-      <div style="margin-bottom: 15px; margin-top: 10px;">
-        <span id="detBudget" style="font-size: 32px; font-weight: 900; color: var(--success);">$0</span>
-        <div id="detTags" style="margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap;"></div>
+      
+      <div style="margin-bottom: 20px; margin-top: 15px; text-align: center;">
+        <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin: 0 0 4px 0;">TARGET BUDGET</p>
+        <span id="detBudget" style="font-size: 36px; font-weight: 900; color: var(--success); display: block; margin-bottom: 15px;">$0</span>
+        <div id="detVehicleSpecs" style="font-weight: 800; font-size: 16px; color: var(--text); margin-bottom: 12px; display: flex; justify-content: center; gap: 6px;"></div>
+        <div id="detTags" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;"></div>
       </div>
 
+      
       <div id="detImgScroller" class="preview-scroller" style="display: none;  padding-bottom: 10px;"></div>
       
       <p style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 4px;">ISSUE DESCRIPTION</p>
@@ -411,6 +428,8 @@
     <div id="chatBox"></div>
     
     <div class="chat-input-area">
+      <input type="file" id="chatImgInput" accept="image/*" style="display: none" onchange="window.sendChatImage(this)">
+      <button onclick="document.getElementById('chatImgInput').click()" style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 20px; cursor: pointer; padding: 0 12px; display: flex; align-items: center; justify-content: center;">📸</button>
       <input id="chatInput" placeholder="Type message..." style="margin: 0; flex: 1; border-radius:10px; font-size:18px; padding: 12px;" />
       <button onclick="window.sendChatMsg()" style="background: var(--accent); color: white; border: none; padding: 0 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">SEND</button>
     </div>
@@ -701,6 +720,10 @@ window.togglePanel = (panelId, btnEl) => {
     window.submitMechanicJob = () => {
       const budget = document.getElementById('reqBudget').value;
       const issue = document.getElementById('reqIssue').value;
+      const vYear = document.getElementById('reqYear').value;
+      const vMake = document.getElementById('reqMake').value;
+      const vModel = document.getElementById('reqModel').value;
+ 
       const isDrivable = document.getElementById('reqDrivable').checked;
 
       if(!budget || !issue) return alert("Please fill out the budget and issue description.");
@@ -709,17 +732,23 @@ window.togglePanel = (panelId, btnEl) => {
       push(ref(db, 'mechanicRequests'), {
         ownerId: myId,
         budget: Number(budget),
+        vehicleYear: vYear,
+        vehicleMake: vMake,
+        vehicleModel: vModel,
         issue: issue,
         isDrivable: isDrivable,
         lat: userLocation.lat,
         lng: userLocation.lng,
         images: pendingUploadedImages,
-        status: 'open',
+        status: 'open', 
         timestamp: Date.now()
       });
 
       // Reset & Close
       document.getElementById('reqBudget').value = '';
+      document.getElementById('reqYear').value = '';
+      document.getElementById('reqMake').value = '';
+      document.getElementById('reqModel').value = '';
       document.getElementById('reqIssue').value = '';
       document.getElementById("jobImgPreview").innerHTML = '';
       pendingUploadedImages = [];
@@ -786,12 +815,16 @@ window.togglePanel = (panelId, btnEl) => {
 
         // Quote Badges
         let badgeHtml = '';
+        
+        
+        
+        
+        
         if(job.bids && job.status === 'open') {
             const bidCount = Object.keys(job.bids).length;
             badgeHtml = `<div style="position:absolute; top:-10px; right:-10px; background:var(--accent); color:white; font-size:11px; font-weight:900; padding:6px 12px; border-radius:15px; box-shadow:var(--shadow); z-index:2;">🔔 ${bidCount} Quotes</div>`;
         }
-
-        const delBtnHtml = (job.ownerId === myId && job.status === 'open') ? `<button class="del-btn" onclick="window.deleteJob(event, '${id}')">🗑️</button>` : '';
+        const delBtnHtml = (job.ownerId === myId && job.status === 'open') ? `<span onclick="window.deleteJob(event, '${id}')" style="filter: brightness(0) saturate(100%) invert(27%) sepia(91%) saturate(2352%) hue-   rotate(346deg) brightness(104%) contrast(97%); cursor: pointer; font-size: 18px; padding: 5px; margin-left: auto;" title="Delete Job">🗑️</span>` : '';
         const imgThumb = (job.images && job.images.length > 0) ? `<img src="${job.images[0]}" style="width:auto; height:60px; object-fit:cover; border-radius:10px; flex-shrink:0; border:1px solid #e2e8f0; margin-right:10px;">` : '';
 
         feed.innerHTML += `
@@ -836,6 +869,10 @@ window.togglePanel = (panelId, btnEl) => {
       activeJobIdForDetails = jobId;
 
       document.getElementById('detBudget').innerText = "$" + job.budget;
+      const year = job.vehicleYear || '';
+      const make = job.vehicleMake || '';
+      const model = job.vehicleModel || '';
+      document.getElementById('detVehicleSpecs').innerText = `${year} ${make} ${model}`.trim();
       document.getElementById('detIssue').innerText = job.issue;
       
       let tagsHTML = job.isDrivable 
@@ -1112,10 +1149,15 @@ window.openChat = async (chatId, titleName) => {
           box.innerHTML = '';
           const data = snap.val() || {};
           const msgs = Object.values(data);
-          msgs.forEach(m => {
+         msgs.forEach(m => {
              const side = m.sender === myId ? 'msg-me' : 'msg-them';
-             box.innerHTML += `<div class="msg ${side}"><div>${m.text}</div></div>`;
+             if (m.imageUrl) {
+               box.innerHTML += `<div class="msg ${side}" style="padding: 5px; background: transparent; border: none;"><img src="${m.imageUrl}" style="max-width: 100%; border-radius: 14px; cursor: pointer; border: 1px solid #e2e8f0;" onclick="window.viewImage(this.src)"></div>`;
+             } else {
+               box.innerHTML += `<div class="msg ${side}"><div>${m.text}</div></div>`;
+             }
           });
+        
           box.scrollTop = box.scrollHeight;
        });
     };
@@ -1182,18 +1224,45 @@ window.openChat = async (chatId, titleName) => {
   update(ref(db), updates).catch(e => console.error("Inbox Update Failed", e));
   input.value = '';
 };
+window.sendChatImage = async (inputEl) => {
+      if (!inputEl.files || inputEl.files.length === 0 || !activeChatId) return;
+      const file = inputEl.files[0];
+      const now = Date.now();
+      
+      document.getElementById('loadingOverlay').classList.remove('loader-hidden');
+      
+      try {
+        const fileRef = storageRef(storage, `chat-images/${myId}_${now}_${file.name}`);
+        await uploadBytes(fileRef, file);
+        const downloadURL = await getDownloadURL(fileRef);
+        
+        push(ref(db, `chats/${activeChatId}`), {
+          sender: myId,
+          imageUrl: downloadURL,
+          timestamp: now
+        });
+
+        const parts = activeChatId.split('_');
+        let recipientId = (myId === parts[0]) ? parts[1] : parts[0];
+        
+        const updates = {};
+        updates[`userInbox/${myId}/${activeChatId}/lastMsg`] = "📸 Image";
+        updates[`userInbox/${myId}/${activeChatId}/timestamp`] = now;
+        updates[`userInbox/${recipientId}/${activeChatId}/lastMsg`] = "📸 Image";
+        updates[`userInbox/${recipientId}/${activeChatId}/timestamp`] = now;
+        updates[`userInbox/${recipientId}/${activeChatId}/unread`] = true;
+        
+        await update(ref(db), updates);
+      } catch (error) {
+        console.error("Chat Image Error:", error);
+        alert("Failed to send image.");
+      } finally {
+        document.getElementById('loadingOverlay').classList.add('loader-hidden');
+        inputEl.value = '';
+      }
+    };
 
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     // DB Listeners
     onValue(ref(db, 'mechanicRequests'), (snap) => {
       jobsCache = snap.val() || {};
