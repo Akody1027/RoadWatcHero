@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 <html lang="en"> 
   <head>  
-    <meta charset="UTF-8" />  
+    <meta charset="UTF-8" />   
     <title>RoadWatcHero</title>
      
       <meta    
@@ -1119,53 +1119,43 @@
         color: #94a3b8;
       }
       
-      
-      
-      
       .ad-scroller-container {
-        width: 100%;
-        overflow: hidden;
-        background: white;
+        width: 105%;
+        background: ;
         border-top: 1px solid #e2e8f0;
         border-bottom: 1px solid #e2e8f0;
-        padding: 10px 0;
         margin-top: 20px;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
         display: none; 
+        position: relative;
+
       }
       .ad-track {
         display: flex;
-        gap: 15px;
-        width: max-content;
-        animation: scrollAds 25s linear infinite;
-      }
-      .ad-track:hover {
-        animation-play-state: paused;
+        width: 100%;
+        transition: transform 5.0s ;
+
       }
       .ad-card {
-        flex: 0 0 240px;
-        height: 65px;
-        background: #f8fafc;
-        border: 1px solid #cbd5e1;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        padding: 5px 10px;
+        flex: 0 0 100%;
+        height: 225px;
+        width:100%;
+        position: relative;
         cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+
       }
       .ad-img {
-        width: 45px;
-        height: 145px;
-        border-radius: 6px;
-        object-fit: cover;
-        margin-right: 10px;
-        border: 1px solid #e2e8f0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
       }
-      @keyframes scrollAds {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-      }
+      
+
+  
       
       
     </style>
@@ -1502,9 +1492,9 @@
       
       
 <div id="seekerAdBanner" class="ad-scroller-container" style="margin-bottom: 70px;">
-      <p style="font-size: 10px; font-weight: 900; color: var(--muted); text-transform: uppercase; margin: 0 0 8px 10px;">⭐ FEATURED PRO HEROES</p>
-      <div id="seekerAdTrack" class="ad-track"></div>
-    </div>
+        <div style="position: absolute; top: 10px; left: 15px; z-index: 2; background: rgba(255,255,255,0.95); padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 900; color: var(--muted); text-transform: uppercase; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">⭐ FEATURED PRO HEROES</div>
+        <div id="seekerAdTrack" class="ad-track"></div>
+      </div>
       
       
       <div class="footer">
@@ -4465,43 +4455,73 @@
       };
 
   
- 
-      window.loadAdvertisements = () => {
-        onValue(ref(db, 'advertisingHub'), (snap) => {
+      
+      
+window.loadAdvertisements = () => {
+        // CHANGED: Now correctly pointing to 'businessPosts' instead of 'advertisingHub'
+        onValue(ref(db, 'businessPosts'), (snap) => {
           const adTrack = document.getElementById("seekerAdTrack");
           const adBanner = document.getElementById("seekerAdBanner");
           
-          let ads = {};
-          if (!snap.exists() || !snap.val() || Object.keys(snap.val()).length === 0) {
-            ads = {
-                "dummy1": { ownerId: "admin", img: "heromapicon.png", title: "Your Ad Here", subtitle: "Tap to feature your business" },
-                "dummy2": { ownerId: "admin", img: "roadwatchlogo.png", title: "RoadWatcHero Pro", subtitle: "Upgrade your account today" },
-                "dummy3": { ownerId: "admin", img: "heromapicon.png", title: "Your Ad Here", subtitle: "Reach local seekers instantly" }
-            };
-          } else {
-            ads = snap.val();
+          // 1. ALWAYS keep BOTH dummy ads permanently
+          let ads = {
+              "dummy1": { ownerId: "admin", promoUrl: "heromapicon.png", businessName: "Your Ad Here", description: "Tap to feature your business" },
+              "dummy2": { ownerId: "admin", promoUrl: "roadwatchlogo.png", businessName: "RoadWatcHero Pro", description: "Upgrade your account today" }
+          };
+          
+          // 2. Safely merge real ads from the database into the list
+          if (snap.exists() && snap.val()) {
+              const realAds = snap.val();
+              Object.entries(realAds).forEach(([key, val]) => {
+                  if (val) ads[key] = val;
+              });
           }
           
           let adHtml = "";
+          window.totalAds = 0;
           Object.entries(ads).forEach(([adId, ad]) => {
+            window.totalAds++;
+            
+            // Bulletproof fallbacks for image, title, and description keys
+            const imgSrc = ad.promoUrl || ad.logoUrl || ad.img || 'https://via.placeholder.com/150';
+            const bizName = ad.businessName || ad.title || 'Pro Hero';
+            const bizDesc = ad.description || ad.subtitle || 'Tap to view details';
+
             adHtml += `
               <div class="ad-card" onclick="window.location.href='advertisinghub.html?userId=${ad.ownerId}'">
-                <img src="${ad.img || 'https://via.placeholder.com/50'}" class="ad-img">
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-size: 13px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ad.title || 'Local Hero'}</div>
-                  <div style="font-size: 11px; color: var(--accent); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ad.subtitle || 'Tap to view details'}</div>
+                <img src="${imgSrc}" class="ad-img">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;"></div>
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px 20px; z-index: 3;">
+                  <div style="font-size: 22px; font-weight: 900; color: white;  white-space: normal; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,0.8); margin-bottom: 0px; ">${bizName}</div>
+               
                 </div>
               </div>
             `;
           });
 
-          if (adTrack) adTrack.innerHTML = adHtml + adHtml;
+          if (adTrack) {
+              adTrack.innerHTML = adHtml;
+              adTrack.style.transform = `translateX(0%)`;
+          }
           if (adBanner) adBanner.style.display = "block";
+
+          if (window.adTimer) clearInterval(window.adTimer);
+          window.currentAd = 0;
+          
+          // 4. Start the 30-second slider loop
+          if (window.totalAds > 1) {
+              window.adTimer = setInterval(() => {
+                  window.currentAd++;
+                  if (window.currentAd >= window.totalAds) window.currentAd = 0;
+                  if (document.getElementById("seekerAdTrack")) {
+                      document.getElementById("seekerAdTrack").style.transform = `translateX(-${window.currentAd * 100}%)`;
+                  }
+              }, 8000);
+          }
         });
       };
       
-      
-      
+   
  
       setTimeout(() => { window.loadAdvertisements(); }, 1500);
 
