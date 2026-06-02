@@ -148,7 +148,24 @@
             <div class="brand">
                 <div class="brand-indicator" id="connectionDot"></div> Roadwatch Hero
             </div>
+
+
+
+
+
+
+            
             <div class="topbar-controls">
+
+
+                <div class="promo-container" style="display: flex; align-items: center; gap: 10px;">
+                    <button class="btn-toggle" id="promoToggle">MONETIZATION ACTIVE</button>
+                </div>
+                
+
+
+
+                
                 <div class="maintenance-container">
                     <h3>Maintenance:</h3>
                     <button class="btn-toggle active" id="maintenanceToggle">SYSTEM ONLINE</button>
@@ -285,6 +302,11 @@
         let activeTowCount = 0;
         let activeMechanicCount = 0;
 
+
+        let isFreeRegistration = false;
+        
+
+        
         function updateExpenseAndBalance() {
             const totalStranded = activeSosCount + activeTowCount + activeMechanicCount;
             document.getElementById('expenseCalc').innerText = `$${(totalStranded * 0.05).toFixed(2)}`;
@@ -399,6 +421,31 @@
                 document.getElementById('mechanicCount').innerText = activeMechanicCount;
                 updateExpenseAndBalance();
             });
+
+
+
+            const promoRef = ref(db, 'settings/global/free_hero_registration');
+            onValue(promoRef, (snapshot) => {
+                const isFree = snapshot.val() === true;
+                const toggleBtn = document.getElementById('promoToggle');
+                isFreeRegistration = isFree;
+                
+                if (isFree) {
+                    toggleBtn.className = 'btn-toggle active';
+                    toggleBtn.innerText = 'FREE LAUNCH PROMO ON';
+                } else {
+                    toggleBtn.className = 'btn-toggle';
+                    toggleBtn.innerText = 'MONETIZATION ACTIVE';
+                    toggleBtn.style.backgroundColor = 'var(--danger)';
+                }
+            });
+
+
+
+
+
+
+            
         }
 
         function renderUsersList(usersArray) {
@@ -465,6 +512,25 @@
                 e.target.style.backgroundColor = isMaintenance ? 'var(--warning)' : 'var(--success)';
             } catch (err) { alert("Failed: " + err.message); isMaintenance = !isMaintenance; }
         });
+
+
+
+
+
+        document.getElementById('promoToggle').addEventListener('click', async () => {
+            const newState = !isFreeRegistration;
+            try { 
+                await set(ref(db, 'settings/global/free_hero_registration'), newState);
+            } catch (err) { 
+                alert("Failed to update registration status: " + err.message); 
+            }
+        });
+
+
+
+
+
+        
 
         window.terminateRequest = async (collectionName, reqId) => {
             if(confirm(`Force terminate this broadcast?`)) {
