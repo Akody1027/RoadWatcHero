@@ -1,3 +1,6 @@
+
+
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -1658,6 +1661,28 @@
     let currentUserId = null;
 
     // --- LIVE PREVIEW & UPLOADER UI LOGIC ---
+    
+    
+    
+    let isPromoActive = false;
+    onValue(ref(db, 'settings/global/free_hero_registration'), (snapshot) => {
+        isPromoActive = snapshot.val() === true;
+        const upsellLink = document.querySelector('.shell-upsell-link');
+        if (upsellLink) {
+            if (isPromoActive) {
+                upsellLink.innerHTML = "Launch Promo: Claim Your FREE Pro Account Today!";
+            } else {
+                upsellLink.innerHTML = "Advertise with RoadWatcHero<br />Sign up now!";
+            }
+        }
+    });
+
+    
+    
+    
+    
+    
+    
     const updatePreview = () => {
       document.getElementById("previewName").innerText =
         document.getElementById("shellBizName").value || "Business Name";
@@ -1744,10 +1769,16 @@
             document.getElementById("dashboardFormsContainer").style.display =
               "none";
             const loginBtn = document.getElementById("shellLoginBtn");
-            if (loginBtn) loginBtn.innerText = "PRO SUBSCRIPTION REQUIRED";
-            return; // Stop execution, keep dashboard hidden!
-          }
+            
+            
+            
+              if (loginBtn) {
+                loginBtn.innerText = isPromoActive ? "PRO SETUP INCOMPLETE - CLAIM FREE ACCOUNT" : "PRO SUBSCRIPTION REQUIRED";
+            }
 
+            
+            return; // Stop execution, keep dashboard hidden!
+          } 
           // If they are a verified Pro, unlock the dashboard
           document.getElementById("shellLoginSection").style.display = "none";
           document.getElementById("dashboardFormsContainer").style.display =
@@ -1764,6 +1795,16 @@
             data.postClicks || 0;
           document.getElementById("statCallClicks").innerText =
             data.callClicks || 0;
+          
+                    
+          const manageBtn = document.querySelector("#proStatusSection button");
+          if (manageBtn) {
+              manageBtn.innerText = isPromoActive ? "MANAGE PRO SETTINGS" : "MANAGE SUBSCRIPTION";
+          }
+
+          
+          
+          
 
           // Auto-fill core identity using a session flag to beat browser cache
           if (!document.getElementById("shellBizName").dataset.loaded) {
