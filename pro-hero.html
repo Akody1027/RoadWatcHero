@@ -1,3 +1,7 @@
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -1116,6 +1120,15 @@
                     stripePriceId: 'price_1TSoiu02cjd265jFHYME6eJs'
                 });
                 
+                    await update(ref(db, "profiles/" + auth.currentUser.uid), {
+                    companyName: company,
+                    dispatchPhone: phone,
+                    isPro: true,
+                    createdAt: Date.now()
+                });
+
+              
+              
                 isCheckingOut = false;
                 spinner.style.display = "none";
                 payBtn.style.display = "block";
