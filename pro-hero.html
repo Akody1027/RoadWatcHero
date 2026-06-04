@@ -926,12 +926,15 @@
 
       // --- SETTINGS MODAL CONTROLS ---
 
-      window.openSettingsModal = (user, data) => {
+        window.openSettingsModal = (user, data) => {
         window.currentStripeCustomerId = data.stripeCustomerId;
+          
 
-
-
-          billingBtn.onclick = () => {
+        const billingBtn = document.getElementById("billingBtn");
+        if (!data.stripeCustomerId) {
+            billingBtn.innerText = "⚠️ Verify Payment Method to Keep Pro Access";
+            billingBtn.style.color = "var(--warning)";
+            billingBtn.onclick = () => {
                 window.closeSettingsModal();
                 window.selectRole(data.heroType || "tow_truck", "setup");
                 triggerSetupModal(auth.currentUser);
@@ -941,7 +944,6 @@
             billingBtn.style.color = "var(--text)";
             billingBtn.onclick = () => window.openCustomerPortal();
         }
-        
 
 
         
