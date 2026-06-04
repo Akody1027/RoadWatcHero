@@ -931,11 +931,11 @@
 
 
 
-        const billingBtn = document.getElementById("billingBtn");
-        if (!data.stripeCustomerId) {
-            billingBtn.innerText = "⚠️ Verify Payment Method to Keep Pro Access";
-            billingBtn.style.color = "var(--warning)";
-            billingBtn.onclick = () => alert("Future update: This will mount Stripe to convert your free account to a paid subscription.");
+          billingBtn.onclick = () => {
+                window.closeSettingsModal();
+                window.selectRole(data.heroType || "tow_truck", "setup");
+                triggerSetupModal(auth.currentUser);
+            };
         } else {
             billingBtn.innerText = "💳 Manage Billing & Card";
             billingBtn.style.color = "var(--text)";
