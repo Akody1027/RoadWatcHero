@@ -1,6 +1,3 @@
-
-
-
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -20,11 +17,11 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="theme-color" content="#EE611C" /> 
+    <meta name="theme-color" content="#EE611C" />
     <script>
       (function () {
-        const minWidth = 450; 
-        if (window.screen.width < minWidth) { 
+        const minWidth = 450;
+        if (window.screen.width < minWidth) {
           const scale = window.screen.width / minWidth;
           const meta = document.createElement("meta");
           meta.name = "viewport";
@@ -32,13 +29,13 @@
           document.head.appendChild(meta);
         } else {
           const meta = document.createElement("meta");
-          meta.name = "viewport"; 
+          meta.name = "viewport";
           meta.content =
             "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
           document.head.appendChild(meta);
         }
       })();
-    </script>    
+    </script>
 
     <style>
       :root {
@@ -652,21 +649,16 @@
       #proTopBar.open .pro-top-arrow {
         transform: rotate(180deg);
       }
-      
-      
-      
-      
-      
 
-            /* --- PULL-DOWN SHADE STYLES --- */
+      /* --- PULL-DOWN SHADE STYLES --- */
       #proTopBoard {
         position: absolute;
         /* Drops from the ceiling, resting the 45px handle perfectly at the top */
-        top: calc(-100% + 150px); 
+        top: calc(-100% + 150px);
         left: 0;
         width: 100%;
         /* Adjusted to fit the screen perfectly when dropped to 110px */
-        height: calc(100% - 110px); 
+        height: calc(100% - 110px);
         background: var(--bg);
         z-index: 1000;
         transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -674,11 +666,8 @@
       }
       #proTopBoard.open {
         /* Drops down exactly 110px (45px margin + 65px header) to clear the hidden header */
-        top: 110px; 
+        top: 110px;
       }
-
-      
-      
 
       #proTopBar {
         position: absolute;
@@ -710,7 +699,7 @@
       /* Adjust main Hub iframe so it sits beneath the handle when closed */
       #hubIframe {
         width: 100%;
-        height: calc(100% - 40px); 
+        height: calc(100% - 40px);
         margin-top: 45px;
         border: none;
         display: block;
@@ -871,17 +860,16 @@
       .preview-btn-book {
         background: var(--accent);
       }
-       
-          
- /* --- VIDEO SPLASH OVERLAY --- */
+
+      /* --- VIDEO SPLASH OVERLAY --- */
       #videoSplashOverlay {
-        position: fixed; 
-        inset: 0; 
+        position: fixed;
+        inset: 0;
         width: 100vw;
         height: 100%;
         height: -webkit-fill-available;
         background: white;
-        z-index: 999999; 
+        z-index: 999999;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -890,29 +878,24 @@
 
       #videoSplashOverlay.slide-out {
         transform: translateX(-100%);
-      } 
- 
-      #introVideo { 
-        margin:0px;
-        padding:0px;
+      }
+
+      #introVideo {
+        margin: 0px;
+        padding: 0px;
         width: 100vw;
         max-width: 100vw;
         height: 80%;
-        object-fit: cover ;
+        object-fit: cover;
       }
-      
     </style>
   </head>
-  
+
   <div id="videoSplashOverlay">
     <video id="introVideo" autoplay muted playsinline>
       <source src="roadwatchero.mp4" type="video/mp4" />
     </video>
   </div>
-  
-  
-  
-  
 
   <iframe src="home.html" id="appFrame"></iframe>
 
@@ -985,6 +968,30 @@
       </div>
 
       <div style="text-align: left" id="dashboardFormsContainer">
+        <div
+          id="gracePeriodBanner"
+          style="
+            display: none;
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #b91c1c;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            line-height: 1.4;
+          "
+          onclick="window.location.href='pro-hero.html'"
+        >
+          ⚠️ Action Required: Your last payment failed.<br />
+          <span style="text-decoration: underline"
+            >Tap here to update your billing info to avoid losing access.</span
+          >
+        </div>
+
         <div
           style="
             width: 100%;
@@ -1430,10 +1437,6 @@
   </div>
 
   <script>
-    
-
-     
- 
     function adjustViewport() {
       const width = window.screen.width;
       let scale = 1.0;
@@ -1543,31 +1546,25 @@
         badge.innerText = count;
         badge.style.display = count > 0 ? "block" : "none";
       }
-    } 
+    }
   </script>
 
   <script type="module">
-    
-        document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
       const splashOverlay = document.getElementById("videoSplashOverlay");
       const introVideo = document.getElementById("introVideo");
 
       if (splashOverlay && introVideo) {
         introVideo.addEventListener("ended", () => {
           splashOverlay.classList.add("slide-out");
-          
+
           setTimeout(() => {
             splashOverlay.style.display = "none";
-          }, 800); 
+          }, 800);
         });
       }
-    }); 
-    
-    
-    
-    
-    
-    
+    });
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import {
       getAuth,
@@ -1661,28 +1658,22 @@
     let currentUserId = null;
 
     // --- LIVE PREVIEW & UPLOADER UI LOGIC ---
-    
-    
-    
+
     let isPromoActive = false;
-    onValue(ref(db, 'settings/global/free_hero_registration'), (snapshot) => {
-        isPromoActive = snapshot.val() === true;
-        const upsellLink = document.querySelector('.shell-upsell-link');
-        if (upsellLink) {
-            if (isPromoActive) {
-                upsellLink.innerHTML = "Launch Promo: Claim Your FREE Pro Account Today!";
-            } else {
-                upsellLink.innerHTML = "Advertise with RoadWatcHero<br />Sign up now!";
-            }
+    onValue(ref(db, "settings/global/free_hero_registration"), (snapshot) => {
+      isPromoActive = snapshot.val() === true;
+      const upsellLink = document.querySelector(".shell-upsell-link");
+      if (upsellLink) {
+        if (isPromoActive) {
+          upsellLink.innerHTML =
+            "Launch Promo: Claim Your FREE Pro Account Today!";
+        } else {
+          upsellLink.innerHTML =
+            "Advertise with RoadWatcHero<br />Sign up now!";
         }
+      }
     });
 
-    
-    
-    
-    
-    
-    
     const updatePreview = () => {
       document.getElementById("previewName").innerText =
         document.getElementById("shellBizName").value || "Business Name";
@@ -1769,16 +1760,38 @@
             document.getElementById("dashboardFormsContainer").style.display =
               "none";
             const loginBtn = document.getElementById("shellLoginBtn");
-            
-            
-            
-              if (loginBtn) {
-                loginBtn.innerText = isPromoActive ? "PRO SETUP INCOMPLETE - CLAIM FREE ACCOUNT" : "PRO SUBSCRIPTION REQUIRED";
+
+            if (loginBtn) {
+              loginBtn.innerText = isPromoActive
+                ? "PRO SETUP INCOMPLETE - CLAIM FREE ACCOUNT"
+                : "PRO SUBSCRIPTION REQUIRED";
             }
 
-            
             return; // Stop execution, keep dashboard hidden!
-          } 
+          }
+          
+          
+          if (!isPromoActive && !data.stripeCustomerId) {
+              document.getElementById("shellLoginSection").style.display = "block";
+              document.getElementById("dashboardFormsContainer").style.display = "none";
+              const loginBtn = document.getElementById("shellLoginBtn");
+              if (loginBtn) {
+                  loginBtn.innerText = "TRIAL EXPIRED - UPGRADE TO KEEP PRO";
+              }
+              const upsellLink = document.querySelector('.shell-upsell-link');
+              if (upsellLink) {
+                  upsellLink.innerHTML = "Your free launch access has concluded.<br />Secure your territory now!";
+              }
+              return; 
+          }
+
+          const graceBanner = document.getElementById("gracePeriodBanner");
+          if (graceBanner) {
+              graceBanner.style.display = (data.subscriptionStatus === 'past_due') ? "block" : "none";
+          }
+          
+          
+          
           // If they are a verified Pro, unlock the dashboard
           document.getElementById("shellLoginSection").style.display = "none";
           document.getElementById("dashboardFormsContainer").style.display =
@@ -1795,16 +1808,13 @@
             data.postClicks || 0;
           document.getElementById("statCallClicks").innerText =
             data.callClicks || 0;
-          
-                    
+
           const manageBtn = document.querySelector("#proStatusSection button");
           if (manageBtn) {
-              manageBtn.innerText = isPromoActive ? "MANAGE PRO SETTINGS" : "MANAGE SUBSCRIPTION";
+            manageBtn.innerText = isPromoActive
+              ? "MANAGE PRO SETTINGS"
+              : "MANAGE SUBSCRIPTION";
           }
-
-          
-          
-          
 
           // Auto-fill core identity using a session flag to beat browser cache
           if (!document.getElementById("shellBizName").dataset.loaded) {
