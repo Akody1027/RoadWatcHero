@@ -6578,6 +6578,18 @@ if (nearbySOS.length > 0) {
 
           document.getElementById("prefersTowTruckRequests").checked =
             d.prefersTowTruckRequests === true;
+          
+          if (document.getElementById("prefersMechanicRequests")) {
+            document.getElementById("prefersMechanicRequests").checked = d.prefersMechanicRequests === true;
+          }
+          if (document.getElementById("realTimeNotificationsToggle")) {
+            document.getElementById("realTimeNotificationsToggle").checked = d.notificationsEnabled === true;
+          }
+
+          
+          
+          
+          
 
           // Load saved pricing and Pro status
           document.getElementById("profileBaseRate").value = d.baseRate || "";
