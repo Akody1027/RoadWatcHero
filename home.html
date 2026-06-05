@@ -9,7 +9,7 @@
 
 <!DOCTYPE html>
 <html lang="en"> 
-  <head>  
+  <head>   
     <meta charset="UTF-8" />   
     <title>RoadWatcHero</title>
      
@@ -3794,6 +3794,12 @@
 
       let destLat = null;
       let destLng = null;
+      
+      
+      let lastPushedLocation = null;
+      let locationThrottleTimer = null;
+
+      
 
       // --- PROFILE SERVICE TYPE SELECTION ---
       
@@ -3955,18 +3961,6 @@
         
       };
 
-
-
-
-
-
-
-
-
-
-
-
-
       
       window.evaluateBannerState = () => {
         const banner = document.getElementById("persistentLocationBanner");
@@ -3997,8 +3991,14 @@
           banner.style.display = "flex";
         }
       };
-
-      window.startLocationWatch = () => {
+      
+      
+      
+      
+      
+      
+      
+       window.startLocationWatch = () => {
         if (navigator.geolocation) {
           navigator.geolocation.watchPosition(
             (p) => {
@@ -4008,10 +4008,6 @@
               };
               const isFirstLoad = !userLocation;
               userLocation = freshLoc;
-              update(ref(db, `profiles/${myId}`), {
-                ...userLocation,
-                id: myId,
-              });
 
               if (map) {
                 if (!heroMarker) {
@@ -4039,7 +4035,7 @@
                   map.setCenter(userLocation);
               }
               syncUI();
-              // Failsafe: Hide banner if data successfully streams in
+              
               document.getElementById(
                 "persistentLocationBanner"
               ).style.display = "none";
@@ -4056,9 +4052,69 @@
             },
             { enableHighAccuracy: true }
           );
+
+          // The Adaptive Throttle Engine
+          const adaptiveThrottleLoop = () => {
+            if (!userLocation) {
+               locationThrottleTimer = setTimeout(adaptiveThrottleLoop, 10000);
+               return;
+            }
+
+            let pushUpdate = false;
+            let nextCheckMs = 60000; // Default Idle check: 60s
+
+            // Check if Hero is on an active job
+            const isOnActiveJob = Object.values(sosCache).some(r => r.helperId === myId && ["accepted", "arrived"].includes(r.status));
+
+            if (isOnActiveJob) {
+                // EN-ROUTE HERO: Push every 30 seconds unconditionally
+                pushUpdate = true;
+                nextCheckMs = 30000;
+            } else {
+                // IDLE HERO or STRANDED SEEKER: Check distance every 60s
+                if (!lastPushedLocation) {
+                    pushUpdate = true;
+                } else {
+                    const distMiles = google.maps.geometry.spherical.computeDistanceBetween(
+                        new google.maps.LatLng(lastPushedLocation.lat, lastPushedLocation.lng),
+                        new google.maps.LatLng(userLocation.lat, userLocation.lng)
+                    ) / 1609.34;
+                    
+                    if (distMiles >= 0.1) {
+                        pushUpdate = true;
+                    }
+                }
+            }
+
+            if (pushUpdate) {
+                update(ref(db, `profiles/${myId}`), {
+                    ...userLocation,
+                    id: myId,
+                });
+                lastPushedLocation = { ...userLocation };
+            }
+
+            locationThrottleTimer = setTimeout(adaptiveThrottleLoop, nextCheckMs);
+          };
+
+          if (!locationThrottleTimer) {
+             adaptiveThrottleLoop();
+          }
         }
       };
 
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       window.onload = () => {
         // --- FIX: FORCE THE GLASS OVERLAY TO LIFT ONCE APP LOADS ---
         const loader = document.getElementById("loadingOverlay");
@@ -6297,6 +6353,29 @@ if (nearbySOS.length > 0) {
             });
         }
       };
+      
+      
+      
+      
+      
+      function animateMarker(marker, startPos, endPos, durationMs) {
+        const startTime = performance.now();
+        function step(currentTime) {
+          let elapsed = currentTime - startTime;
+          let progress = Math.min(elapsed / durationMs, 1);
+          let easeProgress = 1 - Math.pow(1 - progress, 3);
+          
+          let currentLat = startPos.lat + (endPos.lat - startPos.lat) * easeProgress;
+          let currentLng = startPos.lng + (endPos.lng - startPos.lng) * easeProgress;
+          
+          marker.setPosition({ lat: currentLat, lng: currentLng });
+          
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          }
+        }
+        requestAnimationFrame(step);
+      }
 
       function updateSeekerMiniMap(sos, hero) {
         if (!seekerMiniMap) {
@@ -6313,11 +6392,21 @@ if (nearbySOS.length > 0) {
             icon: seekerHeroCustomIcon,
           });
         }
+        
         const userPos = { lat: sos.lat, lng: sos.lng };
         seekerUserMarker.setPosition(userPos);
+        
         if (hero && hero.lat && hero.lng) {
           const heroPos = { lat: hero.lat, lng: hero.lng };
-          seekerHeroMarker.setPosition(heroPos);
+          const currentHeroPos = seekerHeroMarker.getPosition();
+          
+          if (currentHeroPos) {
+            const startPos = { lat: currentHeroPos.lat(), lng: currentHeroPos.lng() };
+            animateMarker(seekerHeroMarker, startPos, heroPos, 2500); 
+          } else {
+            seekerHeroMarker.setPosition(heroPos);
+          }
+          
           const bounds = new google.maps.LatLngBounds();
           bounds.extend(userPos);
           bounds.extend(heroPos);
@@ -6328,6 +6417,15 @@ if (nearbySOS.length > 0) {
         google.maps.event.trigger(seekerMiniMap, "resize");
       }
 
+
+      
+      
+      
+      
+      
+      
+      
+      
       window.toggleSeekerMapExpansion = () => {
         const container = document.getElementById("seekerMapContainer");
         const expandBtn = container.querySelector(".map-expand-btn");
