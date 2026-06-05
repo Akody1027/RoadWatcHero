@@ -4,6 +4,9 @@
 
 
 
+
+
+
 <!DOCTYPE html>
 <html lang="en"> 
   <head>  
@@ -5729,7 +5732,14 @@ window.increaseTipPrompt = () => {
           const lastKnownSOS = window._lastSosCacheState_
             ? window._lastSosCacheState_[id]
             : null;
-          if (lastKnownSOS && lastKnownSOS.status !== r.status) {
+          
+                    // Initialize our tracking object to prevent double-firing notifications
+          window.notifiedJobStatuses = window.notifiedJobStatuses || {};
+
+          if (lastKnownSOS && lastKnownSOS.status !== r.status && !window.notifiedJobStatuses[id + "_" + r.status]) {
+            // Lock this specific job and status so it can never fire again
+            window.notifiedJobStatuses[id + "_" + r.status] = true;
+
             if (r.ownerId === myId || r.helperId === myId) {
               const sound = document.getElementById("notificationSound");
               if (sound) sound.play().catch((e) => console.error(e));
@@ -5741,6 +5751,13 @@ window.increaseTipPrompt = () => {
             }
           }
 
+          
+          
+          
+          
+          
+          
+          
           if (
             r.helperId === myId &&
             r.status === "canceled" &&
