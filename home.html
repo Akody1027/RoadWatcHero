@@ -2788,11 +2788,21 @@
           Save Settings
         </button>
  
+        
+        <button onclick="window.signOutHero()" style="width: 100%; background: none; border: 1px solid var(--danger); color: var(--danger); padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 15px;">
+          SIGN OUT
+        </button>
+        
+        
+        
 
         <div style="margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px; margin-bottom: 20px;">
-          <h4 style="margin: 0 0 10px 0; color: var(--accent); font-size: 16px;">Contact Admin</h4>
-          <textarea id="adminContactMsg" placeholder="Describe your issue or question" rows="3" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; font-family: inherit; font-size: 13px; margin-bottom: 10px; resize: vertical;"></textarea>
-          <button onclick="window.submitAdminMessage()" style="background: var(--text); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 13px;">SEND TO ADMIN</button>
+ 
+          <h4 style="margin: 0 0 10px 0; color: var(--accent); font-size: 16px;">Need Help? Contact Admin!</h4>
+          <a href="mailto:roadwatchero@gmail.com?subject=Hero Support Request" style="display: block; background: var(--text); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 13px; text-decoration: none; text-align: center;">
+            EMAIL ADMIN
+          </a>
+
         </div>
         
         
@@ -6502,34 +6512,17 @@ if (nearbySOS.length > 0) {
         }
 });
       
-  
+    
       
       
-      
-      window.submitAdminMessage = () => {
-        const msgInput = document.getElementById("adminContactMsg");
-        const msg = msgInput.value.trim();
-        if (!msg) return alert("Please enter a message first");
-
-        push(ref(db, "adminMessages"), {
-          senderId: myId,
-          message: msg,
-          timestamp: Date.now()
-        }).then(() => {
-          msgInput.value = "";
-          window.showDropBanner("Message sent to Admin", "✅");
-        }).catch((err) => {
-          console.error(err);
-          alert("Failed to send message");
-        });
+      window.signOutHero = () => {
+        localStorage.removeItem("heroUserId");
+        window.location.reload();
       };
       
       
       
-      
-      
-      
-      
+
 
       window.saveProfile = () => {
         const radiusEl = document.getElementById("profileRadius");
