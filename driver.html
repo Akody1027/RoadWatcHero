@@ -863,6 +863,27 @@
         <div id="chatBox"></div>
         
         <div style="display: flex; gap: 10px flex-shrink: 0;">
+          
+          
+          <button
+            onclick="document.getElementById('chatImgInput').click()"
+            style="
+              padding: 15px;
+              background: #f1f5f9;
+              border: none;
+              border-radius: 10px;
+            "
+          >
+            📷
+          </button>
+          <input
+            type="file"
+            id="chatImgInput"
+            accept="image/*"
+            style="display: none"
+            onchange="window.sendChatImg(this)"
+          />
+          
           <input
             id="chatInput"
             placeholder="Type message..."
@@ -895,6 +916,15 @@
         update,
         push,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+      
+      
+      import {
+        getStorage,
+        ref as storageRef,
+        uploadBytes,
+        getDownloadURL,
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+      
 
       const firebaseConfig = {
         apiKey: "AIzaSyBgXWZkH0WMjhGmOfxjqbIDoJHlyA1pc-o",
@@ -905,6 +935,7 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
+      const storage = getStorage(app);
 
       let map, userLocation, driverMarker;
       let jobMarkers = [];
@@ -1463,6 +1494,35 @@ function listenToChats() {
         });
         input.value = "";
       };
+      
+      
+      
+      window.sendChatImg = async (input) => {
+        const file = input.files[0];
+        if (!file || !activeChatId) return;
+
+        try {
+          document.getElementById("loadingOverlay").classList.remove("loader-hidden");
+          const fileRef = storageRef(storage, `chat-images/${activeChatId}_${Date.now()}.jpg`);
+          await uploadBytes(fileRef, file);
+          const downloadURL = await getDownloadURL(fileRef);
+
+          push(ref(db, `chats/${activeChatId}`), {
+            sender: myDriverId,
+            senderRole: "Driver",
+            senderName: localStorage.getItem("driverName") || "Driver",
+            img: downloadURL,
+            timestamp: Date.now(),
+            read: false,
+          });
+        } catch (error) {
+          console.error("Chat Image Upload Error:", error);
+          alert("Failed to send image.");
+        } finally {
+          document.getElementById("loadingOverlay").classList.add("loader-hidden");
+        }
+      };
+      
     </script>
   </body>
 </html>
