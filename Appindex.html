@@ -1610,16 +1610,23 @@
     if (hubToggle) hubToggle.addEventListener("click", toggleHeroHub);
     if (topBar) topBar.addEventListener("click", toggleTopProfile);
     if (hubOverlay) hubOverlay.addEventListener("click", closeAllPanels);
-
-    // Listen for cross-iframe messages to trigger the Gatekeeper Modal
+    
+    
+    
+    
+// Listen for cross-iframe messages to trigger the Gatekeeper Modal
     window.addEventListener("message", (event) => {
-      if (event.data === "OPEN_PRO_LOGIN") {
+      if (event.data === "OPEN_PRO_LOGIN" || (event.data && event.data.action === 'OPEN_GLOBAL_LOGIN')) {
         closeAllPanels();
-        const modal = document.getElementById("proShellModal");
-        if (modal) modal.style.display = "flex";
+        document.getElementById("globalLoginModal").style.display = "flex";
       }
     });
 
+    
+    
+    
+    
+    
     function updateHubBadge(count) {
       const badge = document.getElementById("hubBadgeCounter");
       if (badge) {
