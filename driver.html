@@ -9,7 +9,7 @@
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    /> 
     <title>Driver Dashboard | RoadWatcHero</title>
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry"></script>
@@ -1272,13 +1272,22 @@
           box.innerHTML = "";
           const data = snap.val() || {};
           Object.values(data).forEach((m) => {
-            const side =
-              m.sender === myDriverId || m.sender === myShopId
-                ? "msg-me"
-                : "msg-them";
-            box.innerHTML += `<div class="msg ${side}">${
-              m.text || "Photo"
-            }</div>`;
+            
+            if (m.sender === "System") {
+                box.innerHTML += `<div style="text-align:center; font-size:11px; color:var(--muted); margin:10px 0; font-weight:bold;">${m.text}</div>`;
+                return;
+            }
+            const isGroupRoom = !activeChatId.includes('_');
+            const side = (m.sender === myDriverId || m.sender === myShopId) ? "msg-me" : "msg-them";
+            
+            let roleLabel = "";
+            if (isGroupRoom && side === "msg-them") {
+                roleLabel = `<div style="font-size: 10px; font-weight: 800; color: var(--accent); margin-bottom: 2px;">${m.senderRole || "User"} (${m.senderName || "Unknown"})</div>`;
+            }
+            
+            box.innerHTML += `<div class="msg ${side}">${roleLabel}${m.text || "Photo"}</div>`;
+            
+
           });
           box.scrollTop = box.scrollHeight;
         });
@@ -1309,7 +1318,7 @@
         } else {
           window.currentJobsCache.forEach((job) => {
             list.innerHTML += `
-                    <div class="hub-thread" onclick="window.openChat('${job.id}_${job.ownerId}')">
+                     <div class="hub-thread" onclick="window.openChat('${job.id}')">
                       <div>
                         <div style="font-weight:900; font-size:15px; color:var(--text);">${job.vehicle}</div>
                         <div style="font-size:12px; font-weight:700; color:var(--success); margin-top:2px;">Active User Thread</div>
@@ -1438,6 +1447,8 @@ function listenToChats() {
         if (!input.value.trim() || !activeChatId) return;
         push(ref(db, `chats/${activeChatId}`), {
           sender: myDriverId,
+          senderRole: "Driver",
+          senderName: localStorage.getItem("driverName") || "Driver",
           text: input.value,
           timestamp: Date.now(),
           read: false,
