@@ -1100,13 +1100,14 @@
 
                 let imageBlock = `<div style="background:#f1f5f9; color:var(--muted); font-size:15px; font-weight:800; text-align:center; padding:15px; border-radius:12px; margin-bottom:15px; border:1px dashed #cbd5e1;">NO DAMAGE IMAGES UPLOADED</div>`;
                 
-                if (job.damageImages) {
-                  let imgArr = Array.isArray(job.damageImages) ? job.damageImages : [job.damageImages];
-                  if (imgArr.length > 0) {
-                    imageBlock = `<div style="display:flex; gap:10px; overflow-x:auto; margin-bottom:15px; padding-bottom:5px;">` +
-                      imgArr.map(src => `<img src="${src}" style="height:90px; width:90px; object-fit:cover; border-radius:12px; border:1px solid #e2e8f0; flex-shrink:0;" onclick="window.open('${src}', '_blank')">`).join('') +
-                      `</div>`;
-                  }
+                // FIXED: Look for 'damagePics' (the name used in the SOS request)
+                if (job.damagePics && job.damagePics.length > 0) {
+                  imageBlock = `<div style="display:flex; gap:10px; overflow-x:auto; margin-bottom:15px; padding-bottom:5px;">` +
+                    job.damagePics.map(src => `<img src="${src}" style="height:90px; width:90px; object-fit:cover; border-radius:12px; border:1px solid #e2e8f0; flex-shrink:0;" onclick="window.open('${src}', '_blank')">`).join('') +
+                    `</div>`;
+                }
+
+                  
                 }
 
                 const borderColor = isActive 
