@@ -1,6 +1,3 @@
-
-
-
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -8,37 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>ROADWATCHERO</title>
-    <link rel="manifest" href="/manifest.json" />
+    <link rel="manifest" href="/manifest.json" /> 
     <link
       rel="apple-touch-icon"
       href="https://www.roadwatchero.com/icon-192x192.png"
     />
-    <link rel="icon" href="/roadwatch.ico" type="image/x-icon" />
+    <link rel="icon" href="/roadwatch.ico" type="image/x-icon" /> 
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="theme-color" content="#EE611C" /> 
+    <meta name="theme-color" content="#EE611C" />
     <script>
       (function () {
-        const minWidth = 450; 
-        if (window.screen.width < minWidth) { 
-          const scale = window.screen.width / minWidth; 
+        const minWidth = 450;
+        if (window.screen.width < minWidth) {
+          const scale = window.screen.width / minWidth;
           const meta = document.createElement("meta");
           meta.name = "viewport";
           meta.content = `width=${minWidth}, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`;
           document.head.appendChild(meta);
         } else {
           const meta = document.createElement("meta");
-          meta.name = "viewport"; 
+          meta.name = "viewport";
           meta.content =
             "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
           document.head.appendChild(meta);
         }
       })();
-    </script>    
+    </script>
 
     <style>
       :root {
@@ -235,13 +232,12 @@
         height: 40px;
         border-radius: 50%;
         border: 2px solid var(--accent);
-        
-        background-image: url('herousericon.jpg');
+
+        background-image: url("herousericon.jpg");
         background-color: #cbd5e1;
         background-size: cover;
         background-position: center;
 
-        
         position: relative;
         cursor: pointer;
       }
@@ -257,11 +253,11 @@
         font-weight: 800;
         padding: 2px 6px;
         border-radius: 10px;
-        
+
         display: none;
 
         border: 2px solid #1e293b;
-      } 
+      }
 
       .hub-vertical-title {
         writing-mode: vertical-rl;
@@ -661,21 +657,16 @@
       #proTopBar.open .pro-top-arrow {
         transform: rotate(180deg);
       }
-      
-      
-      
-      
-      
 
-            /* --- PULL-DOWN SHADE STYLES --- */
+      /* --- PULL-DOWN SHADE STYLES --- */
       #proTopBoard {
         position: absolute;
         /* Drops from the ceiling, resting the 45px handle perfectly at the top */
-        top: calc(-100% + 150px); 
+        top: calc(-100% + 150px);
         left: 0;
         width: 100%;
         /* Adjusted to fit the screen perfectly when dropped to 110px */
-        height: calc(100% - 110px); 
+        height: calc(100% - 110px);
         background: var(--bg);
         z-index: 1000;
         transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -683,11 +674,8 @@
       }
       #proTopBoard.open {
         /* Drops down exactly 110px (45px margin + 65px header) to clear the hidden header */
-        top: 110px; 
+        top: 110px;
       }
-
-      
-      
 
       #proTopBar {
         position: absolute;
@@ -719,7 +707,7 @@
       /* Adjust main Hub iframe so it sits beneath the handle when closed */
       #hubIframe {
         width: 100%;
-        height: calc(100% - 40px); 
+        height: calc(100% - 40px);
         margin-top: 45px;
         border: none;
         display: block;
@@ -880,17 +868,16 @@
       .preview-btn-book {
         background: var(--accent);
       }
-       
-          
- /* --- VIDEO SPLASH OVERLAY --- */
+
+      /* --- VIDEO SPLASH OVERLAY --- */
       #videoSplashOverlay {
-        position: fixed; 
-        inset: 0; 
+        position: fixed;
+        inset: 0;
         width: 100vw;
         height: 100%;
         height: -webkit-fill-available;
         background: white;
-        z-index: 999999; 
+        z-index: 999999;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -899,29 +886,24 @@
 
       #videoSplashOverlay.slide-out {
         transform: translateX(-100%);
-      } 
- 
-      #introVideo { 
-        margin:0px;
-        padding:0px;
+      }
+
+      #introVideo {
+        margin: 0px;
+        padding: 0px;
         width: 100vw;
         max-width: 100vw;
         height: 80%;
-        object-fit: cover ;
+        object-fit: cover;
       }
-      
     </style>
   </head>
-  
+
   <div id="videoSplashOverlay">
     <video id="introVideo" autoplay muted playsinline>
       <source src="roadwatchero.mp4" type="video/mp4" />
     </video>
   </div>
-  
-  
-  
-  
 
   <iframe src="home.html" id="appFrame"></iframe>
 
@@ -955,44 +937,6 @@
         ✕
       </button>
 
-      <div id="shellLoginSection">
-        <h2 style="margin-top: 0; font-weight: 900">Pro Hero Login</h2>
-        <p style="color: var(--muted); font-size: 14px; margin-bottom: 25px">
-          Access your marketing dashboard & fleet dispatch tools.
-        </p>
-        <input
-          type="email"
-          id="shellLoginEmail"
-          placeholder="Email Address"
-          class="shell-input"
-        />
-        <input
-          type="password"
-          id="shellLoginPassword"
-          placeholder="Password"
-          class="shell-input"
-        />
-        <button id="shellLoginBtn" class="shell-submit-btn">LOGIN</button>
-
-        <div
-          style="
-            background: #fff9f6;
-            border: 2px solid var(--accent);
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 20px;
-          "
-        >
-          <p style="margin: 0 0 10px 0; font-size: 24px"></p>
-          <a
-            href="pro-hero.html"
-            class="shell-upsell-link"
-            style="margin: 0; line-height: 1.4"
-            >Advertise with RoadWatcHero<br />Sign up now!</a
-          >
-        </div>
-      </div>
-
       <div style="text-align: left" id="dashboardFormsContainer">
         <div
           style="
@@ -1002,7 +946,7 @@
             font-size: 20px;
             font-weight: 800;
             margin-bottom: 10%;
-          "
+          ">
           <label
           style="font-size: 20px; font-weight: 800; font: var(--accent)"
         >
@@ -1384,7 +1328,7 @@
                   alt="Promo Ad"
                   id="previewPromo"
                 />
-              </div> 
+              </div>
               <div class="post-footer">
                 <p class="post-desc" id="previewDesc">
                   Your promo description will appear here.
@@ -1438,11 +1382,141 @@
     </div>
   </div>
 
-  <script>
-    
+  <div
+    id="globalLoginModal"
+    style="
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 99999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    "
+  >
+    <div
+      style="
+        background: #ffffff;
+        width: 100%;
+        max-width: 400px;
+        border-radius: 20px;
+        padding: 40px 30px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        position: relative;
+        animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      "
+    >
+      <button
+        onclick="document.getElementById('globalLoginModal').style.display='none'"
+        style="
+          position: absolute;
+          top: 15px;
+          right: 20px;
+          background: none;
+          border: none;
+          font-size: 24px;
+          color: #64748b;
+          cursor: pointer;
+          font-weight: bold;
+        "
+      >
+        ✕
+      </button>
 
-     
- 
+      <div style="text-align: center; margin-bottom: 25px">
+        <h2
+          style="margin: 0; color: #0f172a; font-size: 24px; font-weight: 900"
+        >
+          Welcome!
+        </h2>
+        <p
+          style="
+            margin: 5px 0 0 0;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+          "
+        >
+          Sign in to access your Pro dashboard.
+        </p>
+      </div>
+
+      <input
+        type="email"
+        id="globalLoginEmail"
+        placeholder="Email Address"
+        style="
+          width: 100%;
+          padding: 15px;
+          border-radius: 12px;
+          border: 2px solid #e2e8f0;
+          margin-bottom: 15px;
+          font-size: 15px;
+          background: #f8fafc;
+        "
+      />
+
+      <input
+        type="password"
+        id="globalLoginPassword"
+        placeholder="Password"
+        style="
+          width: 100%;
+          padding: 15px;
+          border-radius: 12px;
+          border: 2px solid #e2e8f0;
+          margin-bottom: 25px;
+          font-size: 15px;
+          background: #f8fafc;
+        "
+      />
+
+      <button
+        id="globalVerifyBtn"
+        onclick="window.submitGlobalLogin()"
+        style="
+          width: 100%;
+          background: #ee611c; 
+          color: white; 
+          border: none;
+          padding: 16px;
+          border-radius: 12px;
+          font-weight: 900;
+          font-size: 16px;
+          cursor: pointer;
+          box-shadow: 0 10px 15px -3px rgba(238, 97, 28, 0.3);
+        "
+      >
+        Sign In 
+      </button>
+      
+       
+      
+      <div style="width:100%; text-align:center; color:var(--accent); font-size: 20px; font-weight:600; margin-top: 5%; margin-bottom: 5%;">--OR-- </div>
+      
+      <div style="width:95%; text-align:center; border:1px solid var(--accent); padding:2%; border-radius:10px;">
+      <a href="pro-hero.html" style=" color:var(--accent); font-size: 20px; font-weight:600; margin-top: 5%; text-decoration:none;">Sign Up!</a>
+      </div>
+       
+    </div>
+  </div>
+
+  <style>
+    @keyframes popIn {
+      0% {
+        transform: scale(0.95) translateY(10px);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
+
+  <script>
     function adjustViewport() {
       const width = window.screen.width;
       let scale = 1.0;
@@ -1552,31 +1626,25 @@
         badge.innerText = count;
         badge.style.display = count > 0 ? "block" : "none";
       }
-    } 
+    }
   </script>
 
   <script type="module">
-    
-        document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
       const splashOverlay = document.getElementById("videoSplashOverlay");
       const introVideo = document.getElementById("introVideo");
 
       if (splashOverlay && introVideo) {
         introVideo.addEventListener("ended", () => {
           splashOverlay.classList.add("slide-out");
-          
+
           setTimeout(() => {
             splashOverlay.style.display = "none";
-          }, 800); 
+          }, 800);
         });
       }
-    }); 
-    
-    
-    
-    
-    
-    
+    });
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import {
       getAuth,
@@ -1668,30 +1736,27 @@
     }
 
     let currentUserId = null;
+    let isUserPro = false; 
+    
+    
 
     // --- LIVE PREVIEW & UPLOADER UI LOGIC ---
-    
-    
-    
+
     let isPromoActive = false;
-    onValue(ref(db, 'settings/global/free_hero_registration'), (snapshot) => {
-        isPromoActive = snapshot.val() === true;
-        const upsellLink = document.querySelector('.shell-upsell-link');
-        if (upsellLink) {
-            if (isPromoActive) {
-                upsellLink.innerHTML = "Launch Promo: Claim Your FREE Pro Account Today!";
-            } else {
-                upsellLink.innerHTML = "Advertise with RoadWatcHero<br />Sign up now!";
-            }
+    onValue(ref(db, "settings/global/free_hero_registration"), (snapshot) => {
+      isPromoActive = snapshot.val() === true;
+      const upsellLink = document.querySelector(".shell-upsell-link");
+      if (upsellLink) {
+        if (isPromoActive) {
+          upsellLink.innerHTML =
+            "Launch Promo: Claim Your FREE Pro Account Today!";
+        } else {
+          upsellLink.innerHTML =
+            "Advertise with RoadWatcHero<br />Sign up now!";
         }
+      }
     });
 
-    
-    
-    
-    
-    
-    
     const updatePreview = () => {
       document.getElementById("previewName").innerText =
         document.getElementById("shellBizName").value || "Business Name";
@@ -1752,15 +1817,16 @@
     // ----------------------------------------
 
     // 1. Sidebar Icon Click Listener (Opens Gatekeeper)
-    document.getElementById("sidebarUserIcon").addEventListener("click", () => {
-      document.getElementById("proShellModal").style.display = "flex";
-
-      // Reset Lead Analytics Badge when they check their profile
-      window.updateHubBadge(0);
-      if (currentUserId) {
+     document.getElementById("sidebarUserIcon").addEventListener("click", () => {
+      if (currentUserId && isUserPro) {
+        document.getElementById("proShellModal").style.display = "flex";
+        window.updateHubBadge(0);
         update(ref(db, `profiles/${currentUserId}`), { unreadLeads: 0 });
+      } else {
+        document.getElementById("globalLoginModal").style.display = "flex";
       }
     });
+
 
     // 2. Authentication State Listener
     onAuthStateChanged(auth, (user) => {
@@ -1771,28 +1837,23 @@
         onValue(ref(db, `profiles/${currentUserId}`), (snap) => {
           const data = snap.val() || {};
 
-          // THE PRO GATEKEEPER: Verify Stripe payment status
-          if (data.isPro !== true) {
-            document.getElementById("shellLoginSection").style.display =
-              "block";
-            document.getElementById("dashboardFormsContainer").style.display =
-              "none";
-            const loginBtn = document.getElementById("shellLoginBtn");
-            
-            
-            
-              if (loginBtn) {
-                loginBtn.innerText = isPromoActive ? "PRO SETUP INCOMPLETE - CLAIM FREE ACCOUNT" : "PRO SUBSCRIPTION REQUIRED";
-            }
+          
+          
+          
+          isUserPro = data.isPro === true;
 
-            
-            return; // Stop execution, keep dashboard hidden!
-          } 
+          if (!isUserPro) {
+            document.getElementById("dashboardFormsContainer").style.display = "none";
+            document.getElementById("proShellModal").style.display = "none";
+            return; 
+          }
+          
           // If they are a verified Pro, unlock the dashboard
-          document.getElementById("shellLoginSection").style.display = "none";
-          document.getElementById("dashboardFormsContainer").style.display =
-            "block";
-
+          document.getElementById("dashboardFormsContainer").style.display = "block";
+          
+       
+  
+          
           // Initialize Pro Stats
           document.getElementById("proStatusSection").style.display = "block";
           document.getElementById(
@@ -1804,16 +1865,13 @@
             data.postClicks || 0;
           document.getElementById("statCallClicks").innerText =
             data.callClicks || 0;
-          
-                    
+
           const manageBtn = document.querySelector("#proStatusSection button");
           if (manageBtn) {
-              manageBtn.innerText = isPromoActive ? "MANAGE PRO SETTINGS" : "MANAGE SUBSCRIPTION";
+            manageBtn.innerText = isPromoActive
+              ? "MANAGE PRO SETTINGS"
+              : "MANAGE SUBSCRIPTION";
           }
-
-          
-          
-          
 
           // Auto-fill core identity using a session flag to beat browser cache
           if (!document.getElementById("shellBizName").dataset.loaded) {
@@ -1922,29 +1980,54 @@
       } else {
         currentUserId = null;
 
-        document.getElementById("shellLoginSection").style.display = "block";
         document.getElementById("dashboardFormsContainer").style.display =
           "none";
+        document.getElementById("proShellModal").style.display = "none";
       }
     });
 
     // 3. Login Action
-    document.getElementById("shellLoginBtn").addEventListener("click", () => {
-      const email = document.getElementById("shellLoginEmail").value;
-      const pass = document.getElementById("shellLoginPassword").value;
-      if (!email || !pass)
-        return alert("Please enter your Pro email and password.");
+    
+    
+    window.submitGlobalLogin = () => {
+      const email = document.getElementById("globalLoginEmail").value;
+      const pass = document.getElementById("globalLoginPassword").value;
+      const btn = document.getElementById("globalVerifyBtn");
 
-      document.getElementById("shellLoginBtn").innerText = "LOADING...";
+      if (!email || !pass) return alert("Please enter your email and password.");
+
+      btn.innerText = "VERIFYING...";
+      btn.disabled = true;
+
       signInWithEmailAndPassword(auth, email, pass)
         .then(() => {
-          document.getElementById("shellLoginBtn").innerText = "LOGIN";
+          // Reset UI
+          btn.innerText = "SIGN IN";
+          btn.disabled = false;
+          document.getElementById("globalLoginEmail").value = "";
+          document.getElementById("globalLoginPassword").value = "";
+          
+          // Hide the login modal
+          document.getElementById("globalLoginModal").style.display = "none";
+          
+          // Give the database listener a split-second to verify the Pro tag, then open the dashboard
+          setTimeout(() => {
+            if (isUserPro) {
+              document.getElementById("proShellModal").style.display = "flex";
+            } else {
+              alert("Access Restricted: Active Pro subscription required.");
+            }
+          }, 600);
         })
-        .catch((err) => {
-          alert("Login failed. Check your credentials.");
-          document.getElementById("shellLoginBtn").innerText = "LOGIN";
+        .catch((error) => {
+          alert("Login failed. Please check your credentials.");
+          btn.innerText = "SIGN IN";
+          btn.disabled = false;
         });
-    });
+    };
+  
+    
+    
 
     const compressImage = async (file) => {
       return new Promise((resolve, reject) => {
