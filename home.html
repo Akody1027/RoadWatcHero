@@ -6,7 +6,7 @@
 
 
 
- 
+  
 <!DOCTYPE html>
 <html lang="en"> 
   <head>   
@@ -2805,7 +2805,9 @@
             font-weight: 800;
             font-size: 20px;
             text-decoration: none;
-            margin-top: 10%;
+            margin-top: 15%;
+            margin-bottom: 15%;
+
           "
           >Missing leads? Become a Pro Hero →</a
         >
@@ -6820,25 +6822,31 @@ if (nearbySOS.length > 0) {
         window.openModal("dispatchModal");
       };
 
-      window.assignJobToDriver = (driverId) => {
-        const sosId = window.currentViewedSosId;
-        if (!sosId) return;
-  
-        update(ref(db, `sosRequests/${sosId}`), { 
-          driverId: driverId,
-          assignmentTimestamp: Date.now(),
-        })
-          .then(() => {
-            alert("Job successfully dispatched to driver!");
-            window.closeModal("dispatchModal");
-            window.closeModal("detailsModal");
-          })
-          .catch((err) => {
-            alert("Error dispatching job. Please check your connection.");
-            console.error(err);
-          });
-      };
       
+      
+      window.assignJobToDriver = (driverId) => {
+    const sosId = window.currentViewedSosId;
+    if (!sosId) return;
+
+    // Ensure we are assigning BOTH driverId (for the driver) and shopId (for the filter)
+    update(ref(db, `sosRequests/${sosId}`), { 
+        driverId: driverId,
+        shopId: myId, // Ensure the dispatcher's ID is the shop ID
+        status: "accepted", // Force status update so it's not 'open' anymore
+        assignmentTimestamp: Date.now(),
+    })
+    .then(() => {
+        alert("Job successfully dispatched!");
+        window.closeModal("dispatchModal");
+        window.closeModal("detailsModal");
+    })
+    .catch((err) => {
+        alert("Error dispatching job.");
+        console.error(err);
+    });
+};
+      
+
       
  const notificationToggle = document.getElementById('realTimeNotificationsToggle');
       if (notificationToggle) {
