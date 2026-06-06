@@ -839,15 +839,19 @@
     </div>
 
     <div id="chatModal" class="modal">
-      <div class="modal-content">
+      
+      <div class="modal-content" style="display: flex; flex-direction: column; overflow: hidden; padding-bottom: 20px;">
         <div
           style="
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            flex-shrink: 0;
           "
         >
+
+   
           <h3 style="margin: 0; color: var(--accent)">Chat</h3>
           <button
             class="close-x-btn"
@@ -857,7 +861,8 @@
           </button>
         </div>
         <div id="chatBox"></div>
-        <div style="display: flex; gap: 10px">
+        
+        <div style="display: flex; gap: 10px flex-shrink: 0;">
           <input
             id="chatInput"
             placeholder="Type message..."
@@ -1180,9 +1185,10 @@
                           <img src="phone1.png" alt="Call" style="height:30px; width:auto;filter: drop-shadow(0 0 2px var(--accent)); ">
                       </a>
                       
-                      <div class="action-btn" onclick="window.openChat('${active.id}_${active.ownerId}')">
+                      <div class="action-btn" onclick="window.openChat('${active.id}')">
                           <img src="Chaticon.png" alt="User Chat" style="height:30px; width:auto; filter: drop-shadow(0 0 2px var(--accent));">
                       </div>
+
                       <a href="${navLink}" target="_blank" class="action-btn">
                           <img src="navigate.png" alt="Navigate" style="height:30px; width:auto; filter:drop-shadow(0 0 2px var(--accent));">
                       </a>
@@ -1278,7 +1284,8 @@
                 return;
             }
             const isGroupRoom = !activeChatId.includes('_');
-
+            
+            
             const side = (m.sender === myDriverId) ? "msg-me" : "msg-them";
             
             let roleLabel = "";
