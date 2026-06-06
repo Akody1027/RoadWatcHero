@@ -1278,7 +1278,8 @@
                 return;
             }
             const isGroupRoom = !activeChatId.includes('_');
-            const side = (m.sender === myDriverId || m.sender === myShopId) ? "msg-me" : "msg-them";
+
+            const side = (m.sender === myDriverId) ? "msg-me" : "msg-them";
             
             let roleLabel = "";
             if (isGroupRoom && side === "msg-them") {
