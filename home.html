@@ -4445,8 +4445,10 @@
 
         // --- NEW: AUTOMATED HANDSHAKE (Fixes Ghost Chat) ---
         const chatId = `${sosId}_${winningHeroId}`;
-        
-        
+
+        // Route to the Group Room for Tow Requests
+        const chatId = sos.isTowTruckRequest ? sosId : `${sosId}_${winningHeroId}`;
+
         const sos = sosCache[sosId];
         if (sos && sos.isTowTruckRequest && sos.towDestination) {
             const destMechanic = Object.values(profilesCache).find(p => p.isPro && (p.heroType === "mechanic" || p.heroType === "both") && p.businessAddress === sos.towDestination);
@@ -4708,20 +4710,32 @@ window.loadAdvertisements = () => {
           reader.readAsDataURL(file);
         }
       };
+      
+      
+      
+      
+      
+      
+      
 
       window.openChat = async (targetChatId = null) => {
         if (targetChatId) activeChatId = targetChatId;
         else { 
           
           const currentActiveSOS = Object.values(sosCache).find(
+            
             (r) =>
               (r.ownerId === myId || r.helperId === myId) &&
               (r.status === "accepted" || r.status === "arrived")
           );
           if (currentActiveSOS) {
-            activeChatId = `${Object.keys(sosCache).find(
-              (key) => sosCache[key] === currentActiveSOS
-            )}_${currentActiveSOS.helperId}`;
+            const sosId = Object.keys(sosCache).find((key) => sosCache[key] === currentActiveSOS);
+            // NEW: Route Tow Jobs to the Group Room, others to Private Rooms
+            if (currentActiveSOS.isTowTruckRequest) {
+                activeChatId = sosId; 
+            } else {
+                activeChatId = `${sosId}_${currentActiveSOS.helperId}`; 
+            }
           } else {
              const mechanicChatId = Object.keys(chatCache).find(c => c.includes(myId));
              if (mechanicChatId) activeChatId = mechanicChatId;
@@ -4752,27 +4766,59 @@ window.loadAdvertisements = () => {
           const msgs = Object.values(data);
           if (msgs.length === 0) box.classList.add("chat-empty-bg");
           else box.classList.remove("chat-empty-bg");
+          
           msgs.forEach((m) => {
+            // NEW: Render Group Chat Tags
+            if (m.sender === "System") {
+                box.innerHTML += `<div style="text-align:center; font-size:11px; color:var(--muted); margin:10px 0; font-weight:bold;">${m.text}</div>`;
+                return;
+            }
+            
+            const isGroupRoom = !activeChatId.includes('_');
             const side = m.sender === myId ? "msg-me" : "msg-them";
-            let content = m.text ? `<div>${m.text}</div>` : "";
+            
+            let roleLabel = "";
+            if (isGroupRoom && side === "msg-them") {
+                roleLabel = `<div style="font-size: 10px; font-weight: 800; color: var(--accent); margin-bottom: 2px;">${m.senderRole || "User"} (${m.senderName || "Unknown"})</div>`;
+            }
+
+            let content = roleLabel;
+            content += m.text ? `<div>${m.text}</div>` : "";
             if (m.img)
               content += `<img src="${m.img}" style="max-width:100%; border-radius:10px; margin-top:5px;">`;
             box.innerHTML += `<div class="msg ${side}">${content}</div>`;
           });
+
           box.scrollTop = box.scrollHeight;
           lastMsgCount = msgs.length;
         });
+ 
+        
       };
 
       window.sendTextMsg = () => {
         const input = document.getElementById("chatInput");
         if (!input.value.trim() || !activeChatId) return;
+        
+        let role = "Seeker";
+        let name = "Seeker";
+        const myProfile = profilesCache[myId];
+        if (myProfile && myProfile.isPro) {
+            role = "Dispatcher";
+            name = myProfile.companyName || myProfile.name || "Dispatcher";
+        } else if (myProfile) {
+            name = myProfile.name || "Seeker";
+        }
+
         push(ref(db, `chats/${activeChatId}`), {
           sender: myId,
+          senderRole: role,
+          senderName: name,
           text: input.value,
           timestamp: Date.now(),
           read: false,
         });
+        
         input.value = "";
       };
 
@@ -6118,7 +6164,9 @@ if (nearbySOS.length > 0) {
 
             if (myActiveSOS.id) {
               Object.keys(chatCache).forEach((chatId) => {
-                if (chatId.startsWith(myActiveSOS.id + "_")) {
+                
+                if (chatId.startsWith(myActiveSOS.id + "_") || chatId === myActiveSOS.id) {
+
                   hasMessages = true;
                   const heroId = chatId.split("_")[1];
                   const msgs = Object.values(chatCache[chatId]);
@@ -6827,6 +6875,14 @@ if (nearbySOS.length > 0) {
       window.assignJobToDriver = (driverId) => {
     const sosId = window.currentViewedSosId;
     if (!sosId) return;
+
+        // Create the room and invite the driver visually
+    push(ref(db, `chats/${sosId}`), {
+      sender: "System",
+      senderRole: "System",
+      text: "A Driver has been dispatched and added to this chat.",
+      timestamp: Date.now()
+    });
 
     // Ensure we are assigning BOTH driverId (for the driver) and shopId (for the filter)
     update(ref(db, `sosRequests/${sosId}`), { 
