@@ -3592,6 +3592,7 @@
       import {
         getAuth,
         signInWithEmailAndPassword,
+        onAuthStateChanged,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
       // NEW: Import Firebase Storage
@@ -3719,13 +3720,7 @@
       };
       
       
-      
-      
-      
-      
-      
-      
-
+   
 
       window.openJobBoard = () => {
         window.location.href = "jobboard.html";
@@ -3737,6 +3732,23 @@
           "u_" + Math.random().toString(36).substr(2, 9)
         );
       let myId = localStorage.getItem("heroUserId");
+      
+      
+      onAuthStateChanged(auth, (user) => {
+        if (user && user.uid !== myId) {
+          // If a user logs in, update memory to the secure Pro ID and reload the iframe
+          localStorage.setItem("heroUserId", user.uid);
+          window.location.reload();
+        } else if (!user && !myId.startsWith("u_")) {
+          // If a user logs out, revert back to a temporary guest ID and reload the iframe
+          localStorage.setItem("heroUserId", "u_" + Math.random().toString(36).substr(2, 9));
+          window.location.reload();
+        }
+      });
+      
+      
+      
+      
 
       let map,
         seekerMiniMap,
