@@ -1391,29 +1391,24 @@
       };
 
       // --- NEW: BACKGROUND CHAT LISTENER ---
-      function listenToChats() {
+function listenToChats() {
         onValue(ref(db, "chats"), (snap) => {
           const data = snap.val() || {};
           let unreadCount = 0;
           let latestTime = 0;
 
           Object.keys(data).forEach((chatId) => {
-            let isMyChat = false;
+            // Check if this chat belongs to any job assigned to this driver
+            const isMyChat = window.currentJobsCache.some(job => chatId.includes(job.id));
+            
+            // Also include the Dispatch Center chat
             if (chatId === `dispatch_${myShopId}`) isMyChat = true;
-            else {
-              window.currentJobsCache.forEach((job) => {
-                if (chatId === `${job.id}_${job.ownerId}`) isMyChat = true;
-              });
-            }
 
             if (isMyChat) {
               const msgs = Object.values(data[chatId]);
               msgs.forEach((m) => {
-                if (
-                  m.sender !== myDriverId &&
-                  m.sender !== myShopId &&
-                  m.read === false
-                ) {
+                // If the sender is not me (the driver) and not my shop (the dispatcher), it's unread
+                if (m.sender !== myDriverId && m.sender !== myShopId && m.read === false) {
                   unreadCount++;
                 }
                 if (m.timestamp > latestTime) latestTime = m.timestamp;
@@ -1427,17 +1422,16 @@
             badge.style.display = unreadCount > 0 ? "flex" : "none";
           }
 
-          if (
-            latestTime > lastChatTimestamp &&
-            lastChatTimestamp !== 0 &&
-            unreadCount > 0
-          ) {
+          // Trigger sound only on new incoming messages
+          if (latestTime > lastChatTimestamp && lastChatTimestamp !== 0 && unreadCount > 0) {
             const sound = document.getElementById("notificationSound");
             if (sound) sound.play().catch((e) => {});
           }
           lastChatTimestamp = latestTime;
         });
       }
+
+        
 
       window.sendTextMsg = () => {
         const input = document.getElementById("chatInput");
