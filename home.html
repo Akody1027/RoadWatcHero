@@ -22,8 +22,7 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry,places"></script>
 
     <style>
-                            :root {
-                              --bg: #f8fafc; 
+                            :root { 
                               --card: #ffffff;  
                               --muted: black;   
                               --text: #0f172a;
@@ -4834,13 +4833,31 @@ window.loadAdvertisements = () => {
           );
           await uploadBytes(fileRef, file);
           const downloadURL = await getDownloadURL(fileRef);
+          
+          
+          let role = "Seeker";
+          let name = "Seeker";
+          const myProfile = profilesCache[myId];
+          if (myProfile && myProfile.isPro) {
+              role = "Dispatcher";
+              name = myProfile.companyName || myProfile.name || "Dispatcher";
+          } else if (myProfile) {
+              name = myProfile.name || "Seeker";
+          }
 
           push(ref(db, `chats/${activeChatId}`), {
             sender: myId,
+            senderRole: role,
+            senderName: name,
             img: downloadURL,
             timestamp: Date.now(),
             read: false,
           });
+          
+          
+        
+
+
         } catch (error) {
           console.error("Chat Image Upload Error:", error);
           alert("Failed to send image.");
