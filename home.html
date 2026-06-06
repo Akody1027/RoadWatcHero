@@ -6,12 +6,12 @@
 
 
 
-
+ 
 <!DOCTYPE html>
 <html lang="en"> 
   <head>   
     <meta charset="UTF-8" />   
-    <title>RoadWatcHero</title>
+    <title>RoadWatcHero</title> 
      
       <meta    
       name="viewport"
@@ -2583,34 +2583,7 @@
             margin-bottom: 20px;
           "
         >
-          <div id="proLoginSection">
-            <p
-              style="
-                text-align: center;
-                font-size: 12px;
-                color: var(--muted);
-                margin-top: 0;
-                margin-bottom: 15px;
-                font-weight: 600;
-              "
-            >
-              Verify your account to unlock priority dispatch and fleet
-              management.
-            </p>
-            <input
-              type="email"
-              id="loginEmail"
-              placeholder="Pro Email Address"
-            />
-            <input type="password" id="loginPassword" placeholder="Password" />
-            <button
-              class="submit-btn"
-              id="verifyProBtn"
-              onclick="window.submitProLogin()"
-            >
-              Verify & Unlock
-            </button>
-          </div>
+          
 
           <div id="proDashboardSection" style="display: none">
             <div
@@ -4326,89 +4299,34 @@
       // --- PRO INLINE VAULT & FLEET LOGIC ---
       window.fleetDrivers = [];
 
+      
+       
+      
+      
       window.openProLogin = async (checkbox) => {
         const vault = document.getElementById("proInlineVault");
-        const loginSec = document.getElementById("proLoginSection");
         const dashSec = document.getElementById("proDashboardSection");
 
         if (checkbox.checked) {
-          vault.style.display = "block";
-          // Check if already pro in database
           const snap = await get(ref(db, `profiles/${myId}`));
           if (snap.exists() && snap.val().isPro) {
-            loginSec.style.display = "none";
+            vault.style.display = "block";
             dashSec.style.display = "block";
             window.fleetDrivers = snap.val().fleetDrivers || [];
             window.renderFleetDrivers();
           } else {
-            loginSec.style.display = "block";
-            dashSec.style.display = "none";
+            checkbox.checked = false;
+            window.parent.postMessage({ action: 'OPEN_GLOBAL_LOGIN' }, '*');
+            window.closeModal('profileModal');
           }
         } else {
           vault.style.display = "none";
-          // Instantly revoke UI pro status if toggled off
-          update(ref(db, `profiles/${myId}`), {
-            isPro: false,
-            fleetModeActive: false,
-          });
+          dashSec.style.display = "none";
         }
       };
+      
+      
 
-      window.submitProLogin = () => {
-        const email = document.getElementById("loginEmail").value;
-        const pass = document.getElementById("loginPassword").value;
-        const btn = document.getElementById("verifyProBtn");
-
-        if (!email || !pass)
-          return alert("Please enter your Pro email and password.");
-
-        btn.innerText = "Verifying...";
-        btn.disabled = true;
-
-        signInWithEmailAndPassword(auth, email, pass)
-          .then(async (userCredential) => {
-            const secureUid = userCredential.user.uid;
-            const oldTempId = myId;
-
-            // Transfer data to secure UID
-            const oldProfileSnap = await get(ref(db, `profiles/${oldTempId}`));
-            let profileData = oldProfileSnap.exists()
-              ? oldProfileSnap.val()
-              : {};
-            profileData.isPro = true;
-            profileData.id = secureUid;
-          
-          
-          if (!profileData.proJoinDate) profileData.proJoinDate = Date.now();
-
-            await set(ref(db, `profiles/${secureUid}`), profileData);
-            if (oldTempId !== secureUid)
-              await remove(ref(db, `profiles/${oldTempId}`));
-
-            localStorage.setItem("heroUserId", secureUid);
-            myId = secureUid;
-
-            // Seamlessly swap to Dashboard View!
-            document.getElementById("proLoginSection").style.display = "none";
-            document.getElementById("proDashboardSection").style.display =
-              "block";
-          
-          
-          
-          
-
-            btn.innerText = "Verify & Unlock";
-            btn.disabled = false;
-          })
-          .catch((error) => {
-            alert("Invalid credentials. Access denied.");
-            console.error("Login Error:", error.message);
-            document.getElementById("isProToggle").checked = false;
-            document.getElementById("proInlineVault").style.display = "none";
-            btn.innerText = "Verify & Unlock";
-            btn.disabled = false;
-          });
-      };
 
       window.toggleFleetMode = (checkbox) => {
         document.getElementById("fleetManagerPanel").style.display =
@@ -6713,7 +6631,10 @@ if (nearbySOS.length > 0) {
           // Auto-open the Inline Vault if they are Pro
           if (d.isPro) {
             document.getElementById("proInlineVault").style.display = "block";
-            document.getElementById("proLoginSection").style.display = "none";
+            
+            
+            
+            
             document.getElementById("proDashboardSection").style.display =
               "block";
             
@@ -6960,13 +6881,6 @@ if (nearbySOS.length > 0) {
       
       
 
-      
-      
-       
-      
-      
-      
-      
     </script>
   </body>
 </html>
