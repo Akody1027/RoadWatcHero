@@ -4,7 +4,7 @@
 
 
 
-
+ 
  
   
 <!DOCTYPE html>
@@ -660,7 +660,7 @@
                               backdrop-filter: blur(10px);
                               z-index: 2000;
                               border-top: 1px solid rgba(255, 255, 255, 0.2);
-                              padding-bottom: env(safe-area-inset-bottom);
+                              padding-bottom: env(safe-area-inset-bottom); 
                             }
                             .footer-icons {
                               display: flex;
@@ -697,7 +697,7 @@
                             .jb-btn {
                               position: absolute;
                               top: 20px;
-                              left 20px;
+                              left: 20px;
                               margin-left:15px;
                               background: #ee611c;
                               border: none;
@@ -707,7 +707,7 @@
                               z-index: 5;
                               font-weight: 800;
                               font-size: 11px;
-                              color:white;
+                              color:white; 
                             }
 
 
@@ -1599,6 +1599,8 @@
                   />
                 </div> 
             </div>
+         </div>
+
 
             <div id="heroMenuModal" class="modal" style="justify-content: flex-end;">
               <div class="modal-content" style=" height: 50vh; min-height: 50vh; max-width: 40%; padding: 15px; position: relative; margin-bottom: 30px;">
@@ -1622,9 +1624,6 @@
           
           
 
-          </div>
-          </div>
-          </div>
 
 
     <div id="detailsModal" class="modal">
@@ -1731,11 +1730,9 @@
           <div id="detImgScroller" class="det-img-scroller" style="gap: 10px; padding-bottom: 5px;"></div>
           
           
+</div>
+ 
 
-
-
-        
-        
         
         <div id="detActionGrid" style="display: none; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px;">
           <div style="display: flex; gap: 8px; justify-content: space-between; width: 100%;">
@@ -1946,7 +1943,7 @@
 
     <div id="chatModal" class="modal">
       <div class="modal-content" style="height: 95vh">
-        <div class="modal-header-row" style="padding-top: 0px">
+        <div class="modal-header-row" style="">
           <div style="flex: 1"></div>
           <h3>Messages</h3>
           <button class="close-x-btn" onclick="window.closeModal('chatModal')">
@@ -2007,7 +2004,7 @@
         <div class="modal-header-row" style="padding-top:0px">
           <div style=></div>
 
-          <h3 style=>Find Hero</h3>
+          <h3>Find Hero</h3>
 
           <button
             class="close-x-btn"
@@ -4062,6 +4059,16 @@
         }
       };
 
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       window.toggleTaskCard = () => {
         document.getElementById("activeTask").classList.toggle("expanded");
       };
