@@ -536,6 +536,18 @@
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
       
+      import {
+        getFirestore,
+        collection,
+        query,
+        where,
+        orderBy,
+        limit,
+        startAfter,
+        getDocs
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+      
+      
       
       
       // --- ANALYTICS HELPER ---
@@ -571,6 +583,24 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
+      
+      const firestore = getFirestore(app);
+      let lastVisibleDoc = null;
+      let isFetching = false;
+      let activeCategory = null;
+      let searchKeyword = "";
+      let debounceTimer = null;
+
+      // Infinite Scroll Trigger
+      document.getElementById("marketplaceFeed").addEventListener("scroll", (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        // If user scrolls within 100px of the bottom, fetch the next batch
+        if (scrollTop + clientHeight >= scrollHeight - 100 && !isFetching && lastVisibleDoc) {
+          window.loadHubFeed(true);
+        }
+      });
+      
+      window.allHubPosts = {};
 
       // Sidebar Toggle Logic (FAB is now always visible)
       window.toggleSidebar = () => {
@@ -634,76 +664,143 @@
           </div>
         `;
         document.getElementById("postModal").style.display = "flex";
+        
       };
+      
+      
+      
+      
+      window.loadHubFeed = async (loadMore = false) => {
+        if (isFetching) return;
+        isFetching = true;
+        const feedContainer = document.getElementById("marketplaceFeed");
 
-      // Real-Time Listener for Business Posts
-      const feedContainer = document.getElementById("marketplaceFeed");
-      const postsRef = ref(db, "businessPosts");
-
-      onValue(postsRef, (snapshot) => {
-        const data = snapshot.val();
-        feedContainer.innerHTML = "";
-
-        if (!data) {
-          feedContainer.innerHTML = `
-                    <div class="empty-feed-msg">
-                        <h3 style="margin-bottom: 5px; color: var(--text);">No Active Posts</h3>
-                        <p style="font-size: 13px;">Local businesses will appear here.</p>
-                    </div>
-                    <div class="post-card" style="opacity: 0.5;">
-                        <div class="post-header">
-                            <div class="post-user-icon"></div>
-                            <div class="post-biz-name">BUSINESS NAME</div>
-                        </div>
-                        <div class="post-image-square" style="font-weight: 800; color: #94a3b8;">1:1 IMAGE AREA</div>
-                        <div class="post-footer">
-                            <button class="post-btn" style="background: #cbd5e1; color: white;">CALL NOW</button>
-                        </div>
-                    </div>
-                `;
-          return;
+        if (!loadMore) {
+          feedContainer.innerHTML = "";
+          lastVisibleDoc = null;
+          window.allHubPosts = {};
         }
 
-        // Cache live data globally so the modal can access it by ID
-        window.allHubPosts = data;
+        try {
+          
+          // Querying the 'businessPosts' collection for Hub ads
+          let qRef = collection(firestore, "businessPosts");
+          let constraints = [];
 
-        // Render live posts with Modal Onclick Triggers
-      Object.entries(data).forEach(([key, post]) => {
-          const card = `
-                    <div class="post-card" onclick="window.incrementStat('${post.ownerId}', 'postClicks'); window.openPostModal('${key}')">
-                        <div class="post-header">
-                            <img src="${
-                              post.logoUrl || "https://via.placeholder.com/36"
-                            }" class="post-user-icon">
-                            <div class="post-biz-name">${
-                              post.businessName || "Pro Hero"
-                            }</div>
-                        </div>
-                        <div class="post-image-square">
-                            <img src="${
-                              post.promoUrl || "https://via.placeholder.com/500"
-                            }" alt="Business Ad">
-                        </div>
-                        <div class="post-footer">
-                            <p class="post-desc">${
-                              post.description ||
-                              "Professional automotive services."
-                            }</p>
-                            <a href="tel:${
-                              post.phone || "#"
-                            }" style="text-decoration:none;" onclick="event.stopPropagation(); window.incrementStat('${post.ownerId}', 'callClicks');">
-                                <button class="post-btn">CALL NOW</button>
-                            </a>
-                        </div>
-                    </div>
-                `;
-          feedContainer.innerHTML += card;
+          if (activeCategory) {
+            constraints.push(where("category", "==", activeCategory));
+          }
+
+          constraints.push(orderBy("timestamp", "desc"));
+          constraints.push(limit(10)); // Fetch only 10 at a time
+
+          if (loadMore && lastVisibleDoc) {
+            constraints.push(startAfter(lastVisibleDoc));
+          }
+
+          const finalQuery = query(qRef, ...constraints);
+          const snapshot = await getDocs(finalQuery);
+
+          if (snapshot.empty && !loadMore) {
+            feedContainer.innerHTML = `
+              <div class="empty-feed-msg">
+                <h3 style="margin-bottom: 5px; color: var(--text);">No Active Posts Found</h3>
+                <p style="font-size: 13px;">Adjust your filters to see more local ads.</p>
+              </div>
+            `;
+          }
+
+          snapshot.forEach((doc) => {
+            const post = doc.data();
+            const key = doc.id;
+
+            // Debounced Client-Side Keyword Checking
+            if (searchKeyword) {
+              const searchString = `${post.businessName || ""} ${post.description || ""}`.toLowerCase();
+              if (!searchString.includes(searchKeyword.toLowerCase())) return;
+            }
+
+            // Map Firestore fields to the existing Modal structure
+            window.allHubPosts[key] = {
+              logoUrl: post.logoUrl,
+              promoUrl: post.promoUrl,
+              businessName: post.businessName,
+              description: post.description,
+              phone: post.phone
+            };
+            
+            lastVisibleDoc = doc;
+
+            const card = `
+              <div class="post-card" onclick="window.incrementStat('${key}', 'postClicks'); window.openPostModal('${key}')">
+                <div class="post-header">
+                  <img src="${post.logoUrl || "https://via.placeholder.com/36"}" class="post-user-icon">
+                  <div class="post-biz-name">${post.businessName || "Pro Hero"}</div>
+                </div>
+                <div class="post-image-square">
+                  <img src="${post.promoUrl || "https://via.placeholder.com/500"}" alt="Business Ad">
+                </div>
+                <div class="post-footer">
+                  <p class="post-desc">${post.description || "Professional automotive services."}</p>
+                  <a href="tel:${post.phone || "#"}" style="text-decoration:none;" onclick="event.stopPropagation(); window.incrementStat('${key}', 'callClicks');">
+                    <button class="post-btn">CALL NOW</button>
+                  </a>
+                </div>
+              </div>
+            `;
+            feedContainer.innerHTML += card;
+          });
+   
+          
+          
+          
+          
+          
+        } catch (err) {
+          console.error("Error loading feed:", err);
+        } finally {
+          isFetching = false;
+        }
+      };
+
+      // --- FILTER BINDINGS ---
+
+      // 1. Category Filtering
+      document.querySelectorAll('.cat-row').forEach(row => {
+        row.addEventListener('click', (e) => {
+          const clickedCat = e.target.innerText.trim();
+          
+          if (activeCategory === clickedCat) {
+            // Toggle off
+            activeCategory = null;
+            e.target.style.color = "var(--text)";
+          } else {
+            // Toggle on
+            document.querySelectorAll('.cat-row').forEach(r => r.style.color = "var(--text)");
+            activeCategory = clickedCat;
+            e.target.style.color = "var(--accent)";
+          }
+          window.loadHubFeed(false);
         });
-        
-        
-        
-        
       });
+
+      // 2. Debounced Keyword Search
+      const keywordInput = document.querySelector('input[placeholder="Search businesses..."]');
+      if (keywordInput) {
+        keywordInput.addEventListener('input', (e) => {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            searchKeyword = e.target.value.trim();
+            window.loadHubFeed(false);
+          }, 400); // Waits 400ms after user stops typing
+        });
+      }
+
+      // Initial Load
+      window.loadHubFeed(false);
+      
+      
+
     </script>
   </body>
 </html>
