@@ -1532,8 +1532,8 @@
       </button>
 
 <div style="position: absolute; top: 20px; left: 20px; z-index: 5;">
-        <button class="jb-btn" style="margin-left: 0; background-color:transparent; position: relative; top: 0; left: 0; font-size:35px; padding:1% ;" onclick="document.getElementById('mapFilterMenu').style.display = document.getElementById('mapFilterMenu').style.display === 'none' ? 'block' : 'none'">
-          ⚙️ 
+         <button class="jb-btn" style="margin-left: 0; background-color: transparent; position: relative; top: 0; left: 0; padding: 1%; border: none; cursor: pointer;" onclick="document.getElementById('mapFilterMenu').style.display = document.getElementById('mapFilterMenu').style.display === 'none' ? 'block' : 'none'">
+          <img src="gearicon.png" alt="Settings" style="width: 35px; height: 35px; filter: drop-shadow(0px 0px 2px rgba(238, 97, 28, 0.5));">
         </button>
         <div id="mapFilterMenu" style="display: none; background: white; padding: 15px; border-radius: 12px; box-shadow: var(--shadow); margin-top: 10px; border: 1px solid #e2e8f0; width: 220px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -4178,28 +4178,42 @@
 
       // NEW: Intercept the phone's physical back button / back swipe
       window.addEventListener("popstate", (event) => {
+
         // 1. Forcefully hide all modals on the screen
         document.querySelectorAll(".modal").forEach((modal) => {
           modal.style.display = "none";
         });
 
-        // 2. Shut down the arcade iframe if it was playing to stop audio
-        const iframe = document.getElementById("gameIframe");
-        if (iframe) iframe.src = "";
+        // 2. Shut down the arcade iframe if we are leaving it
+        if (!event.state || event.state.modalOpen !== "arcadeModal") {
+          const iframe = document.getElementById("gameIframe");
+          if (iframe) iframe.src = "";
+        }
 
         // 3. Clean up enlarged images
-        const enlargedImage = document.getElementById("enlargedImage");
-        if (enlargedImage) {
-          enlargedImage.src = "";
-          enlargedImage.style.display = "none";
+        if (!event.state || event.state.modalOpen !== "imageEnlargeModal") {
+          const enlargedImage = document.getElementById("enlargedImage");
+          if (enlargedImage) {
+            enlargedImage.src = "";
+            enlargedImage.style.display = "none";
+          }
         }
 
         // 4. Clean up the profile map radius circle
-        if (profileRadiusCircle) {
+        if (profileRadiusCircle && (!event.state || event.state.modalOpen !== "profileModal")) {
           profileRadiusCircle.setMap(null);
           profileRadiusCircle = null;
         }
+
+        // 5. FIX: Re-open the previous modal if we stepped backwards into it
+        if (event.state && event.state.modalOpen) {
+          const modalToRestore = document.getElementById(event.state.modalOpen);
+          if (modalToRestore) modalToRestore.style.display = "flex";
+        }
       });
+        
+        
+
 
       // NEW: Shows/Hides pricing fields when Tow Truck toggle is clicked
       window.togglePricingFields = (checkbox) => {
@@ -5933,9 +5947,7 @@ window.increaseTipPrompt = () => {
                     <button onclick="window.viewRequest('${task.id}')" style="flex: 1; background: whitesmoke; border: 2px solid var(--success); color: var(--success); padding: 10px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;">
                         DETAILS
                     </button>
-                    <button onclick="window.openChat('${chatID}')" style="flex: 1; background: var(--accent); border: 2px solid var(--accent); color: white; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s;">
-                        CHAT
-                    </button>
+ 
                 </div>
               </div>`;
             }
