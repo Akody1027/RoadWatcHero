@@ -11,7 +11,7 @@
     <style>
       :root {
         --accent: #ee611c;
-        --bg: #f8fafc;
+        --bg: #f8fafc; 
         --surface: #ffffff;
         --text: #0f172a;
         --muted: #64748b;
@@ -20,7 +20,7 @@
       body {
         margin: 0;
         font-family: -apple-system, system-ui, sans-serif;
-        background: var(--bg);
+        background: var(--bg); 
         color: var(--text);
         overflow: hidden;
         height: 100vh;
@@ -266,28 +266,8 @@
       }
 
       /* --- ALWAYS VISIBLE FLOATING BUTTON --- */
-      .fab-btn {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        width: 56px;
-        height: 56px;
-        background: var(--accent);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        font-size: 24px;
-        box-shadow: 0 4px 12px rgba(238, 97, 28, 0.4);
-        cursor: pointer;
-        z-index: 1000;
-        display: flex; /* Changed from none to always show */
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s;
-      }
-      .fab-btn:active {
-        transform: scale(0.95);
-      }
+
+
 
       /* --- GRID LAYOUT OVERRIDES --- */
       .feed-area.grid-view {
@@ -423,14 +403,10 @@
 
       }
       .fab-btn {
-        font-size: 35px;
         position: fixed; 
-        bottom: 20px; 
-        left: 20px; 
-        width: 66px;
-        height: 66px;
-        background: var(--accent);
-        color: white;
+        bottom: 91%; 
+        left: 92%; 
+        background: transparent;
         border: none;
         border-radius: 50%;
         font-size: 24px;
@@ -441,8 +417,6 @@
         align-items: center;
         justify-content: center;
         transition: transform 0.2s;
-        animation: fabPulse 2.5s infinite cubic-bezier(0.66, 0, 0, 1);
-        opacity:70%;
       }
       .fab-btn:active {
         transform: scale(0.95);
@@ -464,7 +438,7 @@
 
     <div class="app-body">
       <button id="fabSettings" class="fab-btn" onclick="window.toggleSidebar()">
-        ⚙️
+        <img src="gearicon.png" style="width: 40px; height: 40px; pointer-events: none;" alt="Settings" />
       </button>
       <div id="filterSidebar" class="sidebar collapsed">
         <div class="sidebar-content">
@@ -472,7 +446,7 @@
             <button
               id="btnList"
               class="layout-toggle-btn active"
-              onclick="window.setLayout('list')"
+              onclick="window.setLayout('list')" 
             >
               LIST
             </button>
