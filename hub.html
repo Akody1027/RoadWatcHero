@@ -466,15 +466,17 @@
             placeholder="Search businesses..."
           />
 
+          
           <label class="input-label">Location</label>
-          <input type="text" class="input-box" placeholder="City or Zip" />
+          <input type="text" id="locationInput" class="input-box" placeholder="City or Zip" onblur="window.updateHubLocation()" />
 
           <label class="input-label"
             >Radius (Miles):
-            <span id="rVal" style="color: var(--accent)">25</span></label
+            <span id="radiusValue" style="color: var(--accent)">25 mi</span></label
           >
           <input
             type="range"
+            id="radiusSlider"
             min="5"
             max="100"
             value="25"
@@ -485,8 +487,10 @@
               background: none;
               accent-color: var(--accent);
             "
-            oninput="document.getElementById('rVal').innerText=this.value"
+            oninput="document.getElementById('radiusValue').innerText = this.value + ' mi'"
           />
+          
+     
 
           <label class="input-label" style="margin-top: 20px">Categories</label>
           <div class="cat-list">
@@ -586,6 +590,35 @@
       
       const firestore = getFirestore(app);
       let lastVisibleDoc = null;
+      
+      
+      // --- NATIVE GEOHASH ENGINE ---
+      window.encodeGeohash = (lat, lng, precision = 4) => {
+        // Precision 4 creates a map grid roughly 24 miles wide (perfect for a 10-25 mile radius)
+        const b32 = '0123456789bcdefghjkmnpqrstuvwxyz';
+        let idx = 0, bit = 0, even = true, hash = '';
+        let latMin = -90, latMax = 90, lonMin = -180, lonMax = 180;
+        while (hash.length < precision) {
+          if (even) {
+            const mid = (lonMin + lonMax) / 2;
+            if (lng >= mid) { idx = idx * 2 + 1; lonMin = mid; } 
+            else { idx = idx * 2; lonMax = mid; }
+          } else {
+            const mid = (latMin + latMax) / 2;
+            if (lat >= mid) { idx = idx * 2 + 1; latMin = mid; } 
+            else { idx = idx * 2; latMax = mid; }
+          }
+          even = !even;
+          if (++bit === 5) { hash += b32[idx]; bit = 0; idx = 0; }
+        }
+        return hash;
+      };
+
+      let userCurrentGeohash = null; // Will store the Seeker's current grid code
+      
+      
+      
+      
       let isFetching = false;
       let activeCategory = null;
       let searchKeyword = "";
@@ -669,6 +702,41 @@
       
       
       
+      window.updateHubLocation = () => {
+        const locationInput = document.getElementById("locationInput").value.trim();
+        
+        // If they typed a city, we would normally run it through Google Geocoder here.
+        // For maximum efficiency right now, we will grab their device GPS if the box is empty.
+        if (!locationInput) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    userCurrentGeohash = window.encodeGeohash(pos.coords.latitude, pos.coords.longitude);
+                    window.loadHubFeed(false);
+                });
+            } else {
+                window.loadHubFeed(false); // Fallback to national if GPS blocked
+            }
+        } else {
+            // Placeholder: When you connect Google Geocoder, convert typed city to Lat/Lng here
+            window.loadHubFeed(false);
+        }
+      };
+
+      // Listen for the radius slider changing
+      document.getElementById("radiusSlider").addEventListener("change", () => {
+          document.getElementById("radiusValue").innerText = document.getElementById("radiusSlider").value + " mi";
+          window.updateHubLocation();
+      });
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       
       window.loadHubFeed = async (loadMore = false) => {
         if (isFetching) return;
@@ -687,11 +755,23 @@
           let qRef = collection(firestore, "businessPosts");
           let constraints = [];
 
+
           if (activeCategory) {
             constraints.push(where("category", "==", activeCategory));
           }
 
-          constraints.push(orderBy("timestamp", "desc"));
+          // THE MAGIC FILTER: Only download ads in the same geographic grid
+          if (userCurrentGeohash) {
+            constraints.push(where("geohash", ">=", userCurrentGeohash));
+            constraints.push(where("geohash", "<=", userCurrentGeohash + '\uf8ff'));
+          } else {
+            // Only order by timestamp if we aren't doing a Geohash range query
+            // (Firestore requires the first orderBy to match the where clause inequality)
+            constraints.push(orderBy("timestamp", "desc"));
+          }
+          
+          
+          
           constraints.push(limit(10)); // Fetch only 10 at a time
 
           if (loadMore && lastVisibleDoc) {
@@ -786,6 +866,11 @@
 
       // 2. Debounced Keyword Search
       const keywordInput = document.querySelector('input[placeholder="Search businesses..."]');
+      
+      
+      
+      
+      
       if (keywordInput) {
         keywordInput.addEventListener('input', (e) => {
           clearTimeout(debounceTimer);
