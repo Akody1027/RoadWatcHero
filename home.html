@@ -10,7 +10,7 @@
 <!DOCTYPE html>
 <html lang="en">   
   <head>    
-    <meta charset="UTF-8" />   
+    <meta charset="UTF-8" />    
     <title>RoadWatcHero</title>  
      
       <meta    
@@ -1484,14 +1484,30 @@
       >
         <div style="font-size: 40px; margin-bottom: 15px">✅</div>
         <h3>Job Completed!</h3>
-        <p>Your Hero has marked the job as finished.</p>
+        
+        
+        <p style="margin-bottom: 10px;">Your Hero has marked the job as finished.</p>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+          <div style="font-size: 12px; font-weight: 800; color: var(--accent); margin-bottom: 10px; text-transform: uppercase;">Please rate your Hero</div>
+          <div id="heroRatingStars" style="display: flex; justify-content: center; gap: 10px; font-size: 30px; cursor: pointer;">
+            <span class="star" onclick="window.setHeroRating(1)" style="color: #cbd5e1; transition: 0.2s;">★</span>
+            <span class="star" onclick="window.setHeroRating(2)" style="color: #cbd5e1; transition: 0.2s;">★</span>
+            <span class="star" onclick="window.setHeroRating(3)" style="color: #cbd5e1; transition: 0.2s;">★</span>
+            <span class="star" onclick="window.setHeroRating(4)" style="color: #cbd5e1; transition: 0.2s;">★</span>
+            <span class="star" onclick="window.setHeroRating(5)" style="color: #cbd5e1; transition: 0.2s;">★</span>
+          </div>
+        </div>
         <button
+          id="finalConfirmBtn"
           class="submit-btn"
-          style="background: var(--success); margin-top: 15px"
+          style="background: #cbd5e1; margin-top: 5px; cursor: not-allowed; transition: 0.3s;"
           onclick="window.finalSeekerConfirm()"
+          disabled
         >
           CONFIRM & FINISH
         </button>
+        
+
       </div>
       
       
@@ -2481,6 +2497,13 @@
             <div id="proDateDisplay" style="text-align: center; font-size: 11px; color: var(--muted); font-weight: 700; margin-top: -10px; margin-bottom: 15px;"></div>
             
             
+            <button onclick="window.location.href='pro-hero.html'" style="width: 100%; padding: 12px; background: linear-gradient(135deg, var(--text) 0%, #1e293b 100%); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+              MANAGE PRO MEMBERSHIP
+            </button>
+            
+            
+            
+            
 
             <label
               style="
@@ -2673,6 +2696,11 @@
         </button>
         
         
+        <button onclick="window.openModal('accountDeleteModal')" style="width: 100%; background: none; border: 1px solid #b91c1c; color: #b91c1c; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 15px;">
+          DELETE ACCOUNT
+        </button>
+        
+   
         <a href="pro-hero.html" style="display: block; background: linear-gradient(135deg, var(--text) 0%, #1e293b 100%); border-radius: 16px; padding: 20px; margin-top: 15%; margin-bottom: 15%; text-decoration: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); border: 1px solid #334155; position: relative; overflow: hidden;">
           <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: var(--accent); opacity: 0.2; border-radius: 50%; filter: blur(20px);"></div>
           
@@ -2762,10 +2790,24 @@
         <span class="cancel-link" onclick="window.closeSubModal('clearAllConfirmModal')">Cancel</span>
       </div>
     </div>
-
-
-
-
+    
+    
+    <div id="accountDeleteModal" class="modal" style="z-index: 1010;">
+      <div class="modal-content">
+        <h3 style="color: var(--danger); margin-top: 0;">Delete Account?</h3>
+        <p style="font-size: 14px; font-weight: 600; margin-bottom: 15px;">Are you sure you want to permanently delete your RoadWatcHero account? This cannot be undone.</p>
+        <div id="deletePhase1">
+          <button class="submit-btn" style="background: var(--danger); margin-bottom: 10px" onclick="document.getElementById('deletePhase1').style.display='none'; document.getElementById('deletePhase2').style.display='block';">PROCEED</button>
+        </div>
+        <div id="deletePhase2" style="display: none;">
+          <label style="font-size: 11px; font-weight: bold; color: var(--danger); margin-bottom: 8px; display: block;">TYPE "DELETE" TO CONFIRM</label>
+          <input type="text" id="deleteConfirmInput" placeholder="DELETE" oninput="window.checkDeleteConfirm(this.value)" style="border-color: var(--danger); text-align: center; font-weight: bold; font-size: 18px; text-transform: uppercase;">
+          <button id="finalDeleteBtn" class="submit-btn" style="background: var(--danger); margin-bottom: 10px; opacity: 0.5; cursor: not-allowed;" onclick="window.executeAccountDeletion()" disabled>PERMANENTLY DELETE</button>
+        </div>
+        <span class="cancel-link" onclick="window.closeModal('accountDeleteModal'); document.getElementById('deletePhase1').style.display='block'; document.getElementById('deletePhase2').style.display='none'; document.getElementById('deleteConfirmInput').value=''; window.checkDeleteConfirm('');">Cancel</span>
+      </div>
+    </div>
+    
 
 
     <div id="deleteChatConfirmModal" class="modal">
@@ -5534,20 +5576,79 @@ window.increaseTipPrompt = () => {
         window.switchView("landingPage");
         damageImgList = [];
       };
-      window.finalSeekerConfirm = () => {
+      
+      
+      
+      let currentHeroRating = 0;
+
+      window.setHeroRating = (stars) => {
+        currentHeroRating = stars;
+        const starElements = document.querySelectorAll("#heroRatingStars .star");
+        starElements.forEach((el, index) => {
+          if (index < stars) {
+            el.style.color = "#f59e0b";
+          } else {
+            el.style.color = "#cbd5e1";
+          }
+        });
+        
+        const btn = document.getElementById("finalConfirmBtn");
+        btn.disabled = false;
+        btn.style.background = "var(--success)";
+        btn.style.cursor = "pointer";
+      };
+
+      window.finalSeekerConfirm = async () => {
         const myReqId = Object.keys(sosCache).find(
           (k) =>
             sosCache[k].ownerId === myId && sosCache[k].status === "completed"
         );
-        if (myReqId)
+        
+        if (myReqId) {
+          const req = sosCache[myReqId];
+          if (req.helperId && currentHeroRating > 0) {
+            const heroId = req.helperId;
+            
+            const newRatingData = {
+              stars: currentHeroRating,
+              seekerId: myId,
+              timestamp: Date.now()
+            };
+            
+            await push(ref(db, `profiles/${heroId}/ratings`), newRatingData);
+            
+            const ratingsSnap = await get(ref(db, `profiles/${heroId}/ratings`));
+            if (ratingsSnap.exists()) {
+              const allRatings = Object.values(ratingsSnap.val());
+              const totalStars = allRatings.reduce((sum, r) => sum + r.stars, 0);
+              const avgRating = (totalStars / allRatings.length).toFixed(1);
+              
+              await update(ref(db, `profiles/${heroId}`), {
+                averageRating: Number(avgRating),
+                totalRatings: allRatings.length
+              });
+            }
+          }
+          
           update(ref(db, `sosRequests/${myReqId}`), { status: "finalized" });
+        }
+        
         damageImgList = [];
-
         destLat = null;
         destLng = null;
+        currentHeroRating = 0; 
 
         window.switchView("landingPage");
       };
+
+      
+      
+      
+      
+      
+      
+      
+      
 
       function initMap() {
         const mapElement = document.getElementById("map");
@@ -6574,6 +6675,38 @@ if (nearbySOS.length > 0) {
       };
       
       
+      
+      
+      window.checkDeleteConfirm = (val) => {
+        const btn = document.getElementById("finalDeleteBtn");
+        if (val.trim().toUpperCase() === "DELETE") {
+          btn.disabled = false;
+          btn.style.opacity = "1";
+          btn.style.cursor = "pointer";
+        } else {
+          btn.disabled = true;
+          btn.style.opacity = "0.5";
+          btn.style.cursor = "not-allowed"; 
+        }
+      };
+
+      window.executeAccountDeletion = async () => {
+        document.getElementById("loadingOverlay").classList.remove("loader-hidden");
+        try {
+          await remove(ref(db, `profiles/${myId}`));
+          
+          if (auth.currentUser) {
+            const { deleteUser } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js");
+            await deleteUser(auth.currentUser);
+          }
+          
+          localStorage.removeItem("heroUserId");
+          window.location.reload();
+        } catch (error) {
+          document.getElementById("loadingOverlay").classList.add("loader-hidden");
+          alert("Error deleting account. Please contact support. " + error.message);
+        }
+      };
       
 
 
