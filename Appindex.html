@@ -1685,11 +1685,21 @@
       deleteObject,
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
 
+
     import {
       getFirestore,
       doc,
       setDoc,
+      collection,
+      addDoc,
+      updateDoc,
+      deleteDoc,
+      onSnapshot,
+      query,
+      where
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    
+    
 
     // Your exact project credentials
     const firebaseConfig = {
@@ -1708,6 +1718,30 @@
 
     const storage = getStorage(app);
     let allPostsData = {}; // Cache to hold post data for editing
+    
+    
+    // --- NATIVE GEOHASH ENGINE ---
+    window.encodeGeohash = (lat, lng, precision = 9) => {
+      const b32 = '0123456789bcdefghjkmnpqrstuvwxyz';
+      let idx = 0, bit = 0, even = true, hash = '';
+      let latMin = -90, latMax = 90, lonMin = -180, lonMax = 180;
+      while (hash.length < precision) {
+        if (even) {
+          const mid = (lonMin + lonMax) / 2;
+          if (lng >= mid) { idx = idx * 2 + 1; lonMin = mid; } 
+          else { idx = idx * 2; lonMax = mid; }
+        } else {
+          const mid = (latMin + latMax) / 2;
+          if (lat >= mid) { idx = idx * 2 + 1; latMin = mid; } 
+          else { idx = idx * 2; latMax = mid; }
+        }
+        even = !even;
+        if (++bit === 5) { hash += b32[idx]; bit = 0; idx = 0; }
+      }
+      return hash;
+    };
+    
+    
 
     const socialContainer = document.getElementById("socialLinksContainer");
     window.createSocialRow = (platform = "Website", url = "") => {
@@ -1933,66 +1967,47 @@
           }
         });
 
-        // Live Listener for Active Campaigns (Bottom of Profile)
-        onValue(ref(db, "businessPosts"), (snap) => {
-          const posts = snap.val() || {};
-          allPostsData = posts;
-
-          // Filter down to ONLY posts owned by this specific Pro
-          const myPosts = Object.entries(posts).filter(
-            ([id, p]) => p.ownerId === currentUserId
-          );
+        
+        
+        // Live Listener for Active Campaigns (Bottom of Profile) - FIRESTORE UPGRADE
+        const postsQuery = query(collection(firestore, "businessPosts"), where("ownerId", "==", currentUserId));
+        onSnapshot(postsQuery, (snapshot) => {
+          allPostsData = {};
           const container = document.getElementById("shellActivePosts");
 
-          if (myPosts.length === 0) {
-            container.innerHTML =
-              '<p style="font-size: 13px; color: var(--muted); text-align: center; font-style: italic;">No active posts yet.</p>';
+          if (snapshot.empty) {
+            container.innerHTML = '<p style="font-size: 13px; color: var(--muted); text-align: center; font-style: italic;">No active posts yet.</p>';
             return;
           }
 
           container.innerHTML = "";
 
-          myPosts.forEach(([id, post]) => {
-            container.innerHTML += `
-                    <div class="post-card" style="margin-bottom: 25px; border: 2px solid var(--accent);">
-                    
-                    
-                    
-                        <div class="post-header">
-                        
-                                                    <img src="${
-                                                      document.getElementById(
-                                                        "shellBizLogo"
-                                                      ).dataset.existing ||
-                                                      post.logoUrl ||
-                                                      "herousericon.jpg"
-                                                    }" class="post-user-icon">
+          snapshot.forEach((docSnap) => {
+            const id = docSnap.id;
+            const post = docSnap.data();
+            allPostsData[id] = post;
 
-                            
-                            
-                            
-                            
-                            <div class="post-biz-name">${
-                              post.businessName || "Business Name"
-                            }</div>
-                        </div>
-                        <div class="post-image-square">
-                            <img src="${
-                              post.promoUrl ||
-                              "https://via.placeholder.com/500?text=PROMO+IMAGE+HERE"
-                            }" alt="Promo Ad">
-                        </div>
-                        <div class="post-footer">
-                            <p class="post-desc">${post.description || ""}</p>
-                            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                                <button class="post-btn" style="background: #f1f5f9; color: var(--text);" onclick="window.editPost('${id}')">EDIT AD</button>
-                                <button class="post-btn" style="background: #fee2e2; color: #ef4444;" onclick="window.deletePost('${id}')">DELETE</button>
-                            </div>
-                        </div>
-                    </div>
-                 `;
+            container.innerHTML += `
+              <div class="post-card" style="margin-bottom: 25px; border: 2px solid var(--accent);">
+                  <div class="post-header">
+                      <img src="${document.getElementById("shellBizLogo").dataset.existing || post.logoUrl || "herousericon.jpg"}" class="post-user-icon">
+                      <div class="post-biz-name">${post.businessName || "Business Name"}</div>
+                  </div>
+                  <div class="post-image-square">
+                      <img src="${post.promoUrl || "https://via.placeholder.com/500?text=PROMO+IMAGE+HERE"}" alt="Promo Ad">
+                  </div>
+                  <div class="post-footer">
+                      <p class="post-desc">${post.description || ""}</p>
+                      <div style="display: flex; gap: 10px; margin-top: 15px;">
+                          <button class="post-btn" style="background: #f1f5f9; color: var(--text);" onclick="window.editPost('${id}')">EDIT AD</button>
+                          <button class="post-btn" style="background: #fee2e2; color: #ef4444;" onclick="window.deletePost('${id}')">DELETE</button>
+                      </div>
+                  </div>
+              </div>
+            `;
           });
         });
+
       } else {
         currentUserId = null;
 
@@ -2184,132 +2199,137 @@
       });
 
     let editingPostId = null;
-    document
-      .getElementById("shellPublishBtn")
-      .addEventListener("click", async () => {
+    
+    
+    
+    
+    
+    document.getElementById("shellPublishBtn").addEventListener("click", () => {
         const bizName = document.getElementById("shellBizName").value;
         const address = document.getElementById("shellBizAddress").value;
         const phone = document.getElementById("shellBizPhone").value;
         const desc = document.getElementById("shellPostDesc").value;
         const cat = document.getElementById("shellPostCategory").value;
         const logoBlob = document.getElementById("shellBizLogo").compressedBlob;
-        const promoBlob =
-          document.getElementById("shellPromoImage").compressedBlob;
+        const promoBlob = document.getElementById("shellPromoImage").compressedBlob;
 
         if (!bizName || !phone || !address || !desc) {
-          return alert(
-            "Please fill out your Business Name, Address, Phone, and Description."
-          );
+          return alert("Please fill out your Business Name, Address, Phone, and Description.");
         }
 
         const btn = document.getElementById("shellPublishBtn");
-        btn.innerText = "UPLOADING...";
+        btn.innerText = "LOCATING & UPLOADING...";
         btn.style.opacity = "0.7";
         btn.style.pointerEvents = "none";
 
-        let finalLogoUrl =
-          document.getElementById("shellBizLogo").dataset.existing || "";
-        let finalPromoUrl =
-          document.getElementById("shellPromoImage").dataset.existing || "";
+        // 1. Ask the device for exact GPS coordinates to build the Geohash
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const currentLat = position.coords.latitude;
+            const currentLng = position.coords.longitude;
+            const geohashCode = window.encodeGeohash(currentLat, currentLng);
 
-        try {
-          if (logoBlob) {
-            const sRef = storageRef(
-              storage,
-              `hub_ads/${currentUserId}/logo_${Date.now()}.jpg`
-            );
-            await uploadBytes(sRef, logoBlob);
-            finalLogoUrl = await getDownloadURL(sRef);
-          }
-          if (promoBlob) {
-            const sRef = storageRef(
-              storage,
-              `hub_ads/${currentUserId}/promo_${Date.now()}.jpg`
-            );
-            await uploadBytes(sRef, promoBlob);
-            finalPromoUrl = await getDownloadURL(sRef);
-          }
+            let finalLogoUrl = document.getElementById("shellBizLogo").dataset.existing || "";
+            let finalPromoUrl = document.getElementById("shellPromoImage").dataset.existing || "";
 
-          await update(ref(db, `profiles/${currentUserId}`), {
-            companyName: bizName,
-            businessAddress: address,
-            dispatchPhone: phone,
-            logoUrl: finalLogoUrl,
-          });
+            try {
+              if (logoBlob) {
+                const sRef = storageRef(storage, `hub_ads/${currentUserId}/logo_${Date.now()}.jpg`);
+                await uploadBytes(sRef, logoBlob);
+                finalLogoUrl = await getDownloadURL(sRef);
+              }
+              if (promoBlob) {
+                const sRef = storageRef(storage, `hub_ads/${currentUserId}/promo_${Date.now()}.jpg`);
+                await uploadBytes(sRef, promoBlob);
+                finalPromoUrl = await getDownloadURL(sRef);
+              }
 
-          const postData = {
-            ownerId: currentUserId,
-            businessName: bizName,
-            address: address,
-            phone: phone,
-            description: desc,
-            category: cat,
-            logoUrl: finalLogoUrl,
-            promoUrl: finalPromoUrl,
-            socialLinks: getSocialLinks(),
-            timestamp: Date.now(),
-          };
+              // Update Global Identity in RTDB
+              await update(ref(db, `profiles/${currentUserId}`), {
+                companyName: bizName,
+                businessAddress: address,
+                dispatchPhone: phone,
+                logoUrl: finalLogoUrl,
+              });
 
-          if (editingPostId) {
-            await update(ref(db, `businessPosts/${editingPostId}`), postData);
-            editingPostId = null;
-          } else {
-            await push(ref(db, "businessPosts"), postData);
-          }
+              // Construct the Geohash-Powered Data Payload
+              const postData = {
+                ownerId: currentUserId,
+                businessName: bizName,
+                address: address,
+                phone: phone,
+                description: desc,
+                category: cat,
+                logoUrl: finalLogoUrl,
+                promoUrl: finalPromoUrl,
+                socialLinks: getSocialLinks(),
+                timestamp: Date.now(),
+                lat: currentLat,
+                lng: currentLng,
+                geohash: geohashCode // The magic key for 10-mile radius filtering
+              };
 
-          document.getElementById("shellPostDesc").value = "";
-          document.getElementById("shellPromoImage").value = "";
-          document.getElementById("shellPromoImage").dataset.existing = "";
-          document.getElementById("shellBizLogo").compressedBlob = null;
-          document.getElementById("shellPromoImage").compressedBlob = null;
+              // 2. Save directly to Firestore
+              if (editingPostId) {
+                await updateDoc(doc(firestore, "businessPosts", editingPostId), postData);
+                editingPostId = null;
+              } else {
+                await addDoc(collection(firestore, "businessPosts"), postData);
+              }
 
-          document.getElementById("promoRectPreview").style.backgroundImage =
-            "none";
-          document.getElementById("promoRectPreview").innerHTML =
-            "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
-          document.getElementById("previewPromo").src =
-            "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
-          document.getElementById("previewDesc").innerText =
-            "Your promo description will appear here.";
+              // Reset UI
+              document.getElementById("shellPostDesc").value = "";
+              document.getElementById("shellPromoImage").value = "";
+              document.getElementById("shellPromoImage").dataset.existing = "";
+              document.getElementById("shellPromoImage").compressedBlob = null;
+              document.getElementById("promoRectPreview").style.backgroundImage = "none";
+              document.getElementById("promoRectPreview").innerHTML = "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
+              document.getElementById("previewPromo").src = "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
+              document.getElementById("previewDesc").innerText = "Your promo description will appear here.";
+              socialContainer.innerHTML = "";
 
-          socialContainer.innerHTML = "";
-
-          btn.innerText = "PUBLISH TO HUB";
-          btn.style.background = "#10b981";
-          btn.style.opacity = "1";
-          btn.style.pointerEvents = "auto";
-        } catch (e) {
-          console.error(e);
-          alert("Error uploading images.");
-          btn.innerText = "PUBLISH TO HUB";
-          btn.style.opacity = "1";
-          btn.style.pointerEvents = "auto";
-        }
-      });
+              btn.innerText = "PUBLISH TO HUB";
+              btn.style.background = "#10b981";
+              btn.style.opacity = "1";
+              btn.style.pointerEvents = "auto";
+            } catch (e) {
+              console.error(e);
+              alert("Error uploading to server.");
+              btn.innerText = "PUBLISH TO HUB";
+              btn.style.opacity = "1";
+              btn.style.pointerEvents = "auto";
+            }
+        }, (error) => {
+            // Fail-safe if they deny location permissions
+            alert("Location access is required to publish local ads so Seekers can find you! Please enable GPS.");
+            btn.innerText = "PUBLISH TO HUB";
+            btn.style.opacity = "1";
+            btn.style.pointerEvents = "auto";
+        }, { enableHighAccuracy: true });
+    });
 
     window.deletePost = async (postId) => {
-      if (
-        confirm(
-          "Are you sure you want to delete this ad? It will be removed from the Hub instantly."
-        )
-      ) {
+      if (confirm("Are you sure you want to delete this ad? It will be removed from the Hub instantly.")) {
         const post = allPostsData[postId];
         if (post) {
           try {
-            if (post.logoUrl && post.logoUrl.includes("firebasestorage")) {
-              await deleteObject(storageRef(storage, post.logoUrl));
-            }
+            if (post.logoUrl && post.logoUrl.includes("firebasestorage")) await deleteObject(storageRef(storage, post.logoUrl));
           } catch (e) {}
           try {
-            if (post.promoUrl && post.promoUrl.includes("firebasestorage")) {
-              await deleteObject(storageRef(storage, post.promoUrl));
-            }
+            if (post.promoUrl && post.promoUrl.includes("firebasestorage")) await deleteObject(storageRef(storage, post.promoUrl));
           } catch (e) {}
         }
-        remove(ref(db, `businessPosts/${postId}`));
+        // Firestore Delete
+        await deleteDoc(doc(firestore, "businessPosts", postId));
       }
     };
-
+    
+    
+    
+    
+    
+    
+    
+    
     window.editPost = (postId) => {
       const post = allPostsData[postId];
       if (!post) return;
@@ -2502,7 +2522,7 @@
         } catch (e) {
           console.error(e);
           alert("Error publishing profile: " + e.message);
-          btn.innerText = "PUBLISH PROFILE";
+          btn.innerText = "PUBLISH PROFILE"; 
           btn.style.opacity = "1";
           btn.style.pointerEvents = "auto";
         }
