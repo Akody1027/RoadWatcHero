@@ -5,7 +5,7 @@
 
 
 
-
+ 
   
 <!DOCTYPE html>
 <html lang="en"> 
@@ -1696,7 +1696,7 @@
             </div>
             <div
               id="detTowDestinationTop"
-              style="
+              style=" 
                 font-size: 11px;
                 font-weight: 800;
                 color: var(--accent);
@@ -1709,7 +1709,9 @@
             </div>
           </div>
         </div>
-
+        
+        
+<div id="detIssue" style="word-break: break-all; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px;"></div>
         <div id="detImgContainer" style="display: none">
           <p
             style="
@@ -1729,57 +1731,9 @@
           <div id="detImgScroller" class="det-img-scroller" style="gap: 10px; padding-bottom: 5px;"></div>
           
           
-        </div>
 
-        <div
-          id="detVehicleInfo"
-          style="
-            display: none;
-            background: #eff6ff;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #dbeafe;
-            margin-bottom: 15px;
-          "
-        >
-          <p
-            style="
-              font-size: 11px;
-              font-weight: bold;
-              color: #1e40af;
-              margin-bottom: 4px;
-            "
-          >
-            VEHICLE IDENTIFICATION
-          </p>
-          <div
-            id="detVehicleData"
-            style="font-weight: 800; font-size: 15px; color: #1e3a8a"
-          ></div>
-        </div>
 
-        <p
-          style="
-            font-size: 11px;
-            font-weight: bold;
-            color: var(--muted);
-            margin-bottom: 4px;
-          "
-        >
-          ISSUE DESCRIPTION
-        </p>
-        <div
-          id="detIssue"
-          style="
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 15px;
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-          "
-        ></div>
+
         
         
         
@@ -1802,7 +1756,7 @@
             </button>
           </div>
 
-          <button id="detStatusBtn" class="submit-btn pulse-ready" style="margin-top: 0; width: 100%; font-size: 16px; padding: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <button id="detStatusBtn" class="submit-btn pulse-ready" style="margin-top: 10%; width: 100%; font-size: 16px; padding: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
             I'M HERE
           </button>
         </div>
@@ -1812,11 +1766,7 @@
         
 
 
-        <div style"width:100%; text-align:center;  "> 
-           <h3 style="color:var(--accent); font-size:25px; margin-top:20%;  ">
-              BECOME A HERO NOW! 
-          </h3>
-        </div> 
+
 
         
         <div id="detETAGroup">
@@ -4868,29 +4818,45 @@ window.loadAdvertisements = () => {
         (error) => console.error("Error fetching chats:", error)
       );
 
+      
+      
+      
+      
+      
       window.viewRequest = (id) => {
         window.currentViewedSosId = id; // <-- THE MISSING TRACKER
         const r = sosCache[id];
         if (!r) return;
         const isHelper = r.helperId === myId;
 
-        // Inside window.viewRequest(id)
-        const vehInfoBox = document.getElementById("detVehicleInfo");
-        const vehData = document.getElementById("detVehicleData");
-
-        if (r.isTowTruckRequest && r.vehMake) {
-          vehInfoBox.style.display = "block";
-          vehData.innerHTML = `
-        ${r.vehYear} ${r.vehMake} ${r.vehModel}<br>
-        <span style="font-size: 13px; font-weight: 600;">Color: ${r.vehColor}</span><br>
-        <span style="font-size: 13px; font-weight: 600; color: var(--accent);">Plate: ${r.vehPlate}</span>
-        `;
-        } else {
-          vehInfoBox.style.display = "none";
-        }
-
         const detImgContainer = document.getElementById("detImgContainer");
         const detImgScroller = document.getElementById("detImgScroller");
+        
+        
+        
+        // CONSOLIDATED DETAILS SECTION
+        const detIssue = document.getElementById("detIssue");
+        let vehicleHtml = "";
+        
+        if (r.isTowTruckRequest && r.vehMake) {
+          vehicleHtml = `
+            <div style="margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+              <div style="font-size: 11px; font-weight: 900; color: var(--accent); text-transform: uppercase;">Vehicle</div>
+              <div style="font-weight: 800; font-size: 14px;">${r.vehYear} ${r.vehMake} ${r.vehModel} (${r.vehColor})</div>
+              <div style="font-size: 12px; font-weight: 700; color: var(--muted);">Plate: ${r.vehPlate}</div>
+            </div>`;
+        }
+
+        detIssue.innerHTML = `
+          ${vehicleHtml}
+          <div style="font-size: 11px; font-weight: 900; color: var(--accent); text-transform: uppercase; margin-bottom: 4px;">Issue</div>
+          <div style="font-weight: 600; font-size: 14px; line-height: 1.4;">${r.issue}</div>
+        `;
+        
+        
+        
+        
+        
         detImgScroller.innerHTML = "";
         let imagesToDisplay = [];
         if (r.damagePic) imagesToDisplay.push(r.damagePic);
@@ -4921,6 +4887,10 @@ window.loadAdvertisements = () => {
         } else {
           detMainImage.style.display = "none";
           // FIX: Inject the exact styled dashed-box from the Job Board
+          
+          
+          
+          
           detImgScroller.innerHTML = `
               <div style="width: 100%; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 15px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content:     center; flex-shrink: 0; box-sizing: border-box;">
               <img src="camicon.png" style="width: 32px; height: 32px; margin-bottom: 5px; filter: grayscale(1) opacity(0.5);" alt="No Photos">
@@ -4930,7 +4900,6 @@ window.loadAdvertisements = () => {
             `;
         }
 
-        document.getElementById("detIssue").innerText = r.issue;
 
         // --- NEW: TRIP DASHBOARD CALCULATIONS ---
         const dist = userLocation
