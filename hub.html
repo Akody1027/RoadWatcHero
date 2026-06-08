@@ -371,7 +371,7 @@
         position: absolute;
         top: 15px;
         right: 15px;
-        background: rgba(0, 0, 0, 0.5);
+        background: var(--accent);
         color: white;
         border: none;
         width: 32px;
@@ -537,6 +537,8 @@
         getDatabase,
         ref,
         onValue,
+        get,
+        child,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
       
@@ -689,6 +691,15 @@
               <p class="post-desc" style="font-size: 16px;">${
                 post.description || "Professional automotive services."
               }</p>
+              
+              ${(post.website || post.facebook || post.instagram) ? `
+              <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 15px;">
+                  ${post.website ? `<a href="${post.website}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 700; font-size: 14px;">Website</a>` : ''}
+                  ${post.facebook ? `<a href="${post.facebook}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 700; font-size: 14px;">Facebook</a>` : ''}
+                  ${post.instagram ? `<a href="${post.instagram}" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 700; font-size: 14px;">Instagram</a>` : ''}
+              </div>
+              ` : ''}
+
               <a href="tel:${
                 post.phone || "#"
               }" style="text-decoration:none;" onclick="event.stopPropagation();">
@@ -806,7 +817,12 @@
               promoUrl: post.promoUrl,
               businessName: post.businessName,
               description: post.description,
-              phone: post.phone
+              phone: post.phone,
+              uid: post.uid,
+              website: post.website,
+              facebook: post.facebook,
+              instagram: post.instagram
+    
             };
             
             lastVisibleDoc = doc;
@@ -814,7 +830,8 @@
             const card = `
               <div class="post-card" onclick="window.incrementStat('${key}', 'postClicks'); window.openPostModal('${key}')">
                 <div class="post-header">
-                  <img src="${post.logoUrl || "https://via.placeholder.com/36"}" class="post-user-icon">
+                <img id="feed-icon-${key}" src="${post.logoUrl || 'https://via.placeholder.com/36'}" class="post-user-icon">
+
                   <div class="post-biz-name">${post.businessName || "Pro Hero"}</div>
                 </div>
                 <div class="post-image-square">
@@ -829,6 +846,24 @@
               </div>
             `;
             feedContainer.innerHTML += card;
+            
+            if (post.uid) {
+              get(child(ref(db), `profiles/${post.uid}`)).then((profSnap) => {
+                if (profSnap.exists()) {
+                  const pData = profSnap.val();
+                  const liveLogo = pData.logoUrl || pData.profileImage;
+                  if (liveLogo) {
+                    const iconEl = document.getElementById(`feed-icon-${key}`);
+                    if (iconEl) iconEl.src = liveLogo;
+                    window.allHubPosts[key].logoUrl = liveLogo; 
+                  }
+                }
+              });
+            }
+            
+            
+            
+            
           });
    
           
