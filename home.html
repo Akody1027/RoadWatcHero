@@ -2298,6 +2298,12 @@
             Update Photo
           </button>
         </div>
+        
+        <div id="profileRatingDisplay" style="text-align: center; margin-bottom: 15px; font-size: 16px; font-weight: 800; color: #f59e0b; display: none;">
+          <span id="profileStars"></span> <span id="profileRatingCount" style="color: var(--muted); font-size: 12px; font-weight: 600;"></span>
+        </div>
+        
+        
         <input id="profileName" placeholder="Hero Name" />
         <textarea
           id="profileBio"
@@ -6756,6 +6762,23 @@ if (nearbySOS.length > 0) {
         const snap = await get(ref(db, `profiles/${myId}`));
         if (snap.exists()) {
           const d = snap.val();
+          
+          
+          const ratingContainer = document.getElementById("profileRatingDisplay");
+          if (ratingContainer) {
+            if (d.totalRatings && d.totalRatings > 0) {
+              const roundedAvg = Math.round(Number(d.averageRating || 0));
+              const starStr = "★".repeat(roundedAvg) + "☆".repeat(5 - roundedAvg);
+              
+              document.getElementById("profileStars").innerText = starStr + " " + Number(d.averageRating).toFixed(1);
+              document.getElementById("profileRatingCount").innerText = `(${d.totalRatings} jobs)`;
+              ratingContainer.style.display = "block";
+            } else {
+              ratingContainer.style.display = "none";
+            }
+          }
+          
+
           if (document.getElementById("profileName"))
             document.getElementById("profileName").value = d.name || "";
           if (document.getElementById("profileBio"))
