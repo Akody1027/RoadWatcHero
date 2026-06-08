@@ -1333,6 +1333,10 @@
                 <p class="post-desc" id="previewDesc">
                   Your promo description will appear here.
                 </p>
+                
+                <div id="previewSocialLinks" style="display: 
+                flex; justify-content: center; gap: 15px; margin-bottom: 15px;"></div>
+                
                 <button class="post-btn">CALL NOW</button>
               </div>
             </div>
@@ -1939,8 +1943,7 @@
 
           // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
           if (data.logoUrl) {
-            document.getElementById("shellBizLogo").dataset.existing =
-              data.logoUrl;
+
 
             document.getElementById(
               "logoCirclePreview"
@@ -2367,8 +2370,7 @@
       document.getElementById("previewPromo").src =
         post.promoUrl ||
         "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
-      if (post.logoUrl)
-        document.getElementById("previewLogo").src = post.logoUrl;
+
 
       document.getElementById("previewName").innerText =
         post.businessName || "Business Name";
@@ -2437,6 +2439,24 @@
       const currentBio =
         document.getElementById("shellProfileBio")?.value ||
         "Your description will appear here...";
+      
+      const socialPreviewBox = document.getElementById("previewSocialLinks");
+      if (socialPreviewBox) {
+        const currentLinks = getSocialLinks();
+        let socialHTML = "";
+        if (currentLinks.website) socialHTML += `<span style="color: var(--accent); font-weight: 700; font-size: 14px;">Website</span> `;
+        if (currentLinks.facebook) socialHTML += `<span style="color: var(--accent); font-weight: 700; font-size: 14px;">Facebook</span> `;
+        if (currentLinks.instagram) socialHTML += `<span style="color: var(--accent); font-weight: 700; font-size: 14px;">Instagram</span> `;
+        if (currentLinks.tiktok) socialHTML += `<span style="color: var(--accent); font-weight: 700; font-size: 14px;">TikTok</span> `;
+        if (currentLinks.x) socialHTML += `<span style="color: var(--accent); font-weight: 700; font-size: 14px;">X</span> `;
+        if (currentLinks.yelp) socialHTML += `<span style="color: var(--accent); font-weight: 700; font-size: 14px;">Yelp</span> `;
+        
+        if (socialPreviewBox.innerHTML !== socialHTML) {
+            socialPreviewBox.innerHTML = socialHTML;
+        }
+      }
+      
+      
       const profileBio = document.getElementById("previewProfileBio");
       if (profileBio && profileBio.innerText !== currentBio) {
         profileBio.innerText = currentBio;
