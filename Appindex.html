@@ -1776,14 +1776,15 @@
       .addEventListener("click", () => window.createSocialRow());
 
     function getSocialLinks() {
-      const links = [];
+      
+      const links = {};
       socialContainer.querySelectorAll(".social-row").forEach((row) => {
-        const platform = row.querySelector("select").value;
+        const platform = row.querySelector("select").value.toLowerCase();
         const url = row.querySelector("input").value.trim();
-        if (url) links.push({ platform, url });
+        if (url) links[platform] = url;
       });
       return links;
-    }
+      }
 
     let currentUserId = null;
     let isUserPro = false; 
@@ -1970,7 +1971,10 @@
         
         
         // Live Listener for Active Campaigns (Bottom of Profile) - FIRESTORE UPGRADE
-        const postsQuery = query(collection(firestore, "businessPosts"), where("ownerId", "==", currentUserId));
+        
+        const postsQuery = query(collection(firestore, "businessPosts"), where("uid", "==", currentUserId));
+ 
+        
         onSnapshot(postsQuery, (snapshot) => {
           allPostsData = {};
           const container = document.getElementById("shellActivePosts");
@@ -2253,7 +2257,9 @@
 
               // Construct the Geohash-Powered Data Payload
               const postData = {
-                ownerId: currentUserId,
+                
+                
+                uid: currentUserId,
                 businessName: bizName,
                 address: address,
                 phone: phone,
@@ -2286,6 +2292,9 @@
               document.getElementById("previewPromo").src = "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
               document.getElementById("previewDesc").innerText = "Your promo description will appear here.";
               socialContainer.innerHTML = "";
+              
+              
+              
 
               btn.innerText = "PUBLISH TO HUB";
               btn.style.background = "#10b981";
@@ -2363,13 +2372,22 @@
 
       document.getElementById("previewName").innerText =
         post.businessName || "Business Name";
-
+ 
       socialContainer.innerHTML = "";
-      if (post.socialLinks) {
+
+      if (post.website) window.createSocialRow("Website", post.website);
+      if (post.facebook) window.createSocialRow("Facebook", post.facebook);
+      if (post.instagram) window.createSocialRow("Instagram", post.instagram);
+      if (post.tiktok) window.createSocialRow("TikTok", post.tiktok);
+      if (post.x) window.createSocialRow("X", post.x);
+      if (post.yelp) window.createSocialRow("Yelp", post.yelp);
+      
+      if (post.socialLinks && Array.isArray(post.socialLinks)) {
         post.socialLinks.forEach((link) =>
           window.createSocialRow(link.platform, link.url)
         );
       }
+      
 
       const btn = document.getElementById("shellPublishBtn");
       btn.innerText = "UPDATE POST";
