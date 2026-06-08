@@ -17,7 +17,7 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="theme-color" content="#EE611C" />
+    <meta name="theme-color" content="#EE611C" /> 
     <script>
       (function () {
         const minWidth = 450;
@@ -1788,7 +1788,28 @@
         if (url) links[platform] = url;
       });
       return links;
+      
+      
+      
       }
+
+    window.buildSocialBadgesHTML = (linksObj) => {
+        if (!linksObj) return "";
+        let html = "";
+        const style = "color: var(--accent); background: #fff9f6; border: 1px solid #fed7aa; padding: 6px 10px; border-radius: 8px; font-weight: 800; font-size: 11px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);";
+        
+        if (linksObj.website) html += `<a href="${linksObj.website}" target="_blank" style="${style}">🌐 Web</a>`;
+        if (linksObj.facebook) html += `<a href="${linksObj.facebook}" target="_blank" style="${style}">📘 FB</a>`;
+        if (linksObj.instagram) html += `<a href="${linksObj.instagram}" target="_blank" style="${style}">📸 IG</a>`;
+        if (linksObj.tiktok) html += `<a href="${linksObj.tiktok}" target="_blank" style="${style}">🎵 TikTok</a>`;
+        if (linksObj.x) html += `<a href="${linksObj.x}" target="_blank" style="${style}">🐦 X</a>`;
+        if (linksObj.yelp) html += `<a href="${linksObj.yelp}" target="_blank" style="${style}">⭐ Yelp</a>`;
+        return html;
+    };
+      
+      
+      
+      
 
     let currentUserId = null;
     let isUserPro = false; 
@@ -1943,6 +1964,10 @@
 
           // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
           if (data.logoUrl) {
+            
+            window.currentMasterLogo = data.logoUrl;
+            document.querySelectorAll('.master-avatar-sync').forEach(el => el.src = data.logoUrl);
+            
 
 
             document.getElementById(
@@ -1996,8 +2021,8 @@
 
             container.innerHTML += `
               <div class="post-card" style="margin-bottom: 25px; border: 2px solid var(--accent);">
-                  <div class="post-header">
-                      <img src="${document.getElementById("shellBizLogo").dataset.existing || post.logoUrl || "herousericon.jpg"}" class="post-user-icon">
+              <div class="post-header">
+                      <img src="${window.currentMasterLogo || post.logoUrl || "herousericon.jpg"}" class="post-user-icon master-avatar-sync">
                       <div class="post-biz-name">${post.businessName || "Business Name"}</div>
                   </div>
                   <div class="post-image-square">
@@ -2005,7 +2030,13 @@
                   </div>
                   <div class="post-footer">
                       <p class="post-desc">${post.description || ""}</p>
+                      
+                      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 15px;">
+                          ${window.buildSocialBadgesHTML(post)}
+                      </div>
+
                       <div style="display: flex; gap: 10px; margin-top: 15px;">
+
                           <button class="post-btn" style="background: #f1f5f9; color: var(--text);" onclick="window.editPost('${id}')">EDIT AD</button>
                           <button class="post-btn" style="background: #fee2e2; color: #ef4444;" onclick="window.deletePost('${id}')">DELETE</button>
                       </div>
@@ -2443,7 +2474,11 @@
       const socialPreviewBox = document.getElementById("previewSocialLinks");
       if (socialPreviewBox) {
         const currentLinks = getSocialLinks();
-        let socialHTML = "";
+        
+        
+        
+        
+        let socialHTML = window.buildSocialBadgesHTML(currentLinks);
         if (currentLinks.website) socialHTML += `<span style="color: var(--accent); font-weight: 700; font-size: 14px;">Website</span> `;
         if (currentLinks.facebook) socialHTML += `<span style="color: var(--accent); font-weight: 700; font-size: 14px;">Facebook</span> `;
         if (currentLinks.instagram) socialHTML += `<span style="color: var(--accent); font-weight: 700; font-size: 14px;">Instagram</span> `;
