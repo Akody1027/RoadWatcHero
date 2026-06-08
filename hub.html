@@ -539,6 +539,7 @@
         onValue,
         get,
         child,
+        runTransaction,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
       
@@ -558,14 +559,17 @@
       
       // --- ANALYTICS HELPER ---
       window.incrementStat = async (uid, type) => {
-        const ref = firebase.database().ref(`profiles/${uid}`);
-        ref.transaction((profile) => {
+        
+        if (!uid || uid === "undefined") return;
+        runTransaction(ref(db, `profiles/${uid}`), (profile) => {
           if (profile) {
             profile[type] = (profile[type] || 0) + 1;
             profile.unreadLeads = (profile.unreadLeads || 0) + 1;
           }
           return profile;
         });
+        
+
       };
       
       
@@ -813,6 +817,7 @@
 
             // Map Firestore fields to the existing Modal structure
             window.allHubPosts[key] = {
+              uid: post.uid,
               logoUrl: post.logoUrl,
               promoUrl: post.promoUrl,
               businessName: post.businessName,
@@ -828,7 +833,9 @@
             lastVisibleDoc = doc;
 
             const card = `
-              <div class="post-card" onclick="window.incrementStat('${key}', 'postClicks'); window.openPostModal('${key}')">
+            
+            <div class="post-card" onclick="window.incrementStat('${post.uid}', 'postClicks'); window.openPostModal('${key}')">
+
                 <div class="post-header">
                 <img id="feed-icon-${key}" src="${post.logoUrl || 'https://via.placeholder.com/36'}" class="post-user-icon">
 
@@ -839,7 +846,8 @@
                 </div>
                 <div class="post-footer">
                   <p class="post-desc">${post.description || "Professional automotive services."}</p>
-                  <a href="tel:${post.phone || "#"}" style="text-decoration:none;" onclick="event.stopPropagation(); window.incrementStat('${key}', 'callClicks');">
+                  <a href="tel:${post.phone || "#"}" style="text-decoration:none;" onclick="event.stopPropagation(); window.incrementStat('${post.uid}', 'callClicks');">
+
                     <button class="post-btn">CALL NOW</button>
                   </a>
                 </div>
