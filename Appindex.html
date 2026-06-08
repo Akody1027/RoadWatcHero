@@ -1969,10 +1969,11 @@
           // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
           if (data.logoUrl) {
             
+            
+            document.getElementById("shellBizLogo").dataset.existing = data.logoUrl;
             window.currentMasterLogo = data.logoUrl;
             document.querySelectorAll('.master-avatar-sync').forEach(el => el.src = data.logoUrl);
-            
-
+   
 
             document.getElementById(
               "logoCirclePreview"
