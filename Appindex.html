@@ -937,7 +937,7 @@
         ✕
       </button>
 
-      <div  id="dashboardFormsContainer">
+      <div id="dashboardFormsContainer">
         <div
           style="
             width: 100%;
@@ -1887,6 +1887,7 @@
               "promoRectPreview"
             ).style.backgroundImage = `url(${objectUrl})`;
             document.getElementById("promoRectPreview").innerHTML = "";
+            
             document.getElementById("previewPromo").src = objectUrl;
           } catch (err) {
             alert("System Error: " + err.message);
@@ -2325,8 +2326,9 @@
               document.getElementById("shellPromoImage").dataset.existing = "";
               document.getElementById("shellPromoImage").compressedBlob = null;
               document.getElementById("promoRectPreview").style.backgroundImage = "none";
+              
               document.getElementById("promoRectPreview").innerHTML = "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
-              document.getElementById("previewPromo").src = "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
+              document.getElementById("previewPromo").src = "ad-placeholder.png";
               document.getElementById("previewDesc").innerText = "Your promo description will appear here.";
               socialContainer.innerHTML = "";
               
@@ -2402,8 +2404,7 @@
       document.getElementById("previewDesc").innerText =
         post.description || "Your promo description will appear here.";
       document.getElementById("previewPromo").src =
-        post.promoUrl ||
-        "https://via.placeholder.com/500?text=YOUR+PROMO+IMAGE+HERE";
+        post.promoUrl || "ad-placeholder.png";
 
 
       document.getElementById("previewName").innerText =
