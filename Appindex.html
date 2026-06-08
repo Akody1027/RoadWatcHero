@@ -1682,6 +1682,8 @@
       push,
       update,
       remove,
+      runTransaction,
+      
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
     import {
@@ -2169,14 +2171,16 @@
     };
 
     window.incrementStat = async (uid, type) => {
-      const ref = firebase.database().ref(`profiles/${uid}`);
-      ref.transaction((profile) => {
-        if (profile) {
-          profile[type] = (profile[type] || 0) + 1;
-          profile.unreadLeads = (profile.unreadLeads || 0) + 1;
-        }
-        return profile;
-      });
+      
+      if (!uid || uid === "undefined") return;
+        runTransaction(ref(db, `profiles/${uid}`), (profile) => {
+          if (profile) {
+            profile[type] = (profile[type] || 0) + 1;
+            profile.unreadLeads = (profile.unreadLeads || 0) + 1;
+          }
+          return profile;
+        });
+      
     };
 
     // --- SAVE IDENTITY LOGIC ---
