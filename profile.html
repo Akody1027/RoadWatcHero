@@ -422,25 +422,30 @@
       
       
       
-      
-      
-      
+      async function openModal(proId) {
+        try {
+          const doc = await firebase.firestore().collection('pros').doc(proId).get();
+          if (doc.exists) {
+            const pro = { id: doc.id, ...doc.data() };
+            
+            document.getElementById("modalCover").src = pro.cover || "";
+            document.getElementById("modalAvatar").src = pro.avatar || "";
+            document.getElementById("modalName").innerText = pro.name || "Shop Name";
+            document.getElementById("modalRating").innerText = pro.rating || "0.0";
+            document.getElementById("modalReviews").innerText = pro.reviews || "0";
+            document.getElementById("modalDesc").innerText = pro.desc || "Loading...";
+            document.getElementById("modalAddress").innerText = pro.address || "...";
 
-      // Open 95x95 Modal
-        function openModal(proId) {
-        const pro = prosData.find((p) => p.id === proId);
-        if (pro) {
-          document.getElementById("modalCover").src = pro.cover;
-          document.getElementById("modalAvatar").src = pro.avatar;
-          document.getElementById("modalName").innerText = pro.name;
-          document.getElementById("modalRating").innerText = pro.rating;
-          document.getElementById("modalReviews").innerText = pro.reviews;
-          document.getElementById("modalDesc").innerText = pro.desc;
-          document.getElementById("modalAddress").innerText = pro.address;
-
-          document.getElementById("profileModal").style.display = "flex";
+            document.getElementById("profileModal").style.display = "flex";
+          }
+        } catch (error) {
+          console.error("Error fetching pro details:", error);
         }
       }
+      
+      
+
+
 
       function closeModal() {
         document.getElementById("profileModal").style.display = "none";
