@@ -17,7 +17,7 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="theme-color" content="#EE611C" /> 
+    <meta name="theme-color" content="#EE611C" />  
     <script>
       (function () {
         const minWidth = 450;
@@ -896,6 +896,51 @@
         height: 80%;
         object-fit: cover;
       }
+      
+      
+      
+      .more-menu-container {
+    margin-top: 20px;
+    text-align: center;
+}
+.more-toggle-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-weight: 800;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.more-actions-list {
+    display: none; 
+    margin-top: 15px;
+    flex-direction: column;
+    gap: 10px;
+}
+.accent-btn {
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+}
+.danger-btn {
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+}
+      
+      
     </style>
   </head>
 
@@ -1354,49 +1399,21 @@
 
 
           <hr class="shell-divider" style="margin: 40px 0 20px 0;" />
-        <label style="font-size: 20px; font-weight: 800; color: var(--accent); text-align: center; display: block; margin-bottom: 20px;">
-          ACCOUNT MANAGEMENT
-        </label>
+          
+          <div class="more-menu-container">
+          <button class="more-toggle-btn" onclick="document.getElementById('moreList').style.display = (document.getElementById('moreList').style.display === 'flex' ? 'none' : 'flex')">
+            MORE
+          </button>
+          <div id="moreList" class="more-actions-list">
+            <button id="manageSubBtnBottom" onclick="window.location.href='pro-hero.html'" class="accent-btn" ">MANAGE SUBSCRIPTION</button>
+            <button onclick="window.shellSignOut()" class="accent-btn">SIGN OUT</button>
+            <a href="mailto:roadwatchero@gmail.com" class="accent-btn" style="text-decoration: none; display: block;">EMAIL ADMIN</a>
+            <button onclick="window.confirm('Delete account?') && window.deleteMyAccount()" class="danger-btn">DELETE ACCOUNT</button>
+          </div>
+        </div>
 
-        <button
-          id="manageSubBtnBottom"
-          onclick="window.location.href='pro-hero.html'"
-          class="shell-submit-btn"
-          style="margin-bottom: 15px;"
-        >
-          MANAGE SUBSCRIPTION
-        </button>
-
-        <button
-          onclick="window.shellSignOut()"
-          class="shell-submit-btn"
-          style="
-            background: transparent;
-            color: var(--text);
-            border: 2px solid #e2e8f0;
-            margin-bottom: 15px;
-            box-shadow: none;
-          "
-        >
-          SIGN OUT
-        </button>
-
-        <button
-          onclick="window.confirm('Delete account? This cannot be undone.') && window.deleteMyAccount()"
-          class="shell-submit-btn"
-          style="
-            background: #fee2e2;
-            color: #ef4444;
-            border: 2px solid #fca5a5;
-            margin-bottom: 10px;
-            box-shadow: none;
-          "
-        >
-          DELETE ACCOUNT
-        </button>
-
-      </div>
-    </div>
+      
+      
   </div>
 
   <div
