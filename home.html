@@ -13,7 +13,7 @@
     <meta charset="UTF-8" />    
     <title>RoadWatcHero</title>  
      
-      <meta    
+      <meta     
       name="viewport" 
       content="width=device-width, initial-scale=1.0" 
     />  
@@ -1162,6 +1162,52 @@
         object-fit: cover !important;
         z-index: 1;
       }
+      
+      
+      
+      .more-menu-container {
+    margin-top: 20px;
+    text-align: center;
+}
+.more-toggle-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-weight: 800;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.more-actions-list {
+    display: none; 
+    margin-top: 15px;
+    flex-direction: column;
+    gap: 10px;
+}
+.accent-btn {
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size:14px;
+}
+.danger-btn {
+    width: 100%;
+    padding: 12px; 
+    background: white;
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+}
+      
+      
       
     </style>
   </head>
@@ -2685,34 +2731,11 @@
           </div>
         </div>
 
+                <button class="accent-btn" id="saveSettingsBtnBottom" onclick="window.saveProfile()">SAVE SETTINGS</button>
 
         
         <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 40px 0 20px 0;" />
-        <label style="font-size: 16px; font-weight: 800; color: var(--accent); text-align: center; display: block; margin-bottom: 20px;">
-          ACCOUNT MANAGEMENT
-        </label>
 
-        <button class="submit-btn" onclick="window.saveProfile()" style="margin-bottom: 15px;">
-          SAVE SETTINGS
-        </button>
-
-        <button id="manageSubBtnBottom" onclick="window.location.href='pro-hero.html'" class="submit-btn" style="background: linear-gradient(135deg, var(--text) 0%, #1e293b 100%); margin-bottom: 15px; display: none;">
-          MANAGE PRO MEMBERSHIP
-        </button>
-
-        <button onclick="window.signOutHero()" style="width: 100%; background: transparent; border: 2px solid #e2e8f0; color: var(--text); padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-bottom: 15px;">
-          SIGN OUT
-        </button>
-
-        <button onclick="window.openModal('accountDeleteModal')" style="width: 100%; background: #fee2e2; border: 2px solid #fca5a5; color: #ef4444; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-bottom: 10px;">
-          DELETE ACCOUNT
-        </button>
-        
-        
-        
-        
-        
-        
         <a href="pro-hero.html" style="display: block; background: linear-gradient(135deg, var(--text) 0%, #1e293b 100%); border-radius: 16px; padding: 20px; margin-top: 15%; margin-bottom: 15%; text-decoration: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); border: 1px solid #334155; position: relative; overflow: hidden;">
           <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: var(--accent); opacity: 0.2; border-radius: 50%; filter: blur(20px);"></div>
           
@@ -2729,21 +2752,25 @@
         </a>
         
  
-        
+                <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 40px 0 20px 0;" />
+
         
   
-
-        <div style="margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 20px; margin-bottom: 20px;">
- 
-          <h4 style="margin: 0 0 10px 0; color: var(--accent); font-size: 16px;">Need Help? Contact Admin!</h4>
-          <a href="mailto:roadwatchero@gmail.com?subject=Hero Support Request" style="display: block; background: var(--text); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 13px; text-decoration: none; text-align: center;">
-            EMAIL ADMIN
-          </a>
-
+           <div class="more-menu-container">
+            <button class="more-toggle-btn" onclick="document.getElementById('moreList').style.display = (document.getElementById('moreList').style.display === 'flex' ? 'none' : 'flex')">
+                MORE
+            </button>
+            <div id="moreList" class="more-actions-list">
+                <button id="manageSubBtnBottom" onclick="window.location.href='pro-hero.html'" class="accent-btn" style="display: none;">MANAGE MEMBERSHIP</button>
+                <button class="accent-btn" onclick="window.signOutHero()">SIGN OUT</button>
+                <a href="mailto:roadwatchero@gmail.com" class="accent-btn" style="text-decoration: none; display: block;">EMAIL ADMIN</a>
+                <button onclick="window.openModal('accountDeleteModal')" class="danger-btn">DELETE ACCOUNT</button>
+            </div>
         </div>
+
         
         
-        
+         
         
  
       </div>
