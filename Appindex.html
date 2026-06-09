@@ -1064,34 +1064,11 @@
               </div>
             </div>
           </div>
-          <button
-            onclick="window.location.href='pro-hero.html'"
-            style="
-              width: 100%;
-              padding: 10px;
-              background: #ee611c;
-              color: white;
-              border: none;
-              border-radius: 6px;
-              font-weight: 600;
-            "
-          >
-            MANAGE SUBSCRIPTION
-          </button>
-          <button
-            onclick="window.confirm('Delete account? This cannot be undone.') && window.deleteMyAccount()"
-            style="
-              width: 100%;
-              padding: 10px;
-              background: transparent;
-              color: #ef4444;
-              border: none;
-              margin-top: 10px;
-              font-size: 0.8em;
-            "
-          >
-            Delete Account
-          </button>
+          
+          
+      
+          
+          
         </div>
 
         <hr class="shell-divider" />
@@ -1371,20 +1348,53 @@
             </p>
           </div>
         </div>
+          
+          
+          
+
+
+          <hr class="shell-divider" style="margin: 40px 0 20px 0;" />
+        <label style="font-size: 20px; font-weight: 800; color: var(--accent); text-align: center; display: block; margin-bottom: 20px;">
+          ACCOUNT MANAGEMENT
+        </label>
+
+        <button
+          id="manageSubBtnBottom"
+          onclick="window.location.href='pro-hero.html'"
+          class="shell-submit-btn"
+          style="margin-bottom: 15px;"
+        >
+          MANAGE SUBSCRIPTION
+        </button>
 
         <button
           onclick="window.shellSignOut()"
           class="shell-submit-btn"
           style="
             background: transparent;
-            color: #ef4444;
-            border: 2px solid #ef4444;
-            margin-top: 40px;
+            color: var(--text);
+            border: 2px solid #e2e8f0;
+            margin-bottom: 15px;
             box-shadow: none;
           "
         >
           SIGN OUT
         </button>
+
+        <button
+          onclick="window.confirm('Delete account? This cannot be undone.') && window.deleteMyAccount()"
+          class="shell-submit-btn"
+          style="
+            background: #fee2e2;
+            color: #ef4444;
+            border: 2px solid #fca5a5;
+            margin-bottom: 10px;
+            box-shadow: none;
+          "
+        >
+          DELETE ACCOUNT
+        </button>
+
       </div>
     </div>
   </div>
@@ -1948,7 +1958,7 @@
           document.getElementById("statCallClicks").innerText =
             data.callClicks || 0;
 
-          const manageBtn = document.querySelector("#proStatusSection button");
+          const manageBtn = document.getElementById("manageSubBtnBottom");
           if (manageBtn) {
             manageBtn.innerText = isPromoActive
               ? "MANAGE PRO SETTINGS"
