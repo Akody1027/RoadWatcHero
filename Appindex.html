@@ -78,7 +78,15 @@ button, .btn {
     filter: none !important;
   touch-action: manipulation;
 }
-      
+
+
+
+      button:has(svg, .icon-close),
+button[onclick*="close"] {
+    touch-action: manipulation;
+    filter: none !important;
+}
+
       
       iframe {
         width: 100vw;
