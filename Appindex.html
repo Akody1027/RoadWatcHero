@@ -59,12 +59,19 @@
       }
 
 
-    
+      html{
+          background-color: grey !imprtant;
+      }
       
+      body{
+        opacity:90%;
+      }
+
+
+      *{
+         filter:drop-shadow(0px 0px 10px whitesmoke)
       
-
-
-
+      }
 
       
 
@@ -1571,22 +1578,28 @@
   </style>
 
   <script>
-    function adjustViewport() {
+                                                                                
+     function adjustViewport() { 
       const width = window.screen.width;
       let scale = 1.0;
+      let viewWidth = "device-width";
 
       if (width < 450) {
         scale = width / 450;
+        viewWidth = "450";
       }
 
       const viewport = document.querySelector('meta[name="viewport"]');
       if (viewport) {
         viewport.setAttribute(
           "content",
-          `width=device-width, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`
+          `width=${viewWidth}, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`
         );
       }
     }
+                                                                                                                 
+                                                                                                                          
+                                                                          
 
     adjustViewport();
     window.addEventListener("resize", adjustViewport);
