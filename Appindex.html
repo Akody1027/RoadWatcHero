@@ -69,16 +69,10 @@
 
 
       *{
-         filter:drop-shadow(0px 0px 1px whitesmoke)
+         filter:drop-shadow(0px 0px 10px whitesmoke)
       
       }
 
-      button:has(svg, .icon-close),
-      .hub-user-icon,
-      button[onclick*="close"] {
-      touch-action: manipulation;
-      filter: none !important;
-      }
       
 
       
@@ -978,7 +972,11 @@
   <iframe src="home.html" id="appFrame"></iframe>
 
   <div id="heroHubSidebar">
-    <div class="hub-user-icon" id="sidebarUserIcon">
+    
+    
+        <div class="hub-user-icon" id="sidebarUserIcon" onclick="window.openProfileGate()">
+
+    
       <div class="hub-badge" id="hubBadgeCounter"></div>
     </div>
     <div class="hub-vertical-title">HERO ADVERTISING HUB</div>
@@ -1957,16 +1955,25 @@
     // ----------------------------------------
 
     // 1. Sidebar Icon Click Listener (Opens Gatekeeper)
-     document.getElementById("sidebarUserIcon").addEventListener("click", () => {
+            
+            
+            
+     window.openProfileGate = () => {
       if (currentUserId && isUserPro) {
-        document.getElementById("proShellModal").style.display = "flex";
-        window.updateHubBadge(0);
-        update(ref(db, `profiles/${currentUserId}`), { unreadLeads: 0 });
+        document.getElementById("proShellModal").style.display = "flex"
+        window.updateHubBadge(0)
+        update(ref(db, `profiles/${currentUserId}`), { unreadLeads: 0 })
       } else {
-        document.getElementById("globalLoginModal").style.display = "flex";
+        document.getElementById("globalLoginModal").style.display = "flex"
       }
-    });
+    }
 
+     
+
+            
+            
+            
+            
 
     // 2. Authentication State Listener
     onAuthStateChanged(auth, (user) => {
