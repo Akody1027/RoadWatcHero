@@ -7,7 +7,7 @@
  
  
   
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">   
   <head>    
     <meta charset="UTF-8" />    
@@ -2503,15 +2503,7 @@
             
             <div id="proDateDisplay" style="text-align: center; font-size: 11px; color: var(--muted); font-weight: 700; margin-top: -10px; margin-bottom: 15px;"></div>
             
-            
-            <button onclick="window.location.href='pro-hero.html'" style="width: 100%; padding: 12px; background: linear-gradient(135deg, var(--text) 0%, #1e293b 100%); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-              MANAGE PRO MEMBERSHIP
-            </button>
-            
-            
-            
-            
-
+  
             <label
               style="
                 font-size: 11px;
@@ -2693,21 +2685,34 @@
           </div>
         </div>
 
-        <button class="submit-btn" onclick="window.saveProfile()">
-          Save Settings
-        </button>
-  
+
         
-        <button onclick="window.signOutHero()" style="width: 100%; background: none; border: 1px solid var(--danger); color: var(--danger); padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 15px;">
+        <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 40px 0 20px 0;" />
+        <label style="font-size: 16px; font-weight: 800; color: var(--accent); text-align: center; display: block; margin-bottom: 20px;">
+          ACCOUNT MANAGEMENT
+        </label>
+
+        <button class="submit-btn" onclick="window.saveProfile()" style="margin-bottom: 15px;">
+          SAVE SETTINGS
+        </button>
+
+        <button id="manageSubBtnBottom" onclick="window.location.href='pro-hero.html'" class="submit-btn" style="background: linear-gradient(135deg, var(--text) 0%, #1e293b 100%); margin-bottom: 15px; display: none;">
+          MANAGE PRO MEMBERSHIP
+        </button>
+
+        <button onclick="window.signOutHero()" style="width: 100%; background: transparent; border: 2px solid #e2e8f0; color: var(--text); padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-bottom: 15px;">
           SIGN OUT
         </button>
-        
-        
-        <button onclick="window.openModal('accountDeleteModal')" style="width: 100%; background: none; border: 1px solid #b91c1c; color: #b91c1c; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-top: 15px;">
+
+        <button onclick="window.openModal('accountDeleteModal')" style="width: 100%; background: #fee2e2; border: 2px solid #fca5a5; color: #ef4444; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; margin-bottom: 10px;">
           DELETE ACCOUNT
         </button>
         
-   
+        
+        
+        
+        
+        
         <a href="pro-hero.html" style="display: block; background: linear-gradient(135deg, var(--text) 0%, #1e293b 100%); border-radius: 16px; padding: 20px; margin-top: 15%; margin-bottom: 15%; text-decoration: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); border: 1px solid #334155; position: relative; overflow: hidden;">
           <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: var(--accent); opacity: 0.2; border-radius: 50%; filter: blur(20px);"></div>
           
@@ -4286,6 +4291,7 @@
       window.openProLogin = async (checkbox) => {
         const vault = document.getElementById("proInlineVault");
         const dashSec = document.getElementById("proDashboardSection");
+        
 
         if (checkbox.checked) {
           const snap = await get(ref(db, `profiles/${myId}`));
@@ -6854,6 +6860,9 @@ if (nearbySOS.length > 0) {
               "block";
             
             
+            const manageBtn = document.getElementById("manageSubBtnBottom");
+            if (manageBtn) manageBtn.style.display = "block";
+            
             
             const dateDisplay = document.getElementById("proDateDisplay");
             if (dateDisplay) {
@@ -6933,7 +6942,7 @@ if (nearbySOS.length > 0) {
             .catch((error) => {
               console.error("Error deleting activity:", error);
               alert("Failed to delete activity.");
-            });
+            }); 
         }
       };
       
