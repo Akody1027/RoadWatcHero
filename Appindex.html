@@ -37,6 +37,7 @@
 
     
 
+    
     <style>
       :root {
         --accent: #ee611c;
@@ -65,6 +66,11 @@
       }
 
       
+button:has(svg, .icon-close),
+button[onclick*="close"] {
+    touch-action: manipulation;
+    filter: none !important;
+}
 
       
       iframe {
