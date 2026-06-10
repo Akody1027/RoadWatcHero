@@ -447,7 +447,7 @@
     <div class="chat-input-area">
       <input type="file" id="chatImgInput" accept="image/*" style="display: none" onchange="window.sendChatImage(this)">
       
-          <button onclick="document.getElementById('chatImgInput').click()" style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; padding: 6px 10px; display: flex; align-items: center; justify-content: center;"><img src="cameraicon.png" width="24px"></button>
+          <button onclick="document.getElementById('chatImgInput').click()" style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; padding: 6px 10px; display: flex; align-items: center; justify-content: center;"><img src="camicon.png" width="24px"></button>
       
       
       <input id="chatInput" placeholder="Type message..." style="margin: 0; flex: 1; border-radius:10px; font-size:18px; padding: 12px;" />
@@ -1072,7 +1072,7 @@ if (job.images && job.images.length > 0) {
         const safeHeroName = (hProf.name || 'Hero').replace(/'/g, "\\'");
           dynArea.innerHTML = `
              <div style="text-align:center; padding:20px; background:#fffbeb; border-radius:15px; border: 2px solid #d97706; margin-top:10px;">
-                <h4 style="margin:0 0 5px 0; color:#d97706;">⏳ JOB IN PROGRESS</h4>
+                <h4 style="margin:0 0 5px 0; color:#d97706;">JOB IN PROGRESS</h4>
                 <p style="font-size:13px; color:var(--text); margin:0 0 15px 0;"><b>${hProf.name || 'Your Hero'}</b> is actively working on this.</p>
                 <button class="submit-btn" style="background:var(--text);" onclick="window.openChat('${jobId}_${job.helperId}', '${safeHeroName}')">💬 MESSAGE MECHANIC</button>
              </div>`;
@@ -1088,7 +1088,7 @@ if (job.images && job.images.length > 0) {
           // The Seeker MUST confirm to release the job
           dynArea.innerHTML = `
              <div style="text-align:center; padding:20px; background:#dcfce7; border-radius:15px; border: 2px solid var(--success); margin-top:10px;">
-                <h4 style="margin:0 0 5px 0; color:#166534;">✅ JOB MARKED COMPLETE</h4>
+                <h4 style="margin:0 0 5px 0; color:#166534;">JOB MARKED COMPLETE</h4>
                 <p style="font-size:13px; color:var(--text); margin:0 0 15px 0;">The mechanic stated they have finished the work. If everything looks good, please confirm below.</p>
                 <button class="submit-btn" style="background:var(--success);" onclick="window.closeJob('${jobId}')">CONFIRM & CLOSE JOB</button>
              </div>`;
