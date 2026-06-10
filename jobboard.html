@@ -159,10 +159,10 @@
     .del-btn { background: #fee2e2; color: #ef4444; border: 2px solid; padding: 6px 10px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; margin-left: auto; }
 
     /* Modals */
-    .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center;  z-index: 1000; }
+    .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); display: none; justify-content: center;  align-items: flex-end; z-index: 1000; }
     .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 32px 32px 0 0; padding: 30px; max-height: 90vh; overflow-y: auto; transform: translateY(100%); animation: slideUp 0.3s forwards cubic-bezier(0, 0, 0.2, 1); display:  flex-direction: column;}
     @keyframes slideUp { to { transform: translateY(0); } }
-    .close-x-btn { background: #f1f5f9; color: var(--text); border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; position: absolute; top: 20px; right: 20px; z-index: 10; }
+    .close-x-btn { background: var(--accent); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; position: absolute; top: 20px; right: 20px; z-index: 10; }
     
     .action-row { display: flex; gap: 10px; margin-top: 20px;  margin-bottom: 50px;}
     .btn-half { flex: 1; padding: 15px; border-radius: 16px; font-weight: 800; font-size: 13px; cursor: pointer; border: none; transition: 0.2s;}
@@ -209,7 +209,7 @@
   height: 95vh;
   display: flex;
   flex-direction: column;
-  padding-bottom: 30px; /* Space for the fixed input */
+  padding-bottom: 0px;
 }
 
 /* Make ONLY the message area scrollable */
@@ -222,7 +222,7 @@
   padding: 15px;
   background: #f8fafc;
   border-radius: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   border: 1px solid #e2e8f0;
   /* Smooth scrolling for mobile */ 
   -webkit-overflow-scrolling: touch; 
@@ -321,6 +321,18 @@
   </style>
 </head>
 <body>
+  
+    <div id="globalDropBanner" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 15px 25px; border-radius: 12px; font-weight: 800; font-size: 14px; z-index: 10005; box-shadow: 0 10px 25px rgba(238, 97, 28, 0.5); transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 10px; text-align: center; width: 90%; max-width: 400px; pointer-events: none;">
+    <span id="globalDropBannerIcon" style="font-size: 20px;">🔔</span>
+    <span id="globalDropBannerText" style="flex: 1;"></span>
+  </div>
+  <audio id="notificationSound" src="Roadwatchero.mp3" preload="auto" style="display: none"></audio>
+
+  
+  
+  
+  
+  
 
   <div id="loadingOverlay">
     <div class="spinner"></div>
@@ -450,8 +462,11 @@
           <button onclick="document.getElementById('chatImgInput').click()" style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; cursor: pointer; padding: 6px 10px; display: flex; align-items: center; justify-content: center;"><img src="camicon.png" width="24px"></button>
       
       
-      <input id="chatInput" placeholder="Type message..." style="margin: 0; flex: 1; border-radius:10px; font-size:18px; padding: 12px;" />
-      <button onclick="window.sendChatMsg()" style="background: var(--accent); color: white; border: none; padding: 0 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">SEND</button>
+      
+            <input id="chatInput" placeholder="Type message..." style="margin: 0; flex: 1; min-width: 0; border-radius:10px; font-size:16px; padding: 12px;" />
+      <button onclick="window.sendChatMsg()" style="background: var(--accent); color: white; border: none; padding: 0 15px; border-radius: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0;">SEND</button>
+
+      
     </div>
   </div>
 </div>
@@ -460,7 +475,7 @@
 <div id="inboxModal" class="modal">
     <div class="modal-content" style="height: 100vh; padding: 20px 0 0 0; background: #f8fafc;">
       <button class="close-x-btn" onclick="window.closeModal('inboxModal')">✕</button>
-      <h3 style="margin-top:0; color: var(--text); text-align: center; margin-bottom: 15px; font-weight: 900;">Master Inbox</h3>
+      <h3 style="margin-top:0; color: var(--text); text-align: center; margin-bottom: 15px; font-weight: 900;">Inbox</h3>
       
       <div id="inboxList" style="flex: 1; overflow-y: auto; background: white; border-top: 1px solid #e2e8f0;">
         </div>
@@ -541,6 +556,10 @@
     let pendingUploadedImages = [];
     let activeJobIdForDetails = null;
     let activeChatId = null;
+    let lastJobsCache = {};
+    let lastUnreadCount = 0;
+
+    
 
     // 1. Init: Location & Failsafe & Owner Sweep
     window.onload = () => {
@@ -588,6 +607,23 @@
     
     
     // 1. The Global UI Reset
+    window.showDropBanner = (msg, icon = "🔔") => {
+  const banner = document.getElementById("globalDropBanner");
+  document.getElementById("globalDropBannerText").innerText = msg;
+  document.getElementById("globalDropBannerIcon").innerText = icon;
+  const sound = document.getElementById("notificationSound");
+  if (sound) sound.play().catch(e => console.error(e));
+  banner.style.top = "20px";
+  setTimeout(() => {
+    banner.style.top = "-100px";
+  }, 3500);
+};
+
+    
+    
+    
+    
+    
 window.closeAllUI = () => {
   // Hide all modals
   document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
@@ -864,12 +900,11 @@ window.togglePanel = (panelId, btnEl) => {
             const bidCount = Object.keys(job.bids).length;
             badgeHtml = `<div style="position:absolute; top:-10px; right:-10px; background:var(--accent); color:white; font-size:11px; font-weight:900; padding:6px 12px; border-radius:15px; box-shadow:var(--shadow); z-index:2;">🔔 ${bidCount} Quotes</div>`;
         }
-  
-         const delBtnHtml = (job.ownerId === myId) ? `<img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" onclick="window.deleteJob(event, '${id}')" style="position: absolute; top: 18px; left: 12px; width: 20px; height: 20px; cursor: pointer; filter: brightness(0) saturate(100%) invert(27%) sepia(91%) saturate(2352%) hue-rotate(346deg) brightness(104%) contrast(97%); z-index: 5;" title="Delete Job">` : '';
+        
+        
+           const delBtnHtml = (job.ownerId === myId) ? `<img src="trashicon.png" onclick="window.deleteJob(event, '${id}')" style="position: absolute; top: 18px; left: 12px; width: 22px; height: 22px; cursor: pointer; filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.2)); z-index: 5;" title="Delete Job">` : '';
 
-        
-        
-        
+
         
         const mainImg = (job.images && job.images.length > 0) 
           ? `<img src="${job.images[0]}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e2e8f0;">` 
@@ -1058,7 +1093,10 @@ if (job.images && job.images.length > 0) {
              <div style="text-align:center; padding:20px; background:#fffbeb; border-radius:15px; border: 2px solid var(--warning); margin-top:10px;">
                 <h4 style="margin:0 0 10px 0; color:#d97706;">🔧 You are working on this job!</h4>
                 <div class="action-row">
-                   <button class="btn-half btn-msg" onclick="window.openChat('${jobId}_${job.ownerId}', 'Seeker')">💬 MESSAGE</button>
+                
+                
+               <button class="btn-half btn-msg" onclick="window.openChat('${jobId}_${myId}', 'Seeker')">💬 MESSAGE</button>
+
                    <button class="btn-half btn-accept" onclick="window.markJobCompleted('${jobId}')">MARK DONE</button>
                 </div>
              </div>`;
@@ -1361,8 +1399,36 @@ window.sendChatImage = async (inputEl) => {
 
 
     // DB Listeners
-    onValue(ref(db, 'mechanicRequests'), (snap) => {
-      jobsCache = snap.val() || {};
+    
+        onValue(ref(db, 'mechanicRequests'), (snap) => {
+      const newJobsCache = snap.val() || {};
+      
+      window.notifiedBoardJobs = window.notifiedBoardJobs || {};
+      window.notifiedBoardBids = window.notifiedBoardBids || {};
+
+      Object.entries(newJobsCache).forEach(([id, r]) => {
+        const lastKnown = lastJobsCache[id];
+        
+        if (lastKnown && lastKnown.status === 'open' && r.status === 'accepted') {
+           if (r.helperId === myId && !window.notifiedBoardJobs[id + "_accepted"]) {
+              window.notifiedBoardJobs[id + "_accepted"] = true;
+              window.showDropBanner("Your quote was accepted Seeker is waiting", "🎉");
+           }
+        }
+        
+        if (r.ownerId === myId && r.status === 'open' && r.bids) {
+           const currentBidCount = Object.keys(r.bids).length;
+           const oldBidCount = lastKnown && lastKnown.bids ? Object.keys(lastKnown.bids).length : 0;
+           if (currentBidCount > oldBidCount && !window.notifiedBoardBids[id + "_" + currentBidCount]) {
+              window.notifiedBoardBids[id + "_" + currentBidCount] = true;
+              window.showDropBanner("New quote received", "🔔");
+           }
+        }
+      });
+      
+      lastJobsCache = JSON.parse(JSON.stringify(newJobsCache));
+      jobsCache = newJobsCache;
+      
       runOwnerSweep(); // Auto-clean 7-day old owned jobs
       window.renderFeed();
       
@@ -1381,6 +1447,10 @@ window.sendChatImage = async (inputEl) => {
 
 
 // Global Inbox Listener for the Unread Badge
+    
+    
+    
+    
     onValue(ref(db, `userInbox/${myId}`), (snap) => {
       const data = snap.val();
       const badge = document.getElementById('chatBadgeHero');
@@ -1390,8 +1460,7 @@ window.sendChatImage = async (inputEl) => {
         return;
       }
       
-    
-     let unreadCount = 0;
+      let unreadCount = 0;
       Object.values(data).forEach(thread => {
         if (thread.unreadCount && thread.unreadCount > 0) {
           unreadCount += thread.unreadCount;
@@ -1400,15 +1469,16 @@ window.sendChatImage = async (inputEl) => {
         }
       });
 
-      
-      
-      
+      if (unreadCount > lastUnreadCount) {
+         window.showDropBanner("New message received", "💬");
+      }
+      lastUnreadCount = unreadCount;
       
       if (unreadCount > 0) {
         badge.innerText = unreadCount;
-        badge.style.display = 'flex'; // Uses flex to keep the number perfectly centered
+        badge.style.display = 'flex';
       } else {
-        badge.style.display = 'none'; // Hides the badge completely if 0
+        badge.style.display = 'none'; 
       }
     });
 
@@ -1476,14 +1546,10 @@ inboxList.innerHTML += `
       <div class="inbox-header">
         <span class="inbox-name" style="${isUnread}">${realName}</span>
         <div style="display: flex; align-items: center; gap: 10px;">
-  <span 
-    onclick="window.deleteConversation(event, '${t.chatId}')" 
-    style="filter: brightness(0) saturate(100%) invert(27%) sepia(91%) saturate(2352%) hue-rotate(346deg) brightness(104%) contrast(97%); cursor: pointer; font-size: 8px; padding: 5px;"
-    title="Delete Conversation"
-  >
-    🗑️
-  </span>
-  <span class="inbox-time">${timeString}</span>
+        
+        <img src="trashicon.png" onclick="window.deleteConversation(event, '${t.chatId}')" style="width: 16px; height: 16px; cursor: pointer;" title="Delete Conversation">
+        
+      <span class="inbox-time">${timeString}</span>
 </div>
         
       </div>
