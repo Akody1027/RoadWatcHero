@@ -1683,20 +1683,28 @@ function adjustViewport() {
   </script>
 
   <script type="module">
-    document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
       const splashOverlay = document.getElementById("videoSplashOverlay");
       const introVideo = document.getElementById("introVideo");
 
-      if (splashOverlay && introVideo) {
-        introVideo.addEventListener("ended", () => {
-          splashOverlay.classList.add("slide-out");
+      function hideSplash() {
+        splashOverlay.classList.add("slide-out");
+        setTimeout(() => { splashOverlay.style.display = "none"; }, 800);
+      }
 
-          setTimeout(() => {
-            splashOverlay.style.display = "none";
-          }, 800);
-        });
+      if (splashOverlay && introVideo) {
+        introVideo.addEventListener("ended", hideSplash);
+
+        // Fallback: if video never plays (autoplay blocked, load error, tablet policy),
+        // force-hide the overlay after 4 seconds so it never traps touches.
+        introVideo.addEventListener("error", hideSplash);
+        setTimeout(hideSplash, 4000);
       }
     });
+
+
+
+    
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import {
