@@ -2,7 +2,7 @@
   <head>
     <meta charset="UTF-8" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
 
     <title>ROADWATCHERO</title>
     <link rel="manifest" href="/manifest.json" /> 
@@ -18,24 +18,24 @@
       content="black-translucent"
     />
     <meta name="theme-color" content="#EE611C" />  
-    <script>
-      (function () {
-        const minWidth = 450;
-        if (window.screen.width < minWidth) {
-          const scale = window.screen.width / minWidth;
-          const meta = document.createElement("meta");
-          meta.name = "viewport";
-          meta.content = `width=${minWidth}, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`;
-          document.head.appendChild(meta);
-        } else {
-          const meta = document.createElement("meta");
-          meta.name = "viewport";
-          meta.content =
-            "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
-          document.head.appendChild(meta);
-        }
-      })();
-    </script>
+
+    
+<script>
+  (function () {
+    const meta = document.createElement("meta");
+    meta.name = "viewport";
+    const minWidth = 450;
+    if (window.screen.width < minWidth) {
+      const scale = window.screen.width / minWidth;
+      meta.content = `width=${minWidth}, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`;
+    } else {
+      meta.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+    }
+    document.head.appendChild(meta);
+  })();
+</script>
+
+    
 
     <style>
       :root {
@@ -1571,37 +1571,16 @@
 
   <script>
                                                                                 
-     function adjustViewport() { 
-      const width = window.screen.width;
-      let scale = 1.0;
-      let viewWidth = "device-width";
-
-      if (width < 450) {
-        scale = width / 450;
-        viewWidth = "450";
-      }
-
-      const viewport = document.querySelector('meta[name="viewport"]');
-      if (viewport) {
-        viewport.setAttribute(
-          "content",
-          `width=${viewWidth}, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`
-        );
-      }
-    }
+     
                                                                                                                  
                                                                                                                           
-                                                                          
+                                                                        
+function adjustViewport() {
+  // Viewport is set once at page load by the inline head script.
+  // screen.width does not change on mobile resize; no action needed.
+}
 
-    adjustViewport();
-    window.addEventListener("resize", adjustViewport);
-
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () =>
-        navigator.serviceWorker.register("/service-worker.js")
-      );
-    }
-
+        
     const hubBoard = document.getElementById("heroHubBoard");
     const hubToggle = document.getElementById("hubToggleBtn");
     const hubOverlay = document.getElementById("hubOverlay");
