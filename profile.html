@@ -21,7 +21,7 @@
         --accent: #ee611c; 
         --text-dark: #0f172a;   
         --text-muted: #64748b;    
-      }
+      } 
   
       * {  
         box-sizing: border-box; 
@@ -268,6 +268,82 @@
         font-weight: 800;
       }
       
+      
+      
+      
+      
+            .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .gallery-img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      .image-viewer {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.95);
+        z-index: 20000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .image-viewer img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+      .close-viewer {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: var(--accent);
+        font-size: 30px;
+        font-weight: bold;
+        cursor: pointer;
+        background: none;
+        border: none;
+      }
+      .booking-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.9);
+        z-index: 15000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .booking-box {
+        background: var(--bg-card);
+        padding: 20px;
+        border-radius: 16px;
+        width: 90vw;
+        max-width: 400px;
+      }
+      .booking-box input, .booking-box textarea {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+      }
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       .horizontal-lane.expanded {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -342,21 +418,51 @@
             <span style="color: #10b981">Available Now</span>
           </div>
         </div>
-
+        
+        
+        
+        <div class="modal-section" id="gallerySection" style="display:none;">
+          <h3>Gallery</h3>
+          <div class="gallery-grid" id="modalGallery"></div>
+        </div>
         <div class="action-grid">
-          <button class="btn btn-call" onclick="alert('Calling Pro...')">
-            Call Now
-          </button>
-          <button
-            class="btn btn-book"
-            onclick="alert('Routing to Booking Dashboard...')"
-          >
-            Book Service
-          </button>
+          <a id="callProBtn" href="#" class="btn btn-call" style="text-decoration:none;">Call Now</a>
+          <button class="btn btn-book" onclick="openBooking()">Book Service</button>
         </div>
       </div>
     </div>
- 
+
+    <div class="image-viewer" id="imageViewer">
+      <button class="close-viewer" onclick="closeViewer()">✕</button>
+      <img id="viewerImg" src="" />
+    </div>
+
+    <div class="booking-modal-overlay" id="bookingModal">
+      <div class="booking-box">
+        <h3 style="margin-bottom:10px;">Request Appointment</h3>
+        <input type="date" id="bookDate">
+        <input type="time" id="bookTime">
+        
+        <textarea id="bookDesc" rows="4" placeholder="Describe the issue..."></textarea>
+
+        
+        <label style="font-size:12px; color:gray;">Optional Image</label>
+        <input type="file" id="bookImage" accept="image/*">
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button class="btn btn-call" onclick="closeBooking()" style="flex:1;">Cancel</button>
+          <button class="btn btn-book" onclick="submitBooking()" style="flex:1;">Send Request</button>
+        </div>
+      </div>
+    </div>
+
+        
+        
+        
+        
+        
+        
+        
+  
     <script>
       
         const firebaseConfig = {
@@ -385,8 +491,8 @@
               
                 const standardCategories = ["Towing", "Mechanic", "Detailing", "Tires", "Locksmith", "Tint", "Glass", "Battery", "Wraps", "Bodywork", "Audio", "Upholstery", "Alignment", "Oil", "Transmission", "Miscellaneous" ];
                 const dbCategories = prosData.map(p => p.category);
-                const categories = [...new Set([...standardCategories, ...dbCategories])];
               
+          const categories = [...new Set([...standardCategories, ...dbCategories])].filter(Boolean);   
                 categories.forEach(category => {
                     const prosInCategory = prosData.filter(p => p.category === category);
                     const rowHTML = `
@@ -431,8 +537,31 @@
             document.getElementById("modalCover").src = pro.cover || "";
             document.getElementById("modalAvatar").src = pro.avatar || "";
             document.getElementById("modalName").innerText = pro.name || "Shop Name";
-            document.getElementById("modalRating").innerText = pro.rating || "0.0";
-            document.getElementById("modalReviews").innerText = pro.reviews || "0";
+            
+            
+            let ratingEl = document.querySelector('#profileModal .pro-rating');
+            if (!pro.reviews || pro.reviews == 0) {
+              ratingEl.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">No reviews available</span>';
+            } else {
+              ratingEl.innerHTML = `★ <span id="modalRating">${pro.rating}</span> (<span id="modalReviews">${pro.reviews}</span> Reviews)`;
+            }
+            
+            if (pro.phone) {
+              document.getElementById("callProBtn").href = `tel:${pro.phone}`;
+            }
+            
+            const gallerySec = document.getElementById("gallerySection");
+            const galleryGrid = document.getElementById("modalGallery");
+            if (pro.gallery && pro.gallery.length > 0) {
+              gallerySec.style.display = "block";
+              galleryGrid.innerHTML = pro.gallery.map(url => `<img src="${url}" class="gallery-img" onclick="viewImage('${url}')">`).join('');
+            } else {
+              gallerySec.style.display = "none";
+            }
+            
+            window.currentProId = pro.id;
+
+            
             document.getElementById("modalDesc").innerText = pro.desc || "Loading...";
             document.getElementById("modalAddress").innerText = pro.address || "...";
 
@@ -452,6 +581,55 @@
       }
  
        
+      
+      
+            function viewImage(url) {
+        document.getElementById('viewerImg').src = url;
+        document.getElementById('imageViewer').style.display = 'flex';
+      }
+      function closeViewer() {
+        document.getElementById('imageViewer').style.display = 'none';
+      }
+      function openBooking() {
+        document.getElementById('bookingModal').style.display = 'flex';
+      }
+      function closeBooking() {
+        document.getElementById('bookingModal').style.display = 'none';
+      }
+      async function submitBooking() {
+        const date = document.getElementById('bookDate').value;
+        const time = document.getElementById('bookTime').value;
+        const desc = document.getElementById('bookDesc').value;
+        
+        
+         if(!date || !time || !desc) {
+          alert('Please fill out the details'); 
+          return;
+        }
+
+        
+        
+        try {
+          await firebase.firestore().collection('appointments').add({
+            proId: window.currentProId,
+            seekerId: 'seeker_placeholder_id', 
+            date: date,
+            time: time,
+            description: desc,
+            status: 'pending',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          alert('appointment requested');
+          closeBooking();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      
+      
+      
+      
       
       
       
