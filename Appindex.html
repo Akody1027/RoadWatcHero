@@ -1226,11 +1226,14 @@
               
               </div>
               <div class="preview-modal-identity">
-                <div style="position:relative; cursor:pointer;" class="editable-overlay" onclick="document.getElementById('shellBizLogo').click()">
-                  <img id="previewProfileAvatar" src="herousericon.jpg" class="preview-modal-avatar" />
-                  <div class="edit-badge" style="top:-5px; right:-10px; width:22px; height:22px; font-size:10px;"><img src="camicon.png" alt="Camicon" style="width: 14px; height: 14px;" /></div>
-                  
+                
+                
+                <div style="position:relative;">
+                  <img id="previewProfileAvatar" src="herousericon.jpg" class="preview-modal-avatar master-avatar-sync" />
                 </div>
+   
+                
+                
                 <div class="preview-modal-title-block" style="width: 100%;">
                   <div class="preview-modal-name editable-overlay" id="previewProfileName" onclick="window.makeEditable(this, 'input', 'Business Name')">Business Name</div>
                   <div class="pro-rating-preview">★ 5.0 (0 Reviews)</div>
@@ -1830,7 +1833,8 @@ function adjustViewport() {
     document
       .getElementById("shellBizLogo")
       .addEventListener("change", async function (e) {
-        const file = e.target.files[0];
+            
+       const file = e.target.files[0];
         if (file) {
           try {
             const compressedBlob = await compressImage(file);
@@ -1862,7 +1866,9 @@ function adjustViewport() {
             alert("System Error: " + err.message);
           }
         }
-      });      
+      });     
+            
+    
             
  
 
@@ -1992,10 +1998,13 @@ function adjustViewport() {
             
             // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
           if (data.logoUrl) {
+            
+            
             document.getElementById("shellBizLogo").dataset.existing = data.logoUrl;
             window.currentMasterLogo = data.logoUrl;
             document.querySelectorAll('.master-avatar-sync').forEach(el => el.src = data.logoUrl);
    
+            // Added strict single quotes around the URLs to prevent the live server gray bug
             document.getElementById(
               "logoCirclePreview"
             ).style.backgroundImage = `url('${data.logoUrl}')`;
@@ -2009,6 +2018,11 @@ function adjustViewport() {
             document.getElementById("sidebarUserIcon").style.backgroundSize =
               "cover";
           }
+            
+            
+            
+            
+
             
           // Trigger the live preview text update initially
           document.getElementById("previewName").innerText =
