@@ -27,7 +27,7 @@
     const minWidth = 450;
     if (window.screen.width < minWidth) {
       const scale = window.screen.width / minWidth;
-      meta.content = `width=${minWidth}, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`;
+      meta.content = `width=${minWidth}, initial-scale=${scale}, maximum-scale=${scale},  user-scalable=no`;
     } else {
       meta.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
     } 
@@ -962,8 +962,22 @@
       
       
     </style>
+    
+    
+    
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=places" async defer></script>
   </head>
 
+    
+  
+
+  
+
+  
+  
+  
+  
+  
   <div id="videoSplashOverlay">
     <video id="introVideo" autoplay muted playsinline>
       <source src="roadwatchero.mp4" type="video/mp4" />
@@ -996,33 +1010,33 @@
 
     <iframe src="hub.html" id="hubIframe"></iframe>
   </div>
-
-  <div id="proShellModal" class="shell-modal">
+  <div id="proShellModal" class="shell-modal">   
     <div class="shell-modal-content">
-      <button
-        class="shell-close-btn"
-        onclick="document.getElementById('proShellModal').style.display='none'"
-      >
-        ✕
-      </button>
-
-      <div id="dashboardFormsContainer">
-        <div
-          style="
-            width: 100%;
-            text-align: center;
-            color: var(--accent);
-            font-size: 20px;
-            font-weight: 800;
-            margin-bottom: 10%;
-          ">
-          <label
-          style="font-size: 20px; font-weight: 800; color: var(--accent);"
-        >
-          BUSINESS IDENTITY
+      
+      
+      
+      
+            <div id="dashboardFormsContainer">
+        <div style="display: flex; justify-content: space-between; align-items: center; background-color: whitesmoke; margin: -30px -30px 25px -30px; padding: 20px 30px; border-top-left-radius: 24px; border-top-right-radius: 24px;">
+          <label style="font-size: 20px; font-weight: 800; color: var(--accent);">
+            PRO HERO
           </label>
+          <button
+            class="shell-close-btn"
+            style="position: relative; top: auto; right: auto; margin: 0;"
+            onclick="document.getElementById('proShellModal').style.display='none'"
+          >
+            ✕
+          </button>
         </div>
 
+      
+         
+         
+         
+         
+         
+         
         <div class="logo-uploader-wrapper">
           <label for="shellBizLogo" class="logo-circle" id="logoCirclePreview">
             <div class="logo-plus-badge">+</div>
@@ -1042,24 +1056,35 @@
           placeholder="Business Name"
           class="shell-input"
         />
+              
+              
+              
+              
         <input
           type="text"
           id="shellBizAddress"
           placeholder="Business Address (City, State, Zip)"
           class="shell-input"
         />
+              
+              
+              
+              
         <input
           type="tel"
           id="shellBizPhone"
           placeholder="Dispatch Phone Number (For 'Call Now')"
           class="shell-input"
         />
+              
+              
+              
 
-        <button
+         <button
           id="shellSaveProfileBtn"
           type="button"
           class="shell-submit-btn"
-          style="margin-top: 5px; margin-bottom: 5px"
+          style="margin-top: 5px; margin-bottom: 5px; background: #cbd5e1; pointer-  events: none;"
         >
           SAVE
         </button>
@@ -1666,6 +1691,69 @@ function adjustViewport() {
 
     const storage = getStorage(app);
     let allPostsData = {}; // Cache to hold post data for editing
+                                                             
+                                                             
+                                              
+   // --- SMART SAVE & AUTOCOMPLETE LOGIC ---
+    window.checkIdentityChanges = () => {
+      const name = document.getElementById("shellBizName");
+      const phone = document.getElementById("shellBizPhone");
+      const address = document.getElementById("shellBizAddress");
+      const logo = document.getElementById("shellBizLogo");
+      const saveBtn = document.getElementById("shellSaveProfileBtn");
+
+      const isNameChanged = name.value !== (name.dataset.original || "");
+      const isPhoneChanged = phone.value !== (phone.dataset.original || "");
+      const isAddressChanged = address.value !== (address.dataset.original || "");
+      const isLogoChanged = !!logo.compressedBlob;
+
+      if (isNameChanged || isPhoneChanged || isAddressChanged || isLogoChanged) {
+        saveBtn.style.background = "var(--accent)";
+        saveBtn.style.pointerEvents = "auto";
+      } else {
+        saveBtn.style.background = "#cbd5e1";
+        saveBtn.style.pointerEvents = "none";
+      }
+    };
+                                            
+                                            
+             window.initAddressAutocomplete = () => {
+      const addressInput = document.getElementById("shellBizAddress");
+      if (addressInput.dataset.autocompleteAttached) return; // Prevent duplicate binding
+      
+      if (typeof google !== "undefined" && google.maps && google.maps.places) {
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+          types: ["geocode", "establishment"],
+          componentRestrictions: { country: "us" }
+        });
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) {
+            addressInput.value = place.formatted_address;
+            window.checkIdentityChanges();
+          }
+        });
+        addressInput.dataset.autocompleteAttached = "true";
+      }
+    };
+
+    // Safe Initialization Loop: Waits for Google Maps to finish loading, then attaches autocomplete
+    const autocompleteTimer = setInterval(() => {
+      if (typeof google !== "undefined" && google.maps && google.maps.places) {
+        window.initAddressAutocomplete();
+        clearInterval(autocompleteTimer);
+      }
+    }, 500);                                           
+                                                
+
+    // Attach real-time listeners to inputs
+    document.getElementById("shellBizName").addEventListener("input", window.checkIdentityChanges);
+    document.getElementById("shellBizPhone").addEventListener("input", window.checkIdentityChanges);
+    document.getElementById("shellBizAddress").addEventListener("input", window.checkIdentityChanges);
+                                                 
+                                                             
+                                                             
+                                                             
     
     
     // --- NATIVE GEOHASH ENGINE ---
@@ -1750,7 +1838,9 @@ function adjustViewport() {
             document
               .getElementById("logoCirclePreview")
               .querySelector(".logo-plus-badge").style.display = "none";
-         
+            
+             window.checkIdentityChanges();
+
           } catch (err) {
             alert("System Error: " + err.message);
           }
@@ -1849,19 +1939,31 @@ function adjustViewport() {
               : "MANAGE SUBSCRIPTION";
           }
 
-          // Auto-fill core identity using a session flag to beat browser cache
+            
+            
+            
+       // Auto-fill core identity using a session flag to beat browser cache
           if (!document.getElementById("shellBizName").dataset.loaded) {
-            document.getElementById("shellBizName").value =
-              data.companyName || data.name || "";
-            document.getElementById("shellBizPhone").value =
-              data.dispatchPhone || "";
-            document.getElementById("shellBizAddress").value =
-              data.businessAddress || "";
+            const nameEl = document.getElementById("shellBizName");
+            const phoneEl = document.getElementById("shellBizPhone");
+            const addressEl = document.getElementById("shellBizAddress");
+
+            nameEl.value = data.companyName || data.name || "";
+            nameEl.dataset.original = nameEl.value;
+
+            phoneEl.value = data.dispatchPhone || "";
+            phoneEl.dataset.original = phoneEl.value;
+
+            addressEl.value = data.businessAddress || "";
+            addressEl.dataset.original = addressEl.value;
 
             // Lock the fields so real-time lead updates don't erase user typing later
-            document.getElementById("shellBizName").dataset.loaded = "true";
+            nameEl.dataset.loaded = "true";
+            
+            window.checkIdentityChanges(); // Force button to correct baseline state
           }
-
+            
+            
           // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
           if (data.logoUrl) {
             
@@ -1965,29 +2067,44 @@ function adjustViewport() {
             } else {
               statusBadge = `<span style="color: #dc2626; background: #fee2e2; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">DENIED</span>`;
             }
-            
+                    
             
             html += `
               <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                 <div style="padding: 15px;">
-                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                    <div>
-                      <strong style="font-size: 16px; color: var(--text);">${appt.seekerName || 'New Seeker'}</strong>
-                      <div style="font-size: 13px; color: var(--accent); font-weight: bold; margin-top: 2px;">${appt.seekerContact || 'No Contact Info provided'}</div>
+                  
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+                    <div style="font-size: 12px; color: var(--muted);">
+                      <strong>Requested date:</strong> ${appt.date}<br>
+                      <strong>Requested time:</strong> ${appt.time}
                     </div>
-                    ${statusBadge}
+                    <div>${statusBadge}</div>
                   </div>
-                  <div style="font-size: 12px; color: var(--muted); margin-bottom: 8px;">
-                    <strong>Requested Time:</strong> ${appt.date} @ ${appt.time}
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+                    <div style="flex: 1; padding-right: 15px;">
+                      <strong style="font-size: 12px; color: var(--muted);">Description:</strong>
+                      <p style="font-size: 13px; color: var(--text); margin: 5px 0 0 0; line-height: 1.4;">${appt.description}</p>
+                    </div>
+                    <div style="cursor: pointer;" onclick="window.deleteAppt('${appt.id}')">
+                      <img src="trashicon.png" alt="Delete" style="width: 24px; height: 24px;" />
+                    </div>
                   </div>
-                  <p style="font-size: 13px; color: var(--text); margin: 0 0 10px 0; line-height: 1.4;">${appt.description}</p>
+
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong style="font-size: 15px; color: var(--text);">${appt.seekerName || 'New Seeker'}</strong>
+                    <div style="font-size: 13px; color: var(--accent); font-weight: bold;">${appt.seekerContact || 'No Contact Info'}</div>
+                  </div>
+
                   ${appt.denyReason ? `<div style="background: #fee2e2; padding: 8px; border-radius: 6px; margin-bottom: 10px;"><p style="font-size: 11px; color: #ef4444; margin: 0; font-weight: 800;">Reason for Denial: ${appt.denyReason}</p></div>` : ''}
+                  
                   ${actionButtons}
                 </div>
               </div>
             `;
-            
 
+            
+           
 
           });
           
@@ -2213,16 +2330,28 @@ function adjustViewport() {
             dispatchPhone: phone,
             logoUrl: finalLogoUrl,
           });
+            
+            
+            
+            
+        document.getElementById("shellBizLogo").dataset.existing = finalLogoUrl;
 
-          document.getElementById("shellBizLogo").dataset.existing =
-            finalLogoUrl;
+          // Reset baseline memory to the newly saved data
+          document.getElementById("shellBizName").dataset.original = bizName;
+          document.getElementById("shellBizAddress").dataset.original = address;
+          document.getElementById("shellBizPhone").dataset.original = phone;
+          document.getElementById("shellBizLogo").compressedBlob = null; 
+          
+          window.checkIdentityChanges(); // This instantly grays the button out
 
           btn.innerText = "SAVE";
           btn.style.opacity = "1";
           btn.style.pointerEvents = "auto";
+
           document.getElementById("profileSaveMsg").style.display = "block";
           setTimeout(
             () =>
+            
               (document.getElementById("profileSaveMsg").style.display =
                 "none"),
             3000
@@ -2370,6 +2499,7 @@ function adjustViewport() {
         alert("Error approving appointment.");
       }
     };
+                  
 
     window.denyAppt = async (apptId) => {
       const reason = prompt("Please provide a reason for denying this request (the seeker will see this):");
@@ -2388,7 +2518,18 @@ function adjustViewport() {
             
     
     
-    
+        window.deleteAppt = async (apptId) => {
+      if (confirm("Are you sure you want to delete this appointment request?")) {
+        try {
+          await deleteDoc(doc(firestore, "appointments", apptId));
+        } catch(e) {
+          console.error(e);
+          alert("Error deleting appointment.");
+        }
+      }
+    };
+
+                  
     
     
     window.editPost = (postId) => {
