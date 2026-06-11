@@ -2727,24 +2727,37 @@ function adjustViewport() {
       });
             
             
-            
-    window.galleryBlobs = [];
-    window.existingGalleryUrls = [];
+   
+      window.galleryBlobs = [];
+    window.existingGalleryUrls = []; // This will be populated from the database on load
     
     document.getElementById("shellGalleryUploader").addEventListener("change", async function (e) {
       const files = Array.from(e.target.files);
       if (!files.length) return;
 
       const grid = document.getElementById("galleryPreviewGrid");
+      const currentTotal = window.existingGalleryUrls.length + window.galleryBlobs.length;
+      const MAX_IMAGES = 12;
+
+      // Block if they are already at the cap
+      if (currentTotal >= MAX_IMAGES) {
+        alert(`You have reached the maximum of ${MAX_IMAGES} gallery images. Please delete existing images to make room.`);
+        e.target.value = "";
+        return;
+      }
+
+      // Calculate how many more they are allowed to add
+      const availableSlots = MAX_IMAGES - currentTotal;
+      const filesToProcess = files.slice(0, availableSlots);
+
+      // Warn them if they tried to upload more than the remaining slots allow
+      if (files.length > availableSlots) {
+        alert(`You can only add ${availableSlots} more image(s). Only the first ${availableSlots} were accepted.`);
+      }
       
-      for (let i = 0; i < files.length; i++) {
-        // Enforce a sensible limit on gallery images
-        if (window.galleryBlobs.length >= 6) {
-          alert("Maximum of 6 new images allowed per upload.");
-          break;
-        }
+      for (let i = 0; i < filesToProcess.length; i++) {
         try {
-          const compressedBlob = await compressImage(files[i]);
+          const compressedBlob = await compressImage(filesToProcess[i]);
           window.galleryBlobs.push(compressedBlob);
           const objectUrl = URL.createObjectURL(compressedBlob);
           
@@ -2758,8 +2771,6 @@ function adjustViewport() {
       }
       e.target.value = ""; 
     });
-
-            
             
             
 
