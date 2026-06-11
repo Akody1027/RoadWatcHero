@@ -1319,17 +1319,17 @@
             </div>
           </div>
 
-          
-          
-          
-
           <button
             id="shellPublishBtn"
             class="shell-submit-btn"
-            style="background: #10b981"
+            style="background: #cbd5e1; pointer-events: none;"
           >
             PUBLISH TO HUB
           </button>
+          
+          
+
+   
 
           <hr class="shell-divider" />
 
@@ -1766,12 +1766,9 @@ function adjustViewport() {
                                                 
 
     // Attach real-time listeners to inputs
-    document.getElementById("shellBizName").addEventListener("input", window.checkIdentityChanges);
-    document.getElementById("shellBizPhone").addEventListener("input", window.checkIdentityChanges);
-    document.getElementById("shellBizAddress").addEventListener("input", window.checkIdentityChanges);
-                                                 
-                                                             
-                                                             
+    document.getElementById("shellBizName").addEventListener("input", () => { window.checkIdentityChanges(); if(window.checkAdChanges) window.checkAdChanges(); });
+    document.getElementById("shellBizPhone").addEventListener("input", () => { window.checkIdentityChanges(); if(window.checkAdChanges) window.checkAdChanges(); });
+    document.getElementById("shellBizAddress").addEventListener("input", () => { window.checkIdentityChanges(); if(window.checkAdChanges) window.checkAdChanges(); });                                                  
                                                              
     
     
@@ -1883,12 +1880,19 @@ function adjustViewport() {
             const compressedBlob = await compressImage(file);
             e.target.compressedBlob = compressedBlob;
             const objectUrl = URL.createObjectURL(compressedBlob);
-            document.getElementById(
-              "promoRectPreview"
-            ).style.backgroundImage = `url(${objectUrl})`;
-            document.getElementById("promoRectPreview").innerHTML = "";
             
-            document.getElementById("previewPromo").src = objectUrl;
+            // Update the live preview image directly and make it fully opaque
+            const previewImg = document.getElementById("previewPromo");
+            if (previewImg) {
+              previewImg.src = objectUrl;
+              previewImg.style.opacity = "1";
+            }
+            
+            // Trigger the smart publish button tracker
+            if (window.checkAdChanges) window.checkAdChanges();
+            
+
+            
           } catch (err) {
             alert("System Error: " + err.message);
           }
@@ -2494,15 +2498,24 @@ function adjustViewport() {
                 await addDoc(collection(firestore, "businessPosts"), postData);
               }
 
-              // Reset UI
-
+      
+            
+            
+            // Reset UI & Memory
+              document.getElementById("previewDesc").innerText = "Tap here to write your promo description...";
+              document.getElementById("previewAdCategory").innerText = "Towing";
+              document.getElementById("previewPromo").src = "ad-placeholder.png";
+              document.getElementById("shellPromoImage").compressedBlob = null;
+              document.getElementById("shellPromoImage").dataset.existing = "";
+              document.getElementById("shellPromoImage").value = "";
               
-              
-
               btn.innerText = "PUBLISH TO HUB";
-              btn.style.background = "#10b981";
-              btn.style.opacity = "1";
-              btn.style.pointerEvents = "auto";
+              if (window.checkAdChanges) window.checkAdChanges();
+            
+            
+            
+            
+            
             } catch (e) {
               console.error(e);
               alert("Error uploading to server.");
@@ -2602,6 +2615,10 @@ function adjustViewport() {
       const btn = document.getElementById("shellPublishBtn");
       btn.innerText = "UPDATE POST";
       btn.style.background = "var(--text)";
+            
+            
+       if (window.checkAdChanges) window.checkAdChanges();     
+            
 
       document.querySelector(".shell-modal-content").scrollTop = 0;
     };
@@ -2674,10 +2691,7 @@ function adjustViewport() {
             
             
             
-            
-            
-            
-    window.makeEditable = (el, type, defaultText) => {
+       window.makeEditable = (el, type, defaultText) => {
       if (el.querySelector('input') || el.querySelector('textarea')) return;
       const currentText = el.innerText === defaultText ? "" : el.innerText;
       const input = document.createElement(type);
@@ -2691,6 +2705,7 @@ function adjustViewport() {
            document.getElementById('shellBizName').value = input.value.trim();
         }
         window.checkProfileChanges();
+        if (window.checkAdChanges) window.checkAdChanges();
       };
       
       el.innerHTML = '';
@@ -2713,15 +2728,38 @@ function adjustViewport() {
         select.appendChild(opt);
       });
 
-      select.onblur = () => { el.innerText = select.value; window.checkProfileChanges(); };
-      select.onchange = () => { el.innerText = select.value; window.checkProfileChanges(); };
+      select.onblur = () => { el.innerText = select.value; window.checkProfileChanges(); if (window.checkAdChanges) window.checkAdChanges(); };
+      select.onchange = () => { el.innerText = select.value; window.checkProfileChanges(); if (window.checkAdChanges) window.checkAdChanges(); };
       
       el.innerHTML = '';
       el.appendChild(select);
       select.focus();
     };
-            
 
+    window.checkAdChanges = () => {
+      const name = document.getElementById("shellBizName").value.trim();
+      const phone = document.getElementById("shellBizPhone").value.trim();
+      const address = document.getElementById("shellBizAddress").value.trim();
+      
+      const descEl = document.getElementById("previewDesc");
+      const isDescValid = descEl.innerText.trim() !== "" && !descEl.innerText.includes("Tap here");
+      
+      const promoInput = document.getElementById("shellPromoImage");
+      const hasPromo = !!promoInput.compressedBlob || !!promoInput.dataset.existing;
+      
+      const publishBtn = document.getElementById("shellPublishBtn");
+
+      if (name && phone && address && isDescValid && hasPromo) {
+        // Keeps the button black if it's in 'Update' mode, otherwise Green
+        publishBtn.style.background = publishBtn.innerText.includes("UPDATE") ? "var(--text)" : "#10b981";
+        publishBtn.style.pointerEvents = "auto";
+      } else {
+        publishBtn.style.background = "#cbd5e1";
+        publishBtn.style.pointerEvents = "none";
+      }
+    };     
+            
+ 
 
 
      window.checkProfileChanges = () => {
@@ -2846,6 +2884,11 @@ function adjustViewport() {
             const compressedBlob = await compressImage(file);
             e.target.compressedBlob = compressedBlob;
             const objectUrl = URL.createObjectURL(compressedBlob);
+            
+            
+            
+            
+            
             
              document.getElementById(
                  "previewModalHeaderImg"
@@ -3018,6 +3061,9 @@ function adjustViewport() {
           btn.innerText = "PUBLISH PROFILE";                                             
           btn.style.opacity = "1";
           btn.style.pointerEvents = "auto";
+                                                           
+                                                           
+                                                           
         } catch (e) {
           console.error(e);
           alert("Error publishing profile: " + e.message);
