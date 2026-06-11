@@ -12,15 +12,15 @@
     />
     <link rel="icon" href="/roadwatch.ico" type="image/x-icon" /> 
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" /> 
+    <meta name="apple-mobile-web-app-capable" content="yes" />  
     <meta
       name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
+      content="black-translucent" 
     />
     <meta name="theme-color" content="#EE611C" />   
  
     
-<script>
+<script>  
   (function () {
     const meta = document.createElement("meta");
     meta.name = "viewport";
@@ -968,7 +968,7 @@
     font-weight: 800;
     cursor: pointer;
 }
-      
+
       
     </style>
     
@@ -1239,23 +1239,23 @@
 
               <div class="preview-modal-section">
                 <h3>Category</h3>
-                <div class="preview-modal-text editable-overlay" id="previewProfileCategory" onclick="window.makeEditableCategory(this)" style="color: var(--accent); font-weight: 800;">Tap to select category...</div>
+                <div class="preview-modal-text editable-overlay" id="previewProfileCategory" onclick="window.makeEditableCategory(this)" style="color: var(--accent); font-weight: 800;">Tap to select category...                    </div>
               </div>
+              
+ 
               
               <div class="preview-modal-section">
                 <h3>Gallery</h3>
                 <div id="galleryPreviewGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
-                  <div class="editable-overlay" onclick="document.getElementById('shellGalleryUploader').click()" style="aspect-ratio: 1; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                  <div id="galleryAddBtn" class="editable-overlay" onclick="document.getElementById('shellGalleryUploader').click()" style="aspect-ratio: 1; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                     <div style="font-size: 24px; color: var(--accent); font-weight: 900;">+</div>
                   </div>
                 </div>
+                <div id="galleryMaxBadge" style="display: none; margin-top: 10px; padding: 10px;  color: #ef4444; border-radius: 8px; font-size: 12px; font-weight: 800; text-align: center;">
+                  12 IMAGE MAX 
+                </div>
                 <input type="file" id="shellGalleryUploader" accept="image/jpeg, image/png, image/webp" multiple style="display: none;" />
               </div>
-
-              
-              
-              
-              
 
               <div class="preview-modal-section">
                 <h3>About the Pro</h3>
@@ -1279,20 +1279,15 @@
             </div>
           </div>
         
-
-          
-          
-          
-          
-          
-          
           <button
             id="shellPublishProfileBtn"
             class="shell-submit-btn"
-            style="background: var(--accent)"
+            style="background: #cbd5e1; pointer-events: none;"
           >
             PUBLISH PROFILE
           </button>
+    
+          
         </div>
 
         <div id="adCreatorSection">
@@ -2031,29 +2026,45 @@ function adjustViewport() {
         });
             
             
-       // Load Extended Profile Data (Bio, Category, Cover) from Firestore
+            // Load Extended Profile Data (Bio, Category, Cover) from Firestore
         onSnapshot(doc(firestore, "pros", currentUserId), (docSnap) => {
           if (docSnap.exists()) {
             const proData = docSnap.data();
             
-            // Populate Cover Image
             if (proData.cover) {
               document.getElementById("shellCoverImage").dataset.existing = proData.cover;
               document.getElementById("previewModalHeaderImg").style.backgroundImage = `url(${proData.cover})`;
-              document.getElementById("previewModalHeaderImg").innerHTML = ""; // Clears the camera badge
+              document.getElementById("previewModalHeaderImg").innerHTML = ""; 
             }
 
-            // Populate Bio
             if (proData.desc) {
-              document.getElementById("previewProfileBio").innerText = proData.desc;
+              const bioEl = document.getElementById("previewProfileBio");
+              bioEl.innerText = proData.desc;
+              bioEl.dataset.original = proData.desc;
             }
 
-            // Populate Category
             if (proData.category) {
-              document.getElementById("previewProfileCategory").innerText = proData.category;
+              const catEl = document.getElementById("previewProfileCategory");
+              catEl.innerText = proData.category;
+              catEl.dataset.original = proData.category;
             }
+            
+            // Load existing gallery, render thumbnails, and update UI max checks
+            window.existingGalleryUrls = proData.gallery || [];
+            window.originalGalleryUrls = [...window.existingGalleryUrls];
+
+            window.renderGalleryGrid();
+            window.updateGalleryUI();
+            
+            window.checkProfileChanges();
           }
         });
+            
+   
+
+            
+            
+  
         
         
         // Live Listener for Active Campaigns (Bottom of Profile) - FIRESTORE UPGRADE
@@ -2112,10 +2123,10 @@ function adjustViewport() {
                     <div>${statusBadge}</div>
                   </div>
 
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
+                  <div style="display: flex; justify-content: space-between; align-items:center; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px;">
                     <div style="flex: 1; padding-right: 15px;">
                       <strong style="font-size: 12px; color: var(--muted);">Description:</strong>
-                      <p style="font-size: 13px; color: var(--text); margin: 5px 0 0 0; line-height: 1.4;">${appt.description}</p>
+                      <p style="font-size: 13px; color: var(--text); margin: 0px 0 0 0; line-height: 1.4; word-break: break-all;">${appt.description}</p>
                     </div>
                     <div style="cursor: pointer;" onclick="window.deleteAppt('${appt.id}')">
                       <img src="trashicon.png" alt="Delete" style="width: 24px; height: 24px;" />
@@ -2159,6 +2170,11 @@ function adjustViewport() {
           }
 
           container.innerHTML = "";
+            
+            
+            
+            
+            
 
           snapshot.forEach((docSnap) => {
             const id = docSnap.id;
@@ -2652,12 +2668,15 @@ function adjustViewport() {
         }
       }
             
-            
-            
-   
+  
             // Removed bio syncer to prevent overwriting inline edits
     }, 1000);
-
+            
+            
+            
+            
+            
+            
     window.makeEditable = (el, type, defaultText) => {
       if (el.querySelector('input') || el.querySelector('textarea')) return;
       const currentText = el.innerText === defaultText ? "" : el.innerText;
@@ -2671,6 +2690,7 @@ function adjustViewport() {
         if (el.id === 'previewProfileName') {
            document.getElementById('shellBizName').value = input.value.trim();
         }
+        window.checkProfileChanges();
       };
       
       el.innerHTML = '';
@@ -2693,16 +2713,129 @@ function adjustViewport() {
         select.appendChild(opt);
       });
 
-      select.onblur = () => { el.innerText = select.value; };
-      select.onchange = () => { el.innerText = select.value; };
+      select.onblur = () => { el.innerText = select.value; window.checkProfileChanges(); };
+      select.onchange = () => { el.innerText = select.value; window.checkProfileChanges(); };
       
       el.innerHTML = '';
       el.appendChild(select);
       select.focus();
     };
             
+
+
+
+     window.checkProfileChanges = () => {
+      const bioEl = document.getElementById("previewProfileBio");
+      const catEl = document.getElementById("previewProfileCategory");
+      const publishBtn = document.getElementById("shellPublishProfileBtn");
+
+      const isBioChanged = bioEl.innerText !== (bioEl.dataset.original || "Tap here to write your business description...");
+      const isCatChanged = catEl.innerText !== (catEl.dataset.original || "Tap to select category...");
+      const isCoverChanged = !!document.getElementById("shellCoverImage").compressedBlob;
+      
+      const isGalleryAdded = window.galleryBlobs && window.galleryBlobs.length > 0;
+      const isGalleryDeleted = window.originalGalleryUrls && JSON.stringify(window.existingGalleryUrls) !== JSON.stringify(window.originalGalleryUrls);
+      const isGalleryChanged = isGalleryAdded || isGalleryDeleted;
+
+      if (isBioChanged || isCatChanged || isCoverChanged || isGalleryChanged) {
+        publishBtn.style.background = "var(--accent)";
+        publishBtn.style.pointerEvents = "auto";
+      } else {
+        publishBtn.style.background = "#cbd5e1";
+        publishBtn.style.pointerEvents = "none";
+      }
+    };
             
-     
+            
+            
+            
+            
+            
+            
+
+
+    window.updateGalleryUI = () => {
+      const currentTotal = (window.existingGalleryUrls ? window.existingGalleryUrls.length : 0) + (window.galleryBlobs ? window.galleryBlobs.length : 0);
+      const addBtn = document.getElementById("galleryAddBtn");
+      const maxBadge = document.getElementById("galleryMaxBadge");
+
+      if (currentTotal >= 12) {
+        if (addBtn) addBtn.style.display = "none";
+        if (maxBadge) maxBadge.style.display = "block";
+      } else {
+        if (addBtn) addBtn.style.display = "flex";
+        if (maxBadge) maxBadge.style.display = "none";
+      }
+    };     
+            
+            
+            
+            
+          window.deleteGalleryImage = (type, index) => {
+      if (confirm("Remove this image from your gallery?")) {
+        if (type === 'existing') {
+          window.existingGalleryUrls.splice(index, 1);
+        } else if (type === 'staged') {
+          window.galleryBlobs.splice(index, 1);
+        }
+        window.renderGalleryGrid();
+        window.updateGalleryUI();
+        window.checkProfileChanges();
+      }
+    };
+
+    window.renderGalleryGrid = () => {
+      const grid = document.getElementById("galleryPreviewGrid");
+      const addBtn = document.getElementById("galleryAddBtn");
+      if (!grid || !addBtn) return;
+
+      Array.from(grid.children).forEach(child => {
+        if (child.id !== "galleryAddBtn") grid.removeChild(child);
+      });
+
+      (window.existingGalleryUrls || []).forEach((url, index) => {
+        const thumb = document.createElement("div");
+        thumb.style.cssText = `aspect-ratio: 1; border-radius: 8px; background-image: url('${url}'); background-size: cover; background-position: center; position: relative; border: 1px solid #e2e8f0;`;
+
+        const trash = document.createElement("div");
+        trash.style.cssText = `position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);`;
+        trash.innerHTML = `<img src="trashicon.png" style="width: 14px; height: 14px;" />`;
+        trash.onclick = (e) => { e.stopPropagation(); window.deleteGalleryImage('existing', index); };
+
+        thumb.appendChild(trash);
+        grid.insertBefore(thumb, addBtn);
+      });
+
+      (window.galleryBlobs || []).forEach((blob, index) => {
+        const objectUrl = blob.previewUrl || URL.createObjectURL(blob);
+        blob.previewUrl = objectUrl; 
+        
+        const thumb = document.createElement("div");
+        thumb.style.cssText = `aspect-ratio: 1; border-radius: 8px; background-image: url('${objectUrl}'); background-size: cover; background-position: center; position: relative; border: 1px solid #e2e8f0;`;
+
+        const trash = document.createElement("div");
+        trash.style.cssText = `position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);`;
+        trash.innerHTML = `<img src="trashicon.png" style="width: 14px; height: 14px;" />`;
+        trash.onclick = (e) => { e.stopPropagation(); window.deleteGalleryImage('staged', index); };
+
+        thumb.appendChild(trash);
+        grid.insertBefore(thumb, addBtn);
+      });
+    };  
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+
 
     document
       .getElementById("shellCoverImage")
@@ -2713,12 +2846,13 @@ function adjustViewport() {
             const compressedBlob = await compressImage(file);
             e.target.compressedBlob = compressedBlob;
             const objectUrl = URL.createObjectURL(compressedBlob);
+            
+             document.getElementById(
+                 "previewModalHeaderImg"
+                ).style.backgroundImage = `url(${objectUrl})`;
+             document.getElementById("previewModalHeaderImg").innerHTML = "";
 
-                   document.getElementById(
-                      "previewModalHeaderImg"
-                    ).style.backgroundImage = `url(${objectUrl})`;
-                    document.getElementById("previewModalHeaderImg").innerHTML = "";
-
+           window.checkProfileChanges();
             
           } catch (err) {
             alert("System Error: " + err.message);
@@ -2755,24 +2889,26 @@ function adjustViewport() {
         alert(`You can only add ${availableSlots} more image(s). Only the first ${availableSlots} were accepted.`);
       }
       
-      for (let i = 0; i < filesToProcess.length; i++) {
+            
+       for (let i = 0; i < filesToProcess.length; i++) {
         try {
           const compressedBlob = await compressImage(filesToProcess[i]);
           window.galleryBlobs.push(compressedBlob);
-          const objectUrl = URL.createObjectURL(compressedBlob);
-          
-          const thumb = document.createElement("div");
-          thumb.style.cssText = `aspect-ratio: 1; border-radius: 8px; background-image: url(${objectUrl}); background-size: cover; background-position: center; position: relative; border: 1px solid #e2e8f0;`;
-          
-          grid.insertBefore(thumb, grid.lastElementChild);
         } catch (err) {
           console.error("Gallery compression error:", err);
         }
       }
+      
+      window.renderGalleryGrid();
+      window.checkProfileChanges();
+      window.updateGalleryUI();
       e.target.value = ""; 
-    });
+    });     
             
             
+                         
+                                                
+
 
     document
       .getElementById("shellPublishProfileBtn") 
@@ -2864,13 +3000,22 @@ function adjustViewport() {
             timestamp: Date.now(),
           }, { merge: true }); 
 
+                                                           
+          document.getElementById("previewProfileBio").dataset.original = bio;
+          document.getElementById("previewProfileCategory").dataset.original = cat;
+          document.getElementById("shellCoverImage").compressedBlob = null;
+          
           window.galleryBlobs = []; 
-   
-            
-            
+          window.existingGalleryUrls = [...uploadedGalleryUrls];
+          window.originalGalleryUrls = [...uploadedGalleryUrls];
+          
+          window.renderGalleryGrid();
+          window.updateGalleryUI();
+          window.checkProfileChanges();
+
           alert("Profile Published to Directory Successfully!");
 
-          btn.innerText = "PUBLISH PROFILE";
+          btn.innerText = "PUBLISH PROFILE";                                             
           btn.style.opacity = "1";
           btn.style.pointerEvents = "auto";
         } catch (e) {
@@ -2880,7 +3025,10 @@ function adjustViewport() {
           btn.style.opacity = "1";
           btn.style.pointerEvents = "auto";
         }
-      });
+      });                                         
+  
+                                                           
+ 
 
     window.shellSignOut = () => {
       signOut(auth)
