@@ -391,13 +391,13 @@
         font-family: inherit;
         box-sizing: border-box;
       }
-
-
-      /* Force Google Autocomplete dropdown to appear above the shell modal */
+      
+      
+      
+            /* Force Google Autocomplete dropdown to appear above the shell modal */
       .pac-container {
         z-index: 100005 !important;
       }
-
 
       
       .shell-submit-btn {
@@ -1241,6 +1241,21 @@
                 <h3>Category</h3>
                 <div class="preview-modal-text editable-overlay" id="previewProfileCategory" onclick="window.makeEditableCategory(this)" style="color: var(--accent); font-weight: 800;">Tap to select category...</div>
               </div>
+              
+              <div class="preview-modal-section">
+                <h3>Gallery</h3>
+                <div id="galleryPreviewGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+                  <div class="editable-overlay" onclick="document.getElementById('shellGalleryUploader').click()" style="aspect-ratio: 1; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                    <div style="font-size: 24px; color: var(--accent); font-weight: 900;">+</div>
+                  </div>
+                </div>
+                <input type="file" id="shellGalleryUploader" accept="image/jpeg, image/png, image/webp" multiple style="display: none;" />
+              </div>
+
+              
+              
+              
+              
 
               <div class="preview-modal-section">
                 <h3>About the Pro</h3>
@@ -1855,6 +1870,13 @@ function adjustViewport() {
           }
         }
       });
+            
+            
+            
+            
+            
+            
+            
 
     // Handle Promo Image Upload Preview
     document
@@ -2703,6 +2725,43 @@ function adjustViewport() {
           }
         }
       });
+            
+            
+            
+    window.galleryBlobs = [];
+    window.existingGalleryUrls = [];
+    
+    document.getElementById("shellGalleryUploader").addEventListener("change", async function (e) {
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
+
+      const grid = document.getElementById("galleryPreviewGrid");
+      
+      for (let i = 0; i < files.length; i++) {
+        // Enforce a sensible limit on gallery images
+        if (window.galleryBlobs.length >= 6) {
+          alert("Maximum of 6 new images allowed per upload.");
+          break;
+        }
+        try {
+          const compressedBlob = await compressImage(files[i]);
+          window.galleryBlobs.push(compressedBlob);
+          const objectUrl = URL.createObjectURL(compressedBlob);
+          
+          const thumb = document.createElement("div");
+          thumb.style.cssText = `aspect-ratio: 1; border-radius: 8px; background-image: url(${objectUrl}); background-size: cover; background-position: center; position: relative; border: 1px solid #e2e8f0;`;
+          
+          grid.insertBefore(thumb, grid.lastElementChild);
+        } catch (err) {
+          console.error("Gallery compression error:", err);
+        }
+      }
+      e.target.value = ""; 
+    });
+
+            
+            
+            
 
     document
       .getElementById("shellPublishProfileBtn") 
@@ -2756,6 +2815,21 @@ function adjustViewport() {
             document.getElementById("shellCoverImage").dataset.existing =
               finalCoverUrl;
           }
+            
+            
+            
+            
+       
+            
+          let uploadedGalleryUrls = window.existingGalleryUrls || [];
+          if (window.galleryBlobs && window.galleryBlobs.length > 0) {
+            for (let i = 0; i < window.galleryBlobs.length; i++) {
+              const gRef = storageRef(storage, `hub_profiles/${currentUserId}/gallery_${Date.now()}_${i}.jpg`);
+              await uploadBytes(gRef, window.galleryBlobs[i]);
+              const gUrl = await getDownloadURL(gRef);
+              uploadedGalleryUrls.push(gUrl);
+            }
+          }
 
           // Ensure Realtime Database keeps its global identity up to date
           await update(ref(db, `profiles/${currentUserId}`), {
@@ -2773,11 +2847,16 @@ function adjustViewport() {
             category: cat,
             avatar: finalLogoUrl || "herousericon.jpg",
             cover: finalCoverUrl,
+            gallery: uploadedGalleryUrls,
             rating: "5.0",
             reviews: "0",
             timestamp: Date.now(),
-          });
+          }, { merge: true }); 
 
+          window.galleryBlobs = []; 
+   
+            
+            
           alert("Profile Published to Directory Successfully!");
 
           btn.innerText = "PUBLISH PROFILE";
