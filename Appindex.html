@@ -1142,6 +1142,23 @@
         </div>
 
         <hr class="shell-divider" />
+        
+        
+        
+        <div id="appointmentsDashboard" style="display: none; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <label style="font-size: 16px; font-weight: 800; color: var(--accent);">APPOINTMENT REQUESTS</label>
+            <span id="appointmentBadge" style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; display: none;">0 NEW</span>
+          </div>
+          <div id="shellAppointmentsList" style="max-height: 300px; overflow-y: auto; padding-right: 5px;">
+            <p style="font-size: 13px; color: var(--muted); text-align: center; font-style: italic;">No appointment requests yet.</p>
+          </div>
+        </div>
+        
+
+        
+         <hr class="shell-divider" />
+
 
         <div class="creator-toggle-container">
           <button
@@ -1812,6 +1829,9 @@ function adjustViewport() {
           
           // Initialize Pro Stats
           document.getElementById("proStatusSection").style.display = "block";
+            
+          document.getElementById("appointmentsDashboard").style.display = "block";
+            
           document.getElementById(
             "memberSinceText"
           ).innerText = `Member since: ${new Date(
@@ -1876,8 +1896,9 @@ function adjustViewport() {
             window.updateHubBadge(data.unreadLeads);
           }
         });
-
-        // Load Extended Profile Data (Bio, Category, Cover) from Firestore
+            
+            
+       // Load Extended Profile Data (Bio, Category, Cover) from Firestore
         onSnapshot(doc(firestore, "pros", currentUserId), (docSnap) => {
           if (docSnap.exists()) {
             const proData = docSnap.data();
@@ -1901,9 +1922,71 @@ function adjustViewport() {
           }
         });
         
+        
         // Live Listener for Active Campaigns (Bottom of Profile) - FIRESTORE UPGRADE
         
         const postsQuery = query(collection(firestore, "businessPosts"), where("uid", "==", currentUserId));
+            
+            
+            
+            const apptQuery = query(collection(firestore, "appointments"), where("proId", "==", currentUserId));
+        onSnapshot(apptQuery, (snapshot) => {
+          const container = document.getElementById("shellAppointmentsList");
+          const badge = document.getElementById("appointmentBadge");
+          if (snapshot.empty) {
+            container.innerHTML = '<p style="font-size: 13px; color: var(--muted); text-align: center; font-style: italic;">No appointment requests yet.</p>';
+            if(badge) badge.style.display = "none";
+            return;
+          }
+
+          let html = "";
+          let pendingCount = 0;
+          let appointments = [];
+          snapshot.forEach(docSnap => appointments.push({ id: docSnap.id, ...docSnap.data() }));
+          
+          appointments.sort((a,b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+
+          appointments.forEach((appt) => {
+            if (appt.status === 'pending') pendingCount++;
+            
+            let statusBadge = '';
+            let actionButtons = '';
+            
+            if (appt.status === 'pending') {
+              statusBadge = `<span style="color: #d97706; background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">PENDING</span>`;
+              actionButtons = `
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                  <button onclick="window.approveAppt('${appt.id}')" style="flex: 1; padding: 8px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px;">APPROVE</button>
+                  <button onclick="window.denyAppt('${appt.id}')" style="flex: 1; padding: 8px; background: #ef4444; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px;">DENY</button>
+                </div>
+              `;
+            } else if (appt.status === 'approved') {
+              statusBadge = `<span style="color: #059669; background: #d1fae5; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">APPROVED</span>`;
+            } else {
+              statusBadge = `<span style="color: #dc2626; background: #fee2e2; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">DENIED</span>`;
+            }
+
+            html += `
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-bottom: 10px; text-align: left;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                  <strong style="font-size: 13px; color: var(--text);">${appt.date} @ ${appt.time}</strong>
+                  ${statusBadge}
+                </div>
+                <p style="font-size: 12px; color: var(--muted); margin: 5px 0;">${appt.description}</p>
+                ${appt.denyReason ? `<p style="font-size: 11px; color: #ef4444; margin: 5px 0; font-weight: 800;">Reason: ${appt.denyReason}</p>` : ''}
+                ${actionButtons}
+              </div>
+            `;
+          });
+          
+          container.innerHTML = html;
+          if (badge) {
+            badge.innerText = `${pendingCount} NEW`;
+            badge.style.display = pendingCount > 0 ? "block" : "none";
+          }
+        });
+            
+            
  
         
         onSnapshot(postsQuery, (snapshot) => {
@@ -2266,6 +2349,31 @@ function adjustViewport() {
     
     
     
+            
+          window.approveAppt = async (apptId) => {
+      try {
+        await updateDoc(doc(firestore, "appointments", apptId), { status: 'approved' });
+      } catch(e) {
+        console.error(e);
+        alert("Error approving appointment.");
+      }
+    };
+
+    window.denyAppt = async (apptId) => {
+      const reason = prompt("Please provide a reason for denying this request (the seeker will see this):");
+      if (!reason) return; 
+      try {
+        await updateDoc(doc(firestore, "appointments", apptId), { 
+          status: 'denied', 
+          denyReason: reason 
+        });
+      } catch(e) {
+        console.error(e);
+        alert("Error denying appointment.");
+      }
+    };  
+            
+            
     
     
     
