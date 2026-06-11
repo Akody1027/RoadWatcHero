@@ -5,9 +5,9 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8" /> 
     <meta 
-      name="viewport" 
+      name="viewport"   
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Pro Directory</title>
@@ -17,7 +17,7 @@
     <style> 
       :root { 
         --bg-primary: #f8fafc; 
-        --bg-card: #ffffff;
+        --bg-card: #ffffff; 
         --accent: #ee611c; 
         --text-dark: #0f172a;   
         --text-muted: #64748b;    
@@ -299,6 +299,32 @@
         max-height: 100%;
         object-fit: contain;
       }
+      
+      .close-viewer {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 40px; 
+        height: 40px;
+        background: var(--accent);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: 900;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        z-index: 20001;
+      }
+      
+      
+      
+      
+      
+      
       .close-viewer {
         position: absolute;
         top: 20px;
@@ -420,11 +446,14 @@
         </div>
         
         
-        
-        <div class="modal-section" id="gallerySection" style="display:none;">
+        <div class="modal-section" id="gallerySection">
           <h3>Gallery</h3>
           <div class="gallery-grid" id="modalGallery"></div>
         </div>
+        
+        
+        
+     
         <div class="action-grid">
           <a id="callProBtn" href="#" class="btn btn-call" style="text-decoration:none;">Call Now</a>
           <button class="btn btn-book" onclick="openBooking()">Book Service</button>
@@ -554,15 +583,25 @@
               document.getElementById("callProBtn").href = `tel:${pro.phone}`;
             }
             
+      
+            
             const gallerySec = document.getElementById("gallerySection");
             const galleryGrid = document.getElementById("modalGallery");
+            
+            // Ensure the section remains structurally visible
+            gallerySec.style.display = "block";
+            
             if (pro.gallery && pro.gallery.length > 0) {
-              gallerySec.style.display = "block";
+              // Render the grid of cropped thumbnails
+              galleryGrid.style.display = "grid";
               galleryGrid.innerHTML = pro.gallery.map(url => `<img src="${url}" class="gallery-img" onclick="viewImage('${url}')">`).join('');
             } else {
-              gallerySec.style.display = "none";
+              // Display the clean placeholder when no images are present
+              galleryGrid.style.display = "block";
+              galleryGrid.innerHTML = `<div style="width: 100%; padding: 30px; background: #f1f5f9; border: 2px dashed #cbd5e1; border-radius: 12px; text-align: center; color: var(--text-muted); font-weight: 600; font-size: 13px;">No images added</div>`;
             }
-            
+     
+  
             window.currentProId = pro.id;
 
             
@@ -683,7 +722,7 @@ function getAddBusinessCard(category) {
                 </div>
             </div>
         `;
-      }
+      } 
 
       document
         .getElementById("searchInput")
