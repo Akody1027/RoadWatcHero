@@ -3,22 +3,22 @@
     <meta charset="UTF-8" />
 
     
-
-    <title>ROADWATCHERO</title>
+ 
+    <title>ROADWATCHERO</title> 
     <link rel="manifest" href="/manifest.json" /> 
-    <link
+    <link 
       rel="apple-touch-icon"
       href="https://www.roadwatchero.com/icon-192x192.png" 
     />
     <link rel="icon" href="/roadwatch.ico" type="image/x-icon" /> 
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" /> 
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="theme-color" content="#EE611C" />  
-
+    <meta name="theme-color" content="#EE611C" />   
+ 
     
 <script>
   (function () {
@@ -455,42 +455,9 @@
         color: #ef4444;
       }
 
-      /* Social Links Builder Styles */
-      .social-row {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 8px;
-      }
-      .social-row select {
-        flex: 1;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        font-size: 13px;
-        font-family: inherit;
-      }
-      .social-row input {
-        flex: 2;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        font-size: 13px;
-        font-family: inherit;
-      }
-      .social-row button {
-        background: #fee2e2;
-        color: #ef4444;
-        border: none;
-        border-radius: 8px;
-        padding: 0 12px;
-        font-weight: 900;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-      .social-row button:active {
-        transform: scale(0.95);
-      }
-
+      
+      
+      
       /* Circular Logo Uploader */
       .logo-uploader-wrapper {
         display: flex;
@@ -567,6 +534,52 @@
       .promo-hidden-input {
         display: none;
       }
+      
+      
+      .editable-overlay {
+        position: relative;
+        cursor: pointer;
+        transition: 0.2s;
+        border: 2px transparent dashed;
+      }
+      .editable-overlay:hover {
+        border-color: var(--accent);
+      }
+      .edit-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: white;
+        color: white;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        pointer-events: none;
+        backdrop-filter: blur(4px);
+        z-index: 10;
+      }
+      .inline-input {
+        width: 100%;
+        padding: 8px;
+        border: 2px solid var(--accent);
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        background: #fff;
+        color: var(--text);
+        box-sizing: border-box;
+      }
+      
+      
+      
+      
+      
+      
 
       .preview-wrapper {
         margin: 20px 0;
@@ -1148,83 +1161,40 @@
           </button>
         </div>
 
+        
+        
+        
         <div id="profileCreatorSection" style="display: none">
-          <div class="promo-uploader-wrapper">
-            <label
-              style="
-                font-size: 12px;
-                font-weight: 600;
-                display: block;
-                margin-bottom: 8px;
-              "
-              >Cover Image (Required):</label
-            >
-            <label
-              for="shellCoverImage"
-              class="promo-rectangle"
-              id="coverRectPreview"
-            >
-              <span>+ UPLOAD COVER IMAGE</span>
-            </label>
-            <input
-              type="file"
-              id="shellCoverImage"
-              accept="image/jpeg, image/png, image/webp"
-              class="promo-hidden-input"
-            />
-          </div>
-
-          <select id="shellProfileCategory" class="shell-input">
-            <option value="Towing">Towing</option>
-            <option value="Mechanic">Mechanic</option>
-            <option value="Detailing">Detailing</option>
-            <option value="Tires">Tires</option>
-            <option value="Locksmith">Locksmith</option>
-            <option value="Tint">Tint</option>
-            <option value="Glass">Glass</option>
-            <option value="Battery">Battery</option>
-            <option value="Wraps">Wraps</option>
-            <option value="Bodywork">Bodywork</option>
-            <option value="Audio">Audio</option>
-            <option value="Upholstery">Upholstery</option>
-            <option value="Alignment">Alignment</option>
-            <option value="Oil">Oil</option>
-            <option value="Transmission">Transmission</option>
-          </select>
-
-          <textarea
-            id="shellProfileBio"
-            placeholder="About the Pro (e.g. Family owned since 1995...)"
-            class="shell-input"
-            rows="4"
-          ></textarea>
-
-          <div class="preview-wrapper" id="liveProfilePreviewBox">
-            <div class="preview-label">LIVE PROFILE PREVIEW</div>
+          <input type="file" id="shellCoverImage" accept="image/jpeg, image/png, image/webp" class="promo-hidden-input" />
+          
+          <div class="preview-wrapper" id="liveProfilePreviewBox" style="transform: scale(1); pointer-events: auto; margin-top: 0;">
+            <div class="preview-label">EDIT PROFILE</div>
 
             <div class="preview-modal-content">
-              <div
-                id="previewModalHeaderImg"
-                class="preview-modal-header-img"
-              ></div>
+              <div id="previewModalHeaderImg" class="preview-modal-header-img editable-overlay" onclick="document.getElementById('shellCoverImage').click()">
+               <div class="edit-badge"><img src="camicon.png" alt="Camicon" style="width: 20px; height: 20px;" /></div>
+              
+              </div>
               <div class="preview-modal-identity">
-                <img
-                  id="previewProfileAvatar"
-                  src="herousericon.jpg"
-                  class="preview-modal-avatar"
-                />
-                <div class="preview-modal-title-block">
-                  <div class="preview-modal-name" id="previewProfileName">
-                    Business Name
-                  </div>
+                <div style="position:relative; cursor:pointer;" class="editable-overlay" onclick="document.getElementById('shellBizLogo').click()">
+                  <img id="previewProfileAvatar" src="herousericon.jpg" class="preview-modal-avatar" />
+                  <div class="edit-badge" style="top:-5px; right:-10px; width:22px; height:22px; font-size:10px;"><img src="camicon.png" alt="Camicon" style="width: 14px; height: 14px;" /></div>
+                  
+                </div>
+                <div class="preview-modal-title-block" style="width: 100%;">
+                  <div class="preview-modal-name editable-overlay" id="previewProfileName" onclick="window.makeEditable(this, 'input', 'Business Name')">Business Name</div>
                   <div class="pro-rating-preview">★ 5.0 (0 Reviews)</div>
                 </div>
               </div>
+
+              <div class="preview-modal-section">
+                <h3>Category</h3>
+                <div class="preview-modal-text editable-overlay" id="previewProfileCategory" onclick="window.makeEditableCategory(this)" style="color: var(--accent); font-weight: 800;">Tap to select category...</div>
+              </div>
+
               <div class="preview-modal-section">
                 <h3>About the Pro</h3>
-                <div class="preview-modal-text" id="previewProfileBio">
-                  Your description will appear here...
-                </div>
+                <div class="preview-modal-text editable-overlay" id="previewProfileBio" onclick="window.makeEditable(this, 'textarea', 'Tap here to write your business description...')">Tap here to write your business description...</div>
               </div>
               <div class="preview-modal-section">
                 <h3>Business Info</h3>
@@ -1243,7 +1213,14 @@
               </div>
             </div>
           </div>
+        
 
+          
+          
+          
+          
+          
+          
           <button
             id="shellPublishProfileBtn"
             class="shell-submit-btn"
@@ -1254,131 +1231,42 @@
         </div>
 
         <div id="adCreatorSection">
-          <div class="promo-uploader-wrapper">
-            <label
-              style="
-                font-size: 12px;
-                font-weight: 600;
-                display: block;
-                margin-bottom: 8px;
-                margin-top: 5%;
-              "
-              >Promo Image (Required):</label
-            >
-            <label
-              for="shellPromoImage"
-              class="promo-rectangle"
-              id="promoRectPreview"
-            >
-              <span>+ TAP TO UPLOAD PROMO IMAGE</span>
-            </label>
-            <input
-              type="file"
-              id="shellPromoImage"
-              accept="image/jpeg, image/png, image/webp"
-              class="promo-hidden-input"
-            />
-          </div>
-
-          <select id="shellPostCategory" class="shell-input">
-            <option value="Towing">Towing</option>
-            <option value="Mechanic">Mechanic</option>
-            <option value="Detailing">Detailing</option>
-            <option value="Tires">Tires</option>
-            <option value="Locksmith">Locksmith</option>
-            <option value="Tint">Tint</option>
-            <option value="Glass">Glass</option>
-            <option value="Battery">Battery</option>
-            <option value="Wraps">Wraps</option>
-            <option value="Bodywork">Bodywork</option>
-            <option value="Audio">Audio</option>
-            <option value="Upholstery">Upholstery</option>
-            <option value="Alignment">Alignment</option>
-            <option value="Oil">Oil</option>
-            <option value="Transmission">Transmission</option>
-          </select>
-
-          <textarea
-            id="shellPostDesc"
-            placeholder="Promo Description (e.g. 10% off today!)"
-            class="shell-input"
-            rows="3"
-          ></textarea>
-
-          <div
-            style="
-              margin-bottom: 15px;
-              background: #f8fafc;
-              padding: 15px;
-              border-radius: 12px;
-              border: 1px solid #e2e8f0;
-            "
-          >
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 10px;
-              "
-            >
-              <label
-                style="font-size: 12px; font-weight: 800; color: var(--muted)"
-                >SOCIAL LINKS (For this ad)</label
-              >
-              <button
-                id="addSocialBtn"
-                type="button"
-                style="
-                  background: var(--accent);
-                  color: white;
-                  border: none;
-                  border-radius: 6px;
-                  font-weight: 900;
-                  font-size: 11px;
-                  cursor: pointer;
-                  padding: 6px 12px;
-                "
-              >
-                + ADD
-              </button>
+          
+          
+          <input type="file" id="shellPromoImage" accept="image/jpeg, image/png, image/webp" class="promo-hidden-input" />
+          
+          <div style="margin-bottom: 15px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 5%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              
+             
             </div>
-            <div id="socialLinksContainer"></div>
           </div>
 
-          <div class="preview-wrapper" id="livePreviewBox">
-            <div class="preview-label">LIVE PREVIEW</div>
+          <div class="preview-wrapper" id="livePreviewBox" style="transform: scale(1); pointer-events: auto;">
+            <div class="preview-label">EDIT ADVERTISEMENT </div>
             <div class="post-card">
               <div class="post-header">
-                <img
-                  src="herousericon.jpg"
-                  class="post-user-icon"
-                  id="previewLogo"
-                />
+                <img src="herousericon.jpg" class="post-user-icon" id="previewLogo" />
                 <div class="post-biz-name" id="previewName">Business Name</div>
+                <div class="editable-overlay" id="previewAdCategory" onclick="window.makeEditableCategory(this)" style="font-size: 11px; font-weight: 800; color: var(--accent); padding: 4px 8px; background: #f1f5f9; border-radius: 6px; margin-left: auto;">Towing</div>
               </div>
-              <div class="post-image-square">
+              <div class="post-image-square editable-overlay" onclick="document.getElementById('shellPromoImage').click()" style="position:relative; cursor:pointer;">
+                <div class="edit-badge" style="width: 40px; height: 40px; font-size: 20px;"><img src="camicon.png" alt="Camicon" style="width: 24px; height: 24px;" /></div>
                 
-                <img
-                  src="ad-placeholder.png"
-                  alt="Promo Ad"
-                  id="previewPromo"
-                />
-                
- 
+                <img src="ad-placeholder.png" alt="Promo Ad" id="previewPromo" style="width:100%; height:100%; object-fit:cover;" />
               </div>
               <div class="post-footer">
-                <p class="post-desc" id="previewDesc">
-                  Your promo description will appear here.
-                </p>
+                <p class="post-desc editable-overlay" id="previewDesc" onclick="window.makeEditable(this, 'textarea', 'Tap here to write your promo description...')">Tap here to write your promo description...</p>
                 
-                <div id="previewSocialLinks" style="display: 
-                flex; justify-content: center; gap: 15px; margin-bottom: 15px;"></div>
                 
                 <button class="post-btn">CALL NOW</button>
               </div>
             </div>
           </div>
+
+          
+          
+          
 
           <button
             id="shellPublishBtn"
@@ -1792,68 +1680,6 @@ function adjustViewport() {
     
     
 
-    const socialContainer = document.getElementById("socialLinksContainer");
-    window.createSocialRow = (platform = "Website", url = "") => {
-      const row = document.createElement("div");
-      row.className = "social-row";
-      row.innerHTML = `
-          <select>
-            <option value="Website" ${
-              platform === "Website" ? "selected" : ""
-            }>Website</option>
-            <option value="Facebook" ${
-              platform === "Facebook" ? "selected" : ""
-            }>Facebook</option>
-            <option value="Instagram" ${
-              platform === "Instagram" ? "selected" : ""
-            }>Instagram</option>
-            <option value="TikTok" ${
-              platform === "TikTok" ? "selected" : ""
-            }>TikTok</option>
-            <option value="X" ${platform === "X" ? "selected" : ""}>X</option>
-            <option value="Yelp" ${
-              platform === "Yelp" ? "selected" : ""
-            }>Yelp</option>
-          </select>
-          <input type="url" placeholder="Paste URL" value="${url}">
-          <button type="button" onclick="this.parentElement.remove()">✕</button>
-        `;
-      socialContainer.appendChild(row);
-    };
-    document
-      .getElementById("addSocialBtn")
-      .addEventListener("click", () => window.createSocialRow());
-
-    function getSocialLinks() {
-      
-      const links = {};
-      socialContainer.querySelectorAll(".social-row").forEach((row) => {
-        const platform = row.querySelector("select").value.toLowerCase();
-        const url = row.querySelector("input").value.trim();
-        if (url) links[platform] = url;
-      });
-      return links;
-      
-      
-      
-      }
-
-    window.buildSocialBadgesHTML = (linksObj) => {
-        if (!linksObj) return "";
-        let html = "";
-        const style = "color: var(--accent); background: #fff9f6; border: 1px solid #fed7aa; padding: 6px 10px; border-radius: 8px; font-weight: 800; font-size: 11px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);";
-        
-        if (linksObj.website) html += `<a href="${linksObj.website}" target="_blank" style="${style}">🌐 Web</a>`;
-        if (linksObj.facebook) html += `<a href="${linksObj.facebook}" target="_blank" style="${style}">📘 FB</a>`;
-        if (linksObj.instagram) html += `<a href="${linksObj.instagram}" target="_blank" style="${style}">📸 IG</a>`;
-        if (linksObj.tiktok) html += `<a href="${linksObj.tiktok}" target="_blank" style="${style}">🎵 TikTok</a>`;
-        if (linksObj.x) html += `<a href="${linksObj.x}" target="_blank" style="${style}">🐦 X</a>`;
-        if (linksObj.yelp) html += `<a href="${linksObj.yelp}" target="_blank" style="${style}">⭐ Yelp</a>`;
-        return html;
-    };
-      
-      
-      
       
 
     let currentUserId = null;
@@ -1864,6 +1690,11 @@ function adjustViewport() {
     // --- LIVE PREVIEW & UPLOADER UI LOGIC ---
 
     let isPromoActive = false;
+                                                                                               
+                                                                                               
+                                                                                               
+                                                                                               
+                                                                                               
     onValue(ref(db, "settings/global/free_hero_registration"), (snapshot) => {
       isPromoActive = snapshot.val() === true;
       const upsellLink = document.querySelector(".shell-upsell-link");
@@ -1878,20 +1709,13 @@ function adjustViewport() {
       }
     });
 
-    const updatePreview = () => {
-      document.getElementById("previewName").innerText =
-        document.getElementById("shellBizName").value || "Business Name";
-      document.getElementById("previewDesc").innerText =
-        document.getElementById("shellPostDesc").value ||
-        "Your promo description will appear here.";
-    };
-    document
-      .getElementById("shellBizName")
-      .addEventListener("input", updatePreview);
-    document
-      .getElementById("shellPostDesc")
-      .addEventListener("input", updatePreview);
 
+            
+            
+            
+            
+            
+            
     // Handle Circular Logo Upload Preview
     document
       .getElementById("shellBizLogo")
@@ -1901,14 +1725,21 @@ function adjustViewport() {
           try {
             const compressedBlob = await compressImage(file);
             e.target.compressedBlob = compressedBlob;
+            
+            
+            
             const objectUrl = URL.createObjectURL(compressedBlob);
+            
+            
+            
+            
             document.getElementById(
               "logoCirclePreview"
             ).style.backgroundImage = `url(${objectUrl})`;
             document
               .getElementById("logoCirclePreview")
               .querySelector(".logo-plus-badge").style.display = "none";
-            document.getElementById("previewLogo").src = objectUrl;
+         
           } catch (err) {
             alert("System Error: " + err.message);
           }
@@ -2087,9 +1918,7 @@ function adjustViewport() {
                   <div class="post-footer">
                       <p class="post-desc">${post.description || ""}</p>
                       
-                      <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 15px;">
-                          ${window.buildSocialBadgesHTML(post)}
-                      </div>
+        
 
                       <div style="display: flex; gap: 10px; margin-top: 15px;">
 
@@ -2239,6 +2068,8 @@ function adjustViewport() {
         const bizName = document.getElementById("shellBizName").value;
         const address = document.getElementById("shellBizAddress").value;
         const phone = document.getElementById("shellBizPhone").value;
+            
+            
         const logoBlob = document.getElementById("shellBizLogo").compressedBlob;
 
         if (!bizName || !phone || !address) {
@@ -2295,19 +2126,22 @@ function adjustViewport() {
       });
 
     let editingPostId = null;
-    
-    
-    
-    
-    
+
     document.getElementById("shellPublishBtn").addEventListener("click", () => {
+            
         const bizName = document.getElementById("shellBizName").value;
         const address = document.getElementById("shellBizAddress").value;
         const phone = document.getElementById("shellBizPhone").value;
-        const desc = document.getElementById("shellPostDesc").value;
-        const cat = document.getElementById("shellPostCategory").value;
+        
+        const rawDesc = document.getElementById("previewDesc").innerText;
+        const desc = rawDesc.includes("Tap here") ? "" : rawDesc;
+        
+        const cat = document.getElementById("previewAdCategory").innerText;
+
         const logoBlob = document.getElementById("shellBizLogo").compressedBlob;
         const promoBlob = document.getElementById("shellPromoImage").compressedBlob;
+            
+
 
         if (!bizName || !phone || !address || !desc) {
           return alert("Please fill out your Business Name, Address, Phone, and Description.");
@@ -2359,7 +2193,6 @@ function adjustViewport() {
                 category: cat,
                 logoUrl: finalLogoUrl,
                 promoUrl: finalPromoUrl,
-                socialLinks: getSocialLinks(),
                 timestamp: Date.now(),
                 lat: currentLat,
                 lng: currentLng,
@@ -2375,17 +2208,7 @@ function adjustViewport() {
               }
 
               // Reset UI
-              document.getElementById("shellPostDesc").value = "";
-              document.getElementById("shellPromoImage").value = "";
-              document.getElementById("shellPromoImage").dataset.existing = "";
-              document.getElementById("shellPromoImage").compressedBlob = null;
-              document.getElementById("promoRectPreview").style.backgroundImage = "none";
-              
-              document.getElementById("promoRectPreview").innerHTML = "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
-              document.getElementById("previewPromo").src = "ad-placeholder.png";
-              document.getElementById("previewDesc").innerText = "Your promo description will appear here.";
-              socialContainer.innerHTML = "";
-              
+
               
               
 
@@ -2435,50 +2258,22 @@ function adjustViewport() {
     window.editPost = (postId) => {
       const post = allPostsData[postId];
       if (!post) return;
+            
+            
+            editingPostId = postId;
 
-      editingPostId = postId;
-      document.getElementById("shellPostDesc").value = post.description || "";
-      document.getElementById("shellPostCategory").value =
-        post.category || "Towing";
-
-      document.getElementById("shellBizLogo").dataset.existing =
-        post.logoUrl || "";
-      document.getElementById("shellPromoImage").dataset.existing =
-        post.promoUrl || "";
+      document.getElementById("shellBizLogo").dataset.existing = post.logoUrl || "";
+      document.getElementById("shellPromoImage").dataset.existing = post.promoUrl || "";
       document.getElementById("shellBizLogo").value = "";
       document.getElementById("shellPromoImage").value = "";
 
       // Push data to the Live Preview Card
+      document.getElementById("previewDesc").innerText = post.description || "Tap here to write your promo description...";
+      document.getElementById("previewAdCategory").innerText = post.category || "Towing";
+      document.getElementById("previewPromo").src = post.promoUrl || "ad-placeholder.png";
+      document.getElementById("previewName").innerText = post.businessName || "Business Name";
+            
 
-      document.getElementById("promoRectPreview").style.backgroundImage =
-        post.promoUrl ? `url(${post.promoUrl})` : "none";
-      document.getElementById("promoRectPreview").innerHTML = post.promoUrl
-        ? ""
-        : "<span>+ TAP TO UPLOAD PROMO IMAGE</span>";
-      document.getElementById("previewDesc").innerText =
-        post.description || "Your promo description will appear here.";
-      document.getElementById("previewPromo").src =
-        post.promoUrl || "ad-placeholder.png";
-
-
-      document.getElementById("previewName").innerText =
-        post.businessName || "Business Name";
- 
-      socialContainer.innerHTML = "";
-
-      if (post.website) window.createSocialRow("Website", post.website);
-      if (post.facebook) window.createSocialRow("Facebook", post.facebook);
-      if (post.instagram) window.createSocialRow("Instagram", post.instagram);
-      if (post.tiktok) window.createSocialRow("TikTok", post.tiktok);
-      if (post.x) window.createSocialRow("X", post.x);
-      if (post.yelp) window.createSocialRow("Yelp", post.yelp);
-      
-      if (post.socialLinks && Array.isArray(post.socialLinks)) {
-        post.socialLinks.forEach((link) =>
-          window.createSocialRow(link.platform, link.url)
-        );
-      }
-      
 
       const btn = document.getElementById("shellPublishBtn");
       btn.innerText = "UPDATE POST";
@@ -2548,13 +2343,58 @@ function adjustViewport() {
             socialPreviewBox.innerHTML = socialHTML;
         }
       }
-      
-      
-      const profileBio = document.getElementById("previewProfileBio");
-      if (profileBio && profileBio.innerText !== currentBio) {
-        profileBio.innerText = currentBio;
-      }
+            
+            
+            
+   
+            // Removed bio syncer to prevent overwriting inline edits
     }, 1000);
+
+    window.makeEditable = (el, type, defaultText) => {
+      if (el.querySelector('input') || el.querySelector('textarea')) return;
+      const currentText = el.innerText === defaultText ? "" : el.innerText;
+      const input = document.createElement(type);
+      input.className = 'inline-input';
+      input.value = currentText;
+      if (type === 'textarea') input.rows = 4;
+      
+      input.onblur = () => {
+        el.innerText = input.value.trim() || defaultText;
+        if (el.id === 'previewProfileName') {
+           document.getElementById('shellBizName').value = input.value.trim();
+        }
+      };
+      
+      el.innerHTML = '';
+      el.appendChild(input);
+      input.focus();
+    };
+
+    window.makeEditableCategory = (el) => {
+      if (el.querySelector('select')) return;
+      const currentCat = el.innerText;
+      const select = document.createElement('select');
+      select.className = 'inline-input';
+      const standardCategories = ["Towing", "Mechanic", "Detailing", "Tires", "Locksmith", "Tint", "Glass", "Battery", "Wraps", "Bodywork", "Audio", "Upholstery", "Alignment", "Oil", "Transmission", "Miscellaneous"];
+      
+      standardCategories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.innerText = cat;
+        if (currentCat === cat) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      select.onblur = () => { el.innerText = select.value; };
+      select.onchange = () => { el.innerText = select.value; };
+      
+      el.innerHTML = '';
+      el.appendChild(select);
+      select.focus();
+    };
+            
+            
+     
 
     document
       .getElementById("shellCoverImage")
@@ -2565,13 +2405,13 @@ function adjustViewport() {
             const compressedBlob = await compressImage(file);
             e.target.compressedBlob = compressedBlob;
             const objectUrl = URL.createObjectURL(compressedBlob);
-            document.getElementById(
-              "coverRectPreview"
-            ).style.backgroundImage = `url(${objectUrl})`;
-            document.getElementById("coverRectPreview").innerHTML = "";
-            document.getElementById(
-              "previewModalHeaderImg"
-            ).style.backgroundImage = `url(${objectUrl})`;
+
+                   document.getElementById(
+                      "previewModalHeaderImg"
+                    ).style.backgroundImage = `url(${objectUrl})`;
+                    document.getElementById("previewModalHeaderImg").innerHTML = "";
+
+            
           } catch (err) {
             alert("System Error: " + err.message);
           }
@@ -2579,13 +2419,20 @@ function adjustViewport() {
       });
 
     document
-      .getElementById("shellPublishProfileBtn")
+      .getElementById("shellPublishProfileBtn") 
       .addEventListener("click", async () => {
         const bizName = document.getElementById("shellBizName").value;
         const address = document.getElementById("shellBizAddress").value;
         const phone = document.getElementById("shellBizPhone").value;
-        const bio = document.getElementById("shellProfileBio").value;
-        const cat = document.getElementById("shellProfileCategory").value;
+   
+        const rawBio = document.getElementById("previewProfileBio").innerText;
+        const bio = rawBio.includes("Tap here") ? "" : rawBio;
+        
+        const rawCat = document.getElementById("previewProfileCategory").innerText;
+        const cat = rawCat.includes("Tap to select") ? "" : rawCat;
+            
+            
+            
         const coverBlob =
           document.getElementById("shellCoverImage").compressedBlob;
         let finalLogoUrl =
