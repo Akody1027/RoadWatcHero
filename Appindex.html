@@ -1877,7 +1877,29 @@ function adjustViewport() {
           }
         });
 
-        
+        // Load Extended Profile Data (Bio, Category, Cover) from Firestore
+        onSnapshot(doc(firestore, "pros", currentUserId), (docSnap) => {
+          if (docSnap.exists()) {
+            const proData = docSnap.data();
+            
+            // Populate Cover Image
+            if (proData.cover) {
+              document.getElementById("shellCoverImage").dataset.existing = proData.cover;
+              document.getElementById("previewModalHeaderImg").style.backgroundImage = `url(${proData.cover})`;
+              document.getElementById("previewModalHeaderImg").innerHTML = ""; // Clears the camera badge
+            }
+
+            // Populate Bio
+            if (proData.desc) {
+              document.getElementById("previewProfileBio").innerText = proData.desc;
+            }
+
+            // Populate Category
+            if (proData.category) {
+              document.getElementById("previewProfileCategory").innerText = proData.category;
+            }
+          }
+        });
         
         // Live Listener for Active Campaigns (Bottom of Profile) - FIRESTORE UPGRADE
         
