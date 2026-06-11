@@ -12,7 +12,7 @@
     />
     <title>Pro Directory</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>  
  
     <style> 
       :root { 
@@ -440,14 +440,18 @@
     <div class="booking-modal-overlay" id="bookingModal">
       <div class="booking-box">
         <h3 style="margin-bottom:10px;">Request Appointment</h3>
-        <input type="date" id="bookDate">
-        <input type="time" id="bookTime">
+        
+        <input type="text" id="bookName" placeholder="Your Name">
+        <input type="text" id="bookContact" placeholder="Phone Number or Email">
+        
+        <div style="display: flex; gap: 10px;">
+          <input type="date" id="bookDate" style="flex: 1; margin: 10px 0;">
+          <input type="time" id="bookTime" style="flex: 1; margin: 10px 0;">
+        </div>
         
         <textarea id="bookDesc" rows="4" placeholder="Describe the issue..."></textarea>
-
         
-        <label style="font-size:12px; color:gray;">Optional Image</label>
-        <input type="file" id="bookImage" accept="image/*">
+        
         <div style="display:flex; gap:10px; margin-top:10px;">
           <button class="btn btn-call" onclick="closeBooking()" style="flex:1;">Cancel</button>
           <button class="btn btn-book" onclick="submitBooking()" style="flex:1;">Send Request</button>
@@ -596,33 +600,45 @@
       function closeBooking() {
         document.getElementById('bookingModal').style.display = 'none';
       }
+      
+      
       async function submitBooking() {
+        const name = document.getElementById('bookName').value;
+        const contact = document.getElementById('bookContact').value;
         const date = document.getElementById('bookDate').value;
         const time = document.getElementById('bookTime').value;
         const desc = document.getElementById('bookDesc').value;
         
-        
-         if(!date || !time || !desc) {
-          alert('Please fill out the details'); 
+        if(!name || !contact || !date || !time || !desc) {
+          alert('Please fill out all the details');
           return;
         }
 
-        
+        const btn = document.querySelector('#bookingModal .btn-book');
+        const origText = btn.innerText;
+        btn.innerText = 'SENDING...';
+        btn.disabled = true;
         
         try {
           await firebase.firestore().collection('appointments').add({
             proId: window.currentProId,
-            seekerId: 'seeker_placeholder_id', 
+            seekerName: name,
+            seekerContact: contact,
             date: date,
             time: time,
             description: desc,
             status: 'pending',
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
-          alert('appointment requested');
+          
+          alert('Appointment requested successfully!');
           closeBooking();
         } catch (e) {
           console.error(e);
+          alert('Error sending request.');
+        } finally {
+          btn.innerText = origText;
+          btn.disabled = false;
         }
       }
 
