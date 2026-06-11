@@ -1826,12 +1826,7 @@ function adjustViewport() {
 
 
             
-            
-            
-            
-            
-            
-    // Handle Circular Logo Upload Preview
+      // Handle Circular Logo Upload Preview
     document
       .getElementById("shellBizLogo")
       .addEventListener("change", async function (e) {
@@ -1841,34 +1836,35 @@ function adjustViewport() {
             const compressedBlob = await compressImage(file);
             e.target.compressedBlob = compressedBlob;
             
-            
-            
             const objectUrl = URL.createObjectURL(compressedBlob);
             
-            
-            
-            
+            // 1. Update the main uploader circle (with strict CSS quotes)
             document.getElementById(
               "logoCirclePreview"
-            ).style.backgroundImage = `url(${objectUrl})`;
+            ).style.backgroundImage = `url('${objectUrl}')`;
             document
               .getElementById("logoCirclePreview")
               .querySelector(".logo-plus-badge").style.display = "none";
+              
+            // 2. Sync the new image to the Ad Preview and Sidebar instantly
+            const previewImg = document.getElementById("previewLogo");
+            if (previewImg) previewImg.src = objectUrl;
             
-             window.checkIdentityChanges();
+            const sidebarIcon = document.getElementById("sidebarUserIcon");
+            if (sidebarIcon) {
+                sidebarIcon.style.backgroundImage = `url('${objectUrl}')`;
+                sidebarIcon.style.backgroundSize = "cover";
+            }
+            
+            window.checkIdentityChanges();
 
           } catch (err) {
             alert("System Error: " + err.message);
           }
         }
-      });
+      });      
             
-            
-            
-            
-            
-            
-            
+ 
 
     // Handle Promo Image Upload Preview
     document
@@ -1994,29 +1990,26 @@ function adjustViewport() {
           }
             
             
-          // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
+            // Load saved logo into the Dashboard Circle, Preview, and Sidebar Avatar
           if (data.logoUrl) {
-            
-            
             document.getElementById("shellBizLogo").dataset.existing = data.logoUrl;
             window.currentMasterLogo = data.logoUrl;
             document.querySelectorAll('.master-avatar-sync').forEach(el => el.src = data.logoUrl);
    
-
             document.getElementById(
               "logoCirclePreview"
-            ).style.backgroundImage = `url(${data.logoUrl})`;
+            ).style.backgroundImage = `url('${data.logoUrl}')`;
             document
               .getElementById("logoCirclePreview")
               .querySelector(".logo-plus-badge").style.display = "none";
             document.getElementById("previewLogo").src = data.logoUrl;
             document.getElementById(
               "sidebarUserIcon"
-            ).style.backgroundImage = `url(${data.logoUrl})`;
+            ).style.backgroundImage = `url('${data.logoUrl}')`;
             document.getElementById("sidebarUserIcon").style.backgroundSize =
               "cover";
           }
-
+            
           // Trigger the live preview text update initially
           document.getElementById("previewName").innerText =
             document.getElementById("shellBizName").value || "Business Name";
