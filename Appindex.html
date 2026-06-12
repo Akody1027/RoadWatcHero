@@ -14,14 +14,14 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />  
     <meta 
-      name="apple-mobile-web-app-status-bar-style" 
+      name="apple-mobile-web-app-status-bar-style"  
       content="black-translucent" 
     />
     <meta name="theme-color" content="#EE611C" />   
   
      
 <script>  
-  (function () { 
+  (function () {  
     const meta = document.createElement("meta");
     meta.name = "viewport";
     const minWidth = 450;
@@ -250,12 +250,12 @@
         left: calc(100vw - 60px); /* Slides all the way to the right edge */
       }
 
-      .hub-user-icon {
+      .hub-user-icon { 
         
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        border: 2px solid var(--accent);
+        border: 4px solid white;
         
         background-image: url("herousericon.jpg");
         background-color: #cbd5e1;
@@ -1962,6 +1962,20 @@ function adjustViewport() {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUserId = user.uid;
+            
+           // Global Seeker Notification Listener
+        const notifQuery = query(collection(firestore, "notifications"), where("recipientId", "==", currentUserId), where("read", "==", false));
+        onSnapshot(notifQuery, (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+              const notif = change.doc.data();
+              window.triggerNotification(notif.message, change.doc.id);
+            }
+          });
+        }); 
+            
+            
+            
 
         // Load Profile Data (Name, Phone, Address, Logo, Leads)
         onValue(ref(db, `profiles/${currentUserId}`), (snap) => {
@@ -2152,10 +2166,14 @@ function adjustViewport() {
             if (appt.status === 'pending') {
               statusBadge = `<span style="color: #d97706; background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">PENDING</span>`;
               actionButtons = `
-                <div style="display: flex; gap: 8px; margin-top: 10px;">
-                  <button onclick="window.approveAppt('${appt.id}')" style="flex: 1; padding: 8px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px;">APPROVE</button>
-                  <button onclick="window.denyAppt('${appt.id}')" style="flex: 1; padding: 8px; background: #ef4444; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px;">DENY</button>
+            
+            
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                  <button onclick="window.approveAppt('${appt.id}', '${appt.uid || appt.seekerId || ''}')" style="flex: 1; padding: 8px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px;">APPROVE</button>
+                  <button onclick="window.denyAppt('${appt.id}', '${appt.uid || appt.seekerId || ''}')" style="flex: 1; padding: 8px; background: #ef4444; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px;">DENY</button>
                 </div>
+
+            
               `;
             } else if (appt.status === 'approved') {
               statusBadge = `<span style="color: #059669; background: #d1fae5; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">APPROVED</span>`;
@@ -2599,10 +2617,20 @@ function adjustViewport() {
     
     
     
-            
-          window.approveAppt = async (apptId) => {
+ window.approveAppt = async (apptId, seekerId) => {
       try {
         await updateDoc(doc(firestore, "appointments", apptId), { status: 'approved' });
+        
+        if (seekerId) {
+          const bizName = document.getElementById("shellBizName").value || "A Pro Hero";
+          await addDoc(collection(firestore, "notifications"), {
+            recipientId: seekerId,
+            message: `Your appointment request with ${bizName} has been APPROVED!`,
+            type: 'approved',
+            read: false,
+            timestamp: Date.now()
+          });
+        }
       } catch(e) {
         console.error(e);
         alert("Error approving appointment.");
@@ -2610,7 +2638,7 @@ function adjustViewport() {
     };
                   
 
-    window.denyAppt = async (apptId) => {
+    window.denyAppt = async (apptId, seekerId) => {
       const reason = prompt("Please provide a reason for denying this request (the seeker will see this):");
       if (!reason) return; 
       try {
@@ -2618,11 +2646,22 @@ function adjustViewport() {
           status: 'denied', 
           denyReason: reason 
         });
+        
+        if (seekerId) {
+          const bizName = document.getElementById("shellBizName").value || "A Pro Hero";
+          await addDoc(collection(firestore, "notifications"), {
+            recipientId: seekerId,
+            message: `Your appointment request with ${bizName} was DENIED. Reason: ${reason}`,
+            type: 'denied',
+            read: false,
+            timestamp: Date.now()
+          });
+        }
       } catch(e) {
         console.error(e);
         alert("Error denying appointment.");
       }
-    };  
+    };
             
             
     
@@ -3151,24 +3190,27 @@ function adjustViewport() {
         // Notification Sound Engine
     const notificationSound = new Audio('roadwatchero.mp3'); // Ensure you have this file
 
+ 
             
-    window.toggleNotificationPanel = () => {
+       window.toggleNotificationPanel = () => {
         const panel = document.getElementById('seekerNotificationPanel');
         const sidebar = document.getElementById('heroHubSidebar');
         const list = document.getElementById('notificationList');
+        const overlay = document.getElementById('seekerPanelOverlay');
         
         if (!panel || !sidebar) return;
         
         if (panel.style.display === 'block') {
             panel.style.display = 'none'; 
+            if (overlay) overlay.style.display = 'none';
         } else {
             const isSidebarOpen = sidebar.classList.contains('open');
             panel.classList.remove('notification-panel-closed', 'notification-panel-open');
             panel.classList.add(isSidebarOpen ? 'notification-panel-open' : 'notification-panel-closed');
             
             panel.style.display = 'block';
+            if (overlay) overlay.style.display = 'block';
             
-            // Check for empty state and inject placeholder
             if (list.children.length === 0 && !document.getElementById('noNotificationsPlaceholder')) {
                 const emptyMsg = document.createElement('div');
                 emptyMsg.id = 'noNotificationsPlaceholder';
@@ -3177,46 +3219,59 @@ function adjustViewport() {
                 list.appendChild(emptyMsg);
             }
             
-            // Hide badge
+            // Hide badge & Reset Counter
             const badge = document.getElementById('seekerNotificationBadge');
-            if (badge) badge.style.display = 'none';
+            if (badge) {
+                badge.style.display = 'none';
+                badge.innerText = '0';
+            }
+            
+            // Mark all loaded notifications as read in the database
+            const unreadItems = document.querySelectorAll('.unread-notification');
+            unreadItems.forEach(async (item) => {
+                if (item.dataset.docId) {
+                    try {
+                        await updateDoc(doc(firestore, "notifications", item.dataset.docId), { read: true });
+                        item.classList.remove('unread-notification'); 
+                    } catch(e) {}
+                }
+            });
         }
-    }; 
-            
-            
-         
-        window.triggerNotification = (msg) => {
-        // Increment badge
+    };       
+
+    window.triggerNotification = (msg, docId) => {
         const badge = document.getElementById('seekerNotificationBadge');
         let count = parseInt(badge.innerText) || 0;
         badge.innerText = count + 1;
         badge.style.display = 'block';
 
-        // Play Sound
         notificationSound.play().catch(e => console.log("User interaction required for audio"));
 
-        // Add to List
         const list = document.getElementById('notificationList');
-        
-        // Remove placeholder if it exists
         const placeholder = document.getElementById('noNotificationsPlaceholder');
         if (placeholder) placeholder.remove();
 
         const item = document.createElement('div');
+        item.className = 'unread-notification';
+        if (docId) item.dataset.docId = docId;
         item.style.cssText = "padding:10px; border-bottom:1px solid #f1f5f9; font-size:13px;";
         item.innerText = msg;
         list.prepend(item);
     };    
             
             
-             
+            
+ 
             
             
             
             
   </script>
             
-     <div id="seekerNotificationPanel" style="position:fixed; top:65px; left:60px; width:50vw; height:50vh; background:white; z-index:9999; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.2); display:none; padding:20px; border:1px solid #e2e8f0; transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+      <div id="seekerPanelOverlay" style="display:none; position:fixed; inset:0; z-index:9998;" onclick="window.toggleNotificationPanel()"></div>      
+    <div id="seekerNotificationPanel" style="position:fixed; top:65px; left:60px; width:50vw; height:50vh; background:white; z-index:9999; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.2); display:none; padding:20px; border:1px solid #e2e8f0; transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+       
+
     <h3 style="margin-top:0; color:var(--accent);">Notifications</h3>
     <div id="notificationList" style="margin-top:10px; overflow-y:auto; height:calc(100% - 40px);"></div>
   </div>
