@@ -796,24 +796,31 @@
                             }
  
       
-                              .modal-header-row {
-                              display: flex;
-                              justify-content: space-between;
-                              align-items: left;
-                              margin: -30px -30px 20px -30px;
-                              padding: 20px 30px;
-                              border-bottom: 1px solid #e2e8f0;
-                              background: whitesmoke;
-                              border-radius: 8px 8px 0 0;
+                
+                             .modal-header-row {
+                              display: flex !important;
+                              justify-content: space-between !important;
+                              align-items: left !important;
+                              width: auto !important;
+                              margin: -30px -30px 20px -30px !important;
+                              padding: 20px 30px !important;
+                              background: whitesmoke !important;
+                              border-bottom: 1px solid #e2e8f0 !important;
+                              border-radius: 8px 8px 0 0 !important;
+                              position: sticky !important;
+                              top: -30px !important;
+                              z-index: 100 !important;
                             }
 
-                            .modal-header-row h3 { 
-                              margin: 0;
-                              color: var(--accent);
-                              flex: 1;
-                              font-size: 24px;
+                             .modal-header-row h3 {
+                              margin: 0 !important;
+                              color: var(--accent) !important;
+                              flex: 1 !important;
+                              text-align: left !important;
+                              font-size: 22px !important;
+                              font-weight: 900 !important;
+                              text-transform: uppercase !important;
                             }
-      
                 
       
       
@@ -1674,9 +1681,8 @@
               <div class="modal-content" style=" height: 50vh; min-height: 50vh; max-width: 40%; padding: 15px; position: relative; margin-bottom: 0px;">
                 
                 <div class="modal-header-row" style="margin-bottom: 20px;">
-                  <div style="flex: 1;"></div>
-                  <h3 style="margin: 0; color: var(--accent); text-align: center; font-size: 24px;">More</h3>
-                  <div style="flex: 1; display: flex; justify-content: flex-end;">
+                  <h3>More</h3>
+                  <div style="display: flex; justify-content: flex-end;">
                     <button class="close-x-btn" onclick="window.closeModal('heroMenuModal')">✕</button>
                   </div>
                 </div>
@@ -1703,28 +1709,13 @@
 
     <div id="detailsModal" class="modal">
       <div class="modal-content">
-        <div
-          class="modal-header-row"
-          style="margin-top: -10px; margin-bottom: 0px"
-        > 
-          <div style="flex: 1"></div>
-          <h3
-            style="
-              margin: 0; 
-              color: var(--accent);
-              text-align: center;
-              font-size: 24px;
-            "
-          >
-            SOS DETAILS
-          </h3>
-          <div style="flex: 1; display: flex; justify-content: flex-end">
-            <button
-              class="close-x-btn"
-              onclick="window.closeModal('detailsModal')"
-            >
-              ✕
-            </button>
+        
+        
+        
+          <div class="modal-header-row"> 
+          <h3>SOS DETAILS</h3>
+          <div style="display: flex; justify-content: flex-end">
+            <button class="close-x-btn" onclick="window.closeModal('detailsModal')">✕</button>
           </div>
         </div>
 
@@ -2077,14 +2068,13 @@
     <div id="requestModal" class="modal">
       <div class="modal-content"> 
         
-        
         <div class="modal-header-row" style="margin-bottom: 20px;">
-          <div style="flex: 1;"></div>
-          <h3 style="margin: 0; color: var(--accent); text-align: center; font-size: 24px;">Find Hero</h3>
-          <div style="flex: 1; display: flex; justify-content: flex-end;">
-            <button class="close-x-btn" style="background: var(--danger);" onclick="window.closeModal('requestModal')">✕</button>
+          <h3>Find Hero</h3>
+          <div style="display: flex; justify-content: flex-end;">
+            <button class="close-x-btn" onclick="window.closeModal('requestModal')">✕</button>
           </div>
         </div>
+
 
 
         <div class="form-wrapper"> 
@@ -2311,16 +2301,13 @@
     <div id="profileModal" class="modal">
       <div class="modal-content">
         
-        
         <div class="modal-header-row" style="margin-bottom: 20px;">
-          <div style="flex: 1;"></div>
-          <h3 style="margin: 0; color: var(--accent); text-align: center; font-size: 24px;">Hero Profile</h3>
-          
-          
-          <div style="flex: 1; display: flex; justify-content: flex-end;">
+          <h3>Hero Profile</h3>
+          <div style="display: flex; justify-content: flex-end;">
             <button class="close-x-btn" onclick="window.closeModal('profileModal')">✕</button>
           </div>
         </div>
+  
         
 
         
@@ -2797,10 +2784,9 @@
       <div class="modal-content">
         
         
-        <div class="modal-header-row" style="margin-bottom: 20px;">
-          <div style="flex: 1;"></div>
-          <h3 style="margin: 0; color: var(--accent); text-align: center; font-size: 24px;">Activity History</h3>
-          <div style="flex: 1; display: flex; justify-content: flex-end;">
+         <div class="modal-header-row" style="margin-bottom: 20px;">
+          <h3>Activity History</h3>
+          <div style="display: flex; justify-content: flex-end;">
             <button class="close-x-btn" onclick="window.closeModal('notifModal')">✕</button>
           </div>
         </div>
