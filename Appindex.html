@@ -2,26 +2,26 @@
   <head>
     <meta charset="UTF-8" />
 
-    
+     
  
     <title>ROADWATCHERO</title> 
-    <link rel="manifest" href="/manifest.json" /> 
-    <link 
-      rel="apple-touch-icon"
-      href="https://www.roadwatchero.com/icon-192x192.png" 
-    />
-    <link rel="icon" href="/roadwatch.ico" type="image/x-icon" /> 
+    <link rel="manifest" href="/manifest.json" />  
+    <link  
+      rel="apple-touch-icon" 
+      href="https://www.roadwatchero.com/icon-192x192.png"  
+    /> 
+    <link rel="icon" href="/roadwatch.ico" type="image/x-icon" />  
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />  
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
+    <meta 
+      name="apple-mobile-web-app-status-bar-style" 
       content="black-translucent" 
     />
     <meta name="theme-color" content="#EE611C" />   
- 
-    
+  
+     
 <script>  
-  (function () {
+  (function () { 
     const meta = document.createElement("meta");
     meta.name = "viewport";
     const minWidth = 450;
@@ -167,6 +167,23 @@
         accent-color: var(--accent);
       }
 
+      
+      
+      .notification-panel-closed {
+        left: 60px !important;
+    }
+    .notification-panel-open {
+        left: calc(100vw - 110px - 50vw - 5px) !important;
+    }
+      
+      
+      
+      
+      
+      
+      
+      
+      
       .proceed-btn {
         background: var(--accent);
         color: white;
@@ -1003,6 +1020,18 @@
     
       <div class="hub-badge" id="hubBadgeCounter"></div>
     </div>
+    
+    
+    <div id="notificationTerminal" style="position:relative; margin-top:10px; cursor:pointer;" onclick="window.toggleNotificationPanel()">
+          <img src="Bellicon.png" style="width:40px; height:40px;" />
+          <div id="seekerNotificationBadge" style="position:absolute; top:-5px; right:-5px; background:red; color:white; font-size:10px; padding:2px 5px; border-radius:50%; display:none;">0</div>
+        </div>
+    
+    
+    
+    
+    
+    
     <div class="hub-vertical-title">HERO ADVERTISING HUB</div>
     <button id="hubToggleBtn">❯</button>
   </div>
@@ -3101,7 +3130,7 @@ function adjustViewport() {
         .then(() => {
           document.querySelector(".shell-modal-content").scrollTop = 0;
         })
-        .catch((error) => {
+        .catch((error) => { 
           console.error("Sign out error:", error);
           alert("Error signing out.");
         });
@@ -3116,5 +3145,83 @@ function adjustViewport() {
         window.location.reload();
       }
     };
+            
+            
+            
+        // Notification Sound Engine
+    const notificationSound = new Audio('roadwatchero.mp3'); // Ensure you have this file
+
+            
+    window.toggleNotificationPanel = () => {
+        const panel = document.getElementById('seekerNotificationPanel');
+        const sidebar = document.getElementById('heroHubSidebar');
+        const list = document.getElementById('notificationList');
+        
+        if (!panel || !sidebar) return;
+        
+        if (panel.style.display === 'block') {
+            panel.style.display = 'none'; 
+        } else {
+            const isSidebarOpen = sidebar.classList.contains('open');
+            panel.classList.remove('notification-panel-closed', 'notification-panel-open');
+            panel.classList.add(isSidebarOpen ? 'notification-panel-open' : 'notification-panel-closed');
+            
+            panel.style.display = 'block';
+            
+            // Check for empty state and inject placeholder
+            if (list.children.length === 0 && !document.getElementById('noNotificationsPlaceholder')) {
+                const emptyMsg = document.createElement('div');
+                emptyMsg.id = 'noNotificationsPlaceholder';
+                emptyMsg.style.cssText = "padding:20px; color:#94a3b8; text-align:center; font-style:italic;";
+                emptyMsg.innerText = "No notifications available";
+                list.appendChild(emptyMsg);
+            }
+            
+            // Hide badge
+            const badge = document.getElementById('seekerNotificationBadge');
+            if (badge) badge.style.display = 'none';
+        }
+    }; 
+            
+            
+         
+        window.triggerNotification = (msg) => {
+        // Increment badge
+        const badge = document.getElementById('seekerNotificationBadge');
+        let count = parseInt(badge.innerText) || 0;
+        badge.innerText = count + 1;
+        badge.style.display = 'block';
+
+        // Play Sound
+        notificationSound.play().catch(e => console.log("User interaction required for audio"));
+
+        // Add to List
+        const list = document.getElementById('notificationList');
+        
+        // Remove placeholder if it exists
+        const placeholder = document.getElementById('noNotificationsPlaceholder');
+        if (placeholder) placeholder.remove();
+
+        const item = document.createElement('div');
+        item.style.cssText = "padding:10px; border-bottom:1px solid #f1f5f9; font-size:13px;";
+        item.innerText = msg;
+        list.prepend(item);
+    };    
+            
+            
+             
+            
+            
+            
+            
   </script>
+            
+     <div id="seekerNotificationPanel" style="position:fixed; top:65px; left:60px; width:50vw; height:50vh; background:white; z-index:9999; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.2); display:none; padding:20px; border:1px solid #e2e8f0; transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+    <h3 style="margin-top:0; color:var(--accent);">Notifications</h3>
+    <div id="notificationList" style="margin-top:10px; overflow-y:auto; height:calc(100% - 40px);"></div>
+  </div>
+            
+            
+            
+     </body>
 </html>
