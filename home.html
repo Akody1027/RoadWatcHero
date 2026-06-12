@@ -1221,6 +1221,45 @@
       
       
       
+ .promo-carousel-container {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  margin: 15px 0;
+  border: 1px solid #e2e8f0;
+  box-shadow: var(--shadow);
+  background: white;
+  cursor: pointer;
+}
+.promo-carousel-track {
+  display: flex;
+  width: 500%;
+  animation: promoScroll 20s infinite linear;
+}
+.promo-carousel-track img {
+  width: 20%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+@keyframes promoScroll {
+  0% { transform: translateX(0); }
+  15% { transform: translateX(0); }
+  20% { transform: translateX(-20%); }
+  35% { transform: translateX(-20%); }
+  40% { transform: translateX(-40%); }
+  55% { transform: translateX(-40%); }
+  60% { transform: translateX(-60%); }
+  75% { transform: translateX(-60%); }
+  80% { transform: translateX(-80%); }
+  95% { transform: translateX(-80%); }
+  100% { transform: translateX(0); }
+}
+
+      
+      
+      
+      
+      
     </style>
   </head>
 
@@ -2427,19 +2466,32 @@
             ></span
           ></label>
         </div>
-
+        
+        
+        
+        
+        
+        
         <div class="toggle-wrapper">
-          <span class="toggle-label">Show Tow Truck Requests</span
-          ><label class="toggle-switch"
-            ><input
+          <span class="toggle-label" style="display: flex; align-items: center; gap: 10px;">
+            Show Tow Truck Requests
+            <img src="gearicon.png" class="gear-btn-tow" style="width: 22px; height: 22px; cursor: pointer;" onclick="window.togglePanelDisplay(event, 'pricingFields')" />
+          </span>
+          <label class="toggle-switch">
+            <input
               type="checkbox"
               id="prefersTowTruckRequests"
-              onchange="window.togglePricingFields(this)" /><span
-              class="slider"
-            ></span
-          ></label>
+            />
+            <span class="slider"></span>
+          </label>
         </div>
 
+        
+        
+        
+        
+        
+        
         <div
           id="pricingFields"
           style="
@@ -2591,7 +2643,15 @@
               </button>
             </div>
 
-            <div
+       
+            
+            
+            
+            
+            
+            
+           
+                 <div
               class="toggle-wrapper"
               style="
                 background: white;
@@ -2600,19 +2660,27 @@
                 padding: 10px 15px;
               "
             >
-              <span class="toggle-label" style="font-weight: 800"
-                >Mechanic Shop Mode</span
-              >
+              <span class="toggle-label" style="font-weight: 800; display: flex; align-items: center; gap: 10px;">
+                Mechanic Shop Mode
+                <img src="gearicon.png" class="gear-btn-shop" style="width: 22px; height: 22px; cursor: pointer;" onclick="window.togglePanelDisplay(event, 'shopAddressPanel')" />
+              </span>
               <label class="toggle-switch">
                 <input
                   type="checkbox"
                   id="mechanicModeToggle"
-                  onchange="window.toggleShopAddress(this)"
                 />
                 <span class="slider"></span>
               </label>
             </div>
 
+            
+            
+            
+            
+            
+            
+            
+            
             <div
               id="shopAddressPanel"
               style="
@@ -2641,8 +2709,9 @@
                 style="margin-bottom: 0"
               />
             </div>
-
-            <div
+            
+     
+                        <div
               class="toggle-wrapper"
               style="
                 background: white;
@@ -2651,19 +2720,25 @@
                 padding: 10px 15px;
               "
             >
-              <span class="toggle-label" style="font-weight: 800"
-                >Fleet Dispatch Mode</span
-              >
+              <span class="toggle-label" style="font-weight: 800; display: flex; align-items: center; gap: 10px;">
+                Fleet Dispatch Mode
+                <img src="gearicon.png" class="gear-btn-fleet" style="width: 22px; height: 22px; text-align:right; cursor: pointer;" onclick="window.togglePanelDisplay(event, 'fleetManagerPanel')" />
+              </span>
               <label class="toggle-switch">
                 <input
                   type="checkbox"
                   id="fleetModeToggle"
-                  onchange="window.toggleFleetMode(this)"
                 />
                 <span class="slider"></span>
               </label>
             </div>
 
+            
+            
+            
+            
+            
+            
             <div
               id="fleetManagerPanel"
               style="
@@ -2739,24 +2814,20 @@
 
         
         <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 40px 0 20px 0;" />
-
-        <a href="pro-hero.html" style="display: block; background: linear-gradient(135deg, var(--text) 0%, #1e293b 100%); border-radius: 16px; padding: 20px; margin-top: 15%; margin-bottom: 15%; text-decoration: none; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); border: 1px solid #334155; position: relative; overflow: hidden;">
-          <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: var(--accent); opacity: 0.2; border-radius: 50%; filter: blur(20px);"></div>
-          
-          <div style="display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; text-align: left;">
-            <div style="flex: 1; padding-right: 15px;">
-              <div style="color: var(--accent); font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;">RoadWatcHero Pro</div>
-              <div style="color: white; font-size: 18px; font-weight: 800; margin-bottom: 6px; line-height: 1.2;">Missing leads?</div>
-              <div style="color: #94a3b8; font-size: 12px; font-weight: 600; line-height: 1.4;">Upgrade to unlock exclusive jobs, fleet management tools, and more.</div>
-            </div>
-            <div style="background: var(--accent); color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; box-shadow: 0 4px 10px rgba(238, 97, 28, 0.4); flex-shrink: 0;">
-              →
-            </div>
-          </div>
-        </a>
         
- 
-                <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 40px 0 20px 0;" />
+         
+        <div class="promo-carousel-container" onclick="window.location.href='pro-hero.html'">
+          <div class="promo-carousel-track">
+            <img src="banner1.jpg" alt="Upgrade to Pro">
+            <img src="banner2.jpg" alt="Unlock Features">
+            <img src="banner3.jpg" alt="Get More Leads">
+            <img src="banner4.jpg" alt="Build Your Fleet">
+            <img src="banner5.jpg" alt="Go Pro Today">
+          </div>
+        </div>
+
+     
+           <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 40px 0 20px 0;" />
 
         
   
@@ -2792,11 +2863,15 @@
         </div>
         
         
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;text-align:right; ">
-        <span onclick="window.clearAllHistoryPrompt()" style="color: var(--danger); font-size: 13px; font-weight: 800; cursor: 
-                                                              pointer; text-decoration: underline; padding-right: 40px;">Delete All</span>
+        
+        
+                <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 15px; width: 100%;">
+            <div onclick="window.clearAllHistoryPrompt()" style="display: flex; align-items: center; gap: 5px; color: var(--danger); font-size: 13px; font-weight: 800; cursor: pointer; padding-right: 15px;">
+                <img src="trashicon.png" style="width: 16px; height: 16px; filter: drop-shadow(0px 0px 1px rgba(239, 68, 68, 0.5));" alt="Delete All">
+                <span style="text-decoration: underline;">Delete All</span>
+            </div>
         </div>
+
         
         <div id="notifHistory"></div>
 
@@ -4315,7 +4390,33 @@
       window.fleetDrivers = [];
 
       
-       
+      
+      window.togglePanelDisplay = (e, panelId) => {
+        e.stopPropagation();
+        const panel = document.getElementById(panelId);
+        if (panel) {
+          panel.style.display = panel.style.display === 'none' || panel.style.display === '' ? 'block' : 'none';
+        }
+      };
+
+      document.addEventListener('click', (e) => {
+        const shopPanel = document.getElementById('shopAddressPanel');
+        const fleetPanel = document.getElementById('fleetManagerPanel');
+        
+        if (shopPanel && shopPanel.style.display === 'block') {
+          if (!shopPanel.contains(e.target) && !e.target.closest('.gear-btn-shop')) {
+            shopPanel.style.display = 'none';
+          }
+        }
+        
+        if (fleetPanel && fleetPanel.style.display === 'block') {
+          if (!fleetPanel.contains(e.target) && !e.target.closest('.gear-btn-fleet')) {
+            fleetPanel.style.display = 'none';
+          }
+        }
+      });
+ 
+    
       
       
       window.openProLogin = async (checkbox) => {
@@ -6890,9 +6991,9 @@ if (nearbySOS.length > 0) {
               "block";
             
             
-            const manageBtn = document.getElementById("manageSubBtnBottom");
-            if (manageBtn) manageBtn.style.display = "block";
-            
+              const isMonetizationEnabled = false; // Toggle to true when payments are active
+              const manageBtn = document.getElementById("manageSubBtnBottom");
+              if (manageBtn) manageBtn.style.display = isMonetizationEnabled ? "block" : "none"; 
             
             const dateDisplay = document.getElementById("proDateDisplay");
             if (dateDisplay) {
