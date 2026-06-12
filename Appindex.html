@@ -1086,7 +1086,13 @@
           class="shell-input"
         />
               
-              
+          <input
+          type="email"
+          id="shellBizEmail"
+          class="shell-input"
+          style="background: #f1f5f9; color: #94a3b8; cursor: not-allowed;"
+          readonly
+        />    
               
 
          <button
@@ -1990,6 +1996,13 @@ function adjustViewport() {
             addressEl.dataset.original = addressEl.value;
 
             // Lock the fields so real-time lead updates don't erase user typing later
+            
+            
+            const emailEl = document.getElementById("shellBizEmail");
+            emailEl.value = data.email || user.email || "No email found";
+            
+            
+            
             nameEl.dataset.loaded = "true";
             
             window.checkIdentityChanges(); // Force button to correct baseline state
