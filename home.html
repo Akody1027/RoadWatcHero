@@ -3726,11 +3726,13 @@
           <img id="dtBanner" src="" style="width: 100%; height: 100%; object-fit: cover;">
           <img id="dtAvatar" src="" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; object-fit: cover; position: absolute; bottom: -30px; left: 20px; box-shadow: var(--shadow); background: white;">
         </div>
+        
         <div style="padding: 40px 20px 20px 20px;">
-          <div id="dtName" style="font-size: 18px; font-weight: 900; color: var(--text);">Business Name</div>
-          <div id="dtCategory" style="font-size: 12px; font-weight: 800; color: var(--accent); margin-bottom: 15px; text-transform: uppercase;">Category</div>
+          <div id="dtName" style="font-size: 18px; font-weight: 900; color: var(--text); margin-bottom: 15px;">Business Name</div>
           <button id="dtViewBtn" style="width: 100%; background: var(--text); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer;">VIEW PROFILE</button>
         </div>
+        
+
       </div>
     </div>
     
@@ -4652,11 +4654,28 @@
             document.getElementById('discoveryTeaserCard').classList.remove('active');
             document.getElementById('discoveryFilterPanel').style.display = 'none';
           });
+          
+          
+          // Fix for hidden modal map rendering:
+          setTimeout(() => {
+            google.maps.event.trigger(discoveryMap, "resize");
+            if (userLocation) discoveryMap.setCenter(userLocation);
+          }, 200);
+
         } else {
-          if (userLocation) discoveryMap.setCenter(userLocation);
-          window.processDiscoveryPins();
+          setTimeout(() => {
+            google.maps.event.trigger(discoveryMap, "resize");
+            if (userLocation) discoveryMap.setCenter(userLocation);
+            window.processDiscoveryPins();
+          }, 100);
         }
       };
+          
+  
+      
+      
+      
+      
 
       window.discoveryMasterToggle = (checkbox) => {
         document.querySelectorAll('.discovery-cat-toggle').forEach(t => t.checked = checkbox.checked);
@@ -4690,11 +4709,11 @@
                 icon: { url: "heromapicon.png", scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 16) }
               });
               
+              
               marker.addListener('click', () => {
-                document.getElementById('dtBanner').src = pro.bannerImg || 'https://via.placeholder.com/400x150?text=Hero+Banner';
-                document.getElementById('dtAvatar').src = pro.pic || 'https://via.placeholder.com/60';
+                document.getElementById('dtBanner').src = pro.cover || pro.coverUrl || pro.bannerImg || 'https://via.placeholder.com/400x150?text=Hero+Banner';
+                document.getElementById('dtAvatar').src = pro.logoUrl || pro.pic || 'https://via.placeholder.com/60';
                 document.getElementById('dtName').innerText = pro.companyName || pro.name || 'Pro Hero';
-                document.getElementById('dtCategory').innerText = pro.category || pro.heroType || 'Services';
                 
                 document.getElementById('dtViewBtn').onclick = () => {
                   window.parent.postMessage({ action: 'VIEW_HERO_PROFILE', heroId: pid }, '*');
@@ -4703,7 +4722,9 @@
                 document.getElementById('discoveryTeaserCard').classList.add('active');
               });
               
-              discoveryMarkers.push(marker);
+              
+             
+              discoveryMarkers.push(marker); 
             }
           }
         });
