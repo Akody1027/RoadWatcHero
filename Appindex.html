@@ -10,7 +10,7 @@
       rel="apple-touch-icon" 
       href="https://www.roadwatchero.com/icon-192x192.png"  
     /> 
-    <link rel="icon" href="/roadwatch.ico" type="image/x-icon" />  
+    <link rel="icon" href="/roadwatch.ico" type="image/x-icon" />   
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />  
     <meta 
@@ -1063,20 +1063,37 @@
       
       
             <div id="dashboardFormsContainer">
-        <div style="display: flex; justify-content: space-between; align-items: center; background-color: whitesmoke; margin: -30px -30px 25px -30px; padding: 20px 30px; border-top-left-radius: 24px; border-top-right-radius: 24px;">
+              
+              
+              
+ 
+      <div style="display: flex; justify-content: space-between; align-items: center; background-color: whitesmoke; margin: -30px -30px 25px -30px; padding: 20px 30px; border-top-left-radius: 24px; border-top-right-radius: 24px; position: relative;">
           <label style="font-size: 20px; font-weight: 800; color: var(--accent);">
             PRO HERO
           </label>
-          <button
-            class="shell-close-btn"
-            style="position: relative; top: auto; right: auto; margin: 0;"
-            onclick="document.getElementById('proShellModal').style.display='none'"
-          >
-            ✕
-          </button>
-        </div>
+          
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <button id="topMenuTriggerBtn" style="background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center;" onclick="const m = document.getElementById('topMoreMenu'); m.style.display = (m.style.display === 'flex' ? 'none' : 'flex');">
+              <img src="menuicon.png" style="width: 28px; height: 28px; margin-right:10px; " alt="Menu" />
+            </button>
 
-      
+            <div id="topMoreMenu" style="display: none; position: absolute; top: 75px; right: 1px; background: white; border: 1px solid #e2e8f0; 
+              border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); width: 150px; z-index: 100000; overflow: hidden; flex-direction: column;">
+                <button id="manageSubBtnBottom" onclick="window.location.href='pro-hero.html'" style="width: 100%; text-align: left; background: white; border: none; border-bottom: 1px solid #f1f5f9; padding: 15px; cursor: pointer; color: var(--text); font-weight: 800; font-size: 13px; display: none;"> Manage Membership</button>
+                <button onclick="window.shellSignOut()" style="width: 100%; text-align: left; background: white; border: none; border-bottom: 1px solid #f1f5f9; padding: 15px; cursor: pointer; color: var(--text); font-weight: 800; font-size: 13px;"> Sign Out</button>
+                <button onclick="window.location.href='mailto:roadwatchero@gmail.com'" style="width: 100%; text-align: left; background: white; border: none; border-bottom: 1px solid #f1f5f9; padding: 15px; cursor: pointer; color: var(--text); font-weight: 800; font-size: 13px;"> Email Admin</button>
+                <button onclick="if(window.confirm('Delete account?')) window.deleteMyAccount(); document.getElementById('topMoreMenu').style.display='none';" style="width: 100%; text-align: left; background: #fff0f0; border: none; padding: 15px; cursor: pointer; color: #ef4444; font-weight: 800; font-size: 13px;"> Delete Account</button>
+            </div>
+
+            <button
+              class="shell-close-btn"
+              style="position: relative; top: auto; right: auto; margin: 0;"
+              onclick="document.getElementById('proShellModal').style.display='none'"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
          
          
          
@@ -1279,7 +1296,7 @@
                 
                 <div class="preview-modal-title-block" style="width: 100%;">
                   <div class="preview-modal-name editable-overlay" id="previewProfileName" onclick="window.makeEditable(this, 'input', 'Business Name')">Business Name</div>
-                  <div class="pro-rating-preview">★ 5.0 (0 Reviews)</div>
+                  <div class="pro-rating-preview"></div>
                 </div>
               </div>
 
@@ -1402,17 +1419,7 @@
 
           <hr class="shell-divider" style="margin: 40px 0 20px 0;" />
           
-          <div class="more-menu-container">
-          <button class="more-toggle-btn" onclick="document.getElementById('moreList').style.display = (document.getElementById('moreList').style.display === 'flex' ? 'none' : 'flex')">
-            --- MORE ---
-          </button>
-          <div id="moreList" class="more-actions-list">
-            <button id="manageSubBtnBottom" onclick="window.location.href='pro-hero.html'" class="accent-btn" ">MANAGE SUBSCRIPTION</button>
-            <button onclick="window.shellSignOut()" class="accent-btn">SIGN OUT</button>
-            <a href="mailto:roadwatchero@gmail.com" class="accent-btn" style="text-decoration: none; display: block;">EMAIL ADMIN</a>
-            <button onclick="window.confirm('Delete account?') && window.deleteMyAccount()" class="danger-btn">DELETE ACCOUNT</button>
-          </div>
-        </div>
+         
      </div>
   </div>    
       
@@ -1591,6 +1598,11 @@ function adjustViewport() {
         sidebar.classList.add("open");
         if (hubToggle) hubToggle.style.transform = "rotate(180deg)";
         if (hubOverlay) hubOverlay.style.display = "block";
+        
+        
+        
+        
+        
 
         const iframe = document.getElementById("hubIframe");
         if (iframe && (!iframe.src || iframe.src.includes("about:blank"))) {
@@ -1639,6 +1651,19 @@ function adjustViewport() {
     if (hubToggle) hubToggle.addEventListener("click", toggleHeroHub);
     if (topBar) topBar.addEventListener("click", toggleTopProfile);
     if (hubOverlay) hubOverlay.addEventListener("click", closeAllPanels);
+    
+    
+    // Tap-away listener for the top menu dropdown
+    document.addEventListener("click", (e) => {
+      const topMenu = document.getElementById("topMoreMenu");
+      const triggerBtn = document.getElementById("topMenuTriggerBtn");
+      if (topMenu && topMenu.style.display === "flex") {
+        if (!topMenu.contains(e.target) && !triggerBtn.contains(e.target)) {
+          topMenu.style.display = "none";
+        }
+      }
+    });
+    
     
     
     
