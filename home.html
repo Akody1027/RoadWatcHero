@@ -11,7 +11,7 @@
 <html lang="en">    
   <head>    
     <meta charset="UTF-8" />    
-    <title>RoadWatcHero</title>  
+    <title>RoadWatcHero</title>   
      
       <meta      
       name="viewport" 
@@ -2531,22 +2531,18 @@
         
         
         
-        
-        
-        
         <div class="toggle-wrapper">
-          <span class="toggle-label" style="display: flex; align-items: center; gap: 10px;">
-            Show Tow Truck Requests
+          <span class="toggle-label">Show Tow Truck Requests</span>
+          <div style="display: flex; align-items: center; gap: 12px;">
             <img src="gearicon.png" class="gear-btn-tow" style="width: 22px; height: 22px; cursor: pointer;" onclick="window.togglePanelDisplay(event, 'pricingFields')" />
-          </span>
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              id="prefersTowTruckRequests"
-            />
-            <span class="slider"></span>
-          </label>
+            <label class="toggle-switch" style="margin: 0;">
+              <input type="checkbox" id="prefersTowTruckRequests" />
+              <span class="slider"></span>
+            </label>
+          </div>
         </div>
+        
+ 
 
         
         
@@ -2711,31 +2707,26 @@
             
             
             
-            
-           
-                 <div
+            <div
               class="toggle-wrapper"
               style="
                 background: white;
                 border: 1px solid #e2e8f0;
                 margin-bottom: 10px;
                 padding: 10px 15px;
+                margin-top: 30px;
               "
             >
-              <span class="toggle-label" style="font-weight: 800; display: flex; align-items: center; gap: 10px;">
-                Mechanic Shop Mode
+              <span class="toggle-label" style="font-weight: 800;">Mechanic Shop Mode</span>
+              <div style="display: flex; align-items: center; gap: 12px;">
                 <img src="gearicon.png" class="gear-btn-shop" style="width: 22px; height: 22px; cursor: pointer;" onclick="window.togglePanelDisplay(event, 'shopAddressPanel')" />
-              </span>
-              <label class="toggle-switch">
-                <input
-                  type="checkbox"
-                  id="mechanicModeToggle"
-                />
-                <span class="slider"></span>
-              </label>
+                <label class="toggle-switch" style="margin: 0;">
+                  <input type="checkbox" id="mechanicModeToggle" />
+                  <span class="slider"></span>
+                </label>
+              </div>
             </div>
 
-            
             
             
             
@@ -2772,32 +2763,33 @@
               />
             </div>
             
-     
-                        <div
+            
+            
+            
+            <div
               class="toggle-wrapper"
               style="
                 background: white;
                 border: 1px solid #e2e8f0;
                 margin-bottom: 10px;
                 padding: 10px 15px;
+                margin-top: 20px;
               "
             >
-              <span class="toggle-label" style="font-weight: 800; display: flex; align-items: center; gap: 10px;">
-                Fleet Dispatch Mode
-                <img src="gearicon.png" class="gear-btn-fleet" style="width: 22px; height: 22px; text-align:right; cursor: pointer;" onclick="window.togglePanelDisplay(event, 'fleetManagerPanel')" />
-              </span>
-              <label class="toggle-switch">
-                <input
-                  type="checkbox"
-                  id="fleetModeToggle"
-                />
-                <span class="slider"></span>
-              </label>
+              <span class="toggle-label" style="font-weight: 800;">Fleet Dispatch Mode</span>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="gearicon.png" class="gear-btn-fleet" style="width: 22px; height: 22px; cursor: pointer;" onclick="window.togglePanelDisplay(event, 'fleetManagerPanel')" />
+                <label class="toggle-switch" style="margin: 0;">
+                  <input type="checkbox" id="fleetModeToggle" />
+                  <span class="slider"></span>
+                </label>
+              </div>
             </div>
-
             
+     
+      
             
-            
+             
             
             
             
@@ -7217,17 +7209,20 @@ if (nearbySOS.length > 0) {
           const shopAddrInput = document.getElementById(
             "profileBusinessAddress"
           );
-
-          if (shopToggle && shopPanel) {
+          
+          
+          
+           if (shopToggle && shopPanel) {
             // Fix: Check for both possible variable names from your previous versions
             const isMechanic =
               d.mechanicModeActive === true || d.mechanicModeToggle === true;
             shopToggle.checked = isMechanic;
-            shopPanel.style.display = isMechanic ? "block" : "none";
+            shopPanel.style.display = "none"; // STRICT FIX: Force panel closed on load
             if (isMechanic && shopAddrInput) {
               shopAddrInput.value = d.businessAddress || "";
             }
           }
+          
 
           const currentRadius = d.radius || myRadius;
           myRadius = currentRadius;
@@ -7295,27 +7290,29 @@ if (nearbySOS.length > 0) {
              
             
             
-            
-            
-
             // Load their fleet
             const fleetToggle = document.getElementById("fleetModeToggle");
             fleetToggle.checked = d.fleetModeActive === true;
-            window.toggleFleetMode(fleetToggle);
+            // STRICT FIX: Removed window.toggleFleetMode() so the panel stays hidden
+            document.getElementById("fleetManagerPanel").style.display = "none";
             window.fleetDrivers = d.fleetDrivers || [];
             window.renderFleetDrivers();
+            
+
+  
+             
           } else {
             document.getElementById("proInlineVault").style.display = "none";
           }
 
-          // Ensure pricing fields show up if Tow Truck is already checked
-          window.togglePricingFields(
-            document.getElementById("prefersTowTruckRequests")
-          );
+          // STRICT FIX: Removed togglePricingFields() so the panel stays hidden
+          document.getElementById("pricingFields").style.display = "none";
 
           document.getElementById("prefersRoadsideRequests").checked =
             d.prefersRoadsideRequests !== false;
         }
+          
+
       };
 
 
