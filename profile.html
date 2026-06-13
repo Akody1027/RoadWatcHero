@@ -707,12 +707,30 @@
       function triggerParentLogin() {
         window.parent.postMessage("OPEN_PRO_LOGIN", "*");
       }
-
-      // Initialize Feed 
-      // Initialize and ensure Search is ready
+      
+      
+      
+      // Initialize Feed & Public View Mode Router
       document.addEventListener("DOMContentLoaded", async () => {
           renderFeed();
+          
+          // Check the URL for a specific Hero ID
+          const urlParams = new URLSearchParams(window.location.search);
+          const targetUserId = urlParams.get('userId');
+          
+          if (targetUserId) {
+              // If an ID exists, instantly pull their data and slide the profile open
+              openModal(targetUserId);
+          }
       });
+      
+      
+      
+
+ 
+      
+      
+      
 
 function getAddBusinessCard(category) {
         return `
