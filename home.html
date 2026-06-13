@@ -4613,7 +4613,9 @@
       let discoveryCategories = ['Towing', 'Mechanic', 'Glass', 'Transmission', 'Locksmith'];
 
       window.openDiscoveryMap = () => {
-        window.closeModal('requestModal');
+
+     
+        document.getElementById('requestModal').style.display = 'none';
         window.openModal('discoveryMapModal');
 
         const catList = document.getElementById('discoveryCategoryList');
