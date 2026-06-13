@@ -951,10 +951,12 @@
     text-align: center;
 }
 .more-toggle-btn {
+  font-size:20px;
+  margin-top:40px;
     width: 100%;
-    padding: 12px;
+    padding: 0px;
     background: transparent;
-    border: 2px solid var(--accent);
+    border: 0px solid white;
     color: var(--accent);
     font-weight: 800;
     border-radius: 8px;
@@ -974,6 +976,7 @@
     border-radius: 8px;
     font-weight: 800;
     cursor: pointer;
+    font-size:16px;
 }
 .danger-btn {
     width: 100%;
@@ -983,6 +986,7 @@
     color: #ef4444;
     border-radius: 8px;
     font-weight: 800;
+    font-size:16px;
     cursor: pointer;
 }
 
@@ -1400,7 +1404,7 @@
           
           <div class="more-menu-container">
           <button class="more-toggle-btn" onclick="document.getElementById('moreList').style.display = (document.getElementById('moreList').style.display === 'flex' ? 'none' : 'flex')">
-            MORE
+            --- MORE ---
           </button>
           <div id="moreList" class="more-actions-list">
             <button id="manageSubBtnBottom" onclick="window.location.href='pro-hero.html'" class="accent-btn" ">MANAGE SUBSCRIPTION</button>
