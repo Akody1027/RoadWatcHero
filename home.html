@@ -45,14 +45,16 @@
                             button,
                             input,
 
-                            div:not(#map):not(#seekerMap) {
+                            div:not(#map):not(#seekerMap):not(#discoveryMap) {
                               transition: background-color 0.2s ease, color 0.2s ease,
-                                border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease; border-radius:;
+                                border-color 0.2s ease, transform 0.1s ease, opacity 0.2s ease;
                             }
 
                             /* STRICT FIX: Prevent Google Maps internals from glitching during zoom/pan */
                             #map *,
-                            #seekerMapContainer * {
+                            #seekerMapContainer *,
+                            #broadcastMapContainer *,
+                            #discoveryMap * {
                               transition: none !important;
                             }
 
@@ -4611,7 +4613,7 @@
       
        
       let discoveryMap = null;
-      let discoveryMarkers = [];
+      let discoveryMarkers = {};
       let discoveryCategories = ['Towing', 'Mechanic', 'Glass', 'Transmission', 'Locksmith'];
 
       window.openDiscoveryMap = () => {
@@ -4692,7 +4694,9 @@
         document.querySelectorAll('.discovery-cat-toggle').forEach(t => t.checked = checkbox.checked);
         window.processDiscoveryPins();
       };
-
+      
+      
+      
       window.processDiscoveryPins = () => {
         if (!discoveryMap) return;
         const bounds = discoveryMap.getBounds();
@@ -4700,9 +4704,6 @@
 
         const activeCats = Array.from(document.querySelectorAll('.discovery-cat-toggle'))
                                 .filter(t => t.checked).map(t => t.value.toLowerCase());
-
-        discoveryMarkers.forEach(m => m.setMap(null));
-        discoveryMarkers = [];
 
         Object.entries(profilesCache).forEach(([pid, pro]) => {
           if (pro.isPro && pro.businessAddress && pro.lat && pro.lng) {
@@ -4712,46 +4713,61 @@
             if (proCat === "both" && (activeCats.includes('towing') || activeCats.includes('mechanic'))) isMatch = true;
 
             const position = new google.maps.LatLng(pro.lat, pro.lng);
+            const inBounds = bounds.contains(position);
             
-            if (isMatch && bounds.contains(position)) {
-              const marker = new google.maps.Marker({
-                position: position,
-                map: discoveryMap,
-                icon: { url: "heromapicon.png", scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 16) }
-              });
-              
-              
-              
-              marker.addListener('click', () => {
-                // Bulletproof Image Validation
-                const rawCover = pro.cover || pro.coverImage || pro.bannerImg || pro.coverUrl || pro.bannerUrl;
-                const rawAvatar = pro.logoUrl || pro.pic || pro.avatar || pro.profilePic;
+            if (isMatch && inBounds) {
+              if (!discoveryMarkers[pid]) {
+                const marker = new google.maps.Marker({
+                  position: position,
+                  map: discoveryMap,
+                  icon: { url: "heromapicon.png", scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 16) }
+                });
                 
-                document.getElementById('dtBanner').src = (rawCover && rawCover.length > 5) ? rawCover : 'https://images.unsplash.com/photo-1610491462702-42e6ecd4a252?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-                document.getElementById('dtAvatar').src = (rawAvatar && rawAvatar.length > 5) ? rawAvatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+                marker.addListener('click', () => {
+                  
+                  
+                  
+                  let rawCover = pro.cover || pro.coverImage || pro.bannerImg || pro.coverUrl || pro.bannerUrl || pro.promoUrl;
+                  if (!rawCover && pro.gallery && Array.isArray(pro.gallery) && pro.gallery.length > 0) rawCover = pro.gallery[0];
+                  
+                  const rawAvatar = pro.logoUrl || pro.pic || pro.avatar || pro.profilePic;
+                  
+                  const bannerEl = document.getElementById('dtBanner');
+                  bannerEl.src = (rawCover && typeof rawCover === 'string' && rawCover.length > 5) ? rawCover : 'https://placehold.co/400x150/e2e8f0/94a3b8?text=RoadWatcHero';
+                  bannerEl.onerror = function() { this.src = 'https://placehold.co/400x150/e2e8f0/94a3b8?text=RoadWatcHero'; };
+
+                  const avatarEl = document.getElementById('dtAvatar');
+                  avatarEl.src = (rawAvatar && typeof rawAvatar === 'string' && rawAvatar.length > 5) ? rawAvatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+                  avatarEl.onerror = function() { this.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png'; };
+                  
+                  document.getElementById('dtName').innerText = pro.companyName || pro.name || 'Pro Hero';
+                  
+                  document.getElementById('dtViewBtn').onclick = () => {
+                    window.parent.postMessage({ action: 'VIEW_HERO_PROFILE', heroId: pid }, '*');
+                  };
+                  
+                  document.getElementById('discoveryTeaserCard').classList.add('active');
+
+
+                });
                 
-                document.getElementById('dtName').innerText = pro.companyName || pro.name || 'Pro Hero';
-                
-                document.getElementById('dtViewBtn').onclick = () => {
-                  window.parent.postMessage({ action: 'VIEW_HERO_PROFILE', heroId: pid }, '*');
-                };
-                
-                document.getElementById('discoveryTeaserCard').classList.add('active');
-              });
- 
-              
-              
-              
-             
-              discoveryMarkers.push(marker); 
+
+                discoveryMarkers[pid] = marker;
+              } else {
+                if (discoveryMarkers[pid].getMap() !== discoveryMap) {
+                  discoveryMarkers[pid].setMap(discoveryMap);
+                }
+              }
+            } else {
+              if (discoveryMarkers[pid] && discoveryMarkers[pid].getMap() !== null) {
+                discoveryMarkers[pid].setMap(null);
+              }
             }
           }
         });
         document.getElementById('discoveryLoadingSpinner').style.display = 'none';
       };
-      
-      
-      
+
       
       
       
