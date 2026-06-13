@@ -41,10 +41,10 @@
         background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
       }
 
-      .container {
+       .container {
         max-width: 500px;
         margin: 0 auto;
-        padding: 30px 20px;
+        padding: 30px 20px 100px 20px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -458,8 +458,8 @@
           style="
             font-size: 11px;
             text-align: center;
-            color: var(--muted);
-            margin-top: 15px;
+            color: var(--muted); 
+            margin-top: 15px; 
             line-height: 1.4;
           "
         >
@@ -467,9 +467,17 @@
           complete your subscription setup.
         </p>
       </div>
-
-      <a href="home.html" class="cancel-link">HOME</a>
-
+      
+      
+      <div 
+        onclick="window.location.href='appindex.html'" 
+        style="position: fixed; bottom: 0; left: 0; width: 100%; background: var(--accent); height: auto; 
+               display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 1000; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);"
+      >
+        <img src="thishomeicon.png" alt="Home" style="width: auto; height: 38px; padding-top:5px;  padding-bottom:5px;"  " />
+      </div>
+      
+ 
       <div id="setupModalOverlay">
         <div class="modal-card" id="modalCard">
           <div class="modal-header">Complete Your Pro Setup</div>
