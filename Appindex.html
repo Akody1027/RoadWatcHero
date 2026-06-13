@@ -3114,8 +3114,11 @@ function adjustViewport() {
             companyName: bizName,
             businessAddress: address,
             dispatchPhone: phone,
+            coverUrl: finalCoverUrl,                                               
           });
 
+                                    
+                                                           
           // Blast the profile data directly into Cloud Firestore for instant population in profile.html
           await setDoc(doc(firestore, "pros", currentUserId), {
             name: bizName,
