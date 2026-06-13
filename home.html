@@ -4656,21 +4656,32 @@
           });
           
           
-          // Fix for hidden modal map rendering:
+          
+        // Fix for hidden modal map rendering & Active GPS Centering:
           setTimeout(() => {
             google.maps.event.trigger(discoveryMap, "resize");
-            if (userLocation) discoveryMap.setCenter(userLocation);
-          }, 200);
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition((pos) => {
+                discoveryMap.setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                window.processDiscoveryPins();
+              });
+            }
+          }, 300);
 
         } else {
           setTimeout(() => {
             google.maps.event.trigger(discoveryMap, "resize");
-            if (userLocation) discoveryMap.setCenter(userLocation);
-            window.processDiscoveryPins();
-          }, 100);
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition((pos) => {
+                discoveryMap.setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                window.processDiscoveryPins();
+              });
+            }
+          }, 150);
         }
-      };
+      };  
           
+   
   
       
       
@@ -4710,9 +4721,15 @@
               });
               
               
+              
               marker.addListener('click', () => {
-                document.getElementById('dtBanner').src = pro.cover || pro.coverUrl || pro.bannerImg || 'https://via.placeholder.com/400x150?text=Hero+Banner';
-                document.getElementById('dtAvatar').src = pro.logoUrl || pro.pic || 'https://via.placeholder.com/60';
+                // Bulletproof Image Validation
+                const rawCover = pro.cover || pro.coverImage || pro.bannerImg || pro.coverUrl || pro.bannerUrl;
+                const rawAvatar = pro.logoUrl || pro.pic || pro.avatar || pro.profilePic;
+                
+                document.getElementById('dtBanner').src = (rawCover && rawCover.length > 5) ? rawCover : 'https://images.unsplash.com/photo-1610491462702-42e6ecd4a252?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+                document.getElementById('dtAvatar').src = (rawAvatar && rawAvatar.length > 5) ? rawAvatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+                
                 document.getElementById('dtName').innerText = pro.companyName || pro.name || 'Pro Hero';
                 
                 document.getElementById('dtViewBtn').onclick = () => {
@@ -4721,6 +4738,8 @@
                 
                 document.getElementById('discoveryTeaserCard').classList.add('active');
               });
+ 
+              
               
               
              
