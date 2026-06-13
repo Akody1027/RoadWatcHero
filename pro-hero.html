@@ -485,7 +485,9 @@
           <input type="email" id="modalEmail" class="readonly-email" readonly />
 
           <div class="role-toggle">
-            <button
+                                  
+                                  
+               <button
               type="button"
               class="role-btn active"
               id="btnTowSetup"
@@ -509,8 +511,35 @@
             >
               Both
             </button>
+            <button
+              type="button"
+              class="role-btn"
+              id="btnOtherSetup"
+              onclick="window.selectRole('other', 'setup')"
+            >
+              Other
+            </button>
           </div>
 
+          <select id="otherCategorySetup" style="display: none; width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 15px; font-size: 15px; background: #f8fafc; font-family: inherit; color: var(--text); outline: none;">
+            <option value="" disabled selected>Select your specialty...</option>
+            <option value="Locksmith">Locksmith</option>
+            <option value="Glass">Auto Glass</option>
+            <option value="Detailing">Detailing</option>
+            <option value="Tires">Tires</option>
+            <option value="Tint">Window Tint</option>
+            <option value="Battery">Battery Service</option>
+            <option value="Wraps">Vinyl Wraps</option>
+            <option value="Bodywork">Bodywork</option>
+            <option value="Audio">Audio</option>
+            <option value="Upholstery">Upholstery</option>
+            <option value="Alignment">Alignment</option>
+            <option value="Oil">Oil Change</option>
+            <option value="Transmission">Transmission</option>
+            <option value="Miscellaneous">Miscellaneous</option>
+          </select>                   
+                                  
+                                         
           <input
             type="text"
             id="companyName"
@@ -643,7 +672,9 @@
           >SERVICE PROVIDED</label
         >
         <div class="role-toggle" style="margin-top: 5px">
-          <button
+                                                        
+                                                        
+            <button
             type="button"
             class="role-btn"
             id="btnTowEdit"
@@ -667,8 +698,36 @@
           >
             Both
           </button>
+          <button
+            type="button"
+            class="role-btn"
+            id="btnOtherEdit"
+            onclick="window.selectRole('other', 'edit')"
+          >
+            Other
+          </button>
         </div>
 
+        <select id="otherCategoryEdit" style="display: none; width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 15px; font-size: 15px; background: #f8fafc; font-family: inherit; color: var(--text); outline: none;">
+            <option value="" disabled selected>Select your specialty...</option>
+            <option value="Locksmith">Locksmith</option>
+            <option value="Glass">Auto Glass</option>
+            <option value="Detailing">Detailing</option>
+            <option value="Tires">Tires</option>
+            <option value="Tint">Window Tint</option>
+            <option value="Battery">Battery Service</option>
+            <option value="Wraps">Vinyl Wraps</option>
+            <option value="Bodywork">Bodywork</option>
+            <option value="Audio">Audio</option>
+            <option value="Upholstery">Upholstery</option>
+            <option value="Alignment">Alignment</option>
+            <option value="Oil">Oil Change</option>
+            <option value="Transmission">Transmission</option>
+            <option value="Miscellaneous">Miscellaneous</option>
+        </select>                                            
+                                                        
+                                                        
+                                             
         <label
           style="
             font-size: 12px;
@@ -961,7 +1020,23 @@
         document.getElementById("editAddress").value =
           data.businessAddress || "";
         window.selectRole(data.heroType || "tow_truck", "edit");
-
+                                                              
+                                                              
+         // Pre-fill the inputs with their database data
+        document.getElementById("editCompany").value = data.companyName || "";
+        document.getElementById("editPhone").value = data.businessPhone || "";
+        document.getElementById("editAddress").value = data.businessAddress || "";
+        
+        const existingRole = data.heroType || "tow_truck";
+        if (!['tow_truck', 'mechanic', 'both'].includes(existingRole)) {
+            window.selectRole("other", "edit");
+            document.getElementById("otherCategoryEdit").value = existingRole;
+        } else {
+            window.selectRole(existingRole, "edit");
+        }                                                     
+                                                              
+                                                              
+   
         const overlay = document.getElementById("settingsModalOverlay");
         const card = document.getElementById("settingsCard");
 
@@ -991,6 +1066,19 @@
         const newCompany = document.getElementById("editCompany").value;
         const newPhone = document.getElementById("editPhone").value;
         const newAddress = document.getElementById("editAddress").value;
+                                                                
+                                                                
+                                                                
+       let finalRole = editRole;
+        if (editRole === 'other') {
+            const dropVal = document.getElementById("otherCategoryEdit").value;
+            if (!dropVal) {
+                btn.innerText = "SAVE CHANGES";
+                btn.disabled = false;
+                return alert("Please select a specialty category from the drop-down.");
+            }
+            finalRole = dropVal;
+        }
 
         const uid = auth.currentUser.uid;
 
@@ -999,10 +1087,12 @@
           await update(ref(db, "users/" + uid), {
             companyName: newCompany,
             businessPhone: newPhone,
-            heroType: editRole,
+            heroType: finalRole,
             businessAddress: newAddress,
-          });
+          });                                                    
 
+                          
+                                       
           // Show success
           btn.style.background = "var(--success)";
           btn.innerText = "✔ SAVED!";
@@ -1029,29 +1119,31 @@
       window.selectRole = (role, context) => {
         // Decide which modal we are updating
         const prefix = context === "setup" ? "Setup" : "Edit";
-
+                                                             
         // Save to the correct state variable
         if (context === "setup") setupRole = role;
         if (context === "edit") editRole = role;
 
         // Clear all active states in that specific modal
         document.getElementById(`btnTow${prefix}`).classList.remove("active");
-        document
-          .getElementById(`btnMechanic${prefix}`)
-          .classList.remove("active");
+        document.getElementById(`btnMechanic${prefix}`).classList.remove("active");
         document.getElementById(`btnBoth${prefix}`).classList.remove("active");
+        if (document.getElementById(`btnOther${prefix}`)) document.getElementById(`btnOther${prefix}`).classList.remove("active");
 
         // Highlight the clicked button
-        if (role === "tow_truck")
-          document.getElementById(`btnTow${prefix}`).classList.add("active");
-        if (role === "mechanic")
-          document
-            .getElementById(`btnMechanic${prefix}`)
-            .classList.add("active");
-        if (role === "both")
-          document.getElementById(`btnBoth${prefix}`).classList.add("active");
-      };
+        if (role === "tow_truck") document.getElementById(`btnTow${prefix}`).classList.add("active");
+        if (role === "mechanic") document.getElementById(`btnMechanic${prefix}`).classList.add("active");
+        if (role === "both") document.getElementById(`btnBoth${prefix}`).classList.add("active");
+        if (role === "other") document.getElementById(`btnOther${prefix}`).classList.add("active");
 
+        // Toggle the hidden dropdown
+        const dropDown = document.getElementById(`otherCategory${prefix}`);
+        if (dropDown) {
+            dropDown.style.display = role === "other" ? "block" : "none";
+        }
+      };                                                
+                                                                
+                                                               
       // --- 5. FINAL PROCESSING (Live Stripe & Google Cloud Sync) ---
 
       // --- CUSTOMER BILLING PORTAL ---
@@ -1107,6 +1199,15 @@
           alert("Please provide your company name and phone number.");
           return;
         }
+                                                                    
+                                                                    
+                                                                    
+           let finalRole = setupRole;
+        if (setupRole === 'other') {
+            const dropVal = document.getElementById("otherCategorySetup").value;
+            if (!dropVal) return alert("Please select a specialty category from the drop-down.");
+            finalRole = dropVal;
+        }
 
         const payBtn = document.getElementById("finalPayBtn");
         const spinner = document.getElementById("modalSpinner");
@@ -1115,20 +1216,21 @@
         payBtn.style.display = "none";
         spinner.style.display = "block";
 
-
-
-
         if (isPromoActive) {
-            try {
+            try { 
                 await update(ref(db, "users/" + auth.currentUser.uid), {
                     email: document.getElementById("modalEmail").value,
                     companyName: company,
                     businessPhone: phone,
-                    heroType: setupRole,
+                    heroType: finalRole,
                     isPro: true,
                     accountType: 'pro',
                     stripePriceId: 'price_1TSoiu02cjd265jFHYME6eJs'
-                });
+                });                                                         
+                                                                    
+                                                                    
+                                                                    
+
                 
                     await update(ref(db, "profiles/" + auth.currentUser.uid), {
                     companyName: company,
