@@ -3763,6 +3763,7 @@
         getAuth,
         signInWithEmailAndPassword,
         onAuthStateChanged,
+        signOut,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
       // NEW: Import Firebase Storage
@@ -7094,13 +7095,18 @@ if (nearbySOS.length > 0) {
 });
       
     
-      
-      
       window.signOutHero = () => {
-        localStorage.removeItem("heroUserId");
-        window.location.reload();
+        document.getElementById("loadingOverlay").classList.remove("loader-hidden");
+        signOut(auth).then(() => {
+          localStorage.setItem("heroUserId", "u_" + Math.random().toString(36).substr(2, 9));
+          window.location.reload();
+        }).catch((error) => {
+          document.getElementById("loadingOverlay").classList.add("loader-hidden");
+          alert("Error signing out: " + error.message);
+        });
       };
       
+
       
       
       
