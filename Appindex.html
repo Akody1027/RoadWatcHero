@@ -1626,7 +1626,7 @@ function adjustViewport() {
 
       if (hubOverlay) hubOverlay.style.display = "none";
     }
-
+ 
     // Bind Event Listeners safely
     if (hubToggle) hubToggle.addEventListener("click", toggleHeroHub);
     if (topBar) topBar.addEventListener("click", toggleTopProfile);
@@ -1641,6 +1641,37 @@ function adjustViewport() {
         closeAllPanels();
         document.getElementById("globalLoginModal").style.display = "flex";
       }
+                                                                          
+            
+       // Listen for the Discovery Map routing command
+      if (event.data && event.data.action === 'VIEW_HERO_PROFILE') {
+        const heroId = event.data.heroId;
+        
+        // 1. Ensure the main Hub drawer is pulled open
+        const hubBoard = document.getElementById("heroHubBoard");
+        const sidebar = document.getElementById("heroHubSidebar");
+        if (!hubBoard.classList.contains("open")) {
+            hubBoard.classList.add("open");
+            sidebar.classList.add("open");
+            document.getElementById("hubOverlay").style.display = "block";
+        }
+        
+        // 2. Inject the specific Hero ID into the iframe URL
+        const profileIframe = document.getElementById("profileIframe");
+        profileIframe.src = "profile.html?userId=" + heroId;
+        
+        // 3. Drop the 'Hero Direct' top shade down to reveal the profile
+        const topBoard = document.getElementById("proTopBoard");
+        const topBar = document.getElementById("proTopBar");
+        topBoard.classList.add("open");
+        topBar.classList.add("open");
+      }                                                                   
+                                                                          
+                                                                          
+                                                                          
+                                                                          
+                                                                          
+                                                                          
     });
 
     
