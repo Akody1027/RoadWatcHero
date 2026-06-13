@@ -2141,18 +2141,34 @@
       </div>
     </div>
 
+    
+    
+    
+    
     <div id="requestModal" class="modal">
       <div class="modal-content"> 
         
-        <div class="modal-header-row" style="margin-bottom: 20px;">
-          <h3>Find Hero</h3>
-          <div style="display: flex; justify-content: flex-end;">
-            <button class="close-x-btn" onclick="window.closeModal('requestModal')">✕</button>
+     
+          <div class="modal-header-row" style="margin-bottom: 20px;">
+          <h3>Hero Profile</h3>
+          <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; position: relative;">
+            
+            <button id="topMenuTriggerBtn" style="background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center;" onclick="const m = document.getElementById('topMoreMenu'); m.style.display = (m.style.display === 'flex' ? 'none' : 'flex');">
+              <img src="menuicon.png" style="width: 28px; height: 28px; filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.2));" alt="Menu" />
+            </button>
+
+            <div id="topMoreMenu" style="display: none; position: absolute; top: 45px; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); width: 220px; z-index: 100000; overflow: hidden; flex-direction: column;">
+                <button id="manageSubBtnBottom" onclick="window.location.href='pro-hero.html'" style="width: 100%; text-align: left; background: white; border: none; border-bottom: 1px solid #f1f5f9; padding: 15px; cursor: pointer; color: var(--text); font-weight: 800; font-size: 13px; display: none;">Manage Membership</button>
+                <button onclick="window.signOutHero()" style="width: 100%; text-align: left; background: white; border: none; border-bottom: 1px solid #f1f5f9; padding: 15px; cursor: pointer; color: var(--text); font-weight: 800; font-size: 13px;">Sign Out</button>
+                <button onclick="window.location.href='mailto:roadwatchero@gmail.com'" style="width: 100%; text-align: left; background: white; border: none; border-bottom: 1px solid #f1f5f9; padding: 15px; cursor: pointer; color: var(--text); font-weight: 800; font-size: 13px;">Email Admin</button>
+                <button onclick="window.openModal('accountDeleteModal'); document.getElementById('topMoreMenu').style.display='none';" style="width: 100%; text-align: left; background: #fff0f0; border: none; padding: 15px; cursor: pointer; color: var(--danger); font-weight: 800; font-size: 13px;">Delete Account</button>
+            </div>
+
+            <button class="close-x-btn" onclick="window.closeModal('profileModal')">✕</button>
           </div>
         </div>
-
-
-
+ 
+ 
         <div class="form-wrapper"> 
           <div class="vehicle-grid">
             <div
@@ -2887,17 +2903,7 @@
 
         
   
-           <div class="more-menu-container">
-            <button class="more-toggle-btn" onclick="document.getElementById('moreList').style.display = (document.getElementById('moreList').style.display === 'flex' ? 'none' : 'flex')">
-               --- MORE ---
-            </button>
-            <div id="moreList" class="more-actions-list">
-                <button id="manageSubBtnBottom" onclick="window.location.href='pro-hero.html'" class="accent-btn" style="display: none;">MANAGE MEMBERSHIP</button>
-                <button class="accent-btn" onclick="window.signOutHero()">SIGN OUT</button>
-                <a href="mailto:roadwatchero@gmail.com" class="accent-btn" style="text-decoration: none; display: block;">EMAIL ADMIN</a>
-                <button onclick="window.openModal('accountDeleteModal')" class="danger-btn">DELETE ACCOUNT</button>
-            </div>
-        </div>
+   
 
         
         
@@ -4515,6 +4521,9 @@
         const shopPanel = document.getElementById('shopAddressPanel');
         const fleetPanel = document.getElementById('fleetManagerPanel');
         
+        const topMenu = document.getElementById('topMoreMenu');
+        const triggerBtn = document.getElementById('topMenuTriggerBtn');
+        
         if (shopPanel && shopPanel.style.display === 'block') {
           if (!shopPanel.contains(e.target) && !e.target.closest('.gear-btn-shop')) {
             shopPanel.style.display = 'none';
@@ -4526,6 +4535,15 @@
             fleetPanel.style.display = 'none';
           }
         }
+        
+        
+        if (topMenu && topMenu.style.display === 'flex') {
+          if (!topMenu.contains(e.target) && (!triggerBtn || !triggerBtn.contains(e.target))) {
+            topMenu.style.display = 'none';
+          }
+        }
+        
+        
       });
  
     
