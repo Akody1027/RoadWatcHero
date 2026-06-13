@@ -999,7 +999,7 @@
 
   
 
-  
+   
   
   
   
@@ -1895,6 +1895,14 @@ function adjustViewport() {
             "Advertise with RoadWatcHero<br />Sign up now!";
         }
       }
+            
+      // Hide the Manage Subscription button if monetization is turned off
+      const manageBtn = document.getElementById("manageSubBtnBottom");
+      if (manageBtn) {
+        manageBtn.style.display = isPromoActive ? "none" : "block";
+      }
+            
+            
     });
 
 
@@ -2048,15 +2056,13 @@ function adjustViewport() {
           document.getElementById("statCallClicks").innerText =
             data.callClicks || 0;
 
+            
           const manageBtn = document.getElementById("manageSubBtnBottom");
           if (manageBtn) {
-            manageBtn.innerText = isPromoActive
-              ? "MANAGE PRO SETTINGS"
-              : "MANAGE SUBSCRIPTION";
-          }
+            manageBtn.style.display = isPromoActive ? "none" : "block";
+          }  
+            
 
-            
-            
             
        // Auto-fill core identity using a session flag to beat browser cache
           if (!document.getElementById("shellBizName").dataset.loaded) {
@@ -2318,6 +2324,29 @@ function adjustViewport() {
         document.getElementById("dashboardFormsContainer").style.display =
           "none";
         document.getElementById("proShellModal").style.display = "none";
+            
+          
+            
+         // Reset all avatars and logos back to the default placeholder
+        const defaultAvatar = "herousericon.jpg";
+        const sidebarIcon = document.getElementById("sidebarUserIcon");
+        if (sidebarIcon) {
+            sidebarIcon.style.backgroundImage = `url('${defaultAvatar}')`;
+        }
+        document.querySelectorAll('.master-avatar-sync').forEach(el => {
+            el.src = defaultAvatar;
+        });
+        window.currentMasterLogo = null;
+        
+        // Reset the main profile preview banner background
+        const headerImg = document.getElementById("previewModalHeaderImg");
+        if (headerImg) {
+            headerImg.style.backgroundImage = `url('')`;
+        }   
+            
+            
+  
+            
       }
     });
 
