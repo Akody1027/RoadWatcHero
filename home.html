@@ -2414,10 +2414,10 @@
           <div style="display: flex; justify-content: flex-end; align-items: center; gap: 12px; position: relative;">
             
             <button id="topMenuTriggerBtn" style="background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center;" onclick="const m = document.getElementById('topMoreMenu'); m.style.display = (m.style.display === 'flex' ? 'none' : 'flex');">
-              <img src="menuicon.png" style="width: 28px; height: 28px; filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.2));" alt="Menu" />
+              <img src="menuicon.png" style="width: 28px; height: 28px; margin-right:10px;" alt="Menu" />
             </button>
 
-            <div id="topMoreMenu" style="display: none; position: absolute; top: 45px; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); width: 220px; z-index: 100000; overflow: hidden; flex-direction: column;">
+            <div id="topMoreMenu" style="display: none; position: absolute; top: 75px; right: 1px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); width: 220px; z-index: 100000; overflow: hidden; flex-direction: column;">
                 <button id="manageSubBtnBottom" onclick="window.location.href='pro-hero.html'" style="width: 100%; text-align: left; background: white; border: none; border-bottom: 1px solid #f1f5f9; padding: 15px; cursor: pointer; color: var(--text); font-weight: 800; font-size: 13px; display: none;">Manage Membership</button>
                 <button onclick="window.signOutHero()" style="width: 100%; text-align: left; background: white; border: none; border-bottom: 1px solid #f1f5f9; padding: 15px; cursor: pointer; color: var(--text); font-weight: 800; font-size: 13px;">Sign Out</button>
                 <button onclick="window.location.href='mailto:roadwatchero@gmail.com'" style="width: 100%; text-align: left; background: white; border: none; border-bottom: 1px solid #f1f5f9; padding: 15px; cursor: pointer; color: var(--text); font-weight: 800; font-size: 13px;">Email Admin</button>
@@ -3794,6 +3794,21 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
+      
+      let isPromoActive = false;
+
+    // Real-time listener to sync the Manage Membership button with Admin Monetization
+    onValue(ref(db, "settings/global/free_hero_registration"), (snapshot) => {
+      isPromoActive = snapshot.val() === true;
+      
+      const manageBtn = document.getElementById("manageSubBtnBottom");
+      if (manageBtn) {
+        manageBtn.style.display = isPromoActive ? "none" : "block";
+      }
+    });
+      
+      
+      
 
       const storage = getStorage(app);
 
@@ -7295,11 +7310,10 @@ if (nearbySOS.length > 0) {
               "block";
             
             
-            const isMonetizationEnabled = true; // Toggle to false to hide the button
-              const manageBtn = document.getElementById("manageSubBtnBottom");
-              if (manageBtn) manageBtn.style.display = isMonetizationEnabled ? "block" : "none";
-            
-            
+             const manageBtn = document.getElementById("manageSubBtnBottom");
+              if (manageBtn) {
+                manageBtn.style.display = isPromoActive ? "none" : "block";
+              }
          
             
             const dateDisplay = document.getElementById("proDateDisplay");
