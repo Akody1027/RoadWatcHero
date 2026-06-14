@@ -2035,19 +2035,25 @@ function adjustViewport() {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUserId = user.uid;
-            
-           // Global Seeker Notification Listener
+        
+        
+        
+        // Global Seeker Notification Listener with Initial Load Silencer
+        let isReady = false;
         const notifQuery = query(collection(firestore, "notifications"), where("recipientId", "==", currentUserId), where("read", "==", false));
+        
         onSnapshot(notifQuery, (snapshot) => {
           snapshot.docChanges().forEach((change) => {
             if (change.type === "added") {
               const notif = change.doc.data();
-              window.triggerNotification(notif.message, change.doc.id);
+              // Pass the isReady state as an explicit variable to control audio/badge increments
+              window.triggerNotification(notif.message, change.doc.id, !isReady);
             }
           });
-        }); 
+          isReady = true; // Flips immediately after processing the baseline server documents
+        });
             
-            
+
             
 
         // Load Profile Data (Name, Phone, Address, Logo, Leads)
@@ -3334,14 +3340,7 @@ function adjustViewport() {
         }
     };       
 
-    window.triggerNotification = (msg, docId) => {
-        const badge = document.getElementById('seekerNotificationBadge');
-        let count = parseInt(badge.innerText) || 0;
-        badge.innerText = count + 1;
-        badge.style.display = 'block';
-
-        notificationSound.play().catch(e => console.log("User interaction required for audio"));
-
+    window.triggerNotification = (msg, docId, isSilent) => {
         const list = document.getElementById('notificationList');
         const placeholder = document.getElementById('noNotificationsPlaceholder');
         if (placeholder) placeholder.remove();
@@ -3352,9 +3351,19 @@ function adjustViewport() {
         item.style.cssText = "padding:10px; border-bottom:1px solid #f1f5f9; font-size:13px;";
         item.innerText = msg;
         list.prepend(item);
-    };    
-            
-            
+
+        // Only flash the badge and play audio if the app is past page initialization
+        if (!isSilent) {
+            const badge = document.getElementById('seekerNotificationBadge');
+            let count = parseInt(badge.innerText) || 0;
+            badge.innerText = count + 1;
+            badge.style.display = 'block';
+            notificationSound.play().catch(e => console.log("User interaction required for audio"));
+        }
+    };
+    
+    
+    
     window.clearNotifications = () => {
       
       const unreadItems = document.querySelectorAll('.unread-notification');
