@@ -3324,17 +3324,13 @@ function adjustViewport() {
                 badge.style.display = 'none';
                 badge.innerText = '0';
             }
+          
+          
+          
+          
+          
             
-            // Mark all loaded notifications as read in the database
-            const unreadItems = document.querySelectorAll('.unread-notification');
-            unreadItems.forEach(async (item) => {
-                if (item.dataset.docId) {
-                    try {
-                        await updateDoc(doc(firestore, "notifications", item.dataset.docId), { read: true });
-                        item.classList.remove('unread-notification'); 
-                    } catch(e) {}
-                }
-            });
+  
         }
     };       
 
@@ -3360,6 +3356,22 @@ function adjustViewport() {
             
             
     window.clearNotifications = () => {
+      
+      const unreadItems = document.querySelectorAll('.unread-notification');
+        unreadItems.forEach(async (item) => {
+            if (item.dataset.docId) {
+                try {
+                    await deleteDoc(doc(firestore, "notifications", item.dataset.docId));
+                } catch(e) {}
+            }
+        });
+
+        const badge = document.getElementById('seekerNotificationBadge');
+        if (badge) {
+            badge.style.display = 'none';
+            badge.innerText = '0';
+        }
+
         const list = document.getElementById('notificationList');
         if (list) {
             list.innerHTML = '';
@@ -3370,6 +3382,8 @@ function adjustViewport() {
             list.appendChild(emptyMsg);
         }
     };
+      
+  
     
     
        
