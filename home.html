@@ -2472,10 +2472,19 @@
         </div>
         
         
-        <input id="profileName" placeholder="Hero Name" />
+        <input id="profileName" placeholder="Your Name or Business..." />
+        
+        
+        <input
+          type="email"
+          id="profileEmailBox"
+          style="width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 15px; font-size: 14px; background: #f1f5f9; color: #94a3b8; box-sizing: border-box; cursor: not-allowed;"
+          readonly
+        />
+        
         <textarea
           id="profileBio"
-          placeholder="Bio / Tools Available..."
+          placeholder="Add Bio / Tools Available..."
           rows="2"
         ></textarea>
 
@@ -7233,6 +7242,11 @@ if (nearbySOS.length > 0) {
 
           if (document.getElementById("profileName"))
             document.getElementById("profileName").value = d.name || "";
+          const emailBox = document.getElementById("profileEmailBox");
+          if (emailBox && auth.currentUser) {
+            emailBox.value = auth.currentUser.email || "No email found";
+          }
+   
           if (document.getElementById("profileBio"))
             document.getElementById("profileBio").value = d.bio || "";
           if (d.pic && document.getElementById("profileDisplayPic"))
