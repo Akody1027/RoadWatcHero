@@ -12,7 +12,13 @@
     />
     <title>Pro Directory</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>  
+    
+    
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
  
     <style> 
       :root { 
@@ -661,6 +667,8 @@
         try {
           await firebase.firestore().collection('appointments').add({
             proId: window.currentProId,
+            seekerId: firebase.auth().currentUser ? firebase.auth().currentUser.uid : null,
+            
             seekerName: name,
             seekerContact: contact,
             date: date,
