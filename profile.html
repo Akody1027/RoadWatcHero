@@ -678,6 +678,19 @@
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
           
+          
+          await firebase.firestore().collection('notifications').add({
+            recipientId: window.currentProId,
+            message: `You received a new appointment request from ${name}!`,
+            type: 'new_appointment',
+            read: false,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          
+          
+          
+          
+          
           alert('Appointment requested successfully!');
           closeBooking();
         } catch (e) {
