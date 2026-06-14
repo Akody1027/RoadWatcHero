@@ -3359,11 +3359,20 @@ function adjustViewport() {
     };    
             
             
-            
- 
-            
-            
-            
+    window.clearNotifications = () => {
+        const list = document.getElementById('notificationList');
+        if (list) {
+            list.innerHTML = '';
+            const emptyMsg = document.createElement('div');
+            emptyMsg.id = 'noNotificationsPlaceholder';
+            emptyMsg.style.cssText = "padding:20px; color:#94a3b8; text-align:center; font-style:italic;";
+            emptyMsg.innerText = "No notifications available";
+            list.appendChild(emptyMsg);
+        }
+    };
+    
+    
+       
             
   </script>
             
@@ -3373,6 +3382,8 @@ function adjustViewport() {
 
     <h3 style="margin-top:0; color:var(--accent);">Notifications</h3>
     <div id="notificationList" style="margin-top:10px; overflow-y:auto; height:calc(100% - 40px);"></div>
+      
+      <button onclick="window.clearNotifications()" style="width: 100%; margin-top: 10px; padding: 10px; background: transparent; border: none; color: var(--muted); font-weight: 800; cursor: pointer; text-decoration: underline; font-size: 13px;">Clear Notifications</button>
   </div>
             
             
