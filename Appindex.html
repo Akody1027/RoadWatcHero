@@ -1760,6 +1760,8 @@ function adjustViewport() {
       signOut,
       sendPasswordResetEmail,
       signInAnonymously,
+      deleteUser,
+
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
     import {
       getDatabase,
@@ -3280,15 +3282,24 @@ function adjustViewport() {
         });
     };
 
-    window.deleteMyAccount = async () => {
-      const user = firebase.auth().currentUser;
-      if (user) {
-        // 1. Wipe DB, 2. Wipe Auth, 3. Redirect
-        await firebase.database().ref(`profiles/${user.uid}`).remove();
-        await user.delete();
-        window.location.reload();
-      }
-    };
+    
+    
+    
+        window.deleteMyAccount = async () => {
+          const user = auth.currentUser;
+          if (user) {
+            try {
+              await remove(ref(db, `profiles/${user.uid}`));
+              await deleteDoc(doc(firestore, "pros", user.uid));
+              await deleteUser(user);
+              window.location.reload();
+            } catch (error) {
+              console.error("Deletion error:", error);
+              alert("Error deleting account. You may need to sign out and log back in to verify your identity before deleting.");
+            }
+          }
+        };
+
             
             
             
