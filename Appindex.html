@@ -3285,12 +3285,27 @@ function adjustViewport() {
     
     
     
-        window.deleteMyAccount = async () => {
+       window.deleteMyAccount = async () => {
           const user = auth.currentUser;
           if (user) {
             try {
+              // 1. Clear out user campaigns from businessPosts collection
+              const postsQuery = query(collection(firestore, "businessPosts"), where("uid", "==", user.uid));
+              const querySnapshot = await getDocs(postsQuery);
+              const deletePromises = [];
+              querySnapshot.forEach((docSnap) => {
+                deletePromises.push(deleteDoc(doc(firestore, "businessPosts", docSnap.id)));
+              });
+              await Promise.all(deletePromises);
+
+              // 2. Wipe secondary or root database profiles if applicable
               await remove(ref(db, `profiles/${user.uid}`));
+              await remove(ref(db, `users/${user.uid}`)); // Fail-safe fallback if admin panel uses root path
+              
+              // 3. Clear core directory profile
               await deleteDoc(doc(firestore, "pros", user.uid));
+              
+              // 4. Finally, destroy authentication profile
               await deleteUser(user);
               window.location.reload();
             } catch (error) {
@@ -3299,6 +3314,7 @@ function adjustViewport() {
             }
           }
         };
+
 
             
             
