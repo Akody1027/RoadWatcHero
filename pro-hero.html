@@ -470,11 +470,13 @@
       
       
       <div 
-        onclick="window.location.href='home.html'" 
+          
+           onclick="window.location.href='Appindex.html'"
+           
         style="position: fixed; bottom: 0; left: 0; width: 100%; background: var(--accent); height: auto; 
                display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 1000; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);"
       >
-        <img src="thishomeicon.png" alt="Home" style="width: auto; height: 38px; padding-top:5px;  padding-bottom:5px;"  " />
+        <img src="thishomeicon.png" alt="Home" style="width: auto; height: 42px; padding-top:5px;  padding-bottom:5px;"  " />
       </div>
       
  
@@ -995,22 +997,33 @@
 
         window.openSettingsModal = (user, data) => {
         window.currentStripeCustomerId = data.stripeCustomerId;
+                                                                           
+                                                                           
+                                                                           
+            const billingBtn = document.getElementById("billingBtn");
+        
+        if (isPromoActive) {
+            billingBtn.style.display = "none";
+        } else {
+            billingBtn.style.display = "block";
+            if (!data.stripeCustomerId) {
+                billingBtn.innerText = "⚠️ Verify Payment Method to Keep Pro Access";
+                billingBtn.style.color = "var(--warning)";
+                billingBtn.onclick = () => {
+                    window.closeSettingsModal();
+                    window.selectRole(data.heroType || "tow_truck", "setup");
+                    triggerSetupModal(auth.currentUser);
+                };
+            } else {
+                billingBtn.innerText = "💳 Manage Billing & Card";
+                billingBtn.style.color = "var(--text)";
+                billingBtn.onclick = () => window.openCustomerPortal();
+            }
+        }                                                               
+                                                                           
+                                                                           
           
 
-        const billingBtn = document.getElementById("billingBtn");
-        if (!data.stripeCustomerId) {
-            billingBtn.innerText = "⚠️ Verify Payment Method to Keep Pro Access";
-            billingBtn.style.color = "var(--warning)";
-            billingBtn.onclick = () => {
-                window.closeSettingsModal();
-                window.selectRole(data.heroType || "tow_truck", "setup");
-                triggerSetupModal(auth.currentUser);
-            };
-        } else {
-            billingBtn.innerText = "💳 Manage Billing & Card";
-            billingBtn.style.color = "var(--text)";
-            billingBtn.onclick = () => window.openCustomerPortal();
-        }
 
 
         
@@ -1240,14 +1253,21 @@
                 });
 
               
-              
-                isCheckingOut = false;
-                spinner.style.display = "none";
+            isCheckingOut = false;
                 payBtn.style.display = "block";
-                payBtn.style.background = "var(--success)";
-                payBtn.innerText = "✔ PROFILE SYNCED!";
-                setTimeout(() => { window.location.href = "home.html"; }, 1500);
-                return;
+                payBtn.style.background = "#94a3b8";
+                payBtn.style.cursor = "not-allowed";
+                payBtn.innerText = "REDIRECTING...";
+                payBtn.disabled = true;
+                setTimeout(() => { window.location.href = "Appindex.html"; }, 1000);
+                return;  
+
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
+                                                                     
             } catch (err) {
                 spinner.style.display = "none";
                 payBtn.style.display = "block";
@@ -1304,17 +1324,22 @@
           if (result.success) {
             // Unset the safeguard
             isCheckingOut = false;
+                                                         
+                                                         
+                payBtn.style.display = "block";
+            payBtn.style.background = "#94a3b8";
+            payBtn.style.cursor = "not-allowed";
+            payBtn.innerText = "REDIRECTING...";
+            payBtn.disabled = true;
 
-            // Show Success State
-            spinner.style.display = "none";
-            payBtn.style.display = "block";
-            payBtn.style.background = "var(--success)";
-            payBtn.innerText = "✔ PROFILE SYNCED!";
-
-            // Send them to the live map
             setTimeout(() => {
-              window.location.href = "home.html"; // Redirects to your map
-            }, 1500);
+              window.location.href = "Appindex.html";
+            }, 1500);                                         
+                                                         
+
+                                        
+                                                    
+                                                    
           } else {
             // If Stripe declines the card on the backend
             throw new Error(result.error);
