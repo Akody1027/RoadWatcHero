@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hunter Pro: Zoom Edition</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Courier New', Courier, monospace;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* SCOPE */
+        #scope-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.8) 35%, black 70%);
+            z-index: 10;
+        }
+
+        #crosshair {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100%; height: 100%; opacity: 0.8; z-index: 5; pointer-events: none;
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute; top: 20px; left: 20px; color: #00ff00;
+            text-shadow: 0 0 5px #00ff00; z-index: 20; pointer-events: none;
+            display: flex; gap: 10px; flex-wrap: wrap;
+        }
+
+        .hud-box {
+            border: 1px solid #00ff00; padding: 5px 10px;
+            background: rgba(0, 20, 0, 0.7); font-size: 14px;
+        }
+
+        #message {
+            position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%);
+            color: white; font-size: 24px; font-weight: bold;
+            text-align: center; text-shadow: 0 2px 4px black;
+            opacity: 0; transition: opacity 0.5s; z-index: 15; pointer-events: none;
+        }
+
+        /* CONTROLS */
+        .control-btn {
+            position: absolute; bottom: 30px; width: 80px; height: 80px;
+            border-radius: 50%; z-index: 30;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; color: white; font-family: sans-serif;
+            touch-action: manipulation;
+            border: 2px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        #btn-fire {
+            right: 30px; background: rgba(255, 0, 0, 0.4); border-color: #ff0000; font-size: 18px;
+        }
+        #btn-fire:active { background: rgba(255, 0, 0, 0.8); transform: scale(0.95); }
+
+        #btn-breath {
+            left: 30px; background: rgba(0, 255, 255, 0.2); border-color: #00ffff; font-size: 12px;
+        }
+        #btn-breath.active { background: rgba(0, 255, 255, 0.6); }
+
+        /* ZOOM SLIDER */
+        #zoom-container {
+            position: absolute; right: 45px; bottom: 130px;
+            width: 50px; height: 200px; z-index: 30;
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        #zoom-track {
+            width: 6px; height: 100%; background: rgba(255,255,255,0.3);
+            border-radius: 3px; position: relative;
+        }
+
+        #zoom-handle {
+            width: 30px; height: 30px; background: #00ff00;
+            border-radius: 50%; position: absolute; left: -12px; bottom: 0;
+            box-shadow: 0 0 10px #00ff00;
+            /* Start at bottom (1x) */
+        }
+        
+        #zoom-label {
+            color: #fff; font-size: 12px; margin-bottom: 5px;
+            text-shadow: 0 0 5px black;
+        }
+
+        #round-display {
+            position: absolute; top: 20px; right: 20px;
+            color: #ffcc00; font-size: 20px; font-weight: bold;
+            z-index: 20; text-shadow: 0 0 5px #ffcc00;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="scope-layer"></div>
+    
+    <svg id="crosshair" viewBox="0 0 100 100">
+        <line x1="0" y1="50" x2="100" y2="50" stroke="black" stroke-width="0.1" />
+        <line x1="50" y1="0" x2="50" y2="100" stroke="black" stroke-width="0.1" />
+        <circle cx="50" cy="55" r="0.1" fill="black" />
+        <circle cx="50" cy="60" r="0.1" fill="black" />
+        <circle cx="55" cy="50" r="0.1" fill="black" />
+        <circle cx="45" cy="50" r="0.1" fill="black" />
+        <circle cx="50" cy="50" r="0.2" fill="red" />
+    </svg>
+
+    <div id="hud">
+        <div class="hud-box">WIND: <span id="wind-speed">0</span> <span id="wind-arrow">➤</span></div>
+        <div class="hud-box">TARGETS: <span id="target-count">0</span></div>
+    </div>
+
+    <div id="round-display">ROUND <span id="round-num">1</span></div>
+    <div id="message"></div>
+
+    <div id="zoom-container">
+        <div id="zoom-label">ZOOM</div>
+        <div id="zoom-track">
+            <div id="zoom-handle"></div>
+        </div>
+    </div>
+
+    <div id="btn-fire" class="control-btn">FIRE</div>
+    <div id="btn-breath" class="control-btn">HOLD</div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // --- CONFIG ---
+        const GRAVITY = 9.8;
+        const SWAY_MAGNITUDE = 2.0; 
+        
+        // --- STATE ---
+        let width, height;
+        let wind = { speed: 0, dir: 0 }; 
+        let isHoldingBreath = false;
+        let lastTime = 0;
+        let gameTime = 0;
+        let currentRound = 1;
+        
+        // Camera / Aiming
+        let aim = { x: 0, y: 0 }; 
+        let view = { x: 0, y: 0 };
+        let recoil = { x: 0, y: 0 };
+        let zoomLevel = 1.0; // 1.0 to 4.0
+        
+        // Entities
+        let trees = [];
+        let deer = [];
+        let bullets = [];
+
+        // --- SETUP ---
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            // Center aim
+            aim.x = 0; aim.y = 0;
+        }
+        window.addEventListener('resize', resize);
+
+        function initRound() {
+            // Difficulty scaling
+            const difficultyMult = 1 + (currentRound * 0.2);
+            
+            wind.speed = Math.floor((Math.random() * 10 + 5) * difficultyMult); 
+            wind.dir = (Math.random() * 0.5) - 0.25; 
+            
+            // Re-gen trees (keep terrain fresh)
+            trees = [];
+            // Horizon Trees (Background)
+            for(let i=0; i<60; i++) {
+                trees.push({
+                    // X is world coordinate. Range -2000 to 2000
+                    x: (Math.random() * 4000) - 2000, 
+                    // Y is offset from Horizon line (0 = on horizon, positive = closer)
+                    // Depth sorting: smaller scale = further back
+                    scale: 0.3 + Math.random() * 0.4,
+                    color: `hsl(${90 + Math.random()*30}, 30%, ${10 + Math.random()*15}%)`
+                });
+            }
+            // Foreground Trees
+            for(let i=0; i<15; i++) {
+                trees.push({
+                    x: (Math.random() * 4000) - 2000, 
+                    scale: 0.8 + Math.random() * 0.5,
+                    color: `hsl(${80 + Math.random()*20}, 40%, ${5 + Math.random()*10}%)`
+                });
+            }
+            trees.sort((a,b) => a.scale - b.scale);
+
+            deer = [];
+            spawnHerd(3 + currentRound); // More deer each round
+            
+            updateHUD();
+            showMessage(`ROUND ${currentRound}`, "#ffcc00");
+            setTimeout(() => showMessage("", "transparent"), 2000);
+        }
+
+        function spawnHerd(count) {
+            for(let i=0; i<count; i++) {
+                // Spread them out more each round
+                const spread = 800 + (currentRound * 200);
+                const offsetX = (Math.random() * spread) - (spread/2);
+                
+                // Scale (Distance). Round 1 = close (0.8), Round 5 = far (0.4)
+                const baseScale = Math.max(0.3, 0.8 - (currentRound * 0.05));
+                const scaleVar = Math.random() * 0.2;
+                
+                const d = new Deer(offsetX, baseScale + scaleVar);
+                deer.push(d);
+            }
+        }
+
+        function updateHUD() {
+            document.getElementById('wind-speed').innerText = wind.speed;
+            document.getElementById('wind-arrow').style.transform = `rotate(${wind.dir * 100}deg)`;
+            document.getElementById('target-count').innerText = deer.filter(d => d.state !== 'DEAD').length;
+            document.getElementById('round-num').innerText = currentRound;
+        }
+
+        function checkRoundEnd() {
+            const alive = deer.filter(d => d.state !== 'DEAD').length;
+            updateHUD();
+            
+            if (alive === 0) {
+                showMessage("ROUND COMPLETE", "#00ff00");
+                setTimeout(() => {
+                    currentRound++;
+                    initRound();
+                }, 3000);
+            }
+        }
+
+        // --- ENTITY: DEER ---
+        class Deer {
+            constructor(worldX, scale) {
+                this.x = worldX; // World X position
+                this.scale = scale;
+                this.state = 'IDLE'; 
+                this.timer = Math.random() * 5;
+                this.dir = Math.random() > 0.5 ? 1 : -1; 
+                this.headY = 0; 
+                this.animFrame = 0;
+            }
+
+            update(dt) {
+                if (this.state === 'DEAD') return;
+                this.timer += dt;
+                this.animFrame += dt * 5;
+
+                if (this.state === 'IDLE') {
+                    if (this.timer > 3) {
+                        const r = Math.random();
+                        if(r < 0.4) this.state = 'WALK';
+                        else if(r < 0.8) this.state = 'GRAZE';
+                        this.timer = 0;
+                    }
+                } 
+                else if (this.state === 'GRAZE') {
+                    this.headY = 15;
+                    if (this.timer > 4) { this.state = 'IDLE'; this.headY = 0; this.timer = 0; }
+                }
+                else if (this.state === 'WALK') {
+                    this.headY = Math.sin(this.animFrame) * 2; // Head bob
+                    this.x += (20 * this.dir) * dt; // Move speed
+                    if (this.timer > 4) { this.state = 'IDLE'; this.dir *= -1; this.timer = 0; }
+                }
+                else if (this.state === 'FLEE') {
+                    this.headY = -5;
+                    this.x += (80 * this.dir) * dt; // Run fast
+                }
+            }
+
+            hit() {
+                this.state = 'DEAD';
+                checkRoundEnd();
+            }
+
+            spook() {
+                if (this.state !== 'DEAD' && this.state !== 'FLEE') {
+                    this.state = 'FLEE';
+                    this.dir = Math.random() > 0.5 ? 1 : -1;
+                }
+            }
+
+            // Draw relative to Horizon Line
+            draw(horizonY, centerX) {
+                // Logic:
+                // screenX = centerX + (worldX + viewX) * scale * zoom
+                // screenY = horizonY + (offsetYFromHorizon) * scale * zoom
+                
+                // Apply Zoom magnification
+                const effectiveScale = this.scale * zoomLevel;
+                
+                const screenX = centerX + (this.x + view.x) * effectiveScale;
+                const screenY = horizonY + (50 * effectiveScale); // 50 is base offset from horizon line
+
+                // Cull
+                if (screenX < -100 || screenX > width + 100) return;
+
+                ctx.save();
+                ctx.translate(screenX, screenY);
+                ctx.scale(this.dir * effectiveScale, effectiveScale);
+
+                if (this.state === 'DEAD') {
+                    ctx.rotate(Math.PI / 2);
+                    ctx.translate(0, -20);
+                }
+
+                ctx.fillStyle = "#4e342e";
+                ctx.fillRect(-20, -20, 40, 25); // Body
+                
+                // Legs (simple anim)
+                let legOffset = 0;
+                if(this.state === 'WALK' || this.state === 'FLEE') legOffset = Math.sin(this.animFrame)*5;
+                
+                ctx.fillRect(-18 + legOffset, 5, 5, 20); 
+                ctx.fillRect(-5 - legOffset, 5, 5, 20);
+                ctx.fillRect(5 + legOffset, 5, 5, 20);
+                ctx.fillRect(15 - legOffset, 5, 5, 20);
+
+                ctx.save();
+                ctx.translate(20, -20);
+                ctx.rotate(this.headY * 0.05); 
+                ctx.fillRect(-5, -15, 10, 20); // Neck
+                ctx.fillRect(0, -25, 15, 12); // Head
+                if (this.state !== 'DEAD') {
+                    ctx.fillStyle = "#8d6e63"; // Antlers
+                    ctx.fillRect(5, -35, 2, 12);
+                    ctx.fillRect(8, -35, 2, 10);
+                }
+                ctx.restore();
+                ctx.restore();
+            }
+        }
+
+        // --- GAME LOOP ---
+
+        function update(time) {
+            const dt = (time - lastTime) / 1000;
+            lastTime = time;
+            gameTime += dt;
+
+            // --- 1. VIEW & ANCHORING LOGIC ---
+            
+            // Camera Intertia
+            // Important: Sensitivity decreases when zoomed in
+            const sensitivity = 0.1;
+            view.x += (aim.x - view.x) * sensitivity;
+            
+            // Clamp Aim Y (Pitch) to prevent looking underneath world
+            // Limit view.y so horizon doesn't fly off screen
+            aim.y = Math.max(Math.min(aim.y, 400), -300);
+            view.y += (aim.y - view.y) * sensitivity;
+
+            // Recoil Recovery
+            recoil.x *= 0.9; recoil.y *= 0.9;
+
+            // Calculate Sway (reduced by Hold Breath)
+            let swayX = 0, swayY = 0;
+            const swayMult = isHoldingBreath ? 0.1 : 1.0;
+            swayX = (Math.sin(gameTime) * SWAY_MAGNITUDE + Math.sin(gameTime * 3) * 0.5) * swayMult;
+            swayY = (Math.cos(gameTime * 0.8) * SWAY_MAGNITUDE + Math.cos(gameTime * 4) * 0.5) * swayMult;
+
+            // THE HORIZON LINE (The Anchor)
+            // Center of screen + Vertical Look Offset * Zoom
+            // Zoom amplifies the vertical movement perception
+            const horizonY = (height / 2) + (view.y * zoomLevel) + (swayY * 10) + recoil.y;
+            
+            // The Horizontal Center (with Sway & Recoil)
+            const centerX = (width / 2) + (swayX * 10) + recoil.x;
+
+            // --- 2. DRAWING ---
+
+            // Sky
+            ctx.fillStyle = "#1a2325";
+            ctx.fillRect(0, 0, width, height);
+
+            // Ground (Infinite Rect below Horizon)
+            ctx.fillStyle = "#0d1415";
+            ctx.fillRect(0, horizonY, width, height - horizonY + 100); // +100 to be safe
+
+            // Trees
+            trees.forEach(t => {
+                const effectiveScale = t.scale * zoomLevel;
+                const screenX = centerX + (t.x + view.x) * effectiveScale;
+                const screenY = horizonY + (20 * effectiveScale); // Base of tree slightly below horizon
+
+                if (screenX > -100 && screenX < width + 100) {
+                    drawTree(screenX, screenY, effectiveScale, t.color);
+                }
+            });
+
+            // Deer
+            deer.forEach(d => {
+                d.update(dt);
+                d.draw(horizonY, centerX);
+            });
+
+            // Bullets
+            updateBullets(dt, horizonY, centerX);
+
+            requestAnimationFrame(update);
+        }
+
+        function updateBullets(dt, horizonY, centerX) {
+            ctx.fillStyle = "rgba(255, 200, 0, 0.8)";
+            
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                b.z += dt * 100; // Speed away from camera
+                
+                // Wind affects X, Gravity affects Y
+                b.x += b.windDrift * dt;
+                b.y += b.drop * dt;
+                b.drop += GRAVITY * dt * 10; 
+
+                // Draw Tracer
+                // Bullet position is relative to CROSSHAIR (Center screen), not world
+                // But it needs to stick to the world view somewhat? 
+                // No, tracers usually originate from gun relative to scope.
+                const bx = (width / 2) + b.x;
+                const by = (height / 2) + b.y;
+                const size = Math.max(1, 6 - (b.z * 0.1));
+                
+                ctx.beginPath(); ctx.arc(bx, by, size, 0, Math.PI*2); ctx.fill();
+
+                // Hit Detection at depth
+                if (b.z > 20) { 
+                    checkHit(b, horizonY, centerX);
+                    bullets.splice(i, 1);
+                }
+            }
+        }
+
+        function checkHit(b, horizonY, centerX) {
+            // Bullet Screen Coords at impact moment
+            const hitX = (width / 2) + b.x; 
+            const hitY = (height / 2) + b.y;
+            
+            let hitRegistered = false;
+
+            deer.forEach(d => {
+                if(d.state === 'DEAD') return;
+
+                // Re-calculate deer screen pos exactly as drawn
+                const effectiveScale = d.scale * zoomLevel;
+                const deerScreenX = centerX + (d.x + view.x) * effectiveScale;
+                const deerScreenY = horizonY + (50 * effectiveScale);
+
+                // Hitbox scales with Zoom too!
+                const hitRadius = 30 * effectiveScale;
+
+                const dx = hitX - deerScreenX;
+                const dy = hitY - (deerScreenY - (20 * effectiveScale)); // Aim for body center
+
+                if (Math.abs(dx) < hitRadius && Math.abs(dy) < hitRadius) {
+                    d.hit();
+                    showMessage("TARGET DOWN", "#00ff00");
+                    hitRegistered = true;
+                    spookNearby(d);
+                } 
+                else if (Math.abs(dx) < hitRadius * 4) {
+                    d.spook();
+                }
+            });
+
+            if(!hitRegistered) {
+                showMessage("MISS", "#fff");
+                setTimeout(() => showMessage("", "transparent"), 500);
+            }
+        }
+
+        function spookNearby(target) {
+            deer.forEach(d => {
+                if(d === target) return;
+                if(Math.abs(d.x - target.x) < 500) d.spook();
+            });
+        }
+
+        function drawTree(x, y, scale, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x, y - (120 * scale)); // Top
+            ctx.lineTo(x - (30 * scale), y); // Left Base
+            ctx.lineTo(x + (30 * scale), y); // Right Base
+            ctx.fill();
+        }
+
+        function fire() {
+            if (bullets.length > 0) return;
+            recoil.y = 50; recoil.x = (Math.random() - 0.5) * 20;
+            const windDriftFactor = wind.speed * wind.dir * 2;
+            bullets.push({ x: 0, y: 0, z: 0, windDrift: windDriftFactor, drop: 0 });
+            showMessage("BANG!", "yellow");
+        }
+
+        function showMessage(text, color) {
+            const el = document.getElementById('message');
+            el.innerText = text; el.style.color = color; el.style.opacity = 1;
+        }
+
+        // --- INPUT HANDLING ---
+        let lastTouchX = 0, lastTouchY = 0;
+
+        document.addEventListener('touchstart', e => {
+            // Check if touching zoom slider
+            if (e.target.id === 'zoom-track' || e.target.id === 'zoom-handle' || e.target.parentElement.id === 'zoom-container') {
+                return; // Handled by zoom listener
+            }
+            if (e.target.classList.contains('control-btn')) return;
+            
+            lastTouchX = e.touches[0].clientX;
+            lastTouchY = e.touches[0].clientY;
+        }, {passive: false});
+
+        document.addEventListener('touchmove', e => {
+            if (e.target.classList.contains('control-btn')) return;
+            if (e.target.id === 'zoom-track' || e.target.id === 'zoom-handle') return;
+
+            e.preventDefault();
+            const tx = e.touches[0].clientX;
+            const ty = e.touches[0].clientY;
+            
+            // Aim sensitivity reduces as you Zoom in for precision
+            const sensitivity = 1.5 / zoomLevel;
+            
+            aim.x -= (tx - lastTouchX) * sensitivity;
+            aim.y -= (ty - lastTouchY) * sensitivity;
+            
+            lastTouchX = tx; lastTouchY = ty;
+        }, {passive: false});
+
+        // ZOOM SLIDER LOGIC
+        const zoomTrack = document.getElementById('zoom-container');
+        const zoomHandle = document.getElementById('zoom-handle');
+        
+        function handleZoom(clientY) {
+            const rect = document.getElementById('zoom-track').getBoundingClientRect();
+            // Calculate % from bottom
+            let val = 1 - ((clientY - rect.top) / rect.height);
+            val = Math.max(0, Math.min(1, val));
+            
+            // Move handle
+            zoomHandle.style.bottom = (val * 100) + "%";
+            
+            // Set Zoom (1x to 4x)
+            zoomLevel = 1 + (val * 3);
+        }
+
+        zoomTrack.addEventListener('touchmove', e => {
+            e.preventDefault();
+            handleZoom(e.touches[0].clientY);
+        }, {passive: false});
+        
+        zoomTrack.addEventListener('touchstart', e => {
+            e.preventDefault();
+            handleZoom(e.touches[0].clientY);
+        }, {passive: false});
+
+
+        // Mouse fallback
+        document.addEventListener('mousemove', e => {
+            // Only if not hovering controls
+            if(e.target.id === 'gameCanvas') {
+                aim.x = (width/2 - e.clientX) * 0.8;
+                aim.y = (height/2 - e.clientY) * 0.8;
+            }
+        });
+        document.addEventListener('mousedown', e => {
+            if(e.target.id === 'gameCanvas') fire();
+        });
+
+        // Buttons
+        document.getElementById('btn-fire').addEventListener('touchstart', (e) => { e.preventDefault(); fire(); });
+        document.getElementById('btn-breath').addEventListener('touchstart', (e) => { e.preventDefault(); isHoldingBreath = true; });
+        document.getElementById('btn-breath').addEventListener('touchend', (e) => { e.preventDefault(); isHoldingBreath = false; });
+
+        // Init
+        resize();
+        initRound();
+        requestAnimationFrame(update);
+
+    </script>
+</body>
+</html>
