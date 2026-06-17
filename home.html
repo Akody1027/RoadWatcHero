@@ -1778,11 +1778,22 @@
                     <img src="driver.png" style="width: 45px; height: 45px; margin-bottom: 8px; filter: drop-shadow(0px 0px 2px var(--accent));" />
                     <div style="font-size: 12px; font-weight: 900; color: var(--text);">Driver App</div>
                   </div>
+                  
+                  
+                  <div onclick="window.openModal('arcadeModal')" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 15px; text-align: center; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <img src="controlicon.png" style="width: 45px; height: 45px; margin-bottom: 8px; filter: drop-shadow(0px 0px 2px var(--accent));" />
+                    <div style="font-size: 12px; font-weight: 900; color: var(--text);">Arcade</div>
+                  </div>
+                  
+                  
+                  
+                  
+                  
                 </div>
               </div>
             </div>
           
-          
+           
 
 
 
@@ -2429,11 +2440,11 @@
 
             <button class="close-x-btn" onclick="window.closeModal('profileModal')">✕</button>
           </div>
-        </div>
+        </div> 
 
         
         
-               
+                
                
          <div style="text-align: center; margin-bottom: 20px">
           <div style="position: relative; display: inline-block; cursor: pointer;" onclick="document.getElementById('picInput').click()">
@@ -3189,14 +3200,17 @@
 
       <div class="modal-content" style="height: 85vh">
         <div class="modal-header-row">
-          <div style="flex: 1"></div>
+
           <h3>Arcade</h3>
-          <button
-            class="close-x-btn"
-            onclick="window.closeModal('arcadeModal')"
-          >
-            ✕
-          </button>
+          <div style="display: flex; justify-content: flex-end;">
+            <button
+              class="close-x-btn"
+              onclick="window.closeModal('arcadeModal')"
+            >
+              ✕
+            </button>
+          </div>
+          
         </div>
         <div
           id="arcadeGrid"
@@ -3520,6 +3534,85 @@
               Space Blast
             </p>
           </div>
+           
+           <div
+            onclick="window.launchGame('zombieshoot.html')"
+            style="cursor: pointer"
+          >
+            <img
+              class="gamenail"
+              src="zombieshoot.jpg"
+              style="
+                width: 100%;
+                border-radius: 12px;
+                box-shadow: var(--shadow);
+              "
+            />
+            <p
+              style="
+                font-size: 12px;
+                font-weight: 700;
+                text-align: center;
+                margin-top: 5px;
+              "
+            >
+
+           Zombie shoot           
+           </p>
+          </div>
+                    <div
+            onclick="window.launchGame('gravityrun.html')"
+            style="cursor: pointer"
+          >
+            <img
+              class="gamenail"
+              src="gravityrun.jpg"
+              style="
+                width: 100%;
+                border-radius: 12px;
+                box-shadow: var(--shadow);
+              "
+            />
+            <p
+              style="
+                font-size: 12px;
+                font-weight: 700;
+                text-align: center;
+                margin-top: 5px;
+              "
+            >
+                 Gravity Run         
+             </p>
+          </div>
+                    <div
+            onclick="window.launchGame('letshunt.html')"
+            style="cursor: pointer"
+          >
+            <img
+              class="gamenail"
+              src="letshunt.jpg"
+              style="
+                width: 100%;
+                border-radius: 12px;
+                box-shadow: var(--shadow);
+              "
+            />
+            <p
+              style="
+                font-size: 12px;
+                font-weight: 700;
+                text-align: center;
+                margin-top: 5px;
+              "
+            >
+                Lets Hunt
+            </p>
+          </div>
+          
+          
+          
+          
+          
         </div>
       </div>
     </div>
