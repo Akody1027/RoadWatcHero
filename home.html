@@ -1756,7 +1756,10 @@
             <div id="heroMenuModal" class="modal" style="justify-content: flex-end;">
               <div class="modal-content" style=" height: 50vh; min-height: 50vh; max-width: 40%; padding: 15px; position: relative; margin-bottom: 0px;">
                 
-                <div class="modal-header-row" style="margin-bottom: 20px;">
+                
+           <div class="modal-header-row" style="margin-bottom: 20px; padding-top: 40px !important;">
+                
+                  
                   <h3>More</h3>
                   <div style="display: flex; justify-content: flex-end;">
                     <button class="close-x-btn" onclick="window.closeModal('heroMenuModal')">✕</button>
@@ -2430,43 +2433,38 @@
 
         
         
-        
-         
-        
-        <div style="text-align: center; margin-bottom: 20px">
-          <img
-            id="profileDisplayPic"
-            src="herousericon.jpg"
-            style="
-              
-              width: 100px;
-              height: 100px;
-              border-radius: 50%;
-              object-fit: cover;
-              border: 4px solid #eff6ff;
-            "
-          />
+               
+               
+         <div style="text-align: center; margin-bottom: 20px">
+          <div style="position: relative; display: inline-block; cursor: pointer;" onclick="document.getElementById('picInput').click()">
+            <img
+              id="profileDisplayPic"
+              src="herousericon.jpg"
+              style="
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 4px solid #eff6ff;
+              "
+            />
+            <div style="position: absolute; bottom: 5px; right: 0px; background: var(--accent); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; border: 3px solid white; box-shadow: var(--shadow);">+</div>
+          </div>
           <input
             type="file"
             id="picInput"
             style="display: none"
             onchange="window.handleImageUpload(this, 'profile')"
           />
-          <button
-            onclick="document.getElementById('picInput').click()"
-            style="
-              display: block;
-              margin: 8px auto;
-              border: none;
-              background: none;
-              color: var(--accent);
-              font-weight: bold;
-              cursor: pointer;
-            "
-          >
-            Update Photo
-          </button>
         </div>
+   
+              
+ 
+        
+        
+        
+        
+        
         
         <div id="profileRatingDisplay" style="text-align: center; margin-bottom: 15px; font-size: 16px; font-weight: 800; color: #f59e0b; display: none;">
           <span id="profileStars"></span> <span id="profileRatingCount" style="color: var(--muted); font-size: 12px; font-weight: 600;"></span>
@@ -2893,8 +2891,17 @@
 
                 <button class="accent-btn" id="saveSettingsBtnBottom" onclick="window.saveProfile()">SAVE SETTINGS</button>
 
+
+     
         
+        
+                <button class="accent-btn" id="saveSettingsBtnBottom" onclick="window.saveProfile()" style="transition: all 0.3s ease;">SAVE SETTINGS</button>
+        <div id="saveSuccessText" style="color: var(--success); font-weight: 800; font-size: 13px; text-align: center; margin-top: 10px; opacity: 0; transition: opacity 0.3s ease;">✅ Saved</div>
+
         <hr style="border: 0; height: 1px; background: #e2e8f0; margin: 40px 0 20px 0;" />
+
+        
+        
         
          
         <div class="promo-carousel-container" onclick="window.location.href='pro-hero.html'">
@@ -7225,7 +7232,8 @@ if (nearbySOS.length > 0) {
           heroType: profileEditRole || "tow_truck",
           fleetModeActive:
             document.getElementById("fleetModeToggle")?.checked || false,
-          fleetDrivers: window.fleetDrivers || [],
+
+              fleetDrivers: window.fleetDrivers || [],
         });
 
         if (profileRadiusCircle) {
@@ -7233,10 +7241,43 @@ if (nearbySOS.length > 0) {
           profileRadiusCircle = null;
         }
         if (map && userLocation) map.setCenter(userLocation);
-        window.closeModal("profileModal");
+        
+        const saveBtn = document.getElementById("saveSettingsBtnBottom");
+        const successTxt = document.getElementById("saveSuccessText");
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.style.background = "#cbd5e1";
+          saveBtn.style.borderColor = "#cbd5e1";
+          saveBtn.style.cursor = "not-allowed";
+        }
+        if (successTxt) {
+          successTxt.style.opacity = "1";
+          setTimeout(() => { successTxt.style.opacity = "0"; }, 3500);
+        }
       };
 
+      document.getElementById("profileModal").addEventListener("input", () => {
+        const saveBtn = document.getElementById("saveSettingsBtnBottom");
+        if (saveBtn && saveBtn.disabled) {
+          saveBtn.disabled = false;
+          saveBtn.style.background = "var(--accent)";
+          saveBtn.style.borderColor = "var(--accent)";
+          saveBtn.style.cursor = "pointer";
+        }
+      });
+
+      document.getElementById("profileModal").addEventListener("change", () => {
+        const saveBtn = document.getElementById("saveSettingsBtnBottom");
+        if (saveBtn && saveBtn.disabled) {
+          saveBtn.disabled = false;
+          saveBtn.style.background = "var(--accent)";
+          saveBtn.style.borderColor = "var(--accent)";
+          saveBtn.style.cursor = "pointer";
+        }
+      });
+
       window.openProfile = async function () {
+
         window.openModal("profileModal");
         const snap = await get(ref(db, `profiles/${myId}`));
         if (snap.exists()) {
