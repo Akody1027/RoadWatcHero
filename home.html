@@ -7158,11 +7158,23 @@ if (nearbySOS.length > 0) {
           btn.style.cursor = "not-allowed"; 
         }
       };
+      
+      
+      
+      
+      
 
-      window.executeAccountDeletion = async () => {
+      
+       window.executeAccountDeletion = async () => {
         document.getElementById("loadingOverlay").classList.remove("loader-hidden");
         try {
-          await remove(ref(db, `profiles/${myId}`));
+          const updates = {};
+          updates[`profiles/${myId}`] = null;
+          updates[`users/${myId}`] = null;
+          updates[`businessPosts/${myId}`] = null;
+          updates[`userInbox/${myId}`] = null;
+          
+          await update(ref(db), updates);
           
           if (auth.currentUser) {
             const { deleteUser } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js");
@@ -7176,6 +7188,11 @@ if (nearbySOS.length > 0) {
           alert("Error deleting account. Please contact support. " + error.message);
         }
       };
+
+      
+      
+      
+      
       
 
 
