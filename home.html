@@ -1548,48 +1548,53 @@
               text-align: center;
             "
           />
+          
+          
+          
+ 
+        
+          
           <div style="flex: 1">
             <h3 id="matchName" style="margin: 0">Hero Name</h3>
-            <p
-              id="matchETA"
-              style="
-                margin: 4px 0;
-                color: var(--success);
-                font-weight: 800;
-                font-size: 14px;
-              "
-            >
-              Arriving in ...
-            </p>
-            <p
-              id="matchHeroPhone"
-              style="
-                margin: 4px 0;
-                font-size: 14px;
-                font-weight: 600;
-                display: none;
-              "
-            ></p>
-            <p
-              id="matchTowDestination"
-              style="
-                margin: 4px 0;
-                font-size: 14px;
-                font-weight: 600;
-                display: none;
-              "
-            ></p>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-top: 8px;">
+               <div style="flex: 1; border-right: 1px solid #cbd5e1; padding-right: 10px;">
+                  <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase;">ETA</div>
+                  <div id="matchETA" style="color: var(--success); font-weight: 900; font-size: 13px;">...</div>
+               </div>
+               <div id="matchTowDestWrapper" style="flex: 1; padding-left: 10px; display: none;">
+                  <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase;">Destination</div>
+                  <div id="matchTowDestination" style="color: var(--accent); font-weight: 900; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
+               </div>
+            </div>
+
+            <p id="matchHeroPhone" style="display: none;"></p>
           </div>
         </div>
         
-        <div style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 15px;">
-              <a id="seekerCallHeroBtn" href="#" class="submit-btn" style="flex: 1; background: whitesmoke; color: var(--text); border: 2px solid var(--accent); margin-top: 0; padding: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <span style="font-size: 18px;">📞</span> CALL
-              </a>
-              <button onclick="window.handleSeekerChatClick()" class="submit-btn" style="flex: 1; margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <span style="font-size: 18px;">💬</span> CHAT
+        <div style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 15px; position: relative;">
+              <button onclick="document.getElementById('callDropdownMenu').style.display = document.getElementById('callDropdownMenu').style.display === 'flex' ? 'none' : 'flex';" class="submit-btn" style="flex: 1; background: whitesmoke; border: 2px solid var(--accent); margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center;">
+                <img src="phone1.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px var(--accent));">
+              </button>
+              
+              <div id="callDropdownMenu" style="display: none; position: absolute; top: 55px; left: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: var(--shadow); width: 180px; z-index: 100; flex-direction: column; overflow: hidden;">
+                 <a id="callTowTruckLink" href="#" style="padding: 12px 15px; text-decoration: none; color: var(--text); font-weight: 800; font-size: 12px; border-bottom: 1px solid #f1f5f9; display: none;">Call Tow Truck</a>
+                 <a id="callDispatchLink" href="#" style="padding: 12px 15px; text-decoration: none; color: var(--text); font-weight: 800; font-size: 12px; display: none;">Call Dispatcher</a>
+              </div>
+
+              <button onclick="window.handleSeekerChatClick()" class="submit-btn" style="flex: 1; margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center;">
+                <img src="Chaticon.png" style="width: 24px; height: 24px;">
               </button>
             </div>
+          
+          
+          
+          
+          
+          
+          
+        
+        
         
         
         <div id="seekerMapContainer">
@@ -1923,6 +1928,9 @@
 
         
         <div id="detETAGroup">
+          
+          <div id="detDispatchStatus" style="display: none; background: #dcfce7; border: 1px solid #22c55e; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px;"></div>
+          
           <label style="font-size: 11px; font-weight: bold; color: var(--muted)"
             >ETA TO ARRIVAL</label
           >
@@ -2099,13 +2107,19 @@
 
     <div id="chatModal" class="modal">
       <div class="modal-content" style="height: 95vh">
-        <div class="modal-header-row" style="">
-          <div style="flex: 1"></div>
-          <h3>Messages</h3>
-          <button class="close-x-btn" onclick="window.closeModal('chatModal')">
-            ✕
-          </button>
+        
+        
+        
+        <div class="modal-header-row">
+          <h3 style="flex: 1; text-align: left; margin: 0;">CHAT</h3>
+          <div style="display: flex; justify-content: flex-end;">
+            <button class="close-x-btn" onclick="window.closeModal('chatModal')">✕</button>
+          </div>
         </div>
+        
+        
+  
+        
         <div id="chatBox"></div>
         <div style="display: flex; gap: 10px">
           
@@ -2840,16 +2854,21 @@
                 border: 1px solid #e2e8f0;
               "
             >
-              <label
-                style="
-                  font-size: 11px;
-                  font-weight: bold;
-                  color: var(--muted);
-                  display: block;
-                  margin-bottom: 10px;
-                "
-                >YOUR DRIVERS</label
-              >
+              
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin: 0;">YOUR DRIVERS</label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 10px; font-weight: 800; color: var(--accent);">Show drivers on main Map</span>
+                  <label class="toggle-switch" style="transform: scale(0.7); margin: 0;">
+                    <input type="checkbox" id="showFleetMapToggle" onchange="window.syncUI()" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+              
+              
+     
 
               <div
                 id="fleetDriversList"
@@ -3141,22 +3160,24 @@
           </div>
 
           <div class="command-grid" style="margin-bottom: 20px">
+            
             <button
               class="cmd-btn"
               style="border-color: var(--text)"
               onclick="window.copyPinMessage()"
             >
-              <span style="font-size: 24px; margin-bottom: 5px">📋</span>
-              COPY
+              COPY PIN
             </button>
             <button
               class="cmd-btn"
               style="border-color: var(--success); color: var(--success)"
               onclick="window.smsPinMessage()"
             >
-              <span style="font-size: 24px; margin-bottom: 5px">💬</span>
               SEND SMS
             </button>
+            
+
+            
           </div>
 
           <div
@@ -4203,7 +4224,7 @@
       const seekerOwnIcon = {
         path: google.maps.SymbolPath.CIRCLE,
         scale: 8,
-        fillColor: "#2563eb",
+fillColor: "#ee611c",
         fillOpacity: 1,
         strokeColor: "white",
         strokeWeight: 2,
@@ -5281,10 +5302,17 @@ window.loadAdvertisements = () => {
             const side = m.sender === myId ? "msg-me" : "msg-them";
             
             let roleLabel = "";
+            
+            
             if (isGroupRoom && side === "msg-them") {
-                roleLabel = `<div style="font-size: 10px; font-weight: 800; color: var(--accent); margin-bottom: 2px;">${m.senderRole || "User"} (${m.senderName || "Unknown"})</div>`;
+                let dispName = m.senderName || "Unknown";
+                if (profilesCache[m.sender] && profilesCache[m.sender].companyName) {
+                    dispName = profilesCache[m.sender].companyName;
+                }
+                roleLabel = `<div style="font-size: 10px; font-weight: 800; color: var(--accent); margin-bottom: 2px;">${m.senderRole || "User"} (${dispName})</div>`;
             }
-
+            
+    
             let content = roleLabel;
             content += m.text ? `<div>${m.text}</div>` : "";
             if (m.img)
@@ -5600,35 +5628,52 @@ window.loadAdvertisements = () => {
               r.towDestination
             )}`;
           detNavBtn.href = navLink;
+          
+          
+          
+          
+          const detDispatchStatus = document.getElementById("detDispatchStatus");
+          if (detDispatchStatus) detDispatchStatus.style.display = "none";
+          detStatusBtn.style.display = "none";
 
-          if (r.status === "accepted") {
-            
-            
-            
-            detStatusBtn.innerHTML = `<img src="here.png" alt="I'm Here" style="width:24px; height:24px; filter: drop-shadow(0px 0px 3px rgba(0,0,0,0.2));"/> I'M HERE`;
-            detStatusBtn.style.background = "var(--warning)";
-            detStatusBtn.style.borderColor = "var(--warning)";
-            detStatusBtn.style.display = "flex";
-            detStatusBtn.style.alignItems = "center";
-            detStatusBtn.style.justifyContent = "center";
-            detStatusBtn.style.gap = "10px";
-            detStatusBtn.onclick = () => {
-              window.markArrived();
-              window.closeModal("detailsModal");
-            };
+          if (myProfile.isPro && myProfile.fleetModeActive && r.driverId) {
+             let driverName = "Driver";
+             if (myProfile.fleetDrivers) {
+               const d = myProfile.fleetDrivers.find(df => "fleet_" + df.phone.replace(/\D/g, "") === r.driverId);
+               if (d) driverName = d.name;
+             }
+             const dTime = r.assignmentTimestamp ? new Date(r.assignmentTimestamp).toLocaleTimeString() : "Recently";
+             if (detDispatchStatus) {
+               detDispatchStatus.innerHTML = `<div style="color: #166534; font-weight: 900; font-size: 14px; margin-bottom: 4px;">LOAD DISPATCHED</div><div style="color: #15803d; font-size: 12px; font-weight: 700;">Assigned to: ${driverName}<br>Time: ${dTime}</div>`;
+               detDispatchStatus.style.display = "block";
+             }
           } else {
-            detStatusBtn.innerHTML = `<img src="complete.png" alt="Job Done" style="width:24px; height:24px; filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.2));"/> JOB DONE`;
-            detStatusBtn.style.background = "var(--success)";
-            detStatusBtn.style.borderColor = "var(--success)";
-            detStatusBtn.style.display = "flex";
-            detStatusBtn.style.alignItems = "center";
-            detStatusBtn.style.justifyContent = "center";
-            detStatusBtn.style.gap = "10px";
-            detStatusBtn.onclick = () => {
-              window.completeTask();
-              window.closeModal("detailsModal");
-            };
+             detStatusBtn.style.display = "flex";
+             if (r.status === "accepted") {
+                detStatusBtn.innerHTML = `<img src="here.png" alt="I'm Here" style="width:24px; height:24px; filter: drop-shadow(0px 0px 3px rgba(0,0,0,0.2));"/> I'M HERE`;
+                detStatusBtn.style.background = "var(--warning)";
+                detStatusBtn.style.borderColor = "var(--warning)";
+                detStatusBtn.style.alignItems = "center";
+                detStatusBtn.style.justifyContent = "center";
+                detStatusBtn.style.gap = "10px";
+                detStatusBtn.onclick = () => {
+                  window.markArrived();
+                  window.closeModal("detailsModal");
+                };
+             } else {
+                detStatusBtn.innerHTML = `<img src="complete.png" alt="Job Done" style="width:24px; height:24px; filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.2));"/> JOB DONE`;
+                detStatusBtn.style.background = "var(--success)";
+                detStatusBtn.style.borderColor = "var(--success)";
+                detStatusBtn.style.alignItems = "center";
+                detStatusBtn.style.justifyContent = "center";
+                detStatusBtn.style.gap = "10px";
+                detStatusBtn.onclick = () => {
+                  window.completeTask();
+                  window.closeModal("detailsModal");
+                };
+             }
           }
+
 
           
           
@@ -6402,6 +6447,42 @@ window.increaseTipPrompt = () => {
           startTowTruckAnimation();
         else if (!towTruckRequestsOnMap && towTruckAnimationInterval)
           stopTowTruckAnimation();
+        
+        
+        
+        
+        
+        if (currentHeroProfile.isPro && currentHeroProfile.fleetModeActive && document.getElementById('showFleetMapToggle')?.checked) {
+            if (currentHeroProfile.driverLocations) {
+               Object.entries(currentHeroProfile.driverLocations).forEach(([dId, dLoc]) => {
+                  const fMarkerId = "fleetMap_" + dId;
+                  if (map && map instanceof google.maps.Map) {
+                     if (!markers[fMarkerId]) {
+                        markers[fMarkerId] = new google.maps.Marker({
+                           position: { lat: dLoc.lat, lng: dLoc.lng },
+                           map: map,
+                           icon: { url: "truckpin.png", scaledSize: new google.maps.Size(36, 36), anchor: new google.maps.Point(18, 18) }
+                        });
+                     } else {
+                        markers[fMarkerId].setPosition({ lat: dLoc.lat, lng: dLoc.lng });
+                        markers[fMarkerId].setMap(map);
+                     }
+                  }
+               });
+            }
+        } else {
+            Object.keys(markers).forEach(k => {
+               if (k.startsWith("fleetMap_")) {
+                  markers[k].setMap(null);
+                  delete markers[k];
+               }
+            });
+        }
+        
+        
+        
+        
+        
 
         Object.entries(sosCache).forEach(([id, r]) => {
           const distMiles = userLocation
@@ -6941,24 +7022,48 @@ if (nearbySOS.length > 0) {
               matchHeroPhone.innerHTML = `📞 Dispatch: <a href="tel:${hero.dispatchPhone}" style="color:var(--text); text-decoration: underline;">${hero.dispatchPhone}</a>`;
               matchHeroPhone.style.display = "block";
               
-             if (seekerCallBtn) { seekerCallBtn.href = "tel:" + hero.dispatchPhone; seekerCallBtn.style.display = "flex"; }
               
-            } else {
-              matchHeroPhone.style.display = "none";
               
-              if (seekerCallBtn) { seekerCallBtn.style.display = "none"; }
               
+              
+              
+              const callDispatch = document.getElementById("callDispatchLink");
+            const callTow = document.getElementById("callTowTruckLink");
+
+            if (myActiveSOS.isTowTruckRequest && hero.dispatchPhone) {
+              if (callDispatch) {
+                 callDispatch.href = "tel:" + hero.dispatchPhone;
+                 callDispatch.style.display = "block";
+              }
+            } else if (callDispatch) {
+              callDispatch.style.display = "none";
             }
 
-            const matchTowDestination = document.getElementById(
-              "matchTowDestination"
-            );
-            if (myActiveSOS.isTowTruckRequest && myActiveSOS.towDestination) {
-              matchTowDestination.innerText = `Destination: ${myActiveSOS.towDestination}`;
-              matchTowDestination.style.display = "block";
-            } else {
-              matchTowDestination.style.display = "none";
+            // Assume hero.phoneNumber or hero.phone holds the truck driver's direct line if they aren't a dispatcher
+            if (hero.phoneNumber || hero.phone) {
+               if (callTow) {
+                  callTow.href = "tel:" + (hero.phoneNumber || hero.phone);
+                  callTow.style.display = "block";
+               }
+            } else if (callTow) {
+               callTow.style.display = "none";
             }
+
+            const matchTowDestination = document.getElementById("matchTowDestination");
+            const matchTowDestWrapper = document.getElementById("matchTowDestWrapper");
+            if (myActiveSOS.isTowTruckRequest && myActiveSOS.towDestination) {
+              matchTowDestination.innerText = myActiveSOS.towDestination;
+              matchTowDestWrapper.style.display = "block";
+            } else {
+              matchTowDestWrapper.style.display = "none";
+            }
+              
+              
+       
+            
+            
+            
+            
             
               setTimeout(() => {
               updateSeekerMiniMap(myActiveSOS, hero);
@@ -7219,6 +7324,12 @@ if (nearbySOS.length > 0) {
             trackingHero.lat = trackingHero.driverLocations[myActiveSOS.driverId].lat;
             trackingHero.lng = trackingHero.driverLocations[myActiveSOS.driverId].lng;
           }
+          
+          
+          } else if (myActiveSOS.driverId) {
+            return;
+          }
+          
           
           updateSeekerMiniMap(myActiveSOS, trackingHero); 
         }
