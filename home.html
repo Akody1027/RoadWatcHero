@@ -9,7 +9,7 @@
   
 <!DOCTYPE html> 
 <html lang="en">    
-  <head>    
+  <head>     
     <meta charset="UTF-8" />    
     <title>RoadWatcHero</title>   
       
@@ -6286,13 +6286,28 @@ window.increaseTipPrompt = () => {
           }, 4000);
         });
       }
-
+      
+      
+      
+      
       function syncUI() {
+      
+      
+      window.syncUI = syncUI;
         if (
           !map &&
           document.getElementById("heroUI").classList.contains("view-active")
         )
           return;
+      
+      
+      
+      
+      
+      
+      
+      
+
 
         // --- THE BOUNCER: AUTO-CLOSE DETAILS MODAL IF JOB DIES ---
         if (
@@ -7014,43 +7029,47 @@ if (nearbySOS.length > 0) {
               myActiveSOS.status === "arrived"
                 ? "Hero is at your location!"
                 : `Arriving in ${myActiveSOS.eta || "..."}`;
-
-            const matchHeroPhone = document.getElementById("matchHeroPhone");
-            const seekerCallBtn = document.getElementById("seekerCallHeroBtn");
             
+            
+            
+            
+            
+            
+            
+            const matchHeroPhone = document.getElementById("matchHeroPhone");
+            const callDispatch = document.getElementById("callDispatchLink");
+            const callTow = document.getElementById("callTowTruckLink");
+
+            // Dispatch Phone Link
             if (myActiveSOS.isTowTruckRequest && hero.dispatchPhone) {
               matchHeroPhone.innerHTML = `📞 Dispatch: <a href="tel:${hero.dispatchPhone}" style="color:var(--text); text-decoration: underline;">${hero.dispatchPhone}</a>`;
               matchHeroPhone.style.display = "block";
               
-              
-              
-              
-              
-              
-              const callDispatch = document.getElementById("callDispatchLink");
-            const callTow = document.getElementById("callTowTruckLink");
-
-            if (myActiveSOS.isTowTruckRequest && hero.dispatchPhone) {
               if (callDispatch) {
                  callDispatch.href = "tel:" + hero.dispatchPhone;
                  callDispatch.style.display = "block";
               }
-            } else if (callDispatch) {
-              callDispatch.style.display = "none";
+            } else {
+              matchHeroPhone.style.display = "none";
+              if (callDispatch) {
+                callDispatch.style.display = "none";
+              }
             }
 
-            // Assume hero.phoneNumber or hero.phone holds the truck driver's direct line if they aren't a dispatcher
+            // Tow Truck Direct Line
             if (hero.phoneNumber || hero.phone) {
                if (callTow) {
                   callTow.href = "tel:" + (hero.phoneNumber || hero.phone);
                   callTow.style.display = "block";
                }
             } else if (callTow) {
-               callTow.style.display = "none";
+               callTow.style.display = "none"; 
             }
 
+            // Destination Data
             const matchTowDestination = document.getElementById("matchTowDestination");
             const matchTowDestWrapper = document.getElementById("matchTowDestWrapper");
+            
             if (myActiveSOS.isTowTruckRequest && myActiveSOS.towDestination) {
               matchTowDestination.innerText = myActiveSOS.towDestination;
               matchTowDestWrapper.style.display = "block";
@@ -7058,18 +7077,10 @@ if (nearbySOS.length > 0) {
               matchTowDestWrapper.style.display = "none";
             }
               
-              
-       
-            
-            
-            
-            
-            
-              setTimeout(() => {
+            setTimeout(() => {
               updateSeekerMiniMap(myActiveSOS, hero);
             }, 50);
  
-           
           } else if (myActiveSOS.status === "completed") {
             msgList.style.display = "none";
             searching.style.display = "none";
@@ -7081,11 +7092,17 @@ if (nearbySOS.length > 0) {
           document.getElementById("seekerMessagesList").style.display = "none";
           document.getElementById("searchingState").style.display = "none";
           document.getElementById("matchedState").style.display = "none";
-          document.getElementById("completionConfirmState").style.display =
-            "none";
+          document.getElementById("completionConfirmState").style.display = "none";
           document.getElementById("cancelSosBtn").style.display = "none";
         }
       }
+    
+        
+        
+        
+        
+        
+        
 
       window.handleSeekerChatClick = () => {
         const msgList = document.getElementById("seekerMessagesList");
@@ -7304,14 +7321,15 @@ if (nearbySOS.length > 0) {
         profilesCache = snap.val() || {};
         syncUI();
 
-        if (isTowTruckRequestActive) window.renderVerifiedPros();
-
-        const myActiveSOS = Object.values(sosCache).find(
+        
+        
+        
+        
+     const myActiveSOS = Object.values(sosCache).find(
           (r) =>
             r.ownerId === myId &&
             (r.status === "accepted" || r.status === "arrived")
         );
-        
         
         if (
           myActiveSOS &&
@@ -7319,10 +7337,6 @@ if (nearbySOS.length > 0) {
           profilesCache[myActiveSOS.helperId]
         ) {
           let trackingHero = { ...profilesCache[myActiveSOS.helperId] };
-          
-          
-          
-          
           
           if (myActiveSOS.driverId && trackingHero.driverLocations && trackingHero.driverLocations[myActiveSOS.driverId]) {
             trackingHero.lat = trackingHero.driverLocations[myActiveSOS.driverId].lat;
@@ -7333,8 +7347,12 @@ if (nearbySOS.length > 0) {
           
           updateSeekerMiniMap(myActiveSOS, trackingHero); 
         }
-      });
-          
+      });   
+        
+        
+        
+        
+        
           
           
           
