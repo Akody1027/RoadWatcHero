@@ -7694,62 +7694,62 @@
 
         if (activeTasks.length === 0 && nearbySOS.length === 0)
           panelContent = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone inside your ${myRadius} mile radius needs help.</p></div>`;
-
+        
+        
+        
+        
+        
+        
+        
         if (directionsRenderer) {
-          directionsRenderer.setMap(null);
+            directionsRenderer.setMap(null);
         }
-        const myActiveJob = activeTasks.find(
-          (t) =>
-            (t.status === "accepted" || t.status === "arrived") &&
-            t.lat &&
-            t.lng
-        );
+        
+        const myActiveJob = activeTasks.find(t => (t.status === "accepted" || t.status === "arrived") && t.lat && t.lng);
+        
         if (myActiveJob && map) {
-          let startLat = userLocation ? userLocation.lat : null;
-          let startLng = userLocation ? userLocation.lng : null;
+            let startLat = userLocation ? userLocation.lat : null;
+            let startLng = userLocation ? userLocation.lng : null;
 
-          if (
-            currentHeroProfile.isPro &&
-            currentHeroProfile.fleetModeActive &&
-            myActiveJob.driverId &&
-            currentHeroProfile.driverLocations &&
-            currentHeroProfile.driverLocations[myActiveJob.driverId]
-          ) {
-            startLat =
-              currentHeroProfile.driverLocations[myActiveJob.driverId].lat;
-            startLng =
-              currentHeroProfile.driverLocations[myActiveJob.driverId].lng;
-          }
-
-          if (startLat && startLng) {
-            if (!directionsService)
-              directionsService = new google.maps.DirectionsService();
-            if (!directionsRenderer) {
-              directionsRenderer = new google.maps.DirectionsRenderer({
-                map: map,
-                suppressMarkers: true,
-                polylineOptions: {
-                  strokeColor: "#ee611c",
-                  strokeWeight: 5,
-                  strokeOpacity: 0.8,
-                },
-              });
-            } else {
-              directionsRenderer.setMap(map);
+            if (currentHeroProfile.isPro && currentHeroProfile.fleetModeActive && myActiveJob.driverId && currentHeroProfile.driverLocations && currentHeroProfile.driverLocations[myActiveJob.driverId]) {
+                startLat = currentHeroProfile.driverLocations[myActiveJob.driverId].lat;
+                startLng = currentHeroProfile.driverLocations[myActiveJob.driverId].lng;
             }
 
-            directionsService.route(
-              {
-                origin: { lat: startLat, lng: startLng },
-                destination: { lat: myActiveJob.lat, lng: myActiveJob.lng },
-                travelMode: google.maps.TravelMode.DRIVING,
-              },
-              (response, status) => {
-                if (status === "OK") directionsRenderer.setDirections(response);
-              }
-            );
-          }
+            if (startLat && startLng) {
+                if (!directionsService) directionsService = new google.maps.DirectionsService();
+                if (!directionsRenderer) {
+                    directionsRenderer = new google.maps.DirectionsRenderer({
+                        map: map,
+                        suppressMarkers: true,
+                        polylineOptions: { strokeColor: "#ee611c", strokeWeight: 5, strokeOpacity: 0.8 }
+                    });
+                } else {
+                    directionsRenderer.setMap(map);
+                }
+
+                directionsService.route({
+                    origin: { lat: parseFloat(startLat), lng: parseFloat(startLng) },
+                    destination: { lat: parseFloat(myActiveJob.lat), lng: parseFloat(myActiveJob.lng) },
+                    travelMode: google.maps.TravelMode.DRIVING
+                }, (response, status) => {
+                    if (status === "OK") {
+                        directionsRenderer.setDirections(response);
+                    } else {
+                        console.error("Directions routing failed: " + status);
+                    }
+                });
+            }
         }
+
+        
+        
+        
+        
+        
+        
+        
+        
 
         tCard.innerHTML = panelContent;
         tCard.style.display = "block";
@@ -7981,6 +7981,11 @@
               hero.lat = hero.driverLocations[myActiveSOS.driverId].lat;
               hero.lng = hero.driverLocations[myActiveSOS.driverId].lng;
 
+              
+              
+              
+              
+              
               if (hero.fleetDrivers) {
                 const activeDriver = hero.fleetDrivers.find(
                   (d) =>
@@ -7993,15 +7998,25 @@
                   })`;
               }
             }
+            
+            
+              
+            
+            let displayName = hero.companyName || hero.name || "";
+            if (displayName.toLowerCase() === "roadwatch hero" || displayName.toLowerCase() === "roadside hero") {
+                displayName = "";
+            }
+            
+            document.getElementById("matchName").innerText = displayName;
+            document.getElementById("matchPic").src = hero.pic || "https://via.placeholder.com/65";
+            document.getElementById("matchETA").innerText = myActiveSOS.status === "arrived" ? "Hero is at your location!" : `Arriving in ${myActiveSOS.eta || "..."}`;
 
-            document.getElementById("matchName").innerText =
-              hero.companyName || hero.name || "Roadside Hero";
-            document.getElementById("matchPic").src =
-              hero.pic || "https://via.placeholder.com/65";
-            document.getElementById("matchETA").innerText =
-              myActiveSOS.status === "arrived"
-                ? "Hero is at your location!"
-                : `Arriving in ${myActiveSOS.eta || "..."}`;
+
+            
+            
+            
+            
+            
 
             const callDispatch = document.getElementById("callDispatchLink");
             const callTow = document.getElementById("callTowTruckLink");
