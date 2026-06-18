@@ -12,7 +12,7 @@
   <head>    
     <meta charset="UTF-8" />    
     <title>RoadWatcHero</title>   
-     
+      
       <meta      
       name="viewport" 
       content="width=device-width, initial-scale=1.0"  
@@ -7320,20 +7320,27 @@ if (nearbySOS.length > 0) {
         ) {
           let trackingHero = { ...profilesCache[myActiveSOS.helperId] };
           
+          
+          
+          
+          
           if (myActiveSOS.driverId && trackingHero.driverLocations && trackingHero.driverLocations[myActiveSOS.driverId]) {
             trackingHero.lat = trackingHero.driverLocations[myActiveSOS.driverId].lat;
             trackingHero.lng = trackingHero.driverLocations[myActiveSOS.driverId].lng;
-          }
-          
-          
           } else if (myActiveSOS.driverId) {
             return;
           }
           
-          
           updateSeekerMiniMap(myActiveSOS, trackingHero); 
         }
-});
+      });
+          
+          
+          
+          
+          
+          
+
       
     
       window.signOutHero = () => {
