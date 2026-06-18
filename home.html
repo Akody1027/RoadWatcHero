@@ -7698,14 +7698,13 @@
         
         
         
-        
-        
-        
-        if (directionsRenderer) {
-            directionsRenderer.setMap(null);
-        }
-        
+   
         const myActiveJob = activeTasks.find(t => (t.status === "accepted" || t.status === "arrived") && t.lat && t.lng);
+        
+        if (!myActiveJob && directionsRenderer) {
+            directionsRenderer.setMap(null);
+            window.lastRouteCacheKey = null;
+        }
         
         if (myActiveJob && map) {
             let startLat = userLocation ? userLocation.lat : null;
@@ -7717,32 +7716,35 @@
             }
 
             if (startLat && startLng) {
-                if (!directionsService) directionsService = new google.maps.DirectionsService();
-                if (!directionsRenderer) {
-                    directionsRenderer = new google.maps.DirectionsRenderer({
-                        map: map,
-                        suppressMarkers: true,
-                        polylineOptions: { strokeColor: "#ee611c", strokeWeight: 5, strokeOpacity: 0.8 }
-                    });
-                } else {
-                    directionsRenderer.setMap(map);
-                }
+                const currentCacheKey = `${parseFloat(startLat).toFixed(3)},${parseFloat(startLng).toFixed(3)}_${parseFloat(myActiveJob.lat).toFixed(3)},${parseFloat(myActiveJob.lng).toFixed(3)}`;
 
-                directionsService.route({
-                    origin: { lat: parseFloat(startLat), lng: parseFloat(startLng) },
-                    destination: { lat: parseFloat(myActiveJob.lat), lng: parseFloat(myActiveJob.lng) },
-                    travelMode: google.maps.TravelMode.DRIVING
-                }, (response, status) => {
-                    if (status === "OK") {
-                        directionsRenderer.setDirections(response);
+                if (window.lastRouteCacheKey !== currentCacheKey) {
+                    if (!directionsService) directionsService = new google.maps.DirectionsService();
+                    if (!directionsRenderer) {
+                        directionsRenderer = new google.maps.DirectionsRenderer({
+                            map: map,
+                            suppressMarkers: true,
+                            polylineOptions: { strokeColor: "#ee611c", strokeWeight: 5, strokeOpacity: 0.8 }
+                        });
                     } else {
-                        console.error("Directions routing failed: " + status);
+                        directionsRenderer.setMap(map);
                     }
-                });
+
+                    directionsService.route({
+                        origin: { lat: parseFloat(startLat), lng: parseFloat(startLng) },
+                        destination: { lat: parseFloat(myActiveJob.lat), lng: parseFloat(myActiveJob.lng) },
+                        travelMode: google.maps.TravelMode.DRIVING
+                    }, (response, status) => {
+                        if (status === "OK") {
+                            directionsRenderer.setDirections(response);
+                            window.lastRouteCacheKey = currentCacheKey;
+                        } else {
+                            console.error("Directions routing failed: " + status);
+                        }
+                    });
+                }
             }
         }
-
-        
         
         
         
