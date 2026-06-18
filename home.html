@@ -1567,14 +1567,19 @@
                   <div id="matchTowDestination" style="color: var(--accent); font-weight: 900; font-size: 11px; overflow: hidden; text-overflow: ellipsis;"></div>
                </div>
             </div>
-
-            <p id="matchHeroPhone" style="display: none;"></p>
-          </div>
+            
+            
+             
+            
+             
+            
+            
+       </div>
         </div>
         
         <div style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 15px; position: relative;">
               <button onclick="document.getElementById('callDropdownMenu').style.display = document.getElementById('callDropdownMenu').style.display === 'flex' ? 'none' : 'flex';" class="submit-btn" style="flex: 1; background: whitesmoke; border: 2px solid var(--accent); margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center;">
-                <img src="phone1.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px var(--accent));">
+                <img src="phoneicon.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px var(--accent));">
               </button>
               
               <div id="callDropdownMenu" style="display: none; position: absolute; top: 55px; left: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: var(--shadow); width: 180px; z-index: 100; flex-direction: column; overflow: hidden;">
@@ -1582,11 +1587,12 @@
                  <a id="callDispatchLink" href="#" style="padding: 12px 15px; text-decoration: none; color: var(--text); font-weight: 800; font-size: 12px; display: none;">Call Dispatcher</a>
               </div>
 
-              <button onclick="window.handleSeekerChatClick()" class="submit-btn" style="flex: 1; margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center;">
-                <img src="Chaticon.png" style="width: 24px; height: 24px;">
+              <button id="matchedChatBtn" class="submit-btn" style="flex: 1; margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center;">
+                <img src="chaticon.png" style="width: 24px; height: 24px;">
               </button>
             </div>
-          
+    
+
           
           
           
@@ -4094,6 +4100,8 @@
       let destLng = null;
       
       
+       let activeJobPolyline = null;
+      
       let lastPushedLocation = null;
       let locationThrottleTimer = null;
 
@@ -5303,16 +5311,25 @@ window.loadAdvertisements = () => {
             
             let roleLabel = "";
             
+         
             
-            if (isGroupRoom && side === "msg-them") {
+            
+             if (isGroupRoom && side === "msg-them") {
                 let dispName = m.senderName || "Unknown";
-                if (profilesCache[m.sender] && profilesCache[m.sender].companyName) {
-                    dispName = profilesCache[m.sender].companyName;
+                const pCache = profilesCache[m.sender];
+                if (pCache) {
+                    dispName = pCache.companyName || pCache.name || dispName;
+                }
+                if (dispName.toLowerCase() === "roadwatch hero" && pCache && pCache.companyName) {
+                    dispName = pCache.companyName;
                 }
                 roleLabel = `<div style="font-size: 10px; font-weight: 800; color: var(--accent); margin-bottom: 2px;">${m.senderRole || "User"} (${dispName})</div>`;
             }
+  
             
     
+               
+            
             let content = roleLabel;
             content += m.text ? `<div>${m.text}</div>` : "";
             if (m.img)
@@ -6774,7 +6791,33 @@ if (nearbySOS.length > 0) {
         
         
         if (activeTasks.length === 0 && nearbySOS.length === 0)
+          
+          
+          
           panelContent = `<div style="text-align:center; color:var(--muted); padding:10px;"><b>No help needed right now.</b><p style="font-size:11px;">We'll alert you if someone inside your ${myRadius} mile radius needs help.</p></div>`;
+        
+        
+        
+                if (activeJobPolyline) {
+            activeJobPolyline.setMap(null);
+        }
+        const myActiveJob = activeTasks.find(t => (t.status === "accepted" || t.status === "arrived") && t.lat && t.lng);
+        if (myActiveJob && map && userLocation) {
+            activeJobPolyline = new google.maps.Polyline({
+                path: [
+                    { lat: userLocation.lat, lng: userLocation.lng },
+                    { lat: myActiveJob.lat, lng: myActiveJob.lng }
+                ],
+                geodesic: true,
+                strokeColor: "#ee611c",
+                strokeOpacity: 0.8,
+                strokeWeight: 4,
+                map: map
+            });
+        }
+
+           
+        
         tCard.innerHTML = panelContent;
         tCard.style.display = "block";
 
@@ -7021,42 +7064,24 @@ if (nearbySOS.length > 0) {
             }
             
             
-            document.getElementById("matchName").innerText =
-              hero.name || "Roadside Hero";
-            document.getElementById("matchPic").src =
-              hero.pic || "https://via.placeholder.com/65";
-            document.getElementById("matchETA").innerText =
-              myActiveSOS.status === "arrived"
-                ? "Hero is at your location!"
-                : `Arriving in ${myActiveSOS.eta || "..."}`;
+                    
+              
+            document.getElementById("matchName").innerText = hero.companyName || hero.name || "Roadside Hero";
+            document.getElementById("matchPic").src = hero.pic || "https://via.placeholder.com/65";
+            document.getElementById("matchETA").innerText = myActiveSOS.status === "arrived" ? "Hero is at your location!" : `Arriving in ${myActiveSOS.eta || "..."}`;
             
-            
-            
-            
-            
-            
-            
-            const matchHeroPhone = document.getElementById("matchHeroPhone");
             const callDispatch = document.getElementById("callDispatchLink");
             const callTow = document.getElementById("callTowTruckLink");
 
-            // Dispatch Phone Link
             if (myActiveSOS.isTowTruckRequest && hero.dispatchPhone) {
-              matchHeroPhone.innerHTML = `📞 Dispatch: <a href="tel:${hero.dispatchPhone}" style="color:var(--text); text-decoration: underline;">${hero.dispatchPhone}</a>`;
-              matchHeroPhone.style.display = "block";
-              
               if (callDispatch) {
                  callDispatch.href = "tel:" + hero.dispatchPhone;
                  callDispatch.style.display = "block";
               }
             } else {
-              matchHeroPhone.style.display = "none";
-              if (callDispatch) {
-                callDispatch.style.display = "none";
-              }
+              if (callDispatch) callDispatch.style.display = "none";
             }
 
-            // Tow Truck Direct Line
             if (hero.phoneNumber || hero.phone) {
                if (callTow) {
                   callTow.href = "tel:" + (hero.phoneNumber || hero.phone);
@@ -7065,6 +7090,19 @@ if (nearbySOS.length > 0) {
             } else if (callTow) {
                callTow.style.display = "none"; 
             }
+
+            const matchedChatBtn = document.getElementById("matchedChatBtn");
+            if (matchedChatBtn) {
+                matchedChatBtn.onclick = () => {
+                    const chatId = myActiveSOS.isTowTruckRequest ? myActiveSOS.id : `${myActiveSOS.id}_${myActiveSOS.helperId}`;
+                    window.handleSeekerChatClick(chatId);
+                };
+            }
+      
+            
+     
+                
+            
 
             // Destination Data
             const matchTowDestination = document.getElementById("matchTowDestination");
@@ -7099,24 +7137,21 @@ if (nearbySOS.length > 0) {
     
         
         
-        
-        
-        
-        
-
-      window.handleSeekerChatClick = () => {
+       window.handleSeekerChatClick = (targetChatId) => {
         const msgList = document.getElementById("seekerMessagesList");
-        if (
-          msgList.style.display === "flex" ||
-          msgList.style.display === "block"
-        )
+        if (msgList.style.display === "flex" || msgList.style.display === "block") {
           msgList.scrollIntoView({ behavior: "smooth" });
-        else window.openChat();
+        } else {
+          window.openChat(targetChatId);
+        }
       };
+      
+      
       window.confirmDeleteChatPrompt = (id) => {
         chatToDeleteId = id;
         window.openModal("deleteChatConfirmModal");
-      };
+      };   
+      
       window.confirmDeleteChat = () => {
         if (chatToDeleteId) {
           remove(ref(db, `chats/${chatToDeleteId}`))
