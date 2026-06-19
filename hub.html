@@ -15,7 +15,7 @@
         --surface: #ffffff;
         --text: #0f172a;
         --muted: #64748b;
-        --border: #e2e8f0;
+        --border: #e2e8f0; 
       }
       body {
         margin: 0;
@@ -550,7 +550,8 @@
         orderBy,
         limit,
         startAfter,
-        getDocs
+        getDocs,
+        onSnapshot
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
       
       
@@ -595,6 +596,12 @@
       
       const firestore = getFirestore(app);
       let lastVisibleDoc = null;
+      
+      let hubFeedListener = null;
+      let currentFeedLimit = 10;
+      
+      
+      
       
       
       // --- NATIVE GEOHASH ENGINE ---
@@ -746,144 +753,124 @@
       
       
       
-      
-      
-      
-      
-      
-      
       window.loadHubFeed = async (loadMore = false) => {
         if (isFetching) return;
         isFetching = true;
         const feedContainer = document.getElementById("marketplaceFeed");
 
         if (!loadMore) {
-          feedContainer.innerHTML = "";
-          lastVisibleDoc = null;
-          window.allHubPosts = {};
+          currentFeedLimit = 10;
+        } else {
+          currentFeedLimit += 10;
         }
 
         try {
-          
-          // Querying the 'businessPosts' collection for Hub ads
           let qRef = collection(firestore, "businessPosts");
           let constraints = [];
-
 
           if (activeCategory) {
             constraints.push(where("category", "==", activeCategory));
           }
 
-          // THE MAGIC FILTER: Only download ads in the same geographic grid
           if (userCurrentGeohash) {
             constraints.push(where("geohash", ">=", userCurrentGeohash));
             constraints.push(where("geohash", "<=", userCurrentGeohash + '\uf8ff'));
           } else {
-            // Only order by timestamp if we aren't doing a Geohash range query
-            // (Firestore requires the first orderBy to match the where clause inequality)
             constraints.push(orderBy("timestamp", "desc"));
           }
           
-          
-          
-          constraints.push(limit(10)); // Fetch only 10 at a time
+          constraints.push(limit(currentFeedLimit));
 
-          if (loadMore && lastVisibleDoc) {
-            constraints.push(startAfter(lastVisibleDoc));
+          if (hubFeedListener) {
+            hubFeedListener();
           }
 
           const finalQuery = query(qRef, ...constraints);
-          const snapshot = await getDocs(finalQuery);
 
-          if (snapshot.empty && !loadMore) {
-            feedContainer.innerHTML = `
-              <div class="empty-feed-msg">
-                <h3 style="margin-bottom: 5px; color: var(--text);">No Active Posts Found</h3>
-                <p style="font-size: 13px;">Adjust your filters to see more local ads.</p>
-              </div>
-            `;
-          }
+          hubFeedListener = onSnapshot(finalQuery, (snapshot) => {
+            feedContainer.innerHTML = "";
+            window.allHubPosts = {};
+            lastVisibleDoc = null;
 
-          snapshot.forEach((doc) => {
-            const post = doc.data();
-            const key = doc.id;
-
-            // Debounced Client-Side Keyword Checking
-            if (searchKeyword) {
-              const searchString = `${post.businessName || ""} ${post.description || ""}`.toLowerCase();
-              if (!searchString.includes(searchKeyword.toLowerCase())) return;
+            if (snapshot.empty) {
+              feedContainer.innerHTML = `
+                <div class="empty-feed-msg">
+                  <h3 style="margin-bottom: 5px; color: var(--text);">No Active Posts Found</h3>
+                  <p style="font-size: 13px;">Adjust your filters to see more local ads.</p>
+                </div>
+              `;
             }
 
-            // Map Firestore fields to the existing Modal structure
-            window.allHubPosts[key] = {
-              uid: post.uid,
-              logoUrl: post.logoUrl,
-              promoUrl: post.promoUrl,
-              businessName: post.businessName,
-              description: post.description,
-              phone: post.phone,
-              uid: post.uid,
-              website: post.website,
-              facebook: post.facebook,
-              instagram: post.instagram
-    
-            };
-            
-            lastVisibleDoc = doc;
+            snapshot.forEach((doc) => {
+              const post = doc.data();
+              const key = doc.id;
 
-            const card = `
-            
-            <div class="post-card" onclick="window.incrementStat('${post.uid}', 'postClicks'); window.openPostModal('${key}')">
+              if (searchKeyword) {
+                const searchString = `${post.businessName || ""} ${post.description || ""}`.toLowerCase();
+                if (!searchString.includes(searchKeyword.toLowerCase())) return;
+              }
 
-                <div class="post-header">
-                <img id="feed-icon-${key}" src="${post.logoUrl || 'https://via.placeholder.com/36'}" class="post-user-icon">
+              window.allHubPosts[key] = {
+                uid: post.uid,
+                logoUrl: post.logoUrl,
+                promoUrl: post.promoUrl,
+                businessName: post.businessName,
+                description: post.description,
+                phone: post.phone,
+                uid: post.uid,
+                website: post.website,
+                facebook: post.facebook,
+                instagram: post.instagram
+              };
+              
+              lastVisibleDoc = doc;
 
-                  <div class="post-biz-name">${post.businessName || "Pro Hero"}</div>
+              const card = `
+              <div class="post-card" onclick="window.incrementStat('${post.uid}', 'postClicks'); window.openPostModal('${key}')">
+                  <div class="post-header">
+                  <img id="feed-icon-${key}" src="${post.logoUrl || 'https://via.placeholder.com/36'}" class="post-user-icon">
+                    <div class="post-biz-name">${post.businessName || "Pro Hero"}</div>
+                  </div>
+                  <div class="post-image-square">
+                    <img src="${post.promoUrl || "https://via.placeholder.com/500"}" alt="Business Ad">
+                  </div>
+                  <div class="post-footer">
+                    <p class="post-desc">${post.description || "Professional automotive services."}</p>
+                    <a href="tel:${post.phone || "#"}" style="text-decoration:none;" onclick="event.stopPropagation(); window.incrementStat('${post.uid}', 'callClicks');">
+                      <button class="post-btn">CALL NOW</button>
+                    </a>
+                  </div>
                 </div>
-                <div class="post-image-square">
-                  <img src="${post.promoUrl || "https://via.placeholder.com/500"}" alt="Business Ad">
-                </div>
-                <div class="post-footer">
-                  <p class="post-desc">${post.description || "Professional automotive services."}</p>
-                  <a href="tel:${post.phone || "#"}" style="text-decoration:none;" onclick="event.stopPropagation(); window.incrementStat('${post.uid}', 'callClicks');">
-
-                    <button class="post-btn">CALL NOW</button>
-                  </a>
-                </div>
-              </div>
-            `;
-            feedContainer.innerHTML += card;
-            
-            if (post.uid) {
-              get(child(ref(db), `profiles/${post.uid}`)).then((profSnap) => {
-                if (profSnap.exists()) {
-                  const pData = profSnap.val();
-                  const liveLogo = pData.logoUrl || pData.profileImage;
-                  if (liveLogo) {
-                    const iconEl = document.getElementById(`feed-icon-${key}`);
-                    if (iconEl) iconEl.src = liveLogo;
-                    window.allHubPosts[key].logoUrl = liveLogo; 
+              `;
+              feedContainer.innerHTML += card;  
+              
+              if (post.uid) {
+                get(child(ref(db), `profiles/${post.uid}`)).then((profSnap) => {
+                  if (profSnap.exists()) {
+                    const pData = profSnap.val();
+                    const liveLogo = pData.logoUrl || pData.profileImage;
+                    if (liveLogo) {
+                      const iconEl = document.getElementById(`feed-icon-${key}`);
+                      if (iconEl) iconEl.src = liveLogo;
+                      window.allHubPosts[key].logoUrl = liveLogo; 
+                    }
                   }
-                }
-              });
-            }
+                });
+              }
+            });
             
-            
-            
-            
+            isFetching = false;
           });
-   
-          
-          
-          
-          
-          
         } catch (err) {
           console.error("Error loading feed:", err);
-        } finally {
           isFetching = false;
         }
       };
+      
+      
+      
+      
+
 
       // --- FILTER BINDINGS ---
 
@@ -901,7 +888,7 @@
             document.querySelectorAll('.cat-row').forEach(r => r.style.color = "var(--text)");
             activeCategory = clickedCat;
             e.target.style.color = "var(--accent)";
-          }
+          } 
           window.loadHubFeed(false);
         });
       });
@@ -912,7 +899,7 @@
       
       
       
-      
+       
       if (keywordInput) {
         keywordInput.addEventListener('input', (e) => {
           clearTimeout(debounceTimer);
