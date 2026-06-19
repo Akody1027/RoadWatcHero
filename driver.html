@@ -17,7 +17,7 @@
     <style>
       :root {
         --bg: #f8fafc;
-        --card: #ffffff;
+        --card: #ffffff; 
         --text: #0f172a;
         --muted: #64748b;
         --accent: #ee611c; 
@@ -350,11 +350,9 @@
       }
       .fab-btn {
         position: absolute;
-        bottom: 20px;
-        left: 20px;
-        width: 56px;
-        height: 56px;
-        background: var(--accent);
+        bottom: 200px;
+        left: 10px;
+        background: transparent;
         color: white;
         border: none;
         border-radius: 50%;
@@ -364,9 +362,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.2s;
-        animation: fabPulse 2.5s infinite cubic-bezier(0.66, 0, 0, 1);
-        opacity: 0.9;
       }
       .fab-btn:active {
         transform: scale(0.95);
@@ -541,7 +536,7 @@
           color: var(--muted);
           margin-bottom: 30px;
           font-weight: 500;
-        "
+        " 
       >
         Enter your dispatch credentials.
       </p>
@@ -587,7 +582,7 @@
         style="font-size: 35px"
       > 
         
-        <img src="gearicon.png" alt="Settings" style="width: 32px; height: 32px;  ">
+        <img src="gearicon.png" alt="Settings" style="width: 40px; height: 40px;  ">
         
       </button>
 
@@ -773,18 +768,23 @@
           "
           >DRIVER ID / EMPLOYEE #</label
         >
-        <input type="text" id="profEmpId" placeholder="e.g. EMP-104" />
-
+        
+        <input type="text" id="profEmpId" placeholder="e.g. EMP-104" oninput="window.checkProfileChanges()" />
+        
+        
+        
         <button
+          id="saveProfileBtn"
           class="submit-btn"
           onclick="window.saveDriverProfile()"
-          style="margin-top: 25px; "
+          style="margin-top: 25px; background: #94a3b8; box-shadow: none; pointer-events: none; transition: 0.3s;"
         >
           SAVE SETTINGS
         </button>
-        
+
+
         <div id="profileSavedMsg" style="color: var(--accent); font-weight: 900; font-size: 14px; text-align: center;
-                                         margin-top: 15px; opacity: 0; transition: opacity 0.3s; text-transform: uppercase;">Saved!</div>
+         margin-top: 15px; opacity: 0; transition: opacity 0.3s; text-transform: uppercase;">Saved!</div>
         
         
       </div>
@@ -1354,7 +1354,7 @@
 
         // Always show Dispatch as the first pinned thread
         list.innerHTML = `
-                <div class="hub-thread" onclick="window.openChat('dispatch_' + myShopId)" style="background: #ffffff; border-bottom: 2px solid var(--accent);">
+                  <div class="hub-thread" onclick="window.openChat('dispatch_${myShopId}')" style="background: #ffffff; border-bottom: 2px solid var(--accent);">
                   <div>
                     <div style="font-weight:900; font-size:15px; color:var(--accent);"> Dispatch Center</div>
                     <div style="font-size:12px; font-weight:700; color:var(--muted); margin-top:2px;">Main Office Chat</div>
@@ -1382,20 +1382,39 @@
       };
 
       // --- NEW: PROFILE LOGIC ---
+      
+      window.checkProfileChanges = () => {
+        const currentEmpId = document.getElementById("profEmpId").value;
+        const currentImg = localStorage.getItem("driverProfileImg") || "";
+        const btn = document.getElementById("saveProfileBtn");
+        
+        if (currentEmpId !== (window.initialEmpId || "") || currentImg !== (window.initialProfileImg || "")) {
+          btn.style.background = "var(--accent)";
+          btn.style.boxShadow = "0 4px 15px rgba(238, 97, 28, 0.3)";
+          btn.style.pointerEvents = "auto";
+        } else {
+          btn.style.background = "#94a3b8";
+          btn.style.boxShadow = "none";
+          btn.style.pointerEvents = "none";
+        }
+      };
+
       window.handleProfileImage = (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (event) => {
           const base64 = event.target.result;
-          document.getElementById(
-            "profileImagePreview"
-          ).style.backgroundImage = `url(${base64})`;
+          document.getElementById("profileImagePreview").style.backgroundImage = `url(${base64})`;
           document.getElementById("profileImagePreview").innerHTML = "";
           localStorage.setItem("driverProfileImg", base64);
+          window.checkProfileChanges();
         };
         reader.readAsDataURL(file);
       };
+      
+      
+
 
       window.openDriverProfile = async () => {
         document.getElementById("profName").value =
@@ -1432,7 +1451,15 @@
             document.getElementById("profileImagePreview").innerHTML = "";
           }
         }
+        
+        
+        window.initialEmpId = document.getElementById("profEmpId").value;
+        window.initialProfileImg = localStorage.getItem("driverProfileImg") || "";
+        window.checkProfileChanges();
         document.getElementById("profileModal").style.display = "flex";
+        
+        
+        
       };
 
       window.saveDriverProfile = () => {
@@ -1450,9 +1477,19 @@
         
        const savedMsg = document.getElementById("profileSavedMsg");
         savedMsg.style.opacity = "1";
+        
+        
+        
+        window.initialEmpId = empId;
+        window.initialProfileImg = img;
+        window.checkProfileChanges();
+        
         setTimeout(() => {
           savedMsg.style.opacity = "0";
-        }, 2500); 
+        }, 2500);
+        
+        
+
         
       };
 
