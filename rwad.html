@@ -242,6 +242,19 @@
 
                     <div class="panel janitor-box">
                         <h2 style="border-bottom: 1px dashed var(--danger);">The Digital Janitor</h2>
+                      
+                      
+                      
+                      
+                      <button class="btn-janitor" id="clearRequestsBtn" style="background-color: var(--warning); margin-bottom: 10px;">Purge All Assistance Requests</button>
+<button class="btn-janitor" id="clearUsersBtn" style="background-color: var(--warning); margin-bottom: 10px;">Purge All User Accounts</button>
+<button class="btn-janitor" id="clearInboxesBtn" style="background-color: var(--warning); margin-bottom: 10px;">Purge All User Inboxes</button>
+                   <button class="btn-janitor" id="clearProfilesBtn" style="background-color: var(--warning); margin-bottom: 10px;">Purge All Map Profiles & Ghost Markers</button>   
+                      
+                      
+                      
+                      
+                      
                         <button class="btn-janitor" id="janitorBtn">Purge Old Storage Images</button>
                     </div>
                 </div>
@@ -566,6 +579,60 @@
         };
 
         document.getElementById('janitorBtn').addEventListener('click', () => { alert("Pending backend function deployment."); });
+      
+      
+      
+      
+      document.getElementById('clearRequestsBtn').addEventListener('click', async () => {
+            if (confirm("Are you sure you want to delete all active and historic assistance requests (SOS, Towing, Mechanics)?")) {
+                try {
+                    await remove(ref(db, 'sosRequests'));
+                    await remove(ref(db, 'mechanicRequests'));
+                    alert("All assistance requests cleared successfully.");
+                } catch (e) { alert("Error: " + e.message); }
+            }
+        });
+
+        document.getElementById('clearUsersBtn').addEventListener('click', async () => {
+            if (confirm("Are you sure you want to delete all user accounts? This leaves global settings and live tickets intact.")) {
+                try {
+                    await remove(ref(db, 'users'));
+                    alert("All user accounts deleted successfully.");
+                } catch (e) { alert("Error: " + e.message); }
+            }
+        });
+
+      
+      document.getElementById('clearProfilesBtn').addEventListener('click', async () => {
+            if (confirm("Are you sure you want to delete all profiles and map coordinates? This will clear all ghost markers from the map.")) {
+                try {
+                    await remove(ref(db, 'profiles'));
+                    alert("All map profiles and ghost markers cleared successfully.");
+                } catch (e) { alert("Error: " + e.message); }
+            }
+        });
+      
+      
+      
+      
+
+      
+      
+        document.getElementById('clearInboxesBtn').addEventListener('click', async () => {
+            if (confirm("Are you sure you want to delete all notification history inside user inboxes?")) {
+                try {
+                    await remove(ref(db, 'userInbox'));
+                    alert("All user inboxes cleared successfully.");
+                } catch (e) { alert("Error: " + e.message); }
+            }
+        });
+      
+      
+      
+      
+      
+      
+      
     </script>
 </body>
 </html>
