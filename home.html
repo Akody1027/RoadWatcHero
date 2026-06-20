@@ -5877,26 +5877,39 @@
         document.getElementById("discoveryLoadingSpinner").style.display =
           "none";
       };
-
+      
+      
+      
+      
       window.submitBid = (sosId) => {
         const bidAmount = document.getElementById("detBidAmount").value;
-        const etaVal = document.getElementById("detBidETA").value; // NEW
+        const etaVal = document.getElementById("detBidETA").value; 
 
         if (!bidAmount || bidAmount <= 0)
           return alert("Please enter a valid bid amount.");
 
-        const myProfile = profilesCache[myId] || { name: "Tow Hero" };
+        const myProfile = profilesCache[myId] || {};
+        const heroDisplayName = myProfile.companyName || myProfile.name || "Tow Hero";
 
         update(ref(db, `sosRequests/${sosId}/bids/${myId}`), {
           amount: Number(bidAmount),
-          eta: etaVal, // NEW
-          heroName: myProfile.name,
+          eta: etaVal, 
+          heroName: heroDisplayName,
           timestamp: Date.now(),
+        }).then(() => {
+          alert("Bid submitted successfully! Waiting for Seeker to accept.");
+          window.closeModal("detailsModal");
+        }).catch((err) => {
+          alert("Error submitting bid: " + err.message);
         });
-
-        alert("Bid submitted successfully! Waiting for Seeker to accept.");
-        window.closeModal("detailsModal");
       };
+      
+
+
+      
+      
+      
+      
 
       // NEW: Withdraw an active bid
       window.withdrawBid = (sosId) => {
