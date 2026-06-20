@@ -4759,6 +4759,16 @@
         remove,
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
+      
+      
+      import { 
+        getFirestore, 
+        doc, 
+        getDoc, 
+        updateDoc 
+      } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+      
+
       // NEW: Import Firebase Authentication
       import {
         getAuth,
@@ -4794,6 +4804,9 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
+      
+      const firestoreDb = getFirestore(app);
+      
 
       let isPromoActive = false;
 
@@ -7117,9 +7130,7 @@
       
       
       
-      
-      
-     window.finalSeekerConfirm = async () => {
+      window.finalSeekerConfirm = async () => {
         const btn = document.getElementById("finalConfirmBtn");
         if (btn) btn.disabled = true;
 
@@ -7132,10 +7143,9 @@
 
         if (myReqId) {
           const req = sosCache[myReqId];
+          const targetHeroId = req.helperId || req.shopId;
           
-          if (req.helperId && currentHeroRating > 0) {
-            const heroId = req.helperId;
-
+          if (targetHeroId && currentHeroRating > 0) {
             const newRatingData = {
               stars: currentHeroRating,
               seekerId: myId,
@@ -7143,33 +7153,49 @@
             };
 
             try {
-              await push(ref(db, `profiles/${heroId}/ratings`), newRatingData);
+              await push(ref(db, `profiles/${targetHeroId}/ratings`), newRatingData);
 
-              const ratingsSnap = await get(
-                ref(db, `profiles/${heroId}/ratings`)
-              );
+              const ratingsSnap = await get(ref(db, `profiles/${targetHeroId}/ratings`));
               if (ratingsSnap.exists()) {
                 const allRatings = Object.values(ratingsSnap.val());
-                const totalStars = allRatings.reduce(
-                  (sum, r) => sum + r.stars,
-                  0
-                );
+                const totalStars = allRatings.reduce((sum, r) => sum + r.stars, 0);
                 const avgRating = (totalStars / allRatings.length).toFixed(1);
 
-                await update(ref(db, `profiles/${heroId}`), {
+                await update(ref(db, `profiles/${targetHeroId}`), {
                   averageRating: Number(avgRating),
                   totalRatings: allRatings.length,
                 });
               }
             } catch (err) {
-              console.error("Firebase permission blocked the rating push. Adjust database rules.", err);
+              console.error("Realtime DB rating push blocked.", err);
+            }
+
+            try {
+              const proRef = doc(firestoreDb, "pros", targetHeroId);
+              const proSnap = await getDoc(proRef);
+              
+              if (proSnap.exists()) {
+                const data = proSnap.data();
+                const currentReviews = parseInt(data.reviews) || 0;
+                const currentRating = parseFloat(data.rating) || 0;
+
+                const newReviews = currentReviews + 1;
+                const newAvgRating = ((currentRating * currentReviews) + currentHeroRating) / newReviews;
+
+                await updateDoc(proRef, {
+                  rating: newAvgRating.toFixed(1),
+                  reviews: newReviews.toString()
+                });
+              }
+            } catch (fsErr) {
+              console.error("Firestore sync skipped. Hero may not have a directory profile.", fsErr);
             }
           }
 
           try {
             await update(ref(db, `sosRequests/${myReqId}`), { status: "finalized" });
           } catch (err) {
-            console.error("Failed to finalize job status.", err);
+            console.error("Failed to finalize job.", err);
           }
         }
 
@@ -7180,9 +7206,7 @@
 
         document.getElementById("loadingOverlay").classList.add("loader-hidden");
         window.switchView("landingPage");
-      }; 
-      
-      
+      };
 
       
       
