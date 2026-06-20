@@ -13,6 +13,27 @@
     />
     <script src="https://js.stripe.com/v3/"></script>
     
+    
+    
+    
+    <script>
+      window.initGooglePlaces = () => {
+        const addressInput = document.getElementById("editAddress");
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+          types: ["address"],
+          fields: ["formatted_address"]
+        });
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) {
+            addressInput.value = place.formatted_address;
+            if (window.checkSettingsChanged) window.checkSettingsChanged();
+          }
+        });
+      };
+    </script>
+    
+    
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=places&callback=initGooglePlaces" async defer></script>
     
     
@@ -835,21 +856,7 @@
                                                            
                                                            
                                                            
-// Google Places Initialization
-      window.initGooglePlaces = () => {
-        const addressInput = document.getElementById("editAddress");
-        const autocomplete = new google.maps.places.Autocomplete(addressInput, {
-          types: ["address"],
-          fields: ["formatted_address"]
-        });
-        autocomplete.addListener("place_changed", () => {
-          const place = autocomplete.getPlace();
-          if (place.formatted_address) {
-            addressInput.value = place.formatted_address;
-            if (window.checkSettingsChanged) window.checkSettingsChanged();
-          }
-        });
-      };
+
 
       // Settings Change State Manager
       window.initialProSettings = {};
