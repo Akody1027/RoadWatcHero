@@ -1690,8 +1690,13 @@
             position: relative;
           "
         >
-          <button
-            onclick="document.getElementById('callDropdownMenu').style.display = document.getElementById('callDropdownMenu').style.display === 'flex' ? 'none' : 'flex';"
+          
+          
+          
+          
+        <a
+            id="dynamicCallBtn"
+            href="#"
             class="submit-btn"
             style="
               flex: 1;
@@ -1702,6 +1707,7 @@
               display: flex;
               align-items: center;
               justify-content: center;
+              text-decoration: none;
             "
           >
             <img
@@ -1712,54 +1718,13 @@
                 filter: drop-shadow(0px 0px 2px var(--accent));
               "
             />
-          </button>
-
-          <div
-            id="callDropdownMenu"
-            style="
-              display: none;
-              position: absolute;
-              top: 55px;
-              left: 0;
-              background: white;
-              border: 1px solid #e2e8f0;
-              border-radius: 12px;
-              box-shadow: var(--shadow);
-              width: 180px;
-              z-index: 100;
-              flex-direction: column;
-              overflow: hidden;
-            "
-          >
-            <a
-              id="callTowTruckLink"
-              href="#"
-              style="
-                padding: 12px 15px;
-                text-decoration: none;
-                color: var(--text);
-                font-weight: 800;
-                font-size: 12px;
-                border-bottom: 1px solid #f1f5f9;
-                display: none;
-              "
-              >Call Tow Truck</a
-            >
-            <a
-              id="callDispatchLink"
-              href="#"
-              style="
-                padding: 12px 15px;
-                text-decoration: none;
-                color: var(--text);
-                font-weight: 800;
-                font-size: 12px;
-                display: none;
-              "
-              >Call Dispatcher</a
-            >
-          </div>
-
+          </a>
+          
+          
+          
+          
+          
+          
           <button
             id="matchedChatBtn"
             class="submit-btn"
@@ -3178,6 +3143,30 @@
           "
           readonly
         />
+        
+        
+        
+        
+        <input
+          type="tel"
+          id="mainProfilePhone"
+          placeholder="Main Contact Phone Number..."
+          style="
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+            font-size: 14px;
+            background: white;
+            box-sizing: border-box;
+          "
+        />
+        
+        
+        
+        
+        
 
         <textarea
           id="profileBio"
@@ -3311,24 +3300,12 @@
             placeholder="e.g. 4"
             style="margin-bottom: 15px"
           />
+          
 
-          <label
-            style="
-              font-size: 11px;
-              font-weight: bold;
-              color: var(--muted);
-              margin-bottom: 5px;
-              display: block;
-            "
-            >DISPATCH PHONE NUMBER</label
-          >
-          <input
-            type="tel"
-            id="profileDispatchPhone"
-            placeholder="e.g. 555-0199"
-            style="margin-bottom: 0"
-          />
+      
         </div>
+        
+
 
         <div class="toggle-wrapper" style="border: 2px solid var(--accent)">
           <span
@@ -5884,7 +5861,7 @@
       window.submitBid = (sosId) => {
         const bidAmount = document.getElementById("detBidAmount").value;
         const etaVal = document.getElementById("detBidETA").value; 
-
+ 
         if (!bidAmount || bidAmount <= 0)
           return alert("Please enter a valid bid amount.");
 
@@ -8110,30 +8087,31 @@
             
             
             
-            
-            
-
-            const callDispatch = document.getElementById("callDispatchLink");
-            const callTow = document.getElementById("callTowTruckLink");
-
-            if (myActiveSOS.isTowTruckRequest && hero.dispatchPhone) {
-              if (callDispatch) {
-                callDispatch.href = "tel:" + hero.dispatchPhone;
-                callDispatch.style.display = "block";
+            const dynamicCallBtn = document.getElementById("dynamicCallBtn");
+            if (dynamicCallBtn) {
+              let numberToCall = hero.phone || hero.phoneNumber || hero.dispatchPhone || "";
+              
+              if (myActiveSOS.driverId && hero.fleetDrivers) {
+                const activeDriver = hero.fleetDrivers.find(
+                  (d) => "fleet_" + d.phone.replace(/\D/g, "") === myActiveSOS.driverId
+                );
+                if (activeDriver && activeDriver.phone) {
+                  numberToCall = activeDriver.phone;
+                }
               }
-            } else {
-              if (callDispatch) callDispatch.style.display = "none";
-            }
 
-            if (hero.phoneNumber || hero.phone) {
-              if (callTow) {
-                callTow.href = "tel:" + (hero.phoneNumber || hero.phone);
-                callTow.style.display = "block";
+              if (numberToCall) {
+                dynamicCallBtn.href = "tel:" + numberToCall.replace(/\D/g, "");
+                dynamicCallBtn.style.opacity = "1";
+                dynamicCallBtn.style.pointerEvents = "auto";
+              } else {
+                dynamicCallBtn.href = "#";
+                dynamicCallBtn.style.opacity = "0.5";
+                dynamicCallBtn.style.pointerEvents = "none";
               }
-            } else if (callTow) {
-              callTow.style.display = "none";
             }
-
+            
+ 
             const matchedChatBtn = document.getElementById("matchedChatBtn");
             if (matchedChatBtn) {
               matchedChatBtn.onclick = () => {
@@ -8506,8 +8484,11 @@
             document.getElementById("mechanicModeToggle")?.checked || false,
           baseRate: document.getElementById("profileBaseRate")?.value || 0,
           pricePerMile: document.getElementById("profilePerMile")?.value || 0,
-          dispatchPhone:
-            document.getElementById("profileDispatchPhone")?.value || "",
+          
+          
+          phone: document.getElementById("mainProfilePhone")?.value || "",
+          
+          
           businessAddress:
             document.getElementById("profileBusinessAddress")?.value || "",
           heroType: profileEditRole || "tow_truck",
@@ -8638,8 +8619,9 @@
           document.getElementById("profilePerMile").value =
             d.pricePerMile || "";
 
-          document.getElementById("profileDispatchPhone").value =
-            d.dispatchPhone || "";
+          if (document.getElementById("mainProfilePhone")) {
+            document.getElementById("mainProfilePhone").value = d.phone || d.dispatchPhone || d.phoneNumber || "";
+          }
 
           if (document.getElementById("profileBusinessAddress")) {
             document.getElementById("profileBusinessAddress").value =
