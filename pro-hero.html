@@ -15,23 +15,13 @@
     
     
     
-    
     <script>
+      window.googleMapsReady = false;
       window.initGooglePlaces = () => {
-        const addressInput = document.getElementById("editAddress");
-        const autocomplete = new google.maps.places.Autocomplete(addressInput, {
-          types: ["address"],
-          fields: ["formatted_address"]
-        });
-        autocomplete.addListener("place_changed", () => {
-          const place = autocomplete.getPlace();
-          if (place.formatted_address) {
-            addressInput.value = place.formatted_address;
-            if (window.checkSettingsChanged) window.checkSettingsChanged();
-          }
-        });
+        window.googleMapsReady = true;
       };
     </script>
+ 
     
     
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=places&callback=initGooglePlaces" async defer></script>
@@ -348,9 +338,10 @@
         line-height: 1.4;
         font-weight: 600;
       }
-
-
-/* Fix Google Places Dropdown visibility over modals */
+      
+      
+      
+      /* Fix Google Places Dropdown visibility over modals */
       .pac-container {
         z-index: 10000 !important;
         border-radius: 12px;
@@ -358,8 +349,10 @@
         font-family: inherit;
         margin-top: 5px;
       }
-
-
+      
+      
+      
+      
       
     </style>
   </head>
@@ -1154,6 +1147,25 @@
         const card = document.getElementById("settingsCard");
 
         overlay.style.display = "flex";
+                                      
+                                      
+        if (window.googleMapsReady && !window.addressAutocompleteBound) {
+            const addressInput = document.getElementById("editAddress");
+            const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+              types: ["address"],
+              fields: ["formatted_address"]
+            });
+            autocomplete.addListener("place_changed", () => {
+              const place = autocomplete.getPlace();
+              if (place.formatted_address) {
+                addressInput.value = place.formatted_address;
+                if (window.checkSettingsChanged) window.checkSettingsChanged();
+              }
+            });
+            window.addressAutocompleteBound = true;
+        }                              
+                                      
+                                      
         setTimeout(() => {
           overlay.style.opacity = "1";
           card.style.transform = "translateY(0)";
