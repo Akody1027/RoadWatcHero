@@ -1606,6 +1606,12 @@
 
           <div style="flex: 1">
 
+            
+            <div id="matchName" style="font-weight: 900; font-size: 18px; color: var(--text);"></div>
+            
+            
+            
+            
             <div
               style="
                 display: flex;
@@ -7081,13 +7087,13 @@
             status: "canceled",
             cancelReason: reason,
           });
-        window.closeModal("cancelConfirmModal");
+        window.closeModal("cancelConfirmModal"); 
         window.switchView("landingPage");
         damageImgList = [];
       };
 
       let currentHeroRating = 0;
-
+  
       window.setHeroRating = (stars) => {
         currentHeroRating = stars;
         const starElements = document.querySelectorAll(
@@ -7107,7 +7113,17 @@
         btn.style.cursor = "pointer";
       };
 
+      
+      
+      
+      
       window.finalSeekerConfirm = async () => {
+        const btn = document.getElementById("finalConfirmBtn");
+        if (btn) {
+          btn.disabled = true;
+          btn.innerText = "SAVING...";
+        }
+
         const myReqId = Object.keys(sosCache).find(
           (k) =>
             sosCache[k].ownerId === myId && sosCache[k].status === "completed"
@@ -7124,27 +7140,31 @@
               timestamp: Date.now(),
             };
 
-            await push(ref(db, `profiles/${heroId}/ratings`), newRatingData);
+            try {
+              await push(ref(db, `profiles/${heroId}/ratings`), newRatingData);
 
-            const ratingsSnap = await get(
-              ref(db, `profiles/${heroId}/ratings`)
-            );
-            if (ratingsSnap.exists()) {
-              const allRatings = Object.values(ratingsSnap.val());
-              const totalStars = allRatings.reduce(
-                (sum, r) => sum + r.stars,
-                0
+              const ratingsSnap = await get(
+                ref(db, `profiles/${heroId}/ratings`)
               );
-              const avgRating = (totalStars / allRatings.length).toFixed(1);
+              if (ratingsSnap.exists()) {
+                const allRatings = Object.values(ratingsSnap.val());
+                const totalStars = allRatings.reduce(
+                  (sum, r) => sum + r.stars,
+                  0
+                );
+                const avgRating = (totalStars / allRatings.length).toFixed(1);
 
-              await update(ref(db, `profiles/${heroId}`), {
-                averageRating: Number(avgRating),
-                totalRatings: allRatings.length,
-              });
+                await update(ref(db, `profiles/${heroId}`), {
+                  averageRating: Number(avgRating),
+                  totalRatings: allRatings.length,
+                });
+              }
+            } catch (err) {
+              console.error("Failed to save rating:", err);
             }
           }
 
-          update(ref(db, `sosRequests/${myReqId}`), { status: "finalized" });
+          await update(ref(db, `sosRequests/${myReqId}`), { status: "finalized" });
         }
 
         damageImgList = [];
@@ -7154,7 +7174,14 @@
 
         window.switchView("landingPage");
       };
+      
 
+      
+      
+      
+      
+      
+      
       function initMap() {
         const mapElement = document.getElementById("map");
         if (!mapElement) return;
