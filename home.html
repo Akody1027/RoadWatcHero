@@ -7495,7 +7495,27 @@
               nearbySOS.push({ id, ...r, dist: distMiles });
             if (!isTowTruck && prefersRoadside)
               nearbySOS.push({ id, ...r, dist: distMiles });
+          
+          
+          
+          
+          
+          
+          window.notifiedOpenJobs = window.notifiedOpenJobs || {};
+            if ((isTowTruck && prefersTowTruck) || (!isTowTruck && prefersRoadside)) {
+              if (!window.notifiedOpenJobs[id]) {
+                window.notifiedOpenJobs[id] = true;
+                const sound = document.getElementById("notificationSound");
+                if (sound) sound.play().catch((e) => console.error(e));
+                window.showDropBanner(`🚨 New SOS Request ${distMiles.toFixed(1)} miles away!`, "🚨");
+              }
+            }
+          
+          
+          
+          
           }
+          
           if (
             r.ownerId === myId &&
             ["open", "accepted", "arrived", "completed"].includes(r.status)
