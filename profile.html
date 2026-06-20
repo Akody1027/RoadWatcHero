@@ -578,13 +578,17 @@
             document.getElementById("modalName").innerText = pro.name || "Shop Name";
             
             
+            
+            
+            
             let ratingEl = document.querySelector('#profileModal .pro-rating');
-            if (!pro.reviews || pro.reviews == 0) {
+            if (!pro.reviews || parseInt(pro.reviews) === 0) {
               ratingEl.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">No reviews available</span>';
             } else {
-              ratingEl.innerHTML = `★ <span id="modalRating">${pro.rating}</span> (<span id="modalReviews">${pro.reviews}</span> Reviews)`;
+              ratingEl.innerHTML = `★ <span id="modalRating">${pro.rating || "0"}</span> (<span id="modalReviews">${pro.reviews}</span> Reviews)`;
             }
             
+  
             if (pro.phone) {
               document.getElementById("callProBtn").href = `tel:${pro.phone}`;
             }
