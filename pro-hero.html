@@ -12,6 +12,15 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <script src="https://js.stripe.com/v3/"></script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=places&callback=initGooglePlaces" async defer></script>
+    
+    
+    
+    
+    
+    
+    
     <style>
       :root {
         --bg: #f8fafc;
@@ -822,7 +831,62 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getDatabase(app);
+                                                           
+                                                           
+                                                           
+                                                           
+// Google Places Initialization
+      window.initGooglePlaces = () => {
+        const addressInput = document.getElementById("editAddress");
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+          types: ["address"],
+          fields: ["formatted_address"]
+        });
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          if (place.formatted_address) {
+            addressInput.value = place.formatted_address;
+            if (window.checkSettingsChanged) window.checkSettingsChanged();
+          }
+        });
+      };
 
+      // Settings Change State Manager
+      window.initialProSettings = {};
+      window.checkSettingsChanged = () => {
+        const currentCompany = document.getElementById("editCompany").value;
+        const currentPhone = document.getElementById("editPhone").value;
+        const currentAddress = document.getElementById("editAddress").value;
+
+        let currentRole = editRole;
+        if (editRole === 'other') {
+            currentRole = document.getElementById("otherCategoryEdit").value || "other";
+        }
+
+        const btn = document.getElementById("saveSettingsBtn");
+        const hasChanged = currentCompany !== window.initialProSettings.companyName ||
+                           currentPhone !== window.initialProSettings.businessPhone ||
+                           currentAddress !== window.initialProSettings.businessAddress ||
+                           currentRole !== window.initialProSettings.heroType;
+
+        if (hasChanged) {
+            btn.disabled = false;
+            btn.style.background = "var(--accent)";
+            btn.style.cursor = "pointer";
+        } else {
+            btn.disabled = true;
+            btn.style.background = "#cbd5e1";
+            btn.style.cursor = "not-allowed";
+        }
+      };
+
+      // Attach event listeners to all edit inputs
+      document.addEventListener("DOMContentLoaded", () => {
+          document.getElementById("editCompany").addEventListener("input", window.checkSettingsChanged);
+          document.getElementById("editPhone").addEventListener("input", window.checkSettingsChanged);
+          document.getElementById("editAddress").addEventListener("input", window.checkSettingsChanged);
+          document.getElementById("otherCategoryEdit").addEventListener("change", window.checkSettingsChanged);
+      });
 
 
 
@@ -1050,6 +1114,22 @@
                                                               
                                                               
    
+                                                  
+         window.initialProSettings = {
+            companyName: data.companyName || "",
+            businessPhone: data.businessPhone || "",
+            businessAddress: data.businessAddress || "",
+            heroType: data.heroType || "tow_truck"
+        };
+        window.checkSettingsChanged();                                         
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
+                                                  
         const overlay = document.getElementById("settingsModalOverlay");
         const card = document.getElementById("settingsCard");
 
@@ -1105,16 +1185,25 @@
           });                                                    
 
                           
-                                       
-          // Show success
+        // Show success
           btn.style.background = "var(--success)";
           btn.innerText = "✔ SAVED!";
 
+          window.initialProSettings = {
+              companyName: newCompany,
+              businessPhone: newPhone,
+              heroType: finalRole,
+              businessAddress: newAddress
+          };
+
           setTimeout(() => {
-            btn.style.background = "var(--accent)";
             btn.innerText = "SAVE CHANGES";
-            btn.disabled = false;
-          }, 2000);
+            window.checkSettingsChanged();
+          }, 2000);                               
+                               
+                                          
+                                          
+                                          
         } catch (error) {
           alert("Error saving: " + error.message);
           btn.innerText = "SAVE CHANGES";
@@ -1154,6 +1243,15 @@
         if (dropDown) {
             dropDown.style.display = role === "other" ? "block" : "none";
         }
+                                                                        
+                                                                        
+       if (context === "edit" && window.checkSettingsChanged) {
+            // Slight delay ensures the DOM variable for dropDown updates before we check
+            setTimeout(window.checkSettingsChanged, 10); 
+        }                                                                 
+                                                                        
+                                                                        
+                                                                        
       };                                                
                                                                 
                                                                
@@ -1334,7 +1432,7 @@
 
             setTimeout(() => {
               window.location.href = "Appindex.html";
-            }, 1500);                                         
+            }, 1500);                                          
                                                          
 
                                         
