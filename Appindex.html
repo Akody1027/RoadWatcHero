@@ -2555,7 +2555,14 @@ function adjustViewport() {
             logoUrl: finalLogoUrl,
           });
             
-            
+          
+            // Mirror the core identity to the public Firestore directory
+          await setDoc(doc(firestore, "pros", currentUserId), {
+            name: bizName,
+            address: address,
+            phone: phone,
+            avatar: finalLogoUrl || "herousericon.jpg"
+          }, { merge: true });
             
             
         document.getElementById("shellBizLogo").dataset.existing = finalLogoUrl;
@@ -3189,6 +3196,18 @@ function adjustViewport() {
           document.getElementById("shellCoverImage").dataset.existing || "";
 
         try {
+          
+          const logoBlob = document.getElementById("shellBizLogo").compressedBlob;
+          if (logoBlob) {
+            const lRef = storageRef(storage, `hub_profiles/${currentUserId}/logo_${Date.now()}.jpg`);
+            await uploadBytes(lRef, logoBlob);
+            finalLogoUrl = await getDownloadURL(lRef);
+            document.getElementById("shellBizLogo").dataset.existing = finalLogoUrl;
+          }
+          
+          
+          
+          
           if (coverBlob) {
             const sRef = storageRef(
               storage,
