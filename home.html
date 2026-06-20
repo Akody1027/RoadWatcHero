@@ -7117,12 +7117,13 @@
       
       
       
-      window.finalSeekerConfirm = async () => {
+      
+      
+     window.finalSeekerConfirm = async () => {
         const btn = document.getElementById("finalConfirmBtn");
-        if (btn) {
-          btn.disabled = true;
-          btn.innerText = "SAVING...";
-        }
+        if (btn) btn.disabled = true;
+
+        document.getElementById("loadingOverlay").classList.remove("loader-hidden");
 
         const myReqId = Object.keys(sosCache).find(
           (k) =>
@@ -7131,6 +7132,7 @@
 
         if (myReqId) {
           const req = sosCache[myReqId];
+          
           if (req.helperId && currentHeroRating > 0) {
             const heroId = req.helperId;
 
@@ -7160,11 +7162,15 @@
                 });
               }
             } catch (err) {
-              console.error("Failed to save rating:", err);
+              console.error("Firebase permission blocked the rating push. Adjust database rules.", err);
             }
           }
 
-          await update(ref(db, `sosRequests/${myReqId}`), { status: "finalized" });
+          try {
+            await update(ref(db, `sosRequests/${myReqId}`), { status: "finalized" });
+          } catch (err) {
+            console.error("Failed to finalize job status.", err);
+          }
         }
 
         damageImgList = [];
@@ -7172,11 +7178,12 @@
         destLng = null;
         currentHeroRating = 0;
 
+        document.getElementById("loadingOverlay").classList.add("loader-hidden");
         window.switchView("landingPage");
-      };
+      }; 
+      
       
 
-      
       
       
       
