@@ -5741,14 +5741,26 @@
         )
           .filter((t) => t.checked)
           .map((t) => t.value.toLowerCase());
-
+        
+        
+        
+        
         Object.entries(profilesCache).forEach(([pid, pro]) => {
-          if (pro.isPro && pro.businessAddress && pro.lat && pro.lng) {
-            const proCat = (
-              pro.category ||
-              pro.heroType ||
-              "both"
-            ).toLowerCase();
+          // Prioritize the static shop coordinates, fallback to live GPS if missing
+          const pinLat = pro.businessLat || pro.lat;
+          const pinLng = pro.businessLng || pro.lng;
+
+          if (pro.isPro && pro.businessAddress && pinLat && pinLng) {
+            
+            // Bulletproof category parser for the new Shadow Pin variable
+            let proCat = "";
+            if (Array.isArray(pro.category)) {
+              proCat = pro.category.join(" ").toLowerCase();
+            } else if (typeof pro.category === "string") {
+              proCat = pro.category.toLowerCase();
+            } else {
+              proCat = (pro.heroType || "both").toLowerCase();
+            }
 
             let isMatch = activeCats.some(
               (ac) =>
@@ -5756,15 +5768,23 @@
                 (ac === "towing" && proCat.includes("tow")) ||
                 (ac === "mechanic" && proCat.includes("mechanic"))
             );
+            
             if (
               proCat === "both" &&
               (activeCats.includes("towing") || activeCats.includes("mechanic"))
-            )
+            ) {
               isMatch = true;
+            }
 
-            const position = new google.maps.LatLng(pro.lat, pro.lng);
+            const position = new google.maps.LatLng(pinLat, pinLng);
             const inBounds = bounds.contains(position);
+        
 
+            
+            
+            
+            
+            
             if (isMatch && inBounds) {
               if (!discoveryMarkers[pid]) {
                 const marker = new google.maps.Marker({
