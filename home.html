@@ -8,6 +8,12 @@
 
     <!-- Google Maps with Geometry -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=geometry,places"></script>
+    
+    
+    <!-- Stripe SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    
 
     <style>
       :root {
@@ -1837,6 +1843,9 @@
             >
           </div>
         </div>
+        
+        
+        
         <button
           id="finalConfirmBtn"
           class="submit-btn"
@@ -1846,11 +1855,16 @@
             cursor: not-allowed;
             transition: 0.3s;
           "
-          onclick="window.finalSeekerConfirm()"
+          onclick="window.openPaymentChoice()"
           disabled
         >
           CONFIRM & FINISH
         </button>
+
+        
+        
+        
+        
       </div>
 
       <div
@@ -3574,6 +3588,28 @@
             </div>
           </div>
         </div>
+        
+        
+        
+        
+        
+        
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center;">
+          <div style="font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 8px;">Direct Deposit (Optional)</div>
+          <div style="font-size: 11px; color: var(--muted); margin-bottom: 12px;">Link your bank account via Stripe to accept digital card payments from Seekers.</div>
+          <button id="stripeOnboardBtn" onclick="window.setupDirectDeposit()" style="background: #635bff; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span>Set Up Direct Deposit</span>
+          </button>
+          <div id="stripeStatusText" style="display: none; color: var(--success); font-weight: 800; font-size: 12px; margin-top: 10px;">✓ Direct Deposit Active</div>
+        </div>
+        
+        
+        
+        
+        
+        
+        
+        
         <button
           class="accent-btn"
           id="saveSettingsBtnBottom"
@@ -4398,6 +4434,50 @@
         style="width: 95vw; height: 100vh; border: none; background: white"
       ></iframe>
     </div>
+    
+    
+    
+    
+    
+    
+    
+    <div id="paymentChoiceModal" class="modal" style="z-index: 1010;">
+      <div class="modal-content" style="height: auto; min-height: 40vh; border-radius: 32px 32px 0 0;">
+        <div class="modal-header-row" style="margin-bottom: 10px;">
+          <h3 style="text-align: center; width: 100%;">Payment Method</h3>
+          <div style="display: flex; justify-content: flex-end; position: absolute; right: 20px;">
+            <button class="close-x-btn" onclick="window.closeModal('paymentChoiceModal')">✕</button>
+          </div>
+        </div>
+        <p style="text-align: center; font-size: 14px; font-weight: 600; color: var(--muted); margin-bottom: 20px;">
+          How would you like to pay your Hero?
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+          <button id="payCashBtn" onclick="window.processCashPayment()" style="background: #22c55e; color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: var(--shadow);">
+            💵 PAY WITH CASH
+          </button>
+          <button id="payCardBtn" onclick="window.openStripeCheckout()" style="background: #635bff; color: white; border: none; padding: 18px; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; box-shadow: var(--shadow); display: none;">
+            💳 PAY WITH CARD
+          </button>
+        </div>
+        <div id="stripePaymentElement" style="display: none; margin-top: 20px;">
+          <!-- Stripe Elements UI targets this div -->
+          <div id="card-element" style="padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; background: white; margin-bottom: 15px;"></div>
+          <button id="submitCardBtn" onclick="window.submitCardPayment()" class="submit-btn" style="background: #635bff; margin-top: 0;">
+            CONFIRM & PAY
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <div id="jobCanceledModal" class="modal">
       <div
@@ -7143,6 +7223,98 @@
       
       
       
+      
+      
+     window.openPaymentChoice = async () => {
+        const myReqId = Object.keys(sosCache).find(
+          (k) => sosCache[k].ownerId === myId && sosCache[k].status === "completed"
+        );
+        if (!myReqId) return;
+        const req = sosCache[myReqId];
+        const targetHeroId = req.helperId || req.shopId;
+        
+        document.getElementById("payCashBtn").style.display = "block";
+        document.getElementById("stripePaymentElement").style.display = "none";
+        
+        // Dynamically hide the Card button if the Hero skipped Stripe verification
+        if (targetHeroId && profilesCache[targetHeroId] && profilesCache[targetHeroId].stripeChargesEnabled) {
+          document.getElementById("payCardBtn").style.display = "block";
+        } else {
+          document.getElementById("payCardBtn").style.display = "none";
+        }
+        
+        window.openModal("paymentChoiceModal");
+      };
+
+      window.processCashPayment = () => {
+        window.closeModal("paymentChoiceModal");
+        window.finalSeekerConfirm();
+      };
+
+      window.openStripeCheckout = () => {
+        document.getElementById("payCashBtn").style.display = "none";
+        document.getElementById("payCardBtn").style.display = "none";
+        document.getElementById("stripePaymentElement").style.display = "block";
+        
+        if (!window.stripeInstance) {
+          // Replace 'pk_test_...' with your actual public key
+          window.stripeInstance = Stripe('pk_test_YOUR_STRIPE_PUBLIC_KEY'); 
+          const elements = window.stripeInstance.elements();
+          window.cardElement = elements.create('card');
+          window.cardElement.mount('#card-element');
+        }
+      };
+
+      window.submitCardPayment = async () => {
+        const btn = document.getElementById("submitCardBtn");
+        btn.disabled = true;
+        btn.innerText = "PROCESSING...";
+        
+        // When your Google Cloud Function processes the split payment successfully, complete the job.
+        setTimeout(() => {
+          alert("Payment Successful!");
+          window.closeModal("paymentChoiceModal");
+          window.finalSeekerConfirm();
+        }, 1500); // Simulated delay for frontend testing
+      };
+
+      window.setupDirectDeposit = async () => {
+        const btn = document.getElementById("stripeOnboardBtn");
+        btn.innerText = "Generating Link...";
+        btn.disabled = true;
+
+        try {
+          const response = await fetch('https://YOUR_CLOUD_FUNCTION_URL/generateStripeOnboardingLink', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ heroId: myId })
+          });
+          
+          const data = await response.json();
+          if (data.url) {
+            window.location.href = data.url;
+          } else {
+            throw new Error("No URL returned from server.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Note: Point the JS fetch to your deployed Google Cloud Function URL to test this.");
+          btn.innerText = "Set Up Direct Deposit";
+          btn.disabled = false;
+        }
+      };
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       window.finalSeekerConfirm = async () => {
         const btn = document.getElementById("finalConfirmBtn");
         if (btn) btn.disabled = true;
@@ -8654,6 +8826,25 @@
           document.getElementById("isProToggle").checked = d.isPro === true;
 
           // Auto-open the Inline Vault if they are Pro
+          
+          
+          const stripeStatusText = document.getElementById("stripeStatusText");
+          const stripeOnboardBtn = document.getElementById("stripeOnboardBtn");
+          if (stripeStatusText && stripeOnboardBtn) {
+            if (d.stripeChargesEnabled) {
+              stripeStatusText.style.display = "block";
+              stripeOnboardBtn.querySelector("span").innerText = "Manage Direct Deposit";
+            } else {
+              stripeStatusText.style.display = "none";
+              stripeOnboardBtn.querySelector("span").innerText = "Set Up Direct Deposit";
+            }
+          }
+          
+          
+          
+          
+          
+          
           if (d.isPro) {
             document.getElementById("proInlineVault").style.display = "block";
 
