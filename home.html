@@ -7265,46 +7265,65 @@
         }
       };
 
+      
+      
+      
+      
+      
+ 
+      
       window.submitCardPayment = async () => {
         const btn = document.getElementById("submitCardBtn");
         btn.disabled = true;
         btn.innerText = "PROCESSING...";
-        
-        // When your Google Cloud Function processes the split payment successfully, complete the job.
-        setTimeout(() => {
-          alert("Payment Successful!");
-          window.closeModal("paymentChoiceModal");
-          window.finalSeekerConfirm();
-        }, 1500); // Simulated delay for frontend testing
-      };
 
-      window.setupDirectDeposit = async () => {
-        const btn = document.getElementById("stripeOnboardBtn");
-        btn.innerText = "Generating Link...";
-        btn.disabled = true;
+        // Retrieve the current SOS data to get the Hero's Stripe ID and the Amount
+        const myReqId = Object.keys(sosCache).find(
+          (k) => sosCache[k].ownerId === myId && sosCache[k].status === "completed"
+        );
+        const req = sosCache[myReqId];
+        const targetHeroId = req.helperId || req.shopId;
+        const heroStripeId = profilesCache[targetHeroId]?.stripe_account_id;
+        const amountInCents = Math.round(req.acceptedPrice * 100);
 
         try {
+          // 1. Tokenize the card securely
+          const { paymentMethod, error } = await window.stripeInstance.createPaymentMethod({
+            type: 'card',
+            card: window.cardElement,
+          });
+
+          if (error) {
+            throw new Error(error.message);
+          }
+
+          // 2. Send the token and job details to your Google Cloud Payment Processor
           const response = await fetch('https://stripe-payment-processor-1068443635940.us-central1.run.app', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ heroId: myId })
+            body: JSON.stringify({ 
+              amount: amountInCents,
+              heroStripeId: heroStripeId,
+              paymentMethodId: paymentMethod.id 
+            })
           });
-          
+
           const data = await response.json();
-          if (data.url) {
-            window.location.href = data.url;
+          if (data.success) {
+            alert("Payment Successful!");
+            window.closeModal("paymentChoiceModal");
+            window.finalSeekerConfirm();
           } else {
-            throw new Error("No URL returned from server.");
+            throw new Error(data.message || "Payment failed on the server.");
           }
+
         } catch (err) {
           console.error(err);
-          alert("Note: Point the JS fetch to your deployed Google Cloud Function URL to test this.");
-          btn.innerText = "Set Up Direct Deposit";
+          alert("Payment Error: " + err.message);
+          btn.innerText = "CONFIRM & PAY";
           btn.disabled = false;
         }
       };
-      
-      
       
       
       
