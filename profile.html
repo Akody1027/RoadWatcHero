@@ -551,7 +551,13 @@
                                             <img class="pro-avatar" src="${pro.avatar}">
                                             <div class="pro-info">
                                                 <div class="pro-name">${pro.name}</div>
-                                                <div class="pro-rating">★ ${pro.rating} (${pro.reviews})</div>
+                                                 <div class="pro-rating">
+                                                    ${(!pro.reviews || parseInt(pro.reviews) === 0) 
+                                                        ? '<span style="color:#cbd5e1; font-weight:500;">No reviews available</span>' 
+                                                        : `★ ${pro.rating} (${pro.reviews})`}
+                                                   </div>
+
+                                                
                                             </div>
                                         </div>
                                     </div>
