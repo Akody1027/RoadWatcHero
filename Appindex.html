@@ -3234,13 +3234,42 @@ function adjustViewport() {
             }
           }
 
-          // Ensure Realtime Database keeps its global identity up to date
+          
+          
+          
+          // 1. GEOCODER: Convert the text address into precise GPS coordinates for the Discovery Map Pin
+          let staticLat = null;
+          let staticLng = null;
+          
+          if (typeof google !== "undefined" && google.maps && google.maps.Geocoder) {
+            const geocoder = new google.maps.Geocoder();
+            try {
+              const geoResult = await new Promise((resolve, reject) => {
+                geocoder.geocode({ address: address }, (results, status) => {
+                  if (status === "OK") resolve(results[0].geometry.location);
+                  else reject(status);
+                });
+              });
+              staticLat = geoResult.lat();
+              staticLng = geoResult.lng();
+            } catch (geoErr) {
+              console.warn("Geocoding failed, map will fallback to live location.", geoErr);
+            }
+          }
+
+          // 2. SHADOW PIN: Push the coordinates and detailed category to the Realtime Database
           await update(ref(db, `profiles/${currentUserId}`), {
             companyName: bizName,
             businessAddress: address,
             dispatchPhone: phone,
-            coverUrl: finalCoverUrl,                                               
+            coverUrl: finalCoverUrl,
+            category: cat,          
+            businessLat: staticLat, 
+            businessLng: staticLng  
           });
+          
+          
+
 
                                     
                                                            
