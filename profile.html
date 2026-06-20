@@ -435,6 +435,20 @@
           </div>
         </div>
 
+        
+        
+        
+        <div id="reviewInputBox" style="display: none; flex-direction: column; align-items: center; background: #f8fafc; padding: 15px; border-top: 1px solid #f1f5f9; margin-bottom: 10px;">
+          <div style="font-size: 13px; font-weight: 800; color: var(--text-dark); margin-bottom: 8px;">Rate this Pro</div>
+          <div id="starSelector" style="font-size: 32px; color: #cbd5e1; cursor: pointer; margin-bottom: 15px; user-select: none; display: flex; gap: 5px;">
+            <span onclick="setStars(1)">★</span><span onclick="setStars(2)">★</span><span onclick="setStars(3)">★</span><span onclick="setStars(4)">★</span><span onclick="setStars(5)">★</span>
+          </div>
+          <button onclick="submitReview()" class="btn btn-book" style="padding: 10px 20px; font-size: 13px; width: 100%; border-radius: 8px;">Save Review</button>
+        </div>
+        
+        
+        
+        
         <div class="modal-section">
           <h3>About the Pro</h3>
           <div class="modal-text" id="modalDesc">Loading description...</div>
@@ -551,12 +565,12 @@
                                             <img class="pro-avatar" src="${pro.avatar}">
                                             <div class="pro-info">
                                                 <div class="pro-name">${pro.name}</div>
-                                                 <div class="pro-rating">
+                                                
+                                                <div class="pro-rating">
                                                     ${(!pro.reviews || parseInt(pro.reviews) === 0) 
                                                         ? '<span style="color:#cbd5e1; font-weight:500;">No reviews available</span>' 
                                                         : `★ ${pro.rating} (${pro.reviews})`}
-                                                   </div>
-
+                                                </div>
                                                 
                                             </div>
                                         </div>
@@ -585,15 +599,16 @@
             
             
             
-            
-            
             let ratingEl = document.querySelector('#profileModal .pro-rating');
+            const addReviewLink = `<span style="color:var(--accent); font-size:12px; font-weight:800; cursor:pointer; margin-left:8px;" onclick="document.getElementById('reviewInputBox').style.display='flex'">+ Add Review</span>`;
+            
             if (!pro.reviews || parseInt(pro.reviews) === 0) {
-              ratingEl.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">No reviews available</span>';
+              ratingEl.innerHTML = `<span style="color:var(--text-muted); font-size:12px;">No reviews available</span> ${addReviewLink}`;
             } else {
-              ratingEl.innerHTML = `★ <span id="modalRating">${pro.rating || "0"}</span> (<span id="modalReviews">${pro.reviews}</span> Reviews)`;
+              ratingEl.innerHTML = `★ <span id="modalRating">${pro.rating || "0"}</span> (<span id="modalReviews">${pro.reviews}</span> Reviews) ${addReviewLink}`;
             }
             
+   
   
             if (pro.phone) {
               document.getElementById("callProBtn").href = `tel:${pro.phone}`;
@@ -642,7 +657,66 @@
        
       
       
-            function viewImage(url) {
+     
+      let currentSelectedStars = 0;
+
+      function setStars(num) {
+        currentSelectedStars = num;
+        const starContainer = document.getElementById("starSelector");
+        const stars = starContainer.querySelectorAll("span");
+        stars.forEach((star, index) => {
+          star.style.color = index < num ? "#fde047" : "#cbd5e1";
+        });
+      }
+
+      async function submitReview() {
+        if (currentSelectedStars === 0) return alert("Please select a star rating.");
+        
+        const btn = document.querySelector("#reviewInputBox button");
+        btn.innerText = "Saving...";
+        btn.disabled = true;
+
+        try {
+          const proRef = firebase.firestore().collection('pros').doc(window.currentProId);
+          const docSnap = await proRef.get();
+          
+          if (docSnap.exists) {
+            const data = docSnap.data();
+            const currentReviews = parseInt(data.reviews) || 0;
+            const currentRating = parseFloat(data.rating) || 0;
+            
+            const newReviews = currentReviews + 1;
+            const newRating = ((currentRating * currentReviews) + currentSelectedStars) / newReviews;
+            const formattedRating = newRating.toFixed(1);
+
+            await proRef.update({
+              rating: formattedRating,
+              reviews: newReviews.toString()
+            });
+
+            const ratingEl = document.querySelector('#profileModal .pro-rating');
+            ratingEl.innerHTML = `★ <span id="modalRating">${formattedRating}</span> (<span id="modalReviews">${newReviews}</span> Reviews) <span style="color:#10b981; font-size:12px; font-weight:800; margin-left:8px;">✓ Saved</span>`;
+            
+            document.getElementById('reviewInputBox').style.display = 'none';
+            currentSelectedStars = 0;
+            setStars(0);
+          }
+        } catch (e) {
+          console.error(e);
+          alert("Error saving review. Please try again.");
+        } finally {
+          btn.innerText = "Save Review";
+          btn.disabled = false;
+        }
+      }
+      
+      
+      
+      
+      
+      
+      
+      function viewImage(url) {
         document.getElementById('viewerImg').src = url;
         document.getElementById('imageViewer').style.display = 'flex';
       }
