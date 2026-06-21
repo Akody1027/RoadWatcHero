@@ -5351,27 +5351,30 @@
         if (loader) loader.classList.add("loader-hidden");
         window.checkInstallPrompt();
 
-        // Check the URL for "action=openProfile" from the Job Board
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get("action") === "openProfile") {
-          window.openProfile();
-          window.history.replaceState(
-            {},
-            document.title,
-            window.location.pathname
-          );
-        }
         
         
-        // Catch successful Stripe onboarding return
-        if (urlParams.get("stripe") === "return_success") {
-          update(ref(db, `profiles/${myId}`), { stripeChargesEnabled: true });
-          window.history.replaceState({}, document.title, window.location.pathname);
-          setTimeout(() => {
-            window.showDropBanner("Stripe Direct Deposit Linked!", "✅");
+        
+        // Look at the Master AppIndex URL, not the internal iframe URL
+          const urlParams = new URLSearchParams(window.top.location.search);
+          
+          if (urlParams.get("action") === "openProfile") {
             window.openProfile();
-          }, 1500);
-        }
+            window.top.history.replaceState({}, document.title, window.top.location.pathname);
+          }
+          
+          // Catch successful Stripe onboarding return
+          if (urlParams.get("stripe") === "return_success") {
+            update(ref(db, `profiles/${myId}`), { stripeChargesEnabled: true });
+            window.top.history.replaceState({}, document.title, window.top.location.pathname);
+            setTimeout(() => {
+              window.showDropBanner("Stripe Direct Deposit Linked!", "✅");
+              window.openProfile();
+            }, 1500);
+          }
+        
+        
+        
+ 
         
         
 
