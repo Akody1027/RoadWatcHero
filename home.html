@@ -5361,6 +5361,19 @@
             window.location.pathname
           );
         }
+        
+        
+        // Catch successful Stripe onboarding return
+        if (urlParams.get("stripe") === "return_success") {
+          update(ref(db, `profiles/${myId}`), { stripeChargesEnabled: true });
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setTimeout(() => {
+            window.showDropBanner("Stripe Direct Deposit Linked!", "✅");
+            window.openProfile();
+          }, 1500);
+        }
+        
+        
 
         // Initialize Places Autocomplete for Tow Destination
         const inputField = document.getElementById("towDestinationInput");
@@ -7307,6 +7320,11 @@
             alert("Payment Successful!");
             window.closeModal("paymentChoiceModal");
             window.finalSeekerConfirm();
+            
+            
+            
+            
+            
           } else {
             throw new Error(data.message || "Payment failed on the server.");
           }
@@ -7348,7 +7366,13 @@
           const data = await response.json();
           if (data.url) {
             
+            
+            await update(ref(db, `profiles/${myId}`), { 
+              stripe_account_id: data.stripeAccountId 
+            });
             window.top.location.href = data.url;
+            
+            
             
           } else {
             throw new Error("No URL returned from server.");
