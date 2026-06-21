@@ -7254,7 +7254,7 @@
         document.getElementById("stripePaymentElement").style.display = "block";
         
         if (!window.stripeInstance) {
-          window.stripeInstance = Stripe('pk_test_51TkWX91O4ZhOB1jJFcVRmiYb19rgsQtiefbhaSv1XfYKUQI7Q0w6CE0HmueBBfxm2am0dFHshIf8l8qgvdI3eYqp00YIA7UDbR'); 
+          window.stripeInstance = Stripe('pk_test_51RVvRt02cjd265jF2s3k2MUATsIpYn53mpx1ONvlAl9qL9apOFtoWie5KWTjtwPzGbyqRGICHczRSdMkSn7Lbwp100d7bHtk6j'); 
           const elements = window.stripeInstance.elements();
           window.cardElement = elements.create('card');
           window.cardElement.mount('#card-element');
@@ -7313,7 +7313,7 @@
 
         } catch (err) {
           console.error(err);
-          alert("Payment Error: " + err.message);
+          alert("Payment Error: " + err.message); 
           btn.innerText = "CONFIRM & PAY";
           btn.disabled = false;
         }
@@ -7347,12 +7347,9 @@
           
           const data = await response.json();
           if (data.url) {
-            window.location.href = data.url;
-
-
+            
             window.top.location.href = data.url;
-
-      
+            
           } else {
             throw new Error("No URL returned from server.");
           }
