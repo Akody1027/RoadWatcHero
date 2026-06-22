@@ -33,10 +33,91 @@
     } 
     document.head.appendChild(meta);
   })();
-</script>
+
 
     
 
+
+
+
+  (function() {
+    // 1. Inject the CSS for the animated ribbon
+    const style = document.createElement('style');
+    style.innerHTML = `
+      #global-loading-ribbon {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: rgba(238, 97, 28, 0.2); /* Light orange track */
+        z-index: 999999; /* Absolute top layer */
+        display: none;
+        overflow: hidden;
+      }
+      #global-loading-ribbon::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: #ee611c; /* Solid accent orange */
+        animation: ribbon-wave 1s infinite linear;
+      }
+      @keyframes ribbon-wave {
+        0% { left: -50%; width: 30%; }
+        50% { left: 25%; width: 80%; }
+        100% { left: 100%; width: 30%; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // 2. Inject the HTML element when the body is ready
+    document.addEventListener("DOMContentLoaded", () => {
+      const ribbon = document.createElement('div');
+      ribbon.id = 'global-loading-ribbon';
+      document.body.prepend(ribbon);
+    });
+
+    // 3. Expose the trigger functions globally
+    window.startLoadingRibbon = () => {
+      const r = document.getElementById('global-loading-ribbon');
+      if (r) r.style.display = 'block';
+    };
+
+    window.stopLoadingRibbon = () => {
+      const r = document.getElementById('global-loading-ribbon');
+      if (r) r.style.display = 'none';
+    };
+
+    // 4. Listen for commands coming from ANY iframe inside the app
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.action === 'START_GLOBAL_LOADING') {
+        window.startLoadingRibbon();
+      } else if (event.data && event.data.action === 'STOP_GLOBAL_LOADING') {
+        window.stopLoadingRibbon();
+      }
+    });
+  })();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     
     <style>
       :root {
