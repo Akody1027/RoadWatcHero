@@ -2952,11 +2952,17 @@
             style="
               display: flex;
               justify-content: flex-end;
-              align-items: center;
+              align-items: center; 
               gap: 12px;
               position: relative;
             "
           >
+            
+            
+            <img src="walleticon.png" style="width: 32px; height: 32px;
+             margin-right:5%; cursor: pointer;" alt="Wallet" onclick="window.openModal('walletModal')" />
+            
+            
             <button
               id="topMenuTriggerBtn"
               style="
@@ -3594,26 +3600,19 @@
         
         
         
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center;">
-          <div style="font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 8px;">Direct Deposit (Optional)</div>
-          <div style="font-size: 11px; color: var(--muted); margin-bottom: 12px;">Link your bank account via Stripe to accept digital card payments from Seekers.</div>
-          <button id="stripeOnboardBtn" onclick="window.setupDirectDeposit()" style="background: #635bff; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <span>Set Up Direct Deposit</span>
-          </button>
-          <div id="stripeStatusText" style="display: none; color: var(--success); font-weight: 800; font-size: 12px; margin-top: 10px;">✓ Direct Deposit Active</div>
-          
-          
-          
-          
-        <button id="viewEarningsBtn" onclick="window.openStripeEarnings()" style="display: none; background: white; color: #635bff; border: 2px solid #635bff; padding: 12px 20px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 13px; margin-top: 10px;">
-            View Earnings Dashboard
-          </button>  
-          
-  
-          
-        </div>
-        
 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         <button
           class="accent-btn"
           id="saveSettingsBtnBottom"
@@ -3660,6 +3659,69 @@
         </div>
       </div>
     </div>
+    
+    
+    
+    
+    <div id="walletModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header-row" style="margin-bottom: 20px">
+          <h3>HERO WALLET</h3>
+          <div style="display: flex; justify-content: flex-end">
+            <button
+              class="close-x-btn"
+              onclick="window.closeModal('walletModal')"
+            >
+              ✕
+            </button> 
+          </div>
+        </div>
+
+        <div style="margin-bottom: 25px;">
+          <h4 style="font-size: 14px; font-weight: 900; color: var(--muted); margin-bottom: 10px; text-transform: uppercase;">Recent Transactions</h4>
+          <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 30px 15px; text-align: center;">
+             <div style="font-size: 30px; margin-bottom: 10px;">🧾</div>
+             <div style="font-size: 13px; font-weight: 700; color: var(--muted);">No recent transactions.</div>
+             <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Payment history will appear here once you complete a digital payout.</div>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="font-size: 14px; font-weight: 900; color: var(--muted); margin-bottom: 10px; text-transform: uppercase;">Connection Status</h4>
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; box-shadow: var(--shadow); text-align: center;">
+            <div style="font-size: 16px; font-weight: 900; color: var(--text); margin-bottom: 8px;">Direct Deposit</div>
+            <div style="font-size: 12px; color: var(--muted); margin-bottom: 15px; line-height: 1.4;">Link your bank or debit card via Stripe to securely accept digital card payments directly from Seekers.</div>
+            
+            <div id="instantPayoutWarning" style="background: #fffbeb; border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin-bottom: 15px; text-align: left;">
+               <div style="font-size: 11px; font-weight: 900; color: #d97706; margin-bottom: 4px;">⚠️ INSTANT PAYOUT NOTICE</div>
+               <div style="font-size: 11px; font-weight: 600; color: #92400e; line-height: 1.4;">For <b>INSTANT</b> payouts, you must link a valid <b>Debit Card</b> during setup. Using Bank Account/Routing numbers will result in standard 2-3 day transfer delays.</div>
+            </div>
+
+            <button id="stripeOnboardBtn" onclick="window.setupDirectDeposit()" style="background: #635bff; color: white; border: none; padding: 14px 20px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;">
+              <span>Set Up Direct Deposit</span>
+            </button>
+            
+            <div id="stripeStatusText" style="display: none; color: var(--success); font-weight: 900; font-size: 14px; margin-bottom: 15px; background: #f0fdf4; padding: 10px; border-radius: 8px; border: 1px solid #bbf7d0;">✓ Direct Deposit Active</div>
+            
+            <button id="viewEarningsBtn" onclick="window.openStripeEarnings()" style="display: none; background: white; color: #635bff; border: 2px solid #635bff; padding: 14px 20px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; font-size: 13px; transition: 0.2s;">
+              View Earnings Dashboard
+            </button>  
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     <div id="notifModal" class="modal">
       <div class="modal-content">
@@ -8955,26 +9017,28 @@
           // Auto-open the Inline Vault if they are Pro
           
           
+          
           const stripeStatusText = document.getElementById("stripeStatusText");
           const stripeOnboardBtn = document.getElementById("stripeOnboardBtn");
-          if (stripeStatusText && stripeOnboardBtn) {
+          const instantPayoutWarning = document.getElementById("instantPayoutWarning");
+          const viewEarningsBtn = document.getElementById("viewEarningsBtn");
+          
+          if (stripeStatusText && stripeOnboardBtn && viewEarningsBtn) {
             if (d.stripeChargesEnabled) {
               stripeStatusText.style.display = "block";
-              
-              document.getElementById("viewEarningsBtn").style.display = "block";
-              
-              stripeOnboardBtn.querySelector("span").innerText = "Manage Direct Deposit";
+              viewEarningsBtn.style.display = "block";
+              stripeOnboardBtn.style.display = "none";
+              if (instantPayoutWarning) instantPayoutWarning.style.display = "none";
             } else {
               stripeStatusText.style.display = "none";
-              
-              
-              document.getElementById("viewEarningsBtn").style.display = "none";
-              
-              
-              stripeOnboardBtn.querySelector("span").innerText = "Set Up Direct Deposit";
+              viewEarningsBtn.style.display = "none";
+              stripeOnboardBtn.style.display = "flex";
+              if (instantPayoutWarning) instantPayoutWarning.style.display = "block";
             }
           }
           
+          
+  
     
           if (d.isPro) {
             document.getElementById("proInlineVault").style.display = "block";
@@ -9213,7 +9277,7 @@
                   await update(ref(db, `profiles/${myId}`), {
                     notificationsEnabled: true,
                     fcmToken: token,
-                  });
+                  }); 
                 }
               } else {
                 e.target.checked = false;
