@@ -2845,9 +2845,14 @@
 
     <div id="requestModal" class="modal">
       <div class="modal-content">
-        <div class="modal-header-row" style="margin-bottom: 20px">
+        
+        
+        
+         <div class="modal-header-row" style="margin-bottom: 20px">
           <h3>Find a Hero</h3>
-          <div style="display: flex; justify-content: flex-end">
+          <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
+            <img src="https://via.placeholder.com/32" style="width: 32px; height: 32px; cursor: pointer; border-radius: 6px;" onclick="window.openJobBoard()" alt="Job Board" title="Job Board">
+            <img src="https://via.placeholder.com/32" style="width: 32px; height: 32px; cursor: pointer; border-radius: 6px;" onclick="window.openDiscoveryMap()" alt="Browse Map" title="Browse Map">
             <button
               class="close-x-btn"
               onclick="window.closeModal('requestModal')"
@@ -2858,64 +2863,34 @@
         </div>
 
         <div class="form-wrapper">
-          
-          
-     
-        
-        
-          
-          
-          
-          
-          
-                  <div class="form-wrapper">
           <div class="wizard-layout">
             <div class="wizard-content-area" id="wizardContent">
 
               <div class="wizard-step active" id="step1">
-                <h3 style="margin-top:0; font-size: 26px;">Let's find you a hero!</h3>
-                <p style="color:var(--muted); line-height:1.5; font-weight: 600;">We need a little information to connect you with the right professional nearby.</p>
-                <div style="flex:1;"></div>
-                
-                <button class="submit-btn pulse-ready" onclick="window.goToSosStep(2)" style="margin-top:0;">NEXT: SERVICE TYPE</button>
-                
-                <div style="display: flex; gap: 10px; margin-top: 15px; width: 100%">
-                  <a href="jobboard.html" style="flex: 1; text-decoration: none">
-                    <button class="jbutton" style="font-size: 12px; color: var(--accent); background: whitesmoke; border: 2px solid var(--accent); width: 100%; border-radius: 8px; padding: 15px; font-weight: 800; cursor: pointer;">
-                      POST TO BOARD
-                    </button>
-                  </a>
-                  <button onclick="window.openDiscoveryMap()" style="flex: 1; font-size: 12px; color: white; background: var(--accent); border: none; width: 100%; border-radius: 8px; padding: 15px; font-weight: 800; cursor: pointer;">
-                    BROWSE MAP
-                  </button>
-                </div>
-              </div>
-
-              <div class="wizard-step" id="step2">
-                <h3 style="margin-top:0;">What do you need?</h3>
+                <h3 style="margin-top:0;">What kind of help do you need?</h3>
                 <div style="display:flex; flex-direction:column; gap:15px; margin-top:10px;">
                   <button class="big-choice-btn active" id="btnRoadsideChoice" onclick="window.setServiceType(false)">
-                    <span style="font-size:35px;">🛠️</span>
-                    ROADSIDE ASSISTANCE
+                    
+                    ROADSIDE
                   </button>
                   <button class="big-choice-btn" id="btnTowChoice" onclick="window.setServiceType(true)">
-                    <span style="font-size:35px;">🛻</span>
-                    TOW TRUCK
+                    
+                    TOWING
                   </button>
                 </div>
                 <div id="towDestContainer" style="display:none; margin-top:20px;">
                   <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">TOW DESTINATION</label>
-                  <input type="text" id="towDestinationInput" placeholder="Enter destination address" oninput="window.checkWizardReady(2)" />
+                  <input type="text" id="towDestinationInput" placeholder="Enter destination address" oninput="window.checkWizardReady(1)" />
                   <div id="verifiedMechanic"></div>
                 </div>
                 <div style="flex:1;"></div>
-                <button class="submit-btn" id="step2Next" onclick="window.goToSosStep(3)" style="margin-top:20px;" disabled>NEXT</button>
+                <button class="submit-btn pulse-ready" id="step1Next" onclick="window.goToSosStep(2)" style="margin-top:10px;">NEXT</button>
               </div>
 
-              <div class="wizard-step" id="step3">
+              <div class="wizard-step" id="step2">
                 <h3 style="margin-top:0;">Contact Info</h3>
-                <input type="text" id="reqUserName" placeholder="Your Name" oninput="window.checkWizardReady(3)" />
-                <input type="tel" id="phoneNumberInput" placeholder="Phone Number" oninput="window.checkWizardReady(3)" />
+                <input type="text" id="reqUserName" placeholder="Your Name" oninput="window.checkWizardReady(2)" />
+                <input type="tel" id="phoneNumberInput" placeholder="Phone Number" oninput="window.checkWizardReady(2)" />
                 <input type="email" id="reqUserEmail" placeholder="Email Address (Optional)" />
 
                 <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:15px; margin-top:15px; text-align:center;">
@@ -2925,31 +2900,25 @@
                 </div>
 
                 <div style="flex:1;"></div>
-                <button class="submit-btn" id="step3Next" onclick="window.goToSosStep(4)" style="margin-top:20px;" disabled>NEXT</button>
+                <button class="submit-btn" id="step2Next" onclick="window.goToSosStep(3)" style="margin-top:10px;" disabled>NEXT</button>
+              </div>
+
+              <div class="wizard-step" id="step3">
+                <h3 style="margin-top:0; margin-bottom: 10px;">Vehicle Details</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+                  <input type="number" id="vehYear" placeholder="Year" oninput="window.checkWizardReady(3)" />
+                  <input type="text" id="vehColor" placeholder="Color" oninput="window.checkWizardReady(3)" />
+                </div>
+                <input type="text" id="vehMake" placeholder="Make" oninput="window.checkWizardReady(3)" />
+                <input type="text" id="vehModel" placeholder="Model" oninput="window.checkWizardReady(3)" />
+                <input type="text" id="vehPlate" placeholder="Plate #" oninput="window.checkWizardReady(3)" />
+                <textarea id="reqIssue" placeholder="Describe your issue in detail..." rows="3" oninput="window.checkWizardReady(3)"></textarea>
+
+                <div style="flex:1;"></div>
+                <button class="submit-btn" id="step3Next" onclick="window.goToSosStep(4)" style="margin-top:10px;" disabled>NEXT</button>
               </div>
 
               <div class="wizard-step" id="step4">
-                <h3 style="margin-top:0; margin-bottom: 10px;">Vehicle Details</h3>
-                <div class="vehicle-grid" style="margin:0 0 15px 0;">
-                  <div class="v-type active" onclick="window.selectVehicle('Car', this)">Car</div>
-                  <div class="v-type" onclick="window.selectVehicle('Truck', this)">Truck</div>
-                  <div class="v-type" onclick="window.selectVehicle('RV', this)">RV</div>
-                  <div class="v-type" onclick="window.selectVehicle('HeavyDuty', this)">Heavy Duty</div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
-                  <input type="number" id="vehYear" placeholder="Year" oninput="window.checkWizardReady(4)" />
-                  <input type="text" id="vehColor" placeholder="Color" oninput="window.checkWizardReady(4)" />
-                </div>
-                <input type="text" id="vehMake" placeholder="Make" oninput="window.checkWizardReady(4)" />
-                <input type="text" id="vehModel" placeholder="Model" oninput="window.checkWizardReady(4)" />
-                <input type="text" id="vehPlate" placeholder="Plate #" oninput="window.checkWizardReady(4)" />
-                <textarea id="reqIssue" placeholder="Describe your issue in detail..." rows="3" oninput="window.checkWizardReady(4)"></textarea>
-
-                <div style="flex:1;"></div>
-                <button class="submit-btn" id="step4Next" onclick="window.goToSosStep(5)" style="margin-top:20px;" disabled>NEXT</button>
-              </div>
-
-              <div class="wizard-step" id="step5">
                 <h3 style="margin-top:0;">Photos (Optional)</h3>
                 <p style="font-size:13px; font-weight:600; color:var(--muted); margin-bottom:15px; line-height: 1.4;">Add photos of the issue or damage to help your Hero prepare for the job.</p>
                 
@@ -2962,10 +2931,10 @@
                 <input type="file" id="damageInput" accept="image/*" multiple style="display: none" onchange="window.handleImageUpload(this, 'damage')" />
 
                 <div style="flex:1;"></div>
-                <button class="submit-btn pulse-ready" onclick="window.goToSosStep(6)" style="margin-top:20px;">NEXT</button>
+                <button class="submit-btn pulse-ready" onclick="window.goToSosStep(5)" style="margin-top:10px;">NEXT</button>
               </div>
 
-              <div class="wizard-step" id="step6">
+              <div class="wizard-step" id="step5">
                 <h3 style="margin-top:0;">Add a Tip?</h3>
                 <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">TIP NOT REQUIRED, BUT APPRECIATED!</label>
                 <div style="display: flex; gap: 10px; margin-bottom: 12px">
@@ -2976,25 +2945,30 @@
                 <input type="number" id="customTip" placeholder="Other Tip Amount ($)" style="margin-bottom: 15px" />
 
                 <div style="flex:1;"></div>
-                <button class="submit-btn pulse-ready" id="submitSosBtn" onclick="window.submitSOS()" style="margin-top:20px;">FIND HERO</button>
+                <button class="submit-btn pulse-ready" id="submitSosBtn" onclick="window.submitSOS()" style="margin-top:10px;">FIND HERO</button>
               </div>
 
             </div>
 
             <div class="wizard-nav-area">
-              <div class="wizard-nav-dot active" id="navDot1" onclick="window.goToSosStep(1)">1</div>
-              <div class="wizard-nav-dot" id="navDot2" onclick="window.goToSosStep(2)">2</div>
-              <div class="wizard-nav-dot" id="navDot3" onclick="window.goToSosStep(3)">3</div>
-              <div class="wizard-nav-dot" id="navDot4" onclick="window.goToSosStep(4)">4</div>
-              <div class="wizard-nav-dot" id="navDot5" onclick="window.goToSosStep(5)">5</div>
-              <div class="wizard-nav-dot" id="navDot6" onclick="window.goToSosStep(6)">6</div>
+              <div class="wizard-nav-dot active" id="navDot1" onclick="window.goToSosStep(1)"></div>
+              <div class="wizard-nav-dot" id="navDot2" onclick="window.goToSosStep(2)"></div>
+              <div class="wizard-nav-dot" id="navDot3" onclick="window.goToSosStep(3)"></div>
+              <div class="wizard-nav-dot" id="navDot4" onclick="window.goToSosStep(4)"></div>
+              <div class="wizard-nav-dot" id="navDot5" onclick="window.goToSosStep(5)"></div>
             </div>
           </div>
         </div>
 
+     
+        
+        
           
           
           
+          
+          
+  
           
           
           
