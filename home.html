@@ -5419,6 +5419,28 @@
         // --- FIX: FORCE THE GLASS OVERLAY TO LIFT ONCE APP LOADS ---
         const loader = document.getElementById("loadingOverlay");
         if (loader) loader.classList.add("loader-hidden");
+        
+        
+        
+        if (loader) {
+          const loaderObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.attributeName === "class") {
+                if (loader.classList.contains("loader-hidden")) {
+                  window.parent.postMessage({ action: "STOP_GLOBAL_LOADING" }, "*");
+                } else {
+                  window.parent.postMessage({ action: "START_GLOBAL_LOADING" }, "*");
+                }
+              }
+            });
+          });
+          loaderObserver.observe(loader, { attributes: true });
+        }
+        
+        
+        
+        
+        
         window.checkInstallPrompt();
 
         
@@ -7420,6 +7442,15 @@
           btn.innerText = "Generating Link...";
         }
         btn.disabled = true;
+        
+        
+        
+        // Trigger the loading ribbon in the parent shell
+        window.parent.postMessage({ action: "START_GLOBAL_LOADING" }, "*");
+        
+        
+        
+        
 
         try {
           console.log("Sending request to Google Cloud...");
@@ -7453,6 +7484,14 @@
         } catch (err) {
           console.error(err);
           alert("Connection failed: " + err.message);
+          
+          
+          
+          // Shut off the loading ribbon if it fails
+          window.parent.postMessage({ action: "STOP_GLOBAL_LOADING" }, "*");
+          
+          
+          
           
           if (span) {
             span.innerText = "Set Up Direct Deposit";
