@@ -5438,7 +5438,34 @@
         }
         
         
-        
+        // --- GLOBAL MICRO-INTERACTION TOUCH OBSERVER ---
+        document.body.addEventListener("click", (e) => {
+          // Check if the user tapped something actionable
+          const isActionable = e.target.closest("button") || 
+                               e.target.closest("a") || 
+                               e.target.closest(".v-type") || 
+                               e.target.closest(".toggle-switch") || 
+                               e.target.closest(".icon-btn") || 
+                               e.target.closest(".cmd-btn") || 
+                               e.target.closest(".submit-btn") ||
+                               e.target.closest(".role-btn");
+          
+          if (isActionable) {
+            // Instantly fire the top loading ribbon
+            window.parent.postMessage({ action: "START_GLOBAL_LOADING" }, "*");
+            
+            // Generate a random loading duration between 400ms and 1500ms
+            const randomDelay = Math.floor(Math.random() * (1500 - 400 + 1)) + 400;
+            
+            setTimeout(() => {
+              // CRITICAL: Only shut off the simulated loader if the REAL heavy glass loader isn't currently running!
+              const currentLoader = document.getElementById("loadingOverlay");
+              if (!currentLoader || currentLoader.classList.contains("loader-hidden")) {
+                window.parent.postMessage({ action: "STOP_GLOBAL_LOADING" }, "*");
+              }
+            }, randomDelay);
+          }
+        });
         
         
         window.checkInstallPrompt();
