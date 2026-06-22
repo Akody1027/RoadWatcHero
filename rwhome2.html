@@ -1015,9 +1015,7 @@
       
       
       
-      
-
-           .form-wrapper {
+          .form-wrapper {
         padding: 0;
         background: transparent;
         height: 100%;
@@ -1036,6 +1034,11 @@
         overflow-x: hidden;
         padding-right: 15px;
         padding-bottom: 20px;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .wizard-content-area::-webkit-scrollbar {
+        display: none;
       }
       .wizard-nav-area {
         width: 60px;
@@ -1044,52 +1047,71 @@
         align-items: center;
         justify-content: flex-start;
         padding-top: 10px;
-        gap: 15px;
-        border-left: 2px solid #e2e8f0;
+        gap: 20px;
+        border-left: 1px solid #f1f5f9;
         padding-left: 10px;
+        position: relative;
+      }
+      .wizard-nav-area::before {
+        content: '';
+        position: absolute;
+        top: 25px;
+        bottom: 50px;
+        left: calc(50% + 5px);
+        transform: translateX(-50%);
+        width: 2px;
+        background: #e2e8f0;
+        z-index: 0;
       }
       .wizard-step {
         display: none;
         width: 100%;
         height: 100%;
-        animation: slideInRight 0.3s forwards ease;
+        animation: slideInNative 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
       }
       .wizard-step.active {
         display: flex;
         flex-direction: column;
       }
+      .wizard-step input:focus, .wizard-step textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(238, 97, 28, 0.1);
+        outline: none;
+        background: white;
+      }
       .wizard-nav-dot {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         flex-shrink: 0;
         border-radius: 50%;
-        background: whitesmoke;
-        border: 2px solid #cbd5e1;
+        background: white;
+        border: 2px solid #e2e8f0;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        font-weight: 900;
+        font-weight: 800;
         color: #94a3b8;
-        font-size: 16px;
-        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s, color 0.2s, border-color 0.2s;
+        font-size: 14px;
+        z-index: 1;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .wizard-nav-dot.active {
         background: var(--accent);
         border-color: var(--accent);
         color: white;
-        transform: scale(1.15);
-        box-shadow: 0 4px 10px rgba(238, 97, 28, 0.3);
+        transform: scale(1.2);
+        box-shadow: 0 4px 12px rgba(238, 97, 28, 0.35);
       }
-      @keyframes slideInRight {
-        from { opacity: 0; transform: translateX(20px); }
-        to { opacity: 1; transform: translateX(0); }
+      @keyframes slideInNative {
+        from { opacity: 0; transform: translateX(25px) scale(0.97); }
+        to { opacity: 1; transform: translateX(0) scale(1); }
       }
       .big-choice-btn {
-        padding: 20px;
-        border: 2px solid #e2e8f0;
-        border-radius: 16px;
-        background: white;
+        padding: 25px 20px;
+        border: 2px solid #f1f5f9;
+        border-radius: 20px;
+        background: #f8fafc;
         font-weight: 800;
         font-size: 16px;
         color: var(--muted);
@@ -1097,44 +1119,57 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 10px;
-        transition: all 0.2s;
+        gap: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
       }
       .big-choice-btn.active {
         border-color: var(--accent);
         color: var(--accent);
-        background: rgba(238,97,28,0.05);
+        background: white;
+        box-shadow: 0 10px 25px rgba(238, 97, 28, 0.15);
+        transform: translateY(-3px);
+      }
+      .big-choice-btn.active::after {
+        content: "✓";
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        font-size: 18px;
+        color: var(--accent);
+        font-weight: 900;
+        background: rgba(238, 97, 28, 0.1);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       #damageMainPlaceholder {
         width: 100%;
-        height: 150px;
+        height: 160px;
         background: #f8fafc;
         border: 2px dashed #cbd5e1;
-        border-radius: 12px;
+        border-radius: 16px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         color: #94a3b8;
-        transition: 0.2s;
+        transition: all 0.2s ease;
+      }
+      #damageMainPlaceholder:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
       }
       #damageMainPlaceholder:active {
-        background: #e2e8f0;
-        transform: scale(0.98);
+        transform: scale(0.97);
       }
+  
 
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
       
 
       /* --- BROADCAST RADAR UI --- */
