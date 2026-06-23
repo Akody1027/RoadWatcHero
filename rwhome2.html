@@ -2919,7 +2919,7 @@
                   </button>
                   <button class="big-choice-btn" onclick="window.openJobBoard()" style="">
                     MAINTENANCE HERO
-                  </button>
+                  </button> 
                   <button class="big-choice-btn" onclick="window.openDiscoveryMap()" style="">
                     BROWSE HEROES 
                   </button>
@@ -2939,13 +2939,13 @@
 
                 <div id="towMapContainer" style="width: 100%; height: 200px; border-radius: 12px; background: #eee; margin-bottom: 10px; border: 1px solid #e2e8f0; position: relative; overflow: hidden;">
                    <div id="towDestinationMap" style="width: 100%; height: 100%;"></div>
-                </div>
+                </div> 
 
                 <div id="verifiedMechanic"></div>
 
                 <div style="flex:1;"></div>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                  <button class="submit-btn" onclick="window.goToSosStep(1)" style="flex: 0 0 15%; margin-top: 0; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn" onclick="window.goToSosStep(1)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn pulse-ready" id="step2Next" onclick="window.goToSosStep(3)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
                 </div>
               </div>
@@ -2958,7 +2958,7 @@
 
                 <div style="flex:1;"></div>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                  <button class="submit-btn" onclick="window.goBackFromContact()" style="flex: 0 0 15%; margin-top: 0; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn" onclick="window.goBackFromContact()" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn" id="step3Next" onclick="window.goToSosStep(4)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
                 </div>
               </div>
@@ -2976,13 +2976,13 @@
 
                 <div style="flex:1;"></div>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                  <button class="submit-btn" onclick="window.goToSosStep(3)" style="flex: 0 0 15%; margin-top: 0; color:var(--accent);  border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn" onclick="window.goToSosStep(3)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white;  border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn" id="step4Next" onclick="window.goToSosStep(5)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
                 </div>
               </div>
 
               <div class="wizard-step" id="step5">
-                <h3 style="margin-top:0;">Photos (Optional)</h3>
+                <h3 style="margin-top:0; color:var(--accent); text-align:center;">Photos (Optional)</h3>
                 <p style="font-size:13px; font-weight:600; color:var(--muted); margin-bottom:15px; line-height: 1.4;">Add photos of the issue or damage to help your Hero prepare for the job.</p>
                 
                 <div id="damageMainPlaceholder" onclick="document.getElementById('damageInput').click()">
@@ -2995,13 +2995,13 @@
 
                 <div style="flex:1;"></div>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                  <button class="submit-btn" onclick="window.goToSosStep(4)" style="flex: 0 0 15%; margin-top: 0; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn" onclick="window.goToSosStep(4)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn pulse-ready" onclick="window.goToSosStep(6)" style="flex: 1; margin-top: 0;">NEXT</button>
                 </div>
               </div>
  
               <div class="wizard-step" id="step6">
-                <h3 style="margin-top:0; color:var(--accent); text-align:center;">Add a Tip?</h3>
+                <h3 style="margin-top:0; color:var(--accent); text-align:center;">Add A Tip?</h3>
                 <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">TIP NOT REQUIRED, BUT HIGHLY APPRECIATED!</label>
                 
                 <div class="tip-grid">
@@ -3015,7 +3015,7 @@
 
                 <div style="flex:1;"></div>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                  <button class="submit-btn" onclick="window.goToSosStep(5)" style="flex: 0 0 15%; margin-top: 0; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn" onclick="window.goToSosStep(5)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn pulse-ready" id="submitSosBtn" onclick="window.submitSOS()" style="flex: 1; margin-top: 0;">FIND HERO</button>
                 </div>
               </div>
