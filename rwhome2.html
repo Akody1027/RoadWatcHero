@@ -16,12 +16,12 @@
     
 
     <style>
-      :root {
+      :root { 
         --card: #ffffff;
         --muted: black;
         --text: #0f172a;
 
-        --accent: #ee611c;
+        --accent: #ee611c; 
         --danger: #ee611c;
         --success: #22c55e;
         --warning: #f59e0b;
@@ -1109,12 +1109,12 @@
       }
       .big-choice-btn {
         padding: 25px 20px;
-        border: 2px solid #f1f5f9;
+        border: 2px solid var(--accent);
         border-radius: 20px;
         background: #f8fafc;
         font-weight: 800;
         font-size: 18px;
-        color: var(--muted);
+        color: var(--accent);
         cursor: pointer;
         display: flex;
         flex-direction: column;
@@ -1124,6 +1124,18 @@
         position: relative;
         overflow: hidden;
       }
+      
+      
+      .big-choice-btn:hover{
+       border: 4px solid var(--accent);
+      font-size: 19px;
+      
+      }
+      
+      
+      
+      
+      
       .big-choice-btn.active {
         border-color: var(--accent);
         color: var(--accent);
@@ -1414,6 +1426,33 @@
           transform: translateX(0);
         }
       }
+      
+      
+      
+      /* --- NEW WIZARD STYLES --- */
+      .gm-style-iw-d { overflow: hidden !important; }
+      .gm-style-iw { padding: 0 !important; border-radius: 12px !important; }
+      .map-shop-popup { display: flex; flex-direction: column; width: 200px; }
+      .map-shop-banner { width: 100%; height: 80px; object-fit: cover; background: #f1f5f9; }
+      .map-shop-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; margin-top: -20px; margin-left: 10px; background: white; object-fit: cover; }
+      .map-shop-info { padding: 10px; text-align: left; }
+      .map-shop-name { font-weight: 900; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+      .map-shop-dist { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 10px; }
+      .map-shop-btn { width: 100%; padding: 8px; background: var(--accent); color: white; font-weight: 800; font-size: 12px; border: none; border-radius: 6px; cursor: pointer; }
+      
+      .tip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+      .tip-grid-tile { background: white; border: 2px solid #e2e8f0; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: var(--text); padding: 25px 0; cursor: pointer; transition: all 0.2s; }
+      .tip-grid-tile.active { border-color: var(--success); color: var(--success); background: #f0fdf4; transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.2); }
+      
+      
+      .input{
+          font-color:var(--accent);
+          font-size:22px;
+          border:1px solid var(--accent);
+      }
+      
+      
+      
     </style>
   </head>
 
@@ -1573,7 +1612,7 @@
     <div id="landingPage" class="view view-active">
       <img src="roadwatchlogo.png" alt="Logo" />
       <h2
-        style="
+        style=" 
           color: var(--muted);
           margin-bottom: 40px;
           font-weight: 500;
@@ -2861,64 +2900,88 @@
             </button>
           </div>
         </div>
-
+        
+        
+         
+         
         <div class="form-wrapper">
-          <div class="wizard-layout">
-            <div class="wizard-content-area" id="wizardContent">
+          <div class="wizard-layout" style="height: 100%;">
+            <div class="wizard-content-area" id="wizardContent" style="padding-right: 0;">
 
               <div class="wizard-step active" id="step1">
-                <h3 style="margin-top:0;">What kind of help do you need?</h3>
-                <div style="display:flex; flex-direction:column; gap:15px; margin-top:10px;">
-                  <button class="big-choice-btn active" id="btnRoadsideChoice" onclick="window.setServiceType(false)">
-                    
-                    ROADSIDE
+                <h3 style="margin-top:0; margin-bottom: 20px; color:var(--accent); text-align:center;">What kind of hero?</h3>
+                <div style="display:flex; flex-direction:column; gap:15px; flex: 1;">
+                  <button class="big-choice-btn" id="btnRoadsideChoice" onclick="window.setServiceType(false)">
+                    ROADSIDE HERO
                   </button>
                   <button class="big-choice-btn" id="btnTowChoice" onclick="window.setServiceType(true)">
-                    
-                    TOWING
+                    TOWING HERO
+                  </button>
+                  <button class="big-choice-btn" onclick="window.openJobBoard()" style="">
+                    MAINTENANCE HERO
+                  </button>
+                  <button class="big-choice-btn" onclick="window.openDiscoveryMap()" style="">
+                    BROWSE HEROES 
                   </button>
                 </div>
-                <div id="towDestContainer" style="display:none; margin-top:20px;">
-                  <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">TOW DESTINATION</label>
-                  <input type="text" id="towDestinationInput" placeholder="Enter destination address" oninput="window.checkWizardReady(1)" />
-                  <div id="verifiedMechanic"></div>
-                </div>
-                <div style="flex:1;"></div>
-                <button class="submit-btn pulse-ready" id="step1Next" onclick="window.goToSosStep(2)" style="margin-top:10px;">NEXT</button>
               </div>
 
               <div class="wizard-step" id="step2">
-                <h3 style="margin-top:0;">Contact Info</h3>
-                <input type="text" id="reqUserName" placeholder="Your Name" oninput="window.checkWizardReady(2)" />
-                <input type="tel" id="phoneNumberInput" placeholder="Phone Number" oninput="window.checkWizardReady(2)" />
-                <input type="email" id="reqUserEmail" placeholder="Email Address (Optional)" />
-
-                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:15px; margin-top:15px; text-align:center;">
-                  <div style="font-size:30px; margin-bottom:10px;"></div>
-                  <div style="font-size:14px; font-weight:800; margin-bottom:10px;">Location Access</div>
+                <h3 style="margin-top:0; color:var(--accent); text-align:center;">Tow Destination</h3>
+                <p style="font-size:13px; font-weight:600; color:var(--muted); margin-bottom:15px; line-height: 1.4;">Where are we taking your vehicle? Enter an address or select a verified shop below.</p>
+                
+                <input type="text" id="towDestinationInput" placeholder="Enter destination address" oninput="window.checkWizardReady(2)" />
+                
+                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:15px; margin-bottom:15px; text-align:center;">
+                  <p style="font-size: 11px; color: var(--muted); margin-top:0; margin-bottom: 10px;">Required to show nearby Verified Mechanics on the map.</p>
                   <button onclick="window.triggerNativeLocation()" style="background:white; border:2px solid var(--accent); color:var(--accent); padding:10px 15px; border-radius:8px; font-weight:900; font-size:12px; cursor:pointer; box-shadow:var(--shadow); width: 100%;">ALLOW LOCATION</button>
                 </div>
 
+                <div id="towMapContainer" style="width: 100%; height: 200px; border-radius: 12px; background: #eee; margin-bottom: 10px; border: 1px solid #e2e8f0; position: relative; overflow: hidden;">
+                   <div id="towDestinationMap" style="width: 100%; height: 100%;"></div>
+                </div>
+
+                <div id="verifiedMechanic"></div>
+
                 <div style="flex:1;"></div>
-                <button class="submit-btn" id="step2Next" onclick="window.goToSosStep(3)" style="margin-top:10px;" disabled>NEXT</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                  <button class="submit-btn" onclick="window.goToSosStep(1)" style="flex: 0 0 15%; margin-top: 0; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn pulse-ready" id="step2Next" onclick="window.goToSosStep(3)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
+                </div>
               </div>
 
               <div class="wizard-step" id="step3">
-                <h3 style="margin-top:0; margin-bottom: 10px;">Vehicle Details</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
-                  <input type="number" id="vehYear" placeholder="Year" oninput="window.checkWizardReady(3)" />
-                  <input type="text" id="vehColor" placeholder="Color" oninput="window.checkWizardReady(3)" />
-                </div>
-                <input type="text" id="vehMake" placeholder="Make" oninput="window.checkWizardReady(3)" />
-                <input type="text" id="vehModel" placeholder="Model" oninput="window.checkWizardReady(3)" />
-                <input type="text" id="vehPlate" placeholder="Plate #" oninput="window.checkWizardReady(3)" />
-                <textarea id="reqIssue" placeholder="Describe your issue in detail..." rows="3" oninput="window.checkWizardReady(3)"></textarea>
+                <h3 style="margin-top:0; color:var(--accent); text-align:center;">Contact Info</h3>
+                <input type="text" id="reqUserName" class="input" placeholder="Your Name" oninput="window.checkWizardReady(3)" />
+                <input type="tel" id="phoneNumberInput" class="input"  placeholder="Phone Number" oninput="window.checkWizardReady(3)" />
+                <input type="email" id="reqUserEmail"  class="input" placeholder="Email Address (Optional)" />
 
                 <div style="flex:1;"></div>
-                <button class="submit-btn" id="step3Next" onclick="window.goToSosStep(4)" style="margin-top:10px;" disabled>NEXT</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                  <button class="submit-btn" onclick="window.goBackFromContact()" style="flex: 0 0 15%; margin-top: 0; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn" id="step3Next" onclick="window.goToSosStep(4)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
+                </div>
               </div>
 
               <div class="wizard-step" id="step4">
+                <h3 style="margin-top:0; margin-bottom: 10px; color:var(--accent); text-align:center;">Vehicle Details</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+                  <input type="number" id="vehYear" placeholder="Year" oninput="window.checkWizardReady(4)" />
+                  <input type="text" id="vehColor" placeholder="Color" oninput="window.checkWizardReady(4)" />
+                </div>
+                <input type="text" id="vehMake" placeholder="Make" oninput="window.checkWizardReady(4)" />
+                <input type="text" id="vehModel" placeholder="Model" oninput="window.checkWizardReady(4)" />
+                <input type="text" id="vehPlate" placeholder="Plate #" oninput="window.checkWizardReady(4)" />
+                <textarea id="reqIssue" placeholder="Describe your issue in detail..." rows="3" oninput="window.checkWizardReady(4)"></textarea>
+
+                <div style="flex:1;"></div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                  <button class="submit-btn" onclick="window.goToSosStep(3)" style="flex: 0 0 15%; margin-top: 0; color:var(--accent);  border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn" id="step4Next" onclick="window.goToSosStep(5)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
+                </div>
+              </div>
+
+              <div class="wizard-step" id="step5">
                 <h3 style="margin-top:0;">Photos (Optional)</h3>
                 <p style="font-size:13px; font-weight:600; color:var(--muted); margin-bottom:15px; line-height: 1.4;">Add photos of the issue or damage to help your Hero prepare for the job.</p>
                 
@@ -2931,53 +2994,43 @@
                 <input type="file" id="damageInput" accept="image/*" multiple style="display: none" onchange="window.handleImageUpload(this, 'damage')" />
 
                 <div style="flex:1;"></div>
-                <button class="submit-btn pulse-ready" onclick="window.goToSosStep(5)" style="margin-top:10px;">NEXT</button>
-              </div>
-
-              <div class="wizard-step" id="step5">
-                <h3 style="margin-top:0;">Add a Tip?</h3>
-                <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">TIP NOT REQUIRED, BUT APPRECIATED!</label>
-                <div style="display: flex; gap: 10px; margin-bottom: 12px">
-                  <div class="tip-btn" onclick="window.setTip(5, this)">$5</div>
-                  <div class="tip-btn" onclick="window.setTip(10, this)">$10</div>
-                  <div class="tip-btn" onclick="window.setTip(20, this)">$20</div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                  <button class="submit-btn" onclick="window.goToSosStep(4)" style="flex: 0 0 15%; margin-top: 0; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn pulse-ready" onclick="window.goToSosStep(6)" style="flex: 1; margin-top: 0;">NEXT</button>
                 </div>
-                <input type="number" id="customTip" placeholder="Other Tip Amount ($)" style="margin-bottom: 15px" />
+              </div>
+ 
+              <div class="wizard-step" id="step6">
+                <h3 style="margin-top:0; color:var(--accent); text-align:center;">Add a Tip?</h3>
+                <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">TIP NOT REQUIRED, BUT HIGHLY APPRECIATED!</label>
+                
+                <div class="tip-grid">
+                  <div class="tip-grid-tile" onclick="window.setTip(5, this)">$5</div>
+                  <div class="tip-grid-tile" onclick="window.setTip(10, this)">$10</div>
+                  <div class="tip-grid-tile" onclick="window.setTip(15, this)">$15</div>
+                  <div class="tip-grid-tile" onclick="window.setTip(20, this)">$20</div>
+                </div>
+                
+                <input type="number" id="customTip" placeholder="Other Tip Amount ($)" style="margin-bottom: 15px;" />
 
                 <div style="flex:1;"></div>
-                <button class="submit-btn pulse-ready" id="submitSosBtn" onclick="window.submitSOS()" style="margin-top:10px;">FIND HERO</button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                  <button class="submit-btn" onclick="window.goToSosStep(5)" style="flex: 0 0 15%; margin-top: 0; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn pulse-ready" id="submitSosBtn" onclick="window.submitSOS()" style="flex: 1; margin-top: 0;">FIND HERO</button>
+                </div>
               </div>
 
-            </div>
-
-            <div class="wizard-nav-area">
-              <div class="wizard-nav-dot active" id="navDot1" onclick="window.goToSosStep(1)"></div>
-              <div class="wizard-nav-dot" id="navDot2" onclick="window.goToSosStep(2)"></div>
-              <div class="wizard-nav-dot" id="navDot3" onclick="window.goToSosStep(3)"></div>
-              <div class="wizard-nav-dot" id="navDot4" onclick="window.goToSosStep(4)"></div>
-              <div class="wizard-nav-dot" id="navDot5" onclick="window.goToSosStep(5)"></div>
             </div>
           </div>
         </div>
-
-     
-        
-        
-          
-          
-          
-          
-          
-  
-          
-          
-          
-          
-          
-        
-        
       </div>
     </div>
+        
+        
+        
+        
+        
+
 
     <div id="cancelConfirmModal" class="modal">
       <div class="modal-content">
@@ -5221,35 +5274,62 @@
       
       
       
-      
-      
-      
-            // --- WIZARD FORM CONTROLLER ---
+  // --- WIZARD FORM CONTROLLER ---
       window.currentSosStep = 1;
+      let towMapInstance = null;
+      let towMapMarkers = {};
+      let activeInfoWindow = null;
 
       window.goToSosStep = (step) => {
         document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.wizard-nav-dot').forEach(el => el.classList.remove('active'));
-        
         document.getElementById('step' + step).classList.add('active');
-        document.getElementById('navDot' + step).classList.add('active');
         window.currentSosStep = step;
         window.checkWizardReady(step);
+
+        if (step === 2 && isTowTruckRequestActive) {
+          setTimeout(() => { window.initTowDestinationMap(); }, 300);
+        }
+      };
+
+      window.goBackFromContact = () => {
+        if (isTowTruckRequestActive) {
+          window.goToSosStep(2);
+        } else {
+          window.goToSosStep(1);
+        }
       };
 
       window.setServiceType = (isTow) => {
         isTowTruckRequestActive = isTow;
-        document.getElementById('btnRoadsideChoice').classList.toggle('active', !isTow);
-        document.getElementById('btnTowChoice').classList.toggle('active', isTow);
-        
-        const destContainer = document.getElementById('towDestContainer');
         if (isTow) {
-          destContainer.style.display = 'block';
-          window.renderVerifiedPros(); 
+          window.goToSosStep(2); // Jump to Map
         } else {
-          destContainer.style.display = 'none';
+          window.goToSosStep(3); // Jump to Contact Info
         }
-        window.checkWizardReady(2);
+      };
+
+      window.initTowDestinationMap = () => {
+        const mapEl = document.getElementById("towDestinationMap");
+        if (!mapEl) return;
+
+        if (!towMapInstance) {
+          towMapInstance = new google.maps.Map(mapEl, {
+            center: userLocation || { lat: 40, lng: -74 },
+            zoom: 12,
+            disableDefaultUI: true,
+            gestureHandling: "greedy",
+            styles: [
+              { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
+            ]
+          });
+        }
+
+        if (userLocation) {
+          towMapInstance.setCenter(userLocation);
+        }
+        
+        google.maps.event.trigger(towMapInstance, "resize");
+        window.renderVerifiedPros();
       };
 
       window.checkWizardReady = (step) => {
@@ -5278,8 +5358,108 @@
         }
       };
 
+      window.setTip = (amt, el) => {
+        document.querySelectorAll(".tip-grid-tile").forEach((b) => b.classList.remove("active"));
+        el.classList.add("active");
+        document.getElementById("customTip").value = amt;
+      };
       
-      
+      window.renderVerifiedPros = () => {
+        const container = document.getElementById("verifiedMechanic");
+        if (!container) return;
+
+        let nearbyPros = [];
+
+        if (userLocation) {
+          nearbyPros = Object.values(profilesCache).filter((profile) => {
+            if (!profile.isPro || !profile.lat) return false;
+            if (profile.heroType !== "mechanic" && profile.heroType !== "both") return false;
+            if (!profile.businessAddress) return false;
+
+            const dist = google.maps.geometry.spherical.computeDistanceBetween(
+                new google.maps.LatLng(userLocation.lat, userLocation.lng),
+                new google.maps.LatLng(profile.lat, profile.lng)
+            ) / 1609.34;
+
+            profile.calculatedDist = dist; 
+            return dist <= (profile.radius || 25);
+          });
+        }
+
+        container.style.display = "flex";
+
+        if (nearbyPros.length > 0) {
+          container.innerHTML = `
+            <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 8px;">⭐ VERIFIED SHOPS NEARBY</div>
+            <div class="pro-scroller">
+              ${nearbyPros.map(pro => `
+                <div class="pro-mechanic-card" onclick="window.selectProShop('${pro.businessAddress.replace(/'/g, "\\'")}', '${(pro.companyName || pro.name).replace(/'/g, "\\'")}', ${pro.lat}, ${pro.lng})">
+                  <img src="${pro.pic || "https://via.placeholder.com/50"}" class="pro-img-mini">
+                  <div style="font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${pro.companyName || pro.name}</div>
+                  <div style="font-size: 9px; color: var(--success); font-weight: 700;">Tap to Select</div>
+                </div>
+              `).join("")}
+            </div>
+          `;
+          
+          if (towMapInstance) {
+            const bounds = new google.maps.LatLngBounds();
+            if (userLocation) bounds.extend(userLocation);
+
+            nearbyPros.forEach(pro => {
+              if (!towMapMarkers[pro.id]) {
+                const marker = new google.maps.Marker({
+                  position: { lat: pro.lat, lng: pro.lng },
+                  map: towMapInstance,
+                  icon: {
+                    url: "heromapicon.png",
+                    scaledSize: new google.maps.Size(32, 32),
+                    anchor: new google.maps.Point(16, 16),
+                  }
+                });
+
+                marker.addListener('click', () => {
+                  if (activeInfoWindow) activeInfoWindow.close();
+                  
+                  let bannerImg = pro.cover || pro.coverImage || pro.bannerImg || "https://placehold.co/400x150/e2e8f0/94a3b8?text=RoadWatcHero";
+                  if (pro.gallery && Array.isArray(pro.gallery) && pro.gallery.length > 0 && !pro.cover) bannerImg = pro.gallery[0];
+                  const avatarImg = pro.pic || "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+                  const shopName = (pro.companyName || pro.name).replace(/'/g, "\\'");
+                  const safeAddr = pro.businessAddress.replace(/'/g, "\\'");
+
+                  const contentString = `
+                    <div class="map-shop-popup">
+                      <img src="${bannerImg}" class="map-shop-banner">
+                      <img src="${avatarImg}" class="map-shop-avatar">
+                      <div class="map-shop-info">
+                        <div class="map-shop-name">${shopName}</div>
+                        <div class="map-shop-dist">${pro.calculatedDist.toFixed(1)} miles away</div>
+                        <button class="map-shop-btn" onclick="window.selectProShop('${safeAddr}', '${shopName}', ${pro.lat}, ${pro.lng}); if(activeInfoWindow) activeInfoWindow.close();">SELECT DESTINATION</button>
+                      </div>
+                    </div>
+                  `;
+
+                  activeInfoWindow = new google.maps.InfoWindow({ content: contentString });
+                  activeInfoWindow.open(towMapInstance, marker);
+                });
+
+                towMapMarkers[pro.id] = marker; 
+              }
+              bounds.extend({ lat: pro.lat, lng: pro.lng });
+            });
+            towMapInstance.fitBounds(bounds);
+          }
+        } else {
+          container.innerHTML = `
+            <div style="font-size: 10px; font-weight: 900; color: #b91c1c; margin-bottom: 5px;">⭐ VERIFIED SHOPS</div>
+            <div class="no-pros-text">
+              No Verified Shops nearby yet.<br>
+              <span style="font-size: 11px; font-weight: 500; font-style: normal;">Please manually enter your tow destination above.</span>
+            </div>
+          `;
+        }
+      };
+       
       
       
       
