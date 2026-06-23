@@ -2908,29 +2908,66 @@
           <div class="wizard-layout" style="height: 100%;">
             <div class="wizard-content-area" id="wizardContent" style="padding-right: 0;">
 
+              
+            <!-- STEP 1: DASHBOARD -->
               <div class="wizard-step active" id="step1">
-                <h3 style="margin-top:0; margin-bottom: 20px; color:var(--accent); text-align:center;">What kind of hero?</h3>
+                <h3 style="margin-top:0; margin-bottom: 20px; color:var(--accent); text-align:center;">What kind of help do you need?</h3>
                 <div style="display:flex; flex-direction:column; gap:15px; flex: 1;">
                   <button class="big-choice-btn" id="btnRoadsideChoice" onclick="window.setServiceType(false)">
-                    ROADSIDE HERO
+                    ROADSIDE SOS
                   </button>
                   <button class="big-choice-btn" id="btnTowChoice" onclick="window.setServiceType(true)">
-                    TOWING HERO
+                    TOWING SOS
                   </button>
-                  <button class="big-choice-btn" onclick="window.openJobBoard()" style="">
+                  <button class="big-choice-btn" onclick="window.openJobBoard()" style="border-color: var(--text); color: var(--text);">
                     MAINTENANCE HERO
-                  </button> 
-                  <button class="big-choice-btn" onclick="window.openDiscoveryMap()" style="">
-                    BROWSE HEROES 
+                  </button>
+                  <button class="big-choice-btn" onclick="window.openDiscoveryMap()" style="border-color: var(--tow-blue); color: var(--tow-blue);">
+                    BROWSE HEROES MAP
                   </button>
                 </div>
               </div>
 
+              <!-- STEP 2: CONTACT INFO -->
               <div class="wizard-step" id="step2">
+                <h3 style="margin-top:0; color:var(--accent); text-align:center;">Contact Info</h3>
+                <input type="text" id="reqUserName" class="input" placeholder="Your Name" oninput="window.checkWizardReady(2)" />
+                <input type="tel" id="phoneNumberInput" class="input"  placeholder="Phone Number" oninput="window.checkWizardReady(2)" />
+                <input type="email" id="reqUserEmail"  class="input" placeholder="Email Address (Optional)" />
+
+                <div style="flex:1;"></div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                  <button class="submit-btn" onclick="window.goToSosStep(1)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn" id="step2Next" onclick="window.goToSosStep(3)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
+                </div>
+              </div>
+
+              <!-- STEP 3: VEHICLE DETAILS -->
+              <div class="wizard-step" id="step3">
+                <h3 style="margin-top:0; margin-bottom: 10px; color:var(--accent); text-align:center;">Vehicle Details</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+                  <input type="number" id="vehYear" placeholder="Year" oninput="window.checkWizardReady(3)" />
+                  <input type="text" id="vehColor" placeholder="Color" oninput="window.checkWizardReady(3)" />
+                </div>
+                <input type="text" id="vehMake" placeholder="Make" oninput="window.checkWizardReady(3)" />
+                <input type="text" id="vehModel" placeholder="Model" oninput="window.checkWizardReady(3)" />
+                <input type="text" id="vehPlate" placeholder="Plate #" oninput="window.checkWizardReady(3)" />
+                <textarea id="reqIssue" placeholder="Describe your issue in detail..." rows="3" oninput="window.checkWizardReady(3)"></textarea>
+
+                <div style="flex:1;"></div>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                  <button class="submit-btn" onclick="window.goToSosStep(2)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white;  border: 1px solid #cbd5e1;">&lt;</button>
+                  <!-- The NEXT button here dynamically routes based on Towing vs Roadside -->
+                  <button class="submit-btn" id="step3Next" onclick="window.nextFromVehicle()" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
+                </div>
+              </div>
+
+              <!-- STEP 4: TOW DESTINATION & MAP (TOWING ONLY) -->
+              <div class="wizard-step" id="step4">
                 <h3 style="margin-top:0; color:var(--accent); text-align:center;">Tow Destination</h3>
                 <p style="font-size:13px; font-weight:600; color:var(--muted); margin-bottom:15px; line-height: 1.4;">Where are we taking your vehicle? Enter an address or select a verified shop below.</p>
                 
-                <input type="text" id="towDestinationInput" placeholder="Enter destination address" oninput="window.checkWizardReady(2)" />
+                <input type="text" id="towDestinationInput" placeholder="Enter destination address" oninput="window.checkWizardReady(4)" />
                 
                 <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:15px; margin-bottom:15px; text-align:center;">
                   <p style="font-size: 11px; color: var(--muted); margin-top:0; margin-bottom: 10px;">Required to show nearby Verified Mechanics on the map.</p>
@@ -2945,42 +2982,12 @@
 
                 <div style="flex:1;"></div>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                  <button class="submit-btn" onclick="window.goToSosStep(1)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
-                  <button class="submit-btn pulse-ready" id="step2Next" onclick="window.goToSosStep(3)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
+                  <button class="submit-btn" onclick="window.goToSosStep(3)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
+                  <button class="submit-btn pulse-ready" id="step4Next" onclick="window.goToSosStep(5)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
                 </div>
               </div>
 
-              <div class="wizard-step" id="step3">
-                <h3 style="margin-top:0; color:var(--accent); text-align:center;">Contact Info</h3>
-                <input type="text" id="reqUserName" class="input" placeholder="Your Name" oninput="window.checkWizardReady(3)" />
-                <input type="tel" id="phoneNumberInput" class="input"  placeholder="Phone Number" oninput="window.checkWizardReady(3)" />
-                <input type="email" id="reqUserEmail"  class="input" placeholder="Email Address (Optional)" />
-
-                <div style="flex:1;"></div>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                  <button class="submit-btn" onclick="window.goBackFromContact()" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
-                  <button class="submit-btn" id="step3Next" onclick="window.goToSosStep(4)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
-                </div>
-              </div>
-
-              <div class="wizard-step" id="step4">
-                <h3 style="margin-top:0; margin-bottom: 10px; color:var(--accent); text-align:center;">Vehicle Details</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
-                  <input type="number" id="vehYear" placeholder="Year" oninput="window.checkWizardReady(4)" />
-                  <input type="text" id="vehColor" placeholder="Color" oninput="window.checkWizardReady(4)" />
-                </div>
-                <input type="text" id="vehMake" placeholder="Make" oninput="window.checkWizardReady(4)" />
-                <input type="text" id="vehModel" placeholder="Model" oninput="window.checkWizardReady(4)" />
-                <input type="text" id="vehPlate" placeholder="Plate #" oninput="window.checkWizardReady(4)" />
-                <textarea id="reqIssue" placeholder="Describe your issue in detail..." rows="3" oninput="window.checkWizardReady(4)"></textarea>
-
-                <div style="flex:1;"></div>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
-                  <button class="submit-btn" onclick="window.goToSosStep(3)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white;  border: 1px solid #cbd5e1;">&lt;</button>
-                  <button class="submit-btn" id="step4Next" onclick="window.goToSosStep(5)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
-                </div>
-              </div>
-
+              <!-- STEP 5: PHOTOS -->
               <div class="wizard-step" id="step5">
                 <h3 style="margin-top:0; color:var(--accent); text-align:center;">Photos (Optional)</h3>
                 <p style="font-size:13px; font-weight:600; color:var(--muted); margin-bottom:15px; line-height: 1.4;">Add photos of the issue or damage to help your Hero prepare for the job.</p>
@@ -2995,11 +3002,13 @@
 
                 <div style="flex:1;"></div>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
-                  <button class="submit-btn" onclick="window.goToSosStep(4)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
+                  <!-- Dynamic Back Button -->
+                  <button class="submit-btn" onclick="window.backFromPhotos()" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn pulse-ready" onclick="window.goToSosStep(6)" style="flex: 1; margin-top: 0;">NEXT</button>
                 </div>
               </div>
  
+              <!-- STEP 6: ADD A TIP -->
               <div class="wizard-step" id="step6">
                 <h3 style="margin-top:0; color:var(--accent); text-align:center;">Add A Tip?</h3>
                 <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">TIP NOT REQUIRED, BUT HIGHLY APPRECIATED!</label>
@@ -3018,8 +3027,10 @@
                   <button class="submit-btn" onclick="window.goToSosStep(5)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn pulse-ready" id="submitSosBtn" onclick="window.submitSOS()" style="flex: 1; margin-top: 0;">FIND HERO</button>
                 </div>
-              </div>
-
+              </div>  
+              
+         
+              
             </div>
           </div>
         </div>
@@ -5279,33 +5290,43 @@
       let towMapInstance = null;
       let towMapMarkers = {};
       let activeInfoWindow = null;
-
+      
+      
+      
+      
       window.goToSosStep = (step) => {
         document.querySelectorAll('.wizard-step').forEach(el => el.classList.remove('active'));
         document.getElementById('step' + step).classList.add('active');
         window.currentSosStep = step;
-        window.checkWizardReady(step);
+        
+        // Fix for the Grayed Out Submit Button - Automatically enable it on the final step
+        if (step === 6) {
+          const submitBtn = document.getElementById("submitSosBtn");
+          submitBtn.disabled = false;
+          submitBtn.classList.add('pulse-ready');
+        } else {
+          window.checkWizardReady(step);
+        }
 
-        if (step === 2 && isTowTruckRequestActive) {
+        if (step === 4 && isTowTruckRequestActive) {
           setTimeout(() => { window.initTowDestinationMap(); }, 300);
         }
       };
 
-      window.goBackFromContact = () => {
-        if (isTowTruckRequestActive) {
-          window.goToSosStep(2);
-        } else {
-          window.goToSosStep(1);
-        }
+      // Fork routing logic between Towing vs Roadside
+      window.nextFromVehicle = () => {
+        if (isTowTruckRequestActive) window.goToSosStep(4);
+        else window.goToSosStep(5);
+      };
+
+      window.backFromPhotos = () => {
+        if (isTowTruckRequestActive) window.goToSosStep(4);
+        else window.goToSosStep(3);
       };
 
       window.setServiceType = (isTow) => {
         isTowTruckRequestActive = isTow;
-        if (isTow) {
-          window.goToSosStep(2); // Jump to Map
-        } else {
-          window.goToSosStep(3); // Jump to Contact Info
-        }
+        window.goToSosStep(2); // Both start at Contact Info
       };
 
       window.initTowDestinationMap = () => {
@@ -5335,19 +5356,19 @@
       window.checkWizardReady = (step) => {
         let isReady = true;
         
-        if (step === 2 && isTowTruckRequestActive) {
-           const dest = document.getElementById("towDestinationInput").value.trim();
-           if (dest === "") isReady = false; 
-        }
-        if (step === 3) {
+        if (step === 2) {
            const phone = document.getElementById("phoneNumberInput").value.trim();
            const name = document.getElementById("reqUserName").value.trim();
            if (phone === "" || name === "") isReady = false;
         }
-        if (step === 4) {
+        if (step === 3) {
            const issue = document.getElementById("reqIssue").value.trim();
            const make = document.getElementById("vehMake").value.trim();
            if (issue === "" || make === "") isReady = false;
+        }
+        if (step === 4 && isTowTruckRequestActive) {
+           const dest = document.getElementById("towDestinationInput").value.trim();
+           if (dest === "") isReady = false; 
         }
         
         const nextBtn = document.getElementById('step' + step + 'Next');
@@ -5459,9 +5480,7 @@
           `;
         }
       };
-       
-      
-      
+    
       
       
       
@@ -5877,40 +5896,36 @@
           
           
                   // Aggressively scrub the form's memory and visuals every time it is opened
+        
         if (id === "requestModal") {
+          isTowTruckRequestActive = false;
           window.goToSosStep(1);
-          window.setServiceType(false);
+          
           document.getElementById("reqUserName").value = "";
           document.getElementById("reqUserEmail").value = "";
-          damageImgList = [];
-
+          document.getElementById("phoneNumberInput").value = "";
           
-          document.getElementById("damagePreviewList").innerHTML = "";
+          document.getElementById("vehYear").value = "";
+          document.getElementById("vehMake").value = "";
+          document.getElementById("vehModel").value = "";
+          document.getElementById("vehColor").value = "";
+          document.getElementById("vehPlate").value = "";
           document.getElementById("reqIssue").value = "";
+          document.getElementById("towDestinationInput").value = "";
           document.getElementById("customTip").value = "";
 
-          isTowTruckRequestActive = false;
+          damageImgList = [];
+          document.getElementById("damagePreviewList").innerHTML = "";
 
-          const towBtn = document.getElementById("towTruckBtn");
-          if (towBtn) {
-            towBtn.classList.remove("active");
-            towBtn.innerText = "I NEED A TOW TRUCK!";
-          }
-
-          const towContact = document.getElementById("towTruckContact");
-          if (towContact) towContact.style.display = "none";
-
-          const phoneInput = document.getElementById("phoneNumberInput");
-          if (phoneInput) phoneInput.value = "";
-
-          const destInput = document.getElementById("towDestinationInput");
-          if (destInput) destInput.value = "";
+          document.querySelectorAll(".tip-grid-tile").forEach((b) => b.classList.remove("active"));
 
           document.getElementById("submitSosBtn").disabled = true;
-          document
-            .getElementById("submitSosBtn")
-            .classList.remove("pulse-ready");
+          document.getElementById("submitSosBtn").classList.remove("pulse-ready");
         }
+        
+        
+   
+        
       };
 
       window.closeModal = (id) => {
