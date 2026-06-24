@@ -1452,6 +1452,114 @@
       }
       
       
+
+
+
+
+/* --- NEW TOW DESTINATION DYNAMIC MAP UI --- */
+      .tow-map-expander {
+        width: 100%;
+        height: 0px;
+        margin-bottom: 0px;
+        border-radius: 12px;
+        background: #eee;
+        position: relative;
+        overflow: hidden;
+        transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.4s ease;
+        opacity: 0;
+      }
+      .tow-map-expander.active {
+        height: 45vh;
+        min-height: 350px;
+        margin-bottom: 15px;
+        border: 1px solid #e2e8f0;
+        opacity: 1;
+      }
+      .tow-map-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+        transition: opacity 0.3s ease;
+      }
+      .tow-map-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .tow-pro-list-container {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 95%;
+        max-height: 50%;
+        overflow-y: auto;
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        pointer-events: none; /* Let clicks pass through empty space */
+      }
+      .tow-pro-list-container::-webkit-scrollbar {
+        display: none;
+      }
+      .tow-pro-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        pointer-events: auto; /* Re-enable clicks on the cards */
+      }
+      .tow-pro-card img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--accent);
+      }
+      .tow-pro-info {
+        flex: 1;
+        margin: 0 10px;
+        text-align: left;
+      }
+      .tow-pro-select-btn {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-weight: 900;
+        font-size: 11px;
+        cursor: pointer;
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       
     </style>
   </head>
@@ -1580,12 +1688,12 @@
         transition: transform 0.3s ease-in- out;
       "
     >
-      <div style="font-weight: 800; font-size: 15px">📍 Location Required</div>
+      <div style="font-weight: 800; font-size: 15px">Location Required</div>
       <div
         id="persistentBannerSubtext"
         style="font-size: 12px; font-weight: 500; line-height: 1.4"
       >
-        RoadWatcHero needs your location to connect you with nearby help.
+        RoadWatcHero needs your location to connect you with a nearby HERO.
       </div>
       <button
         onclick="window.triggerNativeLocation()"
@@ -2969,17 +3077,45 @@
                 
                 <input type="text" id="towDestinationInput" placeholder="Enter destination address" oninput="window.checkWizardReady(4)" />
                 
-                <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:15px; margin-bottom:15px; text-align:center;">
-                  <p style="font-size: 11px; color: var(--muted); margin-top:0; margin-bottom: 10px;">Required to show nearby Verified Mechanics on the map.</p>
-                  <button onclick="window.triggerNativeLocation()" style="background:white; border:2px solid var(--accent); color:var(--accent); padding:10px 15px; border-radius:8px; font-weight:900; font-size:12px; cursor:pointer; box-shadow:var(--shadow); width: 100%;">ALLOW LOCATION</button>
+                
+                
+                
+                
+                
+                <button id="findProTriggerBtn" onclick="window.openTowMapFlow()" style="background: whitesmoke; border: 2px solid var(--accent); color: var(--accent); padding: 15px; border-radius: 12px; font-weight: 900; font-size: 14px; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: var(--shadow); transition: all 0.2s;">
+                   FIND A CERTIFIED PRO
+                </button>
+
+                <div id="towMapContainer" class="tow-map-expander">
+                  <div id="towDestinationMap" style="width: 100%; height: 100%;"></div>
+                  
+                  <div id="towProListContainer" class="tow-pro-list-container"></div>
+
+                  <div id="towSoftPrompt" class="tow-map-overlay hidden">
+                    <div style="font-weight: 900; font-size: 16px; color: var(--text); margin-bottom: 5px;">Location Needed</div>
+                    <div style="font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 20px;">RoadWatcHero needs your location to find the closest certified shops in your area.</div>
+                    <button onclick="window.handleTowSoftPrompt(true)" style="background: var(--accent); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 900; width: 100%; cursor: pointer; margin-bottom: 10px;">ALLOW LOCATION</button>
+                    <button onclick="window.handleTowSoftPrompt(false)" style="background: transparent; color: var(--muted); border: 2px solid #cbd5e1; padding: 12px 20px; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer;">NOT NOW</button>
+                  </div>
+
+                  <div id="towMapLoader" class="tow-map-overlay hidden" style="background: rgba(255,255,255,0.9);">
+                    <div class="spinner" style="border-color: rgba(238, 97, 28, 0.2); border-top-color: #ee611c; width: 40px; height: 40px;"></div>
+                    <div style="margin-top: 15px; font-weight: 800; font-size: 12px; color: var(--accent);">Acquiring GPS...</div>
+                  </div>
+
+                  <div id="towMapDenied" class="tow-map-overlay hidden">
+                    <div style="font-size: 30px; margin-bottom: 10px;">⚠️</div>
+                    <div id="towMapDeniedTitle" style="font-weight: 900; font-size: 16px; color: var(--danger); margin-bottom: 5px;">Location Blocked</div>
+                    <div id="towMapDeniedSub" style="font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 20px;">Please check your browser settings or try again.</div>
+                    <button onclick="window.handleTowSoftPrompt(true)" style="background: white; border: 2px solid var(--accent); color: var(--accent); padding: 10px 20px; border-radius: 8px; font-weight: 900; cursor: pointer;">RETRY</button>
+                  </div>
                 </div>
-
-                <div id="towMapContainer" style="width: 100%; height: 200px; border-radius: 12px; background: #eee; margin-bottom: 10px; border: 1px solid #e2e8f0; position: relative; overflow: hidden;">
-                   <div id="towDestinationMap" style="width: 100%; height: 100%;"></div>
-                </div> 
-
-                <div id="verifiedMechanic"></div>
-
+         
+                
+                
+                
+                
+                
                 <div style="flex:1;"></div>
                 <div style="display: flex; gap: 10px; margin-top: 15px;">
                   <button class="submit-btn" onclick="window.goToSosStep(3)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
@@ -5328,6 +5464,55 @@
         isTowTruckRequestActive = isTow;
         window.goToSosStep(2); // Both start at Contact Info
       };
+      
+      
+      
+      
+      let towMapDebounceTimer = null;
+      let towMapMarkersList = [];
+
+      window.openTowMapFlow = () => {
+        document.getElementById("findProTriggerBtn").style.display = "none";
+        document.getElementById("towMapContainer").classList.add("active");
+        
+        // If we already have location, jump straight to rendering the map
+        if (userLocation) {
+          window.initTowDestinationMap();
+        } else {
+          // Otherwise, show the Soft Prompt
+          document.getElementById("towSoftPrompt").classList.remove("hidden");
+        }
+      };
+
+      window.handleTowSoftPrompt = (allow) => {
+        document.getElementById("towSoftPrompt").classList.add("hidden");
+        
+        if (!allow) {
+          document.getElementById("towMapDeniedTitle").innerText = "Location Needed";
+          document.getElementById("towMapDeniedSub").innerText = "We need your location to show nearby shops.";
+          document.getElementById("towMapDenied").classList.remove("hidden");
+          return;
+        }
+
+        // Show the loader while waiting for native permission
+        document.getElementById("towMapDenied").classList.add("hidden");
+        document.getElementById("towMapLoader").classList.remove("hidden");
+
+        navigator.geolocation.getCurrentPosition(
+          (p) => {
+            userLocation = { lat: p.coords.latitude, lng: p.coords.longitude };
+            document.getElementById("towMapLoader").classList.add("hidden");
+            window.initTowDestinationMap();
+          },
+          (err) => {
+            document.getElementById("towMapLoader").classList.add("hidden");
+            document.getElementById("towMapDeniedTitle").innerText = "Location Blocked";
+            document.getElementById("towMapDeniedSub").innerText = "Please check your browser settings to allow location access.";
+            document.getElementById("towMapDenied").classList.remove("hidden");
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      };
 
       window.initTowDestinationMap = () => {
         const mapEl = document.getElementById("towDestinationMap");
@@ -5339,20 +5524,118 @@
             zoom: 12,
             disableDefaultUI: true,
             gestureHandling: "greedy",
-            styles: [
-              { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
-            ]
+            styles: [{ featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }]
           });
-        }
 
-        if (userLocation) {
-          towMapInstance.setCenter(userLocation);
+          // The Throttle / Debounce Listener
+          google.maps.event.addListener(towMapInstance, "idle", () => {
+            clearTimeout(towMapDebounceTimer);
+            towMapDebounceTimer = setTimeout(window.renderMapPros, 500);
+          });
+
+          google.maps.event.addListener(towMapInstance, "dragstart", () => {
+            clearTimeout(towMapDebounceTimer);
+          });
+        } else {
+          if (userLocation) towMapInstance.setCenter(userLocation);
         }
         
         google.maps.event.trigger(towMapInstance, "resize");
-        window.renderVerifiedPros();
       };
 
+      window.renderMapPros = () => {
+        if (!towMapInstance) return;
+        
+        const listContainer = document.getElementById("towProListContainer");
+        const deniedOverlay = document.getElementById("towMapDenied");
+        const bounds = towMapInstance.getBounds();
+        
+        // Zoom Lock: Don't query if zoomed out too far
+        if (towMapInstance.getZoom() < 10) {
+          listContainer.innerHTML = "";
+          document.getElementById("towMapDeniedTitle").innerText = "Zoom In";
+          document.getElementById("towMapDeniedSub").innerText = "Zoom in closer to search this area for shops.";
+          deniedOverlay.classList.remove("hidden");
+          return;
+        } else {
+          deniedOverlay.classList.add("hidden");
+        }
+
+        if (!bounds) return;
+
+        let visiblePros = [];
+
+        // Zero-Cost Front-End Spatial Filtering
+        Object.values(profilesCache).forEach((profile) => {
+          if (!profile.isPro || !profile.lat || !profile.businessAddress) return;
+          if (profile.heroType !== "mechanic" && profile.heroType !== "both") return;
+
+          const position = new google.maps.LatLng(profile.lat, profile.lng);
+          
+          if (bounds.contains(position)) {
+            const dist = google.maps.geometry.spherical.computeDistanceBetween(
+                new google.maps.LatLng(towMapInstance.getCenter().lat(), towMapInstance.getCenter().lng()),
+                position
+            ) / 1609.34;
+            
+            visiblePros.push({ ...profile, calculatedDist: dist });
+          }
+        });
+
+        // Sort by distance and cap at 20 to ensure smooth performance
+        visiblePros.sort((a, b) => a.calculatedDist - b.calculatedDist);
+        const cappedPros = visiblePros.slice(0, 20);
+
+        // Update Map Markers
+        towMapMarkersList.forEach(m => m.setMap(null));
+        towMapMarkersList = [];
+        
+        let htmlContent = "";
+
+        if (cappedPros.length > 0) {
+          cappedPros.forEach(pro => {
+            const safeAddr = pro.businessAddress.replace(/'/g, "\\'");
+            const safeName = (pro.companyName || pro.name).replace(/'/g, "\\'");
+            const avatar = pro.pic || "https://via.placeholder.com/50";
+            
+            // Render Vertical List Item
+            htmlContent += `
+              <div class="tow-pro-card">
+                <img src="${avatar}">
+                <div class="tow-pro-info">
+                  <div style="font-weight: 800; font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">${safeName}</div>
+                  <div style="font-size: 10px; font-weight: 700; color: var(--muted);">${pro.calculatedDist.toFixed(1)} miles away</div>
+                </div>
+                <button class="tow-pro-select-btn" onclick="window.selectProShop('${safeAddr}', '${safeName}', ${pro.lat}, ${pro.lng})">SELECT</button>
+              </div>
+            `;
+
+            // Drop Map Pin
+            const marker = new google.maps.Marker({
+              position: { lat: pro.lat, lng: pro.lng },
+              map: towMapInstance,
+              icon: { url: "heromapicon.png", scaledSize: new google.maps.Size(32, 32), anchor: new google.maps.Point(16, 16) }
+            });
+            towMapMarkersList.push(marker);
+          });
+        } else {
+           htmlContent = `<div style="text-align:center; padding: 15px; background: rgba(255,255,255,0.9); border-radius: 12px; font-size: 12px; font-weight: 700; color: var(--muted); border: 1px solid #e2e8f0; pointer-events: auto;">No shops found in this area.</div>`;
+        }
+
+        listContainer.innerHTML = htmlContent;
+      };
+
+      // Ensure any legacy calls to the old render logic route safely to the new one
+      window.renderVerifiedPros = () => {
+         if (document.getElementById("towMapContainer").classList.contains("active")) {
+             window.renderMapPros();
+         }
+      };
+      
+      
+      
+    
+      
       window.checkWizardReady = (step) => {
         let isReady = true;
         
@@ -7438,7 +7721,11 @@
 
         window.checkFormReady();
       };
-
+      
+      
+      
+      
+      
       window.renderVerifiedPros = () => {
         const container = document.getElementById("verifiedMechanic");
         if (!container) return;
@@ -7481,7 +7768,7 @@
                   "\\'"
                 )}', '${(pro.companyName || pro.name).replace(/'/g, "\\'")}', ${
                     pro.lat
-                  }, ${pro.lng})">
+                  }, ${pro.lng})"> 
                   <img src="${
                     pro.pic || "https://via.placeholder.com/50"
                   }" class="pro-img-mini" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border: 2px solid var(--accent);">
@@ -7490,7 +7777,7 @@
                   }</div>
                   <div style="font-size: 9px; color: var(--success); font-weight: 700;">Tap for Tow Dest.</div>
                 </div>
-              `
+              ` 
                 )
                 .join("")}
             </div>
@@ -7506,7 +7793,17 @@
           `;
         }
       };
+      
+      
+      
+      
+      
+      
 
+      
+      
+      
+      
       window.submitSOS = () => {
         const issue = document.getElementById("reqIssue").value;
         const reqUserName = document.getElementById("reqUserName").value || "Driver";
