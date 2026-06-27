@@ -5156,10 +5156,10 @@
         get,
         update,
         remove,
+        query,
+        limitToLast
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-      
-      
       import { 
         getFirestore, 
         doc, 
@@ -7103,81 +7103,89 @@
           hB.style.display = count > 0 ? "flex" : "none";
         }
       }
+      
+    
+   
+      window.activeChatListeners = {}; 
 
-      onValue(
-        ref(db, "chats"),
-        (snapshot) => {
-          chatCache = snapshot.val() || {};
-          let unreadCount = 0;
-          let latestMessageTimestampInActiveChat = 0;
-          let latestMessageText = "New message received!";
+      window.evaluateUnreadBadges = () => {
+        let unreadCount = 0;
+        let latestMessageTimestampInActiveChat = 0;
+        let latestMessageText = "New message received!";
 
-          Object.keys(chatCache).forEach((chatId) => {
-            const messages = chatCache[chatId];
-
-            const isRelatedToActiveJob = Object.entries(sosCache).some(
-              ([jobId, r]) => {
-                return (
-                  (r.ownerId === myId ||
-                    r.helperId === myId ||
-                    chatId.includes(myId)) &&
-                  ["open", "accepted", "arrived"].includes(r.status) &&
-                  chatId.includes(jobId)
-                );
+        Object.keys(chatCache).forEach((chatId) => {
+          const messages = chatCache[chatId];
+          Object.values(messages).forEach((message) => {
+            if (message.sender !== myId) {
+              if (message.read === false) unreadCount++;
+              if (
+                message.timestamp &&
+                message.timestamp > latestMessageTimestampInActiveChat
+              ) {
+                latestMessageTimestampInActiveChat = message.timestamp;
+                latestMessageText = message.text || "Sent an image";
               }
-            );
-
-            if (isRelatedToActiveJob) {
-              Object.values(messages).forEach((message) => {
-                if (message.sender !== myId) {
-                  if (message.read === false) unreadCount++;
-                  if (
-                    message.timestamp &&
-                    message.timestamp > latestMessageTimestampInActiveChat
-                  ) {
-                    latestMessageTimestampInActiveChat = message.timestamp;
-                    latestMessageText = message.text || "Sent an image";
-                  }
-                }
-              });
             }
           });
+        });
 
-          const chatModalOpen =
-            document.getElementById("chatModal").style.display === "flex";
+        const chatModalOpen = document.getElementById("chatModal").style.display === "flex";
 
-          if (
-            !isInitialLoadForChatListener &&
-            latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp
-          ) {
-            const sound = document.getElementById("notificationSound");
-            if (sound) sound.play().catch((e) => console.error(e));
+        if (
+          !isInitialLoadForChatListener &&
+          latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp
+        ) {
+          const sound = document.getElementById("notificationSound");
+          if (sound) sound.play().catch((e) => console.error(e));
 
-            if (!chatModalOpen) {
-              window.showDropBanner(latestMessageText, "💬");
+          if (!chatModalOpen) {
+            window.showDropBanner(latestMessageText, "💬");
+          }
+        }
+
+        if (latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp) {
+          lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
+        }
+        currentUnreadCount = unreadCount;
+        updateChatBadges(currentUnreadCount);
+        if (isInitialLoadForChatListener) isInitialLoadForChatListener = false;
+      };
+
+      setInterval(() => {
+        const activeJobChatIds = [];
+        Object.entries(sosCache).forEach(([jobId, r]) => {
+          if ((r.ownerId === myId || r.helperId === myId) && ["open", "accepted", "arrived"].includes(r.status)) {
+            if (r.isTowTruckRequest) {
+              activeJobChatIds.push(jobId); 
+            }
+            if (r.helperId) {
+              activeJobChatIds.push(`${jobId}_${r.helperId}`);
             }
           }
+        });
 
-          if (
-            latestMessageTimestampInActiveChat > lastProcessedMessageTimestamp
-          ) {
-            lastProcessedMessageTimestamp = latestMessageTimestampInActiveChat;
+        // Sever connection to closed chat rooms
+        Object.keys(window.activeChatListeners).forEach((chatId) => {
+          if (!activeJobChatIds.includes(chatId)) {
+            window.activeChatListeners[chatId](); 
+            delete window.activeChatListeners[chatId];
+            delete chatCache[chatId]; 
           }
-          currentUnreadCount = unreadCount;
-          updateChatBadges(currentUnreadCount);
-          if (isInitialLoadForChatListener)
-            isInitialLoadForChatListener = false;
-          if (
-            document
-              .getElementById("seekerUI")
-              .classList.contains("view-active")
-          )
-            syncUI();
-        },
+        });
 
-        (error) => console.error("Error fetching chats:", error)
-      );
+        // Attach listeners only to active chat rooms
+        activeJobChatIds.forEach((chatId) => {
+          if (!window.activeChatListeners[chatId]) {
+            window.activeChatListeners[chatId] = onValue(ref(db, `chats/${chatId}`), (snap) => {
+              chatCache[chatId] = snap.val() || {};
+              window.evaluateUnreadBadges();
+            });
+          }
+        });
+      }, 3000);
+      
 
+      
       window.viewRequest = (id) => {
         window.currentViewedSosId = id; // <-- THE MISSING TRACKER
         const r = sosCache[id];
@@ -9252,8 +9260,11 @@
             marker.setIcon(getTowTruckSplitIcon("#2563eb", "#60a5fa"));
         });
       }
-
-      onValue(ref(db, "sosRequests"), (snap) => {
+      
+      
+      
+      const recentSosQuery = query(ref(db, "sosRequests"), limitToLast(50));
+      onValue(recentSosQuery, (snap) => {
         window._lastSosCacheState_ = { ...sosCache };
         sosCache = snap.val() || {};
         syncUI();
@@ -9264,7 +9275,6 @@
             ["open", "accepted", "arrived", "completed"].includes(r.status)
         );
 
-        // 1. If active session exists, switch view immediately behind the blur
         if (
           myActive &&
           document
@@ -9303,40 +9313,56 @@
           }
         }
       });
+      
 
-      onValue(ref(db, "profiles"), (snap) => {
+      
+      get(ref(db, "profiles")).then((snap) => {
         profilesCache = snap.val() || {};
         syncUI();
+      });
 
+      let activeHeroListener = null;
+      let trackedHeroId = null;
+
+      setInterval(() => {
         const myActiveSOS = Object.values(sosCache).find(
           (r) =>
             r.ownerId === myId &&
             (r.status === "accepted" || r.status === "arrived")
         );
 
-        if (
-          myActiveSOS &&
-          myActiveSOS.helperId &&
-          profilesCache[myActiveSOS.helperId]
-        ) {
-          let trackingHero = { ...profilesCache[myActiveSOS.helperId] };
+        const activeHeroId = myActiveSOS ? myActiveSOS.helperId : null;
 
-          if (
-            myActiveSOS.driverId &&
-            trackingHero.driverLocations &&
-            trackingHero.driverLocations[myActiveSOS.driverId]
-          ) {
-            trackingHero.lat =
-              trackingHero.driverLocations[myActiveSOS.driverId].lat;
-            trackingHero.lng =
-              trackingHero.driverLocations[myActiveSOS.driverId].lng;
-          } else if (myActiveSOS.driverId) {
-            return;
+        if (activeHeroId !== trackedHeroId) {
+          if (activeHeroListener) {
+            activeHeroListener(); 
+            activeHeroListener = null;
           }
+          trackedHeroId = activeHeroId;
 
-          updateSeekerMiniMap(myActiveSOS, trackingHero);
+          if (trackedHeroId) {
+            activeHeroListener = onValue(ref(db, `profiles/${trackedHeroId}`), (snap) => {
+              if (snap.exists()) {
+                profilesCache[trackedHeroId] = snap.val();
+                let trackingHero = { ...profilesCache[trackedHeroId] };
+
+                if (
+                  myActiveSOS.driverId &&
+                  trackingHero.driverLocations &&
+                  trackingHero.driverLocations[myActiveSOS.driverId]
+                ) {
+                  trackingHero.lat = trackingHero.driverLocations[myActiveSOS.driverId].lat;
+                  trackingHero.lng = trackingHero.driverLocations[myActiveSOS.driverId].lng;
+                }
+                updateSeekerMiniMap(myActiveSOS, trackingHero);
+              }
+            });
+          }
         }
-      });
+      }, 2500);
+      
+
+
 
       window.signOutHero = () => {
         document
