@@ -3976,11 +3976,17 @@
 
         <div>
           <h4 style="font-size: 14px; font-weight: 900; color: var(--muted); margin-bottom: 10px; text-transform: uppercase;">Recent Transactions</h4>
-          <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 30px 15px; text-align: center;">
-             <div style="font-size: 30px; margin-bottom: 10px;">🧾</div>
-             <div style="font-size: 13px; font-weight: 700; color: var(--muted);">No recent transactions.</div>
-             <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Payment history will appear here once you complete a payout.</div>
+          
+          <div id="transactionHistoryList" style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
+            <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 30px 15px; text-align: center;">
+               <div style="font-size: 30px; margin-bottom: 10px;">🧾</div>
+               <div style="font-size: 13px; font-weight: 700; color: var(--muted);">No recent transactions.</div>
+               <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Payment history will appear here once you complete a payout.</div>
+            </div>
           </div>
+ 
+          
+          
         </div>
 
       </div>
@@ -7941,8 +7947,12 @@
             body: JSON.stringify({ 
               amount: amountInCents,
               heroStripeId: heroStripeId,
+              heroId: targetHeroId,
+              jobId: myReqId,
               paymentMethodId: paymentMethod.id 
             })
+            
+
           });
 
           const data = await response.json();
@@ -9670,6 +9680,32 @@
           }
 
           // STRICT FIX: Removed togglePricingFields() so the panel stays hidden
+          
+          const transactionContainer = document.getElementById("transactionHistoryList");
+          if (transactionContainer && d.transactions) {
+            const txs = Object.values(d.transactions).sort((a, b) => b.timestamp - a.timestamp);
+            if (txs.length > 0) {
+              transactionContainer.innerHTML = txs.map(tx => {
+                const date = new Date(tx.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                return `
+                  <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:15px; border-radius:12px; margin-bottom:10px; border:1px solid #e2e8f0; box-shadow:var(--shadow); text-align:left;">
+                    <div>
+                      <div style="font-weight:900; font-size:14px; color:var(--text);">Paid via Card</div>
+                      <div style="font-size:11px; color:var(--muted); font-weight:700; margin-top:2px;">${date}</div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="color:var(--success); font-weight:900; font-size:16px;">+$${tx.netAmount}</div>
+                      <div style="font-size:10px; color:var(--muted); font-weight:600; margin-top:2px;">Platform Fee: $${tx.platformFee}</div>
+                    </div>
+                  </div>
+                `;
+              }).join('');
+              transactionContainer.style.background = "transparent";
+              transactionContainer.style.border = "none";
+              transactionContainer.style.padding = "0";
+            }
+          }
+          
           document.getElementById("pricingFields").style.display = "none";
 
           document.getElementById("prefersRoadsideRequests").checked =
