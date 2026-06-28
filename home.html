@@ -7898,6 +7898,8 @@
       };
 
       window.openStripeCheckout = () => {
+        
+ 
         document.getElementById("payCashBtn").style.display = "none";
         document.getElementById("payCardBtn").style.display = "none";
         document.getElementById("stripePaymentElement").style.display = "block";
@@ -7910,6 +7912,9 @@
         }
       };
 
+      
+      
+      
       window.submitCardPayment = async () => {
         const btn = document.getElementById("submitCardBtn");
         btn.disabled = true;
@@ -7931,6 +7936,14 @@
         const heroStripeId = profilesCache[targetHeroId]?.stripe_account_id;
         const amountInCents = Math.round(req.acceptedPrice * 100);
 
+        // FAILSAFE: Ensure all data exists before attempting payment
+        if (!targetHeroId || !heroStripeId || !amountInCents) {
+            alert("Payment Error: Missing Hero or pricing details. The Hero may not have completed their Stripe setup.");
+            btn.innerText = "CONFIRM & PAY";
+            btn.disabled = false;
+            return;
+        }
+
         try {
           const { paymentMethod, error } = await window.stripeInstance.createPaymentMethod({
             type: 'card',
@@ -7951,20 +7964,19 @@
               jobId: myReqId,
               paymentMethodId: paymentMethod.id 
             })
-            
-
           });
+
+          // GRACEFUL CATCH: Read plain-text errors before JSON parser crashes
+          if (!response.ok) {
+             const errorText = await response.text();
+             throw new Error(errorText);
+          }
 
           const data = await response.json();
           if (data.success) {
             alert("Payment Successful!");
             window.closeModal("paymentChoiceModal");
             window.finalSeekerConfirm();
-            
-            
-            
-            
-            
           } else {
             throw new Error(data.message || "Payment failed on the server.");
           }
@@ -7976,6 +7988,17 @@
           btn.disabled = false;
         }
       };
+      
+      
+      
+      
+      
+
+      
+      
+      
+      
+      
 
       window.setupDirectDeposit = async () => {
         const btn = document.getElementById("stripeOnboardBtn");
