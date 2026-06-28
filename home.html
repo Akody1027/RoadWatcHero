@@ -7199,7 +7199,9 @@
         const detIssue = document.getElementById("detIssue");
         let vehicleHtml = "";
 
-        if (r.isTowTruckRequest && r.vehMake) {
+     
+        
+        if (r.vehMake) {
           vehicleHtml = `
             <div style="margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
               <div style="font-size: 11px; font-weight: 900; color: var(--accent); text-transform: uppercase;">Vehicle</div>
@@ -7207,6 +7209,10 @@
               <div style="font-size: 12px; font-weight: 700; color: var(--muted);">Plate: ${r.vehPlate}</div>
             </div>`;
         }
+        
+        
+        
+        
 
         detIssue.innerHTML = `
           ${vehicleHtml}
@@ -7291,7 +7297,7 @@
         const detDispatchBtn = document.getElementById("detDispatchBtn");
 
         // 1. Call & Chat Logic
-        if (r.isTowTruckRequest && r.phoneNumber) {
+        if (r.phoneNumber) {
           detPhoneBtn.href = `tel:${r.phoneNumber}`;
           detPhoneBtn.style.opacity = "1";
           detPhoneBtn.style.pointerEvents = "auto";
@@ -7300,6 +7306,8 @@
           detPhoneBtn.style.opacity = "0.5";
           detPhoneBtn.style.pointerEvents = "none";
         }
+        
+        
 
         detChatBtn.onclick = () => {
           activeChatId = r.isTowTruckRequest ? id : `${id}_${myId}`;
@@ -7358,8 +7366,10 @@
             detStatusBtn.style.display = "flex";
             if (r.status === "accepted") {
               detStatusBtn.innerHTML = `<img src="here.png" alt="I'm Here" style="width:24px; height:24px; filter: drop-shadow(0px 0px 3px rgba(0,0,0,0.2));"/> I'M HERE`;
-              detStatusBtn.style.background = "var(--warning)";
-              detStatusBtn.style.borderColor = "var(--warning)";
+              
+              detStatusBtn.style.background = "var(--success)";
+              detStatusBtn.style.borderColor = "var(--success)";
+   
               detStatusBtn.style.alignItems = "center";
               detStatusBtn.style.justifyContent = "center";
               detStatusBtn.style.gap = "10px";
@@ -9775,6 +9785,25 @@
 
         const list = document.getElementById("dispatchDriverList");
         list.innerHTML = "";
+        
+        
+        
+        const myProfile = profilesCache[myId] || {};
+        if (!myProfile.isPro) {
+          list.innerHTML = `
+            <div style="text-align:center; padding:30px 20px; display:flex; flex-direction:column; align-items:center; gap:15px;">
+              <div style="font-size: 40px;">🔒</div>
+              <div style="font-weight:900; font-size:16px; color:var(--accent);">Pro Feature Locked</div>
+              <div style="color:var(--muted); font-size:13px; font-weight:600; line-height:1.4;">Please sign up for RoadWatch Hero Pro to unlock fleet dispatching.</div>
+              <button onclick="window.location.href='pro-hero.html'" style="background:var(--accent); color:white; border:none; padding:12px 20px; border-radius:12px; font-weight:900; width:100%; max-width:250px; cursor:pointer; box-shadow:var(--shadow);">
+                UPGRADE TO PRO
+              </button>
+            </div>`;
+          window.openModal("dispatchModal");
+          return;
+        }
+        
+  
 
         if (!window.fleetDrivers || window.fleetDrivers.length === 0) {
           list.innerHTML = `<div style="text-align:center; padding:20px; color:var(--muted); font-size:13px; font-style:italic;">No drivers available. Add drivers in your Fleet Manager.</div>`;
