@@ -7565,12 +7565,17 @@
 
       window.confirmHelp = (sosId) => {
         const eta = document.getElementById("detETA").value;
+        const req = sosCache[sosId] || {};
+        const roadsideBounty = parseFloat(req.tip) || 0;
+
         update(ref(db, `sosRequests/${sosId}`), {
           status: "accepted",
           helperId: myId,
           helperAcknowledged: false,
           eta: eta,
+          acceptedPrice: roadsideBounty
         });
+   
 
         const chatId = `${sosId}_${myId}`;
         push(ref(db, `chats/${chatId}`), {
