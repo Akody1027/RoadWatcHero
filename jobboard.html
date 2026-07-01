@@ -1562,112 +1562,122 @@ window.openChat = async (chatId, titleName) => {
 
 
     
+    window.sendChatMsg = async () => {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text || !activeChatId) return;
+
+    const now = Date.now();
+    const parts = activeChatId.split('_');
+    const jobId = parts[0];
+    const heroId = parts[1];
     
+    let recipientId;
+    let jobTitle = "Roadside Request";
     
-    
-     
-    
-    
-  window.sendChatMsg = () => {
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
-  if (!text || !activeChatId) return;
-
-  const now = Date.now();
-  const parts = activeChatId.split('_');
-  const jobId = parts[0];
-  const heroId = parts[1];
-  
-  // 1. Attempt to get job context
-  const job = jobsCache[jobId];
-  
-  // 2. Logic Check: If we don't have the job object yet, we can still determine
-  // the recipient because chatId is jobId_heroId.
-  // If I am the Hero, the recipient is the Seeker (we'll fetch from DB if needed).
-  // If I am NOT the Hero, I must be the Seeker.
-  let seekerId = job ? job.ownerId : parts[0]; // Fallback to jobId as a reference if ownerId missing
-  let recipientId = (myId === seekerId) ? heroId : seekerId;
-  
-  // Safety: If seekerId couldn't be determined, use the other ID in the pair
-  if (myId === heroId) recipientId = seekerId;
-
-  const jobTitle = job ? job.issue.substring(0, 25) + "..." : "Roadside Request";
-
-  // 3. Push to main thread
-  push(ref(db, `chats/${activeChatId}`), {
-    sender: myId,
-    text: text,
-    timestamp: now
-  });
-
-  // 4. ATOMIC UPDATE
-  const updates = {};
-    
-    
-   updates[`userInbox/${myId}/${activeChatId}`] = {
-    lastMsg: text,
-    timestamp: now,
-    otherUserId: recipientId,
-    title: jobTitle,
-    chatId: activeChatId,
-    unreadCount: 0
-  };
-  updates[`userInbox/${recipientId}/${activeChatId}`] = {
-    lastMsg: text,
-    timestamp: now,
-    otherUserId: myId,
-    title: jobTitle,
-    chatId: activeChatId,
-    unreadCount: increment(1)
-  };
-
-
-  update(ref(db), updates).catch(e => console.error("Inbox Update Failed", e));
-  input.value = '';
-};
-window.sendChatImage = async (inputEl) => {
-      if (!inputEl.files || inputEl.files.length === 0 || !activeChatId) return;
-      const file = inputEl.files[0];
-      const now = Date.now();
-      
-      document.getElementById('loadingOverlay').classList.remove('loader-hidden');
-      
-      try {
-        const fileRef = storageRef(storage, `chat-images/${myId}_${now}_${file.name}`);
-        await uploadBytes(fileRef, file);
-        const downloadURL = await getDownloadURL(fileRef);
-        
-        push(ref(db, `chats/${activeChatId}`), {
-          sender: myId,
-          imageUrl: downloadURL, 
-          timestamp: now
-        });
-
-        const parts = activeChatId.split('_');
-        let recipientId = (myId === parts[0]) ? parts[1] : parts[0];
-        
-        const updates = {};
-     
-        updates[`userInbox/${myId}/${activeChatId}/lastMsg`] = "<img src='camicon.png' width='14px' style='vertical-align: middle; margin-right: 4px;'> Image";
-        updates[`userInbox/${myId}/${activeChatId}/timestamp`] = now;
-        
-        updates[`userInbox/${recipientId}/${activeChatId}/lastMsg`] = "<img src='camicon.png' width='14px' style='vertical-align: middle; margin-right: 4px;'> Image";
-        
-        updates[`userInbox/${recipientId}/${activeChatId}/timestamp`] = now;
-        updates[`userInbox/${recipientId}/${activeChatId}/unreadCount`] = increment(1);
-
-        
-        await update(ref(db), updates);
-      } catch (error) {
-        console.error("Chat Image Error:", error);
-        alert("Failed to send image.");
-      } finally {
-        document.getElementById('loadingOverlay').classList.add('loader-hidden');
-        inputEl.value = '';
+    const job = jobsCache[jobId];
+    if (job) {
+      const seekerId = job.ownerId;
+      recipientId = (myId === seekerId) ? heroId : seekerId;
+      jobTitle = job.issue.substring(0, 25) + "...";
+    } else {
+      const snap = await get(ref(db, `userInbox/${myId}/${activeChatId}`));
+      const inboxData = snap.val();
+      if (inboxData && inboxData.otherUserId) {
+        recipientId = inboxData.otherUserId;
+        jobTitle = inboxData.title || jobTitle;
+      } else {
+        console.error("Recipient unknown.");
+        return;
       }
+    }
+
+    push(ref(db, `chats/${activeChatId}`), {
+      sender: myId,
+      text: text,
+      timestamp: now
+    });
+
+    const updates = {};
+    updates[`userInbox/${myId}/${activeChatId}`] = {
+      lastMsg: text,
+      timestamp: now,
+      otherUserId: recipientId,
+      title: jobTitle,
+      chatId: activeChatId,
+      unreadCount: 0
+    };
+    updates[`userInbox/${recipientId}/${activeChatId}`] = {
+      lastMsg: text,
+      timestamp: now,
+      otherUserId: myId,
+      title: jobTitle,
+      chatId: activeChatId,
+      unreadCount: increment(1)
     };
 
+    update(ref(db), updates).catch(e => console.error("Inbox Update Failed", e));
+    input.value = '';
+  };
 
+  window.sendChatImage = async (inputEl) => {
+    if (!inputEl.files || inputEl.files.length === 0 || !activeChatId) return;
+    const file = inputEl.files[0];
+    const now = Date.now();
+    
+    document.getElementById('loadingOverlay').classList.remove('loader-hidden');
+    
+    try {
+      const parts = activeChatId.split('_');
+      const jobId = parts[0];
+      const heroId = parts[1];
+      let recipientId;
+      
+      const job = jobsCache[jobId];
+      if (job) {
+        const seekerId = job.ownerId;
+        recipientId = (myId === seekerId) ? heroId : seekerId;
+      } else {
+        const snap = await get(ref(db, `userInbox/${myId}/${activeChatId}`));
+        const inboxData = snap.val();
+        if (inboxData && inboxData.otherUserId) {
+          recipientId = inboxData.otherUserId;
+        } else {
+          throw new Error("Recipient unknown.");
+        }
+      }
+
+      const fileRef = storageRef(storage, `chat-images/${myId}_${now}_${file.name}`);
+      await uploadBytes(fileRef, file);
+      const downloadURL = await getDownloadURL(fileRef);
+      
+      push(ref(db, `chats/${activeChatId}`), {
+        sender: myId,
+        imageUrl: downloadURL, 
+        timestamp: now
+      });
+      
+      const updates = {};
+      updates[`userInbox/${myId}/${activeChatId}/lastMsg`] = "<img src='camicon.png' width='14px' style='vertical-align: middle; margin-right: 4px;'> Image";
+      updates[`userInbox/${myId}/${activeChatId}/timestamp`] = now;
+      
+      updates[`userInbox/${recipientId}/${activeChatId}/lastMsg`] = "<img src='camicon.png' width='14px' style='vertical-align: middle; margin-right: 4px;'> Image";
+      updates[`userInbox/${recipientId}/${activeChatId}/timestamp`] = now;
+      updates[`userInbox/${recipientId}/${activeChatId}/unreadCount`] = increment(1);
+
+      await update(ref(db), updates);
+    } catch (error) {
+      console.error("Chat Image Error:", error);
+      alert("Failed to send image.");
+    } finally {
+      document.getElementById('loadingOverlay').classList.add('loader-hidden');
+      inputEl.value = '';
+    }
+  };
+    
+    
+     
+  
     // DB Listeners
     
         onValue(ref(db, 'mechanicRequests'), (snap) => {
