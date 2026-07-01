@@ -447,9 +447,8 @@
         <textarea id="reqIssue" placeholder="What exactly needs fixing? Be descriptive." rows="3"></textarea>
         
         <input type="file" id="jobImgInput" accept="image/*" multiple style="display: none" onchange="window.handleJobImageUpload(this)">
-        <button class="img-upload-btn" onclick="document.getElementById('jobImgInput').click()">📸 Add Damage Photos</button>
+        <button class="img-upload-btn" onclick="document.getElementById('jobImgInput').click()"><img src="camicon.png" width="26px" style="vertical-align: middle;margin-bottom: 5px; margin-right: 5px;"><br> Add Damage Photos</button>
         <div id="jobImgPreview" class="preview-scroller"></div>
-
         <p style="font-size: 11px; color: var(--muted); text-align: center; font-style: italic; margin-bottom: 15px;">
           Note: Your job will remain active for local mechanics to view for 7 days before automatically expiring.
         </p>
@@ -463,7 +462,7 @@
       </div>
     </div>
   </div>
-
+ 
   <div id="feedContainer">
     <div id="jobFeed" class="grid-view">
       </div>
