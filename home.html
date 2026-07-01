@@ -5241,6 +5241,39 @@
         }
       });
 
+
+
+
+      
+      
+      // --- START URL ACTION LISTENER ---
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const incomingAction = urlParams.get('action');
+      
+      if (incomingAction === 'openProfile') {
+        setTimeout(() => {
+          // Force the profile modal to open depending on your specific function name
+          if (typeof window.openProfile === 'function') {
+            window.openProfile();
+          } else if (typeof window.openModal === 'function') {
+            window.openModal('profileModal');
+          } else {
+            const profileModal = document.getElementById('profileModal');
+            if (profileModal) profileModal.style.display = 'flex';
+          }
+          
+          // Wipe the parameter from the URL to keep the browser history clean
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }, 500); // 500ms delay ensures your Firebase profile data is fully loaded first
+      }
+    });
+    // --- END URL ACTION LISTENER ---
+      
+      
+   
+
+      
       window.requestNotificationPermissions = async () => {
         if (!messaging) {
           console.warn(
