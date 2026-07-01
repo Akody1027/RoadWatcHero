@@ -1199,8 +1199,9 @@ if (job.images && job.images.length > 0) {
                    <div style="text-align:right;">
                      <div style="color:var(--success); font-weight:900; font-size:20px;">$${bid.amount}</div>
                      <div style="display:flex; gap:5px; margin-top:5px; justify-content:flex-end;">
-                       <button onclick="window.openChat('${jobId}_${heroId}', '${heroName}')" style="background:var(--bg); border:1px solid #e2e8f0; border-radius:8px; padding:6px; cursor:pointer;">💬</button>
-                       <button onclick="window.acceptQuote('${jobId}', '${heroId}')" style="background:var(--success); color:white; border:none; border-radius:8px; font-weight:bold; padding:6px 10px; cursor:pointer;">ACCEPT</button>
+                     <button onclick="window.openChat('${jobId}_${heroId}', '${heroName}')" style="background:var(--bg); border:1px solid #e2e8f0; border-radius:8px; padding:6px; cursor:pointer; display:flex; align-items:center; justify-content:center;"><img src="Chaticon.png" width="16px"></button>
+                    
+                    <button onclick="window.acceptQuote('${jobId}', '${heroId}')" style="background:var(--success); color:white; border:none; border-radius:8px; font-weight:bold; padding:6px 10px; cursor:pointer;">ACCEPT</button>
                      </div>
                    </div>
                  </div>
@@ -1213,7 +1214,8 @@ if (job.images && job.images.length > 0) {
           // Hero viewing an open job
           dynArea.innerHTML = `
             <div class="action-row">
-              <button class="btn-half btn-msg" onclick="window.openChat('${jobId}_${myId}', 'Seeker')">💬 MESSAGE</button>
+            <button class="btn-half btn-msg" onclick="window.openChat('${jobId}_${myId}', 'Seeker')" style="display:flex; align-items:center; justify-content:center;"><img src="Chaticon.png" width="20px"></button>
+              
               <button class="btn-half btn-accept" onclick="window.openQuoteModal()">SUBMIT QUOTE</button>
             </div>
           `;
@@ -1229,8 +1231,7 @@ if (job.images && job.images.length > 0) {
                 <h4 style="margin:0 0 10px 0; color:#d97706;">🔧 You are working on this job!</h4>
                 <div class="action-row">
                 
-                
-               <button class="btn-half btn-msg" onclick="window.openChat('${jobId}_${myId}', 'Seeker')">💬 MESSAGE</button>
+                <button class="btn-half btn-msg" onclick="window.openChat('${jobId}_${myId}', 'Seeker')" style="display:flex; align-items:center; justify-content:center;"><img src="Chaticon.png" width="20px"></button>
 
                    <button class="btn-half btn-accept" onclick="window.markJobCompleted('${jobId}')">MARK DONE</button>
                 </div>
@@ -1247,9 +1248,8 @@ if (job.images && job.images.length > 0) {
              <div style="text-align:center; padding:20px; background:#fffbeb; border-radius:15px; border: 2px solid #d97706; margin-top:10px;">
                 <h4 style="margin:0 0 5px 0; color:#d97706;">JOB IN PROGRESS</h4>
                 <p style="font-size:13px; color:var(--text); margin:0 0 15px 0;"><b>${hProf.name || 'Your Hero'}</b> is actively working on this.</p>
+                <button class="submit-btn" style="background:var(--text); display:flex; align-items:center; justify-content:center;" onclick="window.openChat('${jobId}_${job.helperId}', '${safeHeroName}')"><img src="Chaticon.png" width="20px"></button>
                 
-                
-                <button class="submit-btn" style="background:var(--text);" onclick="window.openChat('${jobId}_${job.helperId}', '${safeHeroName}')">💬 MESSAGE MECHANIC</button>
              </div>`;
 
         }
