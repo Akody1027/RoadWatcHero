@@ -1466,6 +1466,9 @@ if (job.images && job.images.length > 0) {
       document.getElementById('stripeCardForm').style.display = 'none';
       document.getElementById('paymentSelectionContainer').style.display = 'block';
     });
+    
+    
+    
 
     document.getElementById('btnSubmitCardPayment').addEventListener('click', async () => {
       const errorDiv = document.getElementById('stripe-error');
@@ -1476,7 +1479,7 @@ if (job.images && job.images.length > 0) {
       payBtn.innerText = "PROCESSING...";
 
       try {
-        const response = await fetch("https://your-cloud-functions-url/createConnectPaymentIntent", {
+        const response = await fetch("https://stripe-payment-processor-1068443635940.us-central1.run.app", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -1522,8 +1525,6 @@ if (job.images && job.images.length > 0) {
         payBtn.innerText = "Submit Payment";
       }
     });
-    
-    
     
     
     
