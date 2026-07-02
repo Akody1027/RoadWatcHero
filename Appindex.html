@@ -14,13 +14,13 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />  
     <meta 
-      name="apple-mobile-web-app-status-bar-style"  
+      name="apple-mobile-web-app-status-bar-style"    
       content="black-translucent" 
     />
     <meta name="theme-color" content="#EE611C" />   
   
-     
-<script>  
+       
+<script>    
   (function () {  
     const meta = document.createElement("meta");
     meta.name = "viewport";
@@ -439,13 +439,43 @@
         pointer-events: auto;
       }
 
-      #hubIframe {
+      
+      
+       
+       
+    #hubIframe {
         width: 100%;
-        height: 100%;
+        height: calc(100% - 40px);
+        margin-top: 45px;
         border: none;
         display: block;
         position: relative;
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
       }
+
+      #hubIframe.shift-up {
+        transform: translateY(-50px); /* Slides the 70px Hub header up and out of view */
+      }  
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
 
       /* Overlay to close by clicking the remaining 5% */
       #hubOverlay {
@@ -802,23 +832,30 @@
       }
 
       /* --- PULL-DOWN SHADE STYLES --- */
+      
+      
+      
       #proTopBoard {
         position: absolute;
-        /* Drops from the ceiling, resting the 45px handle perfectly at the top */
-        top: calc(-100% + 150px);
+        /* Rests the 40px handle perfectly at the top while accounting for the new height */
+        top: calc(-100% + 80px);
         left: 0;
         width: 100%;
-        /* Adjusted to fit the screen perfectly when dropped to 110px */
-        height: calc(100% - 110px);
+        /* Expanded by 70px to fill the space left by the vanished header */
+        height: calc(100% - 40px);
         background: var(--bg);
         z-index: 1000;
         transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         box-sizing: border-box;
       }
       #proTopBoard.open {
-        /* Drops down exactly 110px (45px margin + 65px header) to clear the hidden header */
-        top: 110px;
+        /* Slides exactly to the new top of the feed */
+        top: 60px;
       }
+      
+      
+      
+
 
       #proTopBar {
         position: absolute;
@@ -1746,39 +1783,58 @@ function adjustViewport() {
         closeAllPanels();
       }
     }
-
+    
+    
+    
+    
+    
     function toggleTopProfile(e) {
       if (e) e.stopPropagation();
       if (!topBoard || !topBar) return;
 
       const isOpening = !topBoard.classList.contains("open");
+      const hubIframe = document.getElementById("hubIframe");
 
       if (isOpening) {
         topBoard.classList.add("open");
         topBar.classList.add("open");
+        
+        
+        if (hubIframe) hubIframe.classList.add("shift-up");
 
         const iframe = document.getElementById("profileIframe");
         if (iframe && (!iframe.src || iframe.src.includes("about:blank"))) {
           iframe.src = "profile.html";
-        }
+        } 
       } else {
         // ONLY close the dropdown menu, do NOT close the main hub
         topBoard.classList.remove("open");
         topBar.classList.remove("open");
+        if (hubIframe) hubIframe.classList.remove("shift-up");
       }
     }
 
     function closeAllPanels() {
       const sidebar = document.getElementById("heroHubSidebar");
+      const hubIframe = document.getElementById("hubIframe");
       if (hubBoard) hubBoard.classList.remove("open");
       if (sidebar) sidebar.classList.remove("open");
       if (hubToggle) hubToggle.style.transform = "rotate(0deg)";
 
       if (topBoard) topBoard.classList.remove("open");
       if (topBar) topBar.classList.remove("open");
+      if (hubIframe) hubIframe.classList.remove("shift-up");
 
       if (hubOverlay) hubOverlay.style.display = "none";
     }
+
+
+    
+    
+    
+    
+    
+    
  
     // Bind Event Listeners safely
     if (hubToggle) hubToggle.addEventListener("click", toggleHeroHub);
@@ -1814,7 +1870,7 @@ function adjustViewport() {
         const heroId = event.data.heroId;
         
         // 1. Ensure the main Hub drawer is pulled open
-        const hubBoard = document.getElementById("heroHubBoard");
+        const hubBoard = document.getElementById("heroHubBoard"); 
         const sidebar = document.getElementById("heroHubSidebar");
         if (!hubBoard.classList.contains("open")) {
             hubBoard.classList.add("open");
@@ -1831,6 +1887,9 @@ function adjustViewport() {
         const topBar = document.getElementById("proTopBar");
         topBoard.classList.add("open");
         topBar.classList.add("open");
+        
+        document.getElementById("hubIframe").classList.add("shift-up");
+        
       }                                                                   
                                                                           
                                                                           
