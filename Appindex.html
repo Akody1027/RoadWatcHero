@@ -49,7 +49,7 @@
         width: 100%;
         height: 4px;
         background: rgba(238, 97, 28, 0.2); /* Light orange track */
-        z-index: 999999; /* Absolute top layer */
+        z-index: 9999999; /* Absolute top layer */
         display: none;
         overflow: hidden;
       }
@@ -3604,17 +3604,7 @@ function adjustViewport() {
       
   
     
-let modalScrollTimer;
-    window.addEventListener("scroll", (e) => {
-      clearTimeout(modalScrollTimer);
-      modalScrollTimer = setTimeout(() => {
-        window.startLoadingRibbon();
-        setTimeout(() => {
-          window.stopLoadingRibbon();
-        }, 500); 
-      }, 150);
-    }, true);
-            
+       
   </script>
             
       <div id="seekerPanelOverlay" style="display:none; position:fixed; inset:0; z-index:9998;" onclick="window.toggleNotificationPanel()"></div>      
