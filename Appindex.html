@@ -3604,24 +3604,16 @@ function adjustViewport() {
       
   
     
-    let scrollStopTimer;
-      window.addEventListener("scroll", () => {
-        // Clear the timer while they are actively moving the page
-        clearTimeout(scrollStopTimer);
-        
-        // Wait 150 milliseconds after movement stops to confirm the scroll is finished
-        scrollStopTimer = setTimeout(() => {
-          // 1. Flash the ribbon ON
-          window.parent.postMessage({ action: 'START_GLOBAL_LOADING' }, '*');
-          
-          // 2. Turn it OFF a split second later (500 milliseconds)
-          setTimeout(() => {
-            window.parent.postMessage({ action: 'STOP_GLOBAL_LOADING' }, '*');
-          }, 500); 
-          
-        }, 150);
-      });
-       
+let modalScrollTimer;
+    window.addEventListener("scroll", (e) => {
+      clearTimeout(modalScrollTimer);
+      modalScrollTimer = setTimeout(() => {
+        window.startLoadingRibbon();
+        setTimeout(() => {
+          window.stopLoadingRibbon();
+        }, 500); 
+      }, 150);
+    }, true);
             
   </script>
             
