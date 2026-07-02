@@ -4,19 +4,19 @@
 
      
  
-    <title>ROADWATCHERO</title> 
-    <link rel="manifest" href="/manifest.json" />   
+    <title>ROADWATCHERO</title>  
+    <link rel="manifest" href="/manifest.json" />    
     <link  
       rel="apple-touch-icon" 
       href="https://www.roadwatchero.com/icon-192x192.png"  
-    /> 
+    />  
     <link rel="icon" href="/roadwatch.ico" type="image/x-icon" />    
-    <meta name="mobile-web-app-capable" content="yes" /> 
+    <meta name="mobile-web-app-capable" content="yes" />  
     <meta name="apple-mobile-web-app-capable" content="yes" />  
     <meta 
       name="apple-mobile-web-app-status-bar-style"    
       content="black-translucent" 
-    />
+    /> 
     <meta name="theme-color" content="#EE611C" />   
   
        
@@ -423,7 +423,6 @@
       }
 
       #heroHubBoard.open {
-                height: 97%;
 
         left: 0; /* Slides into the space left by the sidebar */
       }
@@ -836,27 +835,25 @@
       /* --- PULL-DOWN SHADE STYLES --- */
       
       
-      
+       
+ 
       #proTopBoard {
         position: absolute;
-        /* Rests the 40px handle perfectly at the top while accounting for the new height */
-        top: calc(-100% + 80px);
+        /* Rests the handle perfectly at the top by matching the 45px gap */
+        top: calc(-100% + 110px);
         left: 0;
         width: 100%;
-        /* Expanded by 70px to fill the space left by the vanished header */
-        height: calc(100% - 40px);
+        /* Switched to a solid 100% to prevent mobile browser math overflow */
+        height: calc(100% - 70px);
         background: var(--bg);
         z-index: 1000;
         transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         box-sizing: border-box;
       }
       #proTopBoard.open {
-        /* Slides exactly to the new top of the feed */
-        top: 60px;
+        /* Drops exactly to the top edge, pushing the handle safely to the very bottom */
+        top: 70px;
       }
-      
-      
-      
 
 
       #proTopBar {
@@ -865,7 +862,7 @@
         left: 0;
         width: 100%;
         height: 40px;
-        background: var(--accent);
+        background: var(--accent); 
         color: white;
         display: flex;
         align-items: center;
@@ -880,7 +877,7 @@
       #profileIframe {
         width: 100%;
         height: calc(
-          100% - 40px
+          100% - 50px
         ); /* Leaves space for the orange handle at the bottom */
         border: none;
         display: block;
