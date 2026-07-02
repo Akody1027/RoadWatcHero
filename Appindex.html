@@ -78,17 +78,34 @@
       document.body.prepend(ribbon);
     });
 
+    
+    
+    
+    
+    
     // 3. Expose the trigger functions globally
+
+    let globalLoadingTimeout;
+
     window.startLoadingRibbon = () => {
       const r = document.getElementById('global-loading-ribbon');
       if (r) r.style.display = 'block';
+      
+      clearTimeout(globalLoadingTimeout);
+      globalLoadingTimeout = setTimeout(() => {
+        if (r) r.style.display = 'none';
+      }, 5000); 
     };
 
     window.stopLoadingRibbon = () => {
       const r = document.getElementById('global-loading-ribbon');
       if (r) r.style.display = 'none';
+      clearTimeout(globalLoadingTimeout);
     };
-
+    
+    
+    
+    
     // 4. Listen for commands coming from ANY iframe inside the app
     window.addEventListener('message', (event) => {
       if (event.data && event.data.action === 'START_GLOBAL_LOADING') {
