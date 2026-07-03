@@ -6849,10 +6849,11 @@
       window.loadAdvertisements = () => {
         // CHANGED: Now correctly pointing to 'businessPosts' instead of 'advertisingHub'
         onValue(ref(db, "businessPosts"), (snap) => {
-          const adTrack = document.getElementById("seekerAdTrack");
-          const adBanner = document.getElementById("seekerAdBanner");
-
-          // 1. ALWAYS keep BOTH dummy ads permanently
+          
+          
+          
+        
+       // ALWAYS keep BOTH dummy ads permanently
           let ads = {
             dummy1: {
               ownerId: "admin",
@@ -6868,7 +6869,7 @@
             },
           };
 
-          // 2. Safely merge real ads from the database into the list
+          // Safely merge real ads from the database into the list
           if (snap.exists() && snap.val()) {
             const realAds = snap.val();
             Object.entries(realAds).forEach(([key, val]) => {
@@ -6880,53 +6881,55 @@
           window.totalAds = 0;
           Object.entries(ads).forEach(([adId, ad]) => {
             window.totalAds++;
-
-            // Bulletproof fallbacks for image, title, and description keys
-            const imgSrc =
-              ad.promoUrl ||
-              ad.logoUrl ||
-              ad.img ||
-              "https://via.placeholder.com/150";
+            const imgSrc = ad.promoUrl || ad.logoUrl || ad.img || "https://via.placeholder.com/150";
             const bizName = ad.businessName || ad.title || "Pro Hero";
-            const bizDesc =
-              ad.description || ad.subtitle || "Tap to view details";
-
+            
             adHtml += `
               <div class="ad-card" onclick="window.location.href='advertisinghub.html?userId=${ad.ownerId}'">
                 <img src="${imgSrc}" class="ad-img">
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;"></div>
                 <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px 20px; z-index: 3;">
                   <div style="font-size: 22px; font-weight: 900; color: white;  white-space: normal; line-height: 1.2; text-shadow: 0 1px 3px rgba(0,0,0,0.8); margin-bottom: 0px; ">${bizName}</div>
-               
                 </div>
               </div>
             `;
           });
 
-          if (adTrack) {
-            adTrack.innerHTML = adHtml;
-            adTrack.style.transform = `translateX(0%)`;
-          }
-          if (adBanner) adBanner.style.display = "block";
+          // UPDATE ALL AD TRACKS IN THE DOM SIMULTANEOUSLY
+          const adTracks = document.querySelectorAll(".ad-track");
+          adTracks.forEach(track => {
+            track.innerHTML = adHtml;
+            track.style.transform = `translateX(0%)`;
+          });
+
+          const adBanners = document.querySelectorAll(".ad-scroller-container");
+          adBanners.forEach(banner => {
+            banner.style.display = "block";
+          });
 
           if (window.adTimer) clearInterval(window.adTimer);
           window.currentAd = 0;
 
-          // 4. Start the 30-second slider loop
           if (window.totalAds > 1) {
             window.adTimer = setInterval(() => {
               window.currentAd++;
               if (window.currentAd >= window.totalAds) window.currentAd = 0;
-              if (document.getElementById("seekerAdTrack")) {
-                document.getElementById(
-                  "seekerAdTrack"
-                ).style.transform = `translateX(-${window.currentAd * 100}%)`;
-              }
+              
+              const tracksToMove = document.querySelectorAll(".ad-track");
+              tracksToMove.forEach(track => {
+                track.style.transform = `translateX(-${window.currentAd * 100}%)`;
+              });
             }, 8000);
-          }
+          }   
+          
+          
+          
+          
         });
       };
 
+      
+      
       setTimeout(() => {
         window.loadAdvertisements();
       }, 1500);
@@ -9005,8 +9008,12 @@
 
           // 2. Filter Nearby Heroes & Add Orange Cross Markers
           let count = 0;
-          Object.values(profilesCache).forEach((hero) => {
-            if (hero.lat && hero.lng && hero.id !== myId) {
+          
+          
+           Object.entries(profilesCache).forEach(([heroId, hero]) => {
+            if (hero.lat && hero.lng && heroId !== myId) {
+              
+              
               const heroPos = { lat: hero.lat, lng: hero.lng };
               const dist =
                 google.maps.geometry.spherical.computeDistanceBetween(
