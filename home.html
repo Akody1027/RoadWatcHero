@@ -9275,50 +9275,95 @@
         }
         requestAnimationFrame(step);
       }
-
-      function updateSeekerMiniMap(sos, hero) {
-        if (!seekerMiniMap) {
-          seekerMiniMap = new google.maps.Map(
-            document.getElementById("seekerMap"),
-            { zoom: 14, disableDefaultUI: true }
-          );
-          seekerUserMarker = new google.maps.Marker({
-            map: seekerMiniMap,
-            icon: seekerOwnIcon,
-          });
-          seekerHeroMarker = new google.maps.Marker({
-            map: seekerMiniMap,
-            icon: seekerHeroCustomIcon,
-          });
-        }
-
-        const userPos = { lat: sos.lat, lng: sos.lng };
-        seekerUserMarker.setPosition(userPos);
-
-        if (hero && hero.lat && hero.lng) {
-          const heroPos = { lat: hero.lat, lng: hero.lng };
-          const currentHeroPos = seekerHeroMarker.getPosition();
-
-          if (currentHeroPos) {
-            const startPos = {
-              lat: currentHeroPos.lat(),
-              lng: currentHeroPos.lng(),
-            };
-            animateMarker(seekerHeroMarker, startPos, heroPos, 2500);
-          } else {
-            seekerHeroMarker.setPosition(heroPos);
+      
+      
+      
+      
+      
+      
+        function updateSeekerMiniMap(sos, hero) {
+          if (!seekerMiniMap) {
+            seekerMiniMap = new google.maps.Map(
+              document.getElementById("seekerMap"),
+              { zoom: 14, disableDefaultUI: true }
+            );
+            seekerUserMarker = new google.maps.Marker({
+              map: seekerMiniMap,
+              icon: seekerOwnIcon,
+            });
+            seekerHeroMarker = new google.maps.Marker({
+              map: seekerMiniMap,
+              icon: seekerHeroCustomIcon,
+            });
           }
 
-          const bounds = new google.maps.LatLngBounds();
-          bounds.extend(userPos);
-          bounds.extend(heroPos);
-          seekerMiniMap.fitBounds(bounds);
-        } else {
-          seekerMiniMap.setCenter(userPos);
-        }
-        google.maps.event.trigger(seekerMiniMap, "resize");
-      }
+          const userPos = { lat: sos.lat, lng: sos.lng };
+          seekerUserMarker.setPosition(userPos);
 
+          if (hero && hero.lat && hero.lng) {
+            const heroPos = { lat: hero.lat, lng: hero.lng };
+            const currentHeroPos = seekerHeroMarker.getPosition();
+
+            if (currentHeroPos) {
+              const startPos = {
+                lat: currentHeroPos.lat(),
+                lng: currentHeroPos.lng(),
+              };
+              animateMarker(seekerHeroMarker, startPos, heroPos, 2500);
+            } else {
+              seekerHeroMarker.setPosition(heroPos);
+            }
+
+            const bounds = new google.maps.LatLngBounds();
+            bounds.extend(userPos);
+            bounds.extend(heroPos);
+            seekerMiniMap.fitBounds(bounds);
+
+            // --- NEW: DRAW DIRECTIONS ROUTE LINE ---
+            const currentCacheKey = `${parseFloat(heroPos.lat).toFixed(3)},${parseFloat(heroPos.lng).toFixed(3)}_${parseFloat(userPos.lat).toFixed(3)},${parseFloat(userPos.lng).toFixed(3)}`;
+            
+            if (window.lastSeekerRouteCacheKey !== currentCacheKey) {
+                if (!window.seekerDirectionsService) window.seekerDirectionsService = new google.maps.DirectionsService();
+                if (!window.seekerDirectionsRenderer) {
+                    window.seekerDirectionsRenderer = new google.maps.DirectionsRenderer({
+                        map: seekerMiniMap,
+                        suppressMarkers: true,
+                        polylineOptions: { strokeColor: "#ee611c", strokeWeight: 5, strokeOpacity: 0.8 }
+                    });
+                } else {
+                    window.seekerDirectionsRenderer.setMap(seekerMiniMap);
+                }
+
+                window.seekerDirectionsService.route({
+                    origin: heroPos,
+                    destination: userPos,
+                    travelMode: google.maps.TravelMode.DRIVING
+                }, (response, status) => {
+                    if (status === "OK") {
+                        window.seekerDirectionsRenderer.setDirections(response);
+                        window.lastSeekerRouteCacheKey = currentCacheKey;
+                    }
+                });
+            }
+
+          } else {
+            seekerMiniMap.setCenter(userPos);
+            // Clear route if no hero is present
+            if (window.seekerDirectionsRenderer) {
+                window.seekerDirectionsRenderer.setMap(null);
+                window.lastSeekerRouteCacheKey = null;
+            }
+          }
+          google.maps.event.trigger(seekerMiniMap, "resize");
+        }
+      
+      
+      
+      
+      
+      
+      
+      
       window.toggleSeekerMapExpansion = () => {
         const container = document.getElementById("seekerMapContainer");
         const expandBtn = container.querySelector(".map-expand-btn");
