@@ -1454,6 +1454,72 @@
       
 
       
+      
+      /* FULL-SCREEN MATCHED STATE */
+#matchedState.full-screen-matched {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Header Area (Overlay) */
+.matched-header-overlay {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 10;
+}
+
+/* Map area (90% height) */
+.map-container-hero {
+  flex: 0 0 90%;
+  position: relative;
+  width: 100%;
+}
+
+/* Bottom UI Drawer (Gradient + Controls) */
+.matched-drawer {
+  flex: 1;
+  position: relative;
+  background: white;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.gradient-fade {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+  pointer-events: none;
+}
+      
+      
+      
+      
+      
+      
+      
+      
       /* --- NEW TOW DESTINATION DYNAMIC MAP UI --- */
       .tow-map-expander {
         width: 100%;
@@ -1869,213 +1935,69 @@
           >
             EDIT SOS
           </button>
-        </div>
+        </div> 
       </div>
 
       <!-- Seeker Messages List -->
       <div id="seekerMessagesList"></div>
 
-      <div
-        id="matchedState"
-        class="status-card"
-        style="display: none; border-color: var(--success)"
-      >
-        <div
-          id="seekerStatusPill"
-          style="
-            background: var(--success);
-            color: white;
-            padding: 6px 16px;
-            border-radius: 20px;
-            display: inline-block;
-            font-size: 12px;
-            font-weight: 800;
-            margin-bottom: 15px;
-          "
-        >
-          HERO CONNECTED
-        </div>
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-align: left;
-          "
-        >
-          <img
-            id="matchPic"
-            src=""
-            style="
-              width: 70px;
-              height: 70px;
-              border-radius: 50%;
-              object-fit: cover;
-              border: 3px solid #f1f5f9;
-              text-align: center;
-            "
-          />
+      
+      
+      
+      
+      
+      
+      
+      <div id="matchedState" style="display: none;">
+  <!-- Map container (90% height) -->
+  <div id="seekerMapContainer" class="map-container-hero">
+    <div id="seekerMap" style="width: 100%; height: 100%;"></div>
+    
+    <!-- Top Overlay Elements -->
+    <div class="matched-header-overlay">
+      <div id="seekerStatusPill" style="background: var(--success); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 800;">HERO CONNECTED</div>
+      <div id="matchETA" style="background: rgba(0,0,0,0.6); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 800;">...</div>
+    </div>
+  </div>
 
-          <div style="flex: 1">
-
-            
-            <div id="matchName" style="font-weight: 900; font-size: 18px; color: var(--text);"></div>
-            
-            
-            
-            
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background: #f8fafc;
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                padding: 10px;
-                margin-top: 8px;
-              "
-            >
-              <div
-                style="
-                  flex: 1;
-                  border-right: 1px solid #cbd5e1;
-                  padding-right: 10px;
-                "
-              >
-                <div
-                  style="
-                    font-size: 10px;
-                    font-weight: 800;
-                    color: var(--muted);
-                    text-transform: uppercase;
-                  "
-                >
-                  ETA
-                </div>
-                <div
-                  id="matchETA"
-                  style="
-                    color: var(--success);
-                    font-weight: 900;
-                    font-size: 13px;
-                  "
-                >
-                  ...
-                </div>
-              </div>
-              <div
-                id="matchTowDestWrapper"
-                style="flex: 1; padding-left: 10px; display: none"
-              >
-                <div
-                  style="
-                    font-size: 10px;
-                    font-weight: 800;
-                    color: var(--muted);
-                    text-transform: uppercase;
-                  "
-                >
-                  Destination
-                </div>
-                <div
-                  id="matchTowDestination"
-                  style="
-                    color: var(--accent);
-                    font-weight: 900;
-                    font-size: 11px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                  "
-                ></div>
-              </div>
-            </div>
-          </div>
+  <!-- Bottom Drawer -->
+  <div class="matched-drawer">
+    <div class="gradient-fade"></div>
+    
+    <!-- Profile & Destination Info -->
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <img id="matchPic" src="" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #f1f5f9;">
+      <div>
+        <div id="matchName" style="font-weight: 900; font-size: 18px;"></div>
+        <div id="matchTowDestWrapper" style="display: none;">
+          <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase;">Destination</div>
+          <div id="matchTowDestination" style="color: var(--accent); font-weight: 800; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;"></div>
         </div>
-
-        <div
-          style="
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            margin-bottom: 15px;
-            position: relative;
-          "
-        >
-          
-          
-          
-          
-        <a
-            id="dynamicCallBtn"
-            href="#"
-            class="submit-btn"
-            style="
-              flex: 1;
-              background: whitesmoke;
-              border: 2px solid var(--accent);
-              margin-top: 0;
-              padding: 12px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              text-decoration: none;
-            "
-          >
-            <img
-              src="phone1.png"
-              style="
-                width: 24px;
-                height: 24px;
-                filter: drop-shadow(0px 0px 2px var(--accent));
-              "
-            />
-          </a>
-          
-          
-          
-          
-          
-          
-          <button
-            id="matchedChatBtn"
-            class="submit-btn"
-            style="
-              flex: 1;
-              margin-top: 0;
-              padding: 12px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              background-color: whitesmoke;
-              border: 2px solid var(--accent); 
-              
-            "
-          >
-            <img src="chaticon.png" style="width: 24px; height: 24px;  filter: drop-shadow(0px 0px 2px var(--accent));  " />
-          </button>
-        </div>
-
-        <div id="seekerMapContainer">
-          <div id="seekerMap"></div>
-          <button
-            class="map-expand-btn"
-            onclick="window.toggleSeekerMapExpansion()"
-          >
-            Expand Map
-          </button>
-          <button
-            class="map-close-btn"
-            onclick="window.toggleSeekerMapExpansion()"
-          >
-            ✕
-          </button>
-        </div>
-        <p style="font-size: 11px; color: var(--muted)">
-          LIVE HERO TRACKING ENABLED
-        </p>
       </div>
+    </div>
 
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 10px;">
+      <a id="dynamicCallBtn" href="#" class="submit-btn" style="flex: 1; background: whitesmoke; border: 2px solid var(--accent); margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none;">
+        <img src="phone1.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px var(--accent));">
+      </a>
+      <button id="matchedChatBtn" class="submit-btn" style="flex: 1; margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; background-color: whitesmoke; border: 2px solid var(--accent);">
+        <img src="chaticon.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px var(--accent));">
+      </button>
+    </div>
+
+    <!-- Ad Scroller -->
+    <div id="seekerAdBanner" class="ad-scroller-container" style="margin-bottom: 0; min-height: 120px !important; height: 120px !important;">
+      <div id="seekerAdTrack" class="ad-track"></div>
+    </div>
+  </div>
+</div>
+      
+      
+
+ 
+      
+      
       <div
         id="completionConfirmState"
         class="status-card"
