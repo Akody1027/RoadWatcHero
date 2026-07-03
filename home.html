@@ -1749,7 +1749,94 @@
       
       
       
-      
+      /* --- FULL-SCREEN SEARCHING STATE --- */
+#searchingState.status-card {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  z-index: 9998 !important;
+  background: white !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+}
+
+#searchingState[style*="display: none"] {
+  display: none !important;
+}
+
+/* Force Map to Ignore Global Margins/Radii */
+#searchingState #broadcastMapContainer {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  z-index: 1 !important;
+  box-sizing: border-box !important;
+  display: block !important;
+}
+
+#searchingState #broadcastMap {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+}
+
+/* Header Area */
+.searching-header-overlay {
+  position: absolute;
+  top: env(safe-area-inset-top, 45px);
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 15px;
+  z-index: 10;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.searching-header-overlay > * {
+  pointer-events: auto;
+}
+
+.searching-center-hud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5px;
+}
+
+/* Drawer Area */
+.searching-drawer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 30%, rgba(255,255,255,1) 45%, rgba(255,255,255,1) 100%);
+  pointer-events: none;
+  box-sizing: border-box;
+  padding-top: 40px;
+  padding-bottom: 60px; /* Clears the global fixed footer */
+}
+
+.searching-drawer > * {
+  pointer-events: auto;
+}
       
       
       
@@ -1935,129 +2022,60 @@
 
     <!-- SEEKER UI -->
     <div id="seekerUI" class="view">
-      <button
-        id="cancelSosBtn"
-        onclick="window.openModal('cancelConfirmModal')"
-        style="
-          align-self: flex-start;
-          background: none;
-          border: none;
-          font-weight: 800;
-          color: var(--danger);
-          padding: 20px;
-          display: none;
-        "
-      >
-        ✕ CANCEL SOS
-      </button>
-
-      <div id="searchingState" class="status-card">
-        <div class="search-pulse">📡</div>
-
-        <h3 id="searchingTitle">Broadcasting SOS...</h3>
-        <p id="searchingSubtitle" style="font-size: 14px; color: var(--muted)">
-          Finding your Hero...
-        </p>
-
-        <div
-          id="broadcastMapContainer"
-          style="
-            position: relative;
-            width: 100%;
-            height: 220px;
-            border-radius: 20px;
-            margin: 15px 0;
-            background: #eee;
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            display: none;
-          "
-        >
-          <div class="radar-pill">
+      
+      
+      
+      
+<div id="searchingState" class="status-card" style="display: none;">
+        
+        <div id="broadcastMapContainer">
+          <div class="radar-pill" style="display:none;">
             <div class="radar-dot"></div>
             <span id="nearbyHeroCount">0</span> HEROES NEARBY
           </div>
-          <div id="broadcastMap" style="width: 100%; height: 100%"></div>
-          <button
-            class="map-expand-btn"
-            onclick="window.toggleBroadcastMapExpansion()"
-          >
-            Expand Map
-          </button>
-          <button
-            class="map-close-btn"
-            onclick="window.toggleBroadcastMapExpansion()"
-          >
-            ✕
-          </button>
+          <div id="broadcastMap"></div>
         </div>
 
-        <div
-          id="seekerBidFeed"
-          style="
-            display: none;
-            margin-top: 20px;
-            text-align: left;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 15px;
-          "
-        >
-          <p
-            style="
-              font-size: 11px;
-              font-weight: 900;
-              color: var(--muted);
-              margin: 0 0 10px 0;
-              text-transform: uppercase;
-            "
-          >
-            INCOMING QUOTES
-          </p>
-          <div
-            id="bidContainer"
-            style="max-height: 200px; overflow-y: auto"
-          ></div>
-        </div>
-
-        <div
-          id="enticeSection"
-          style="
-            margin-top: 20px;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 15px;
-            text-align: center;
-          "
-        >
-          <p
-            style="
-              font-size: 12px;
-              font-weight: 700;
-              color: var(--text);
-              margin-bottom: 10px;
-            "
-          >
-            Not getting any help? Try editing your tip amount.
-          </p>
-          <button
-            onclick="window.increaseTipPrompt()"
-            style="
-              background: white;
-              color: var(--accent);
-              border: 2px solid var(--accent);
-              padding: 12px;
-              width: 100%;
-              border-radius: 8px;
-              font-weight: 900;
-              font-size: 14px;
-              cursor: pointer;
-              box-shadow: var(--shadow);
-            "
-          >
+        <div class="searching-header-overlay">
+          <button onclick="window.increaseTipPrompt()" style="background: white; color: var(--accent); border: 2px solid var(--accent); padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
             EDIT SOS
           </button>
-        </div> 
-      </div>
 
+          <div class="searching-center-hud">
+            <div class="search-pulse" style="width: 60px; height: 60px; font-size: 24px; margin-bottom: 5px;">📡</div>
+            <h3 id="searchingTitle" style="margin: 0; font-weight: 900; font-size: 14px; color: #0f172a; text-shadow: 0 1px 4px rgba(255,255,255,0.9);">Broadcasting SOS...</h3>
+            <p id="searchingSubtitle" style="margin: 2px 0 0 0; font-size: 11px; font-weight: 800; color: #ee611c; text-shadow: 0 1px 3px rgba(255,255,255,0.9);">
+              Finding your Hero...
+            </p>
+          </div>
+
+          <button id="cancelSosBtn" onclick="window.openModal('cancelConfirmModal')" style="background: white; border: 2px solid var(--danger); font-weight: 900; font-size: 12px; color: var(--danger); padding: 10px 14px; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: none;">
+            CANCEL SOS
+          </button>
+        </div>
+
+        <div class="searching-drawer">
+          <div id="seekerBidFeed" style="display: none; padding: 0 20px 10px 20px; text-align: left; max-height: 250px; overflow-y: auto; pointer-events: auto;">
+            <p style="font-size: 11px; font-weight: 900; color: var(--muted); margin: 0 0 10px 0; text-transform: uppercase;">
+              INCOMING QUOTES
+            </p>
+            <div id="bidContainer"></div>
+          </div>
+
+          <div id="enticeSection" style="display: none;"></div>
+
+          <div id="seekerAdBanner" class="ad-scroller-container" style="border-radius: 0; border-left: none; border-right: none; margin-bottom: 0 !important; box-shadow: none; pointer-events: auto;">
+            <div id="seekerAdTrack" class="ad-track"></div>
+          </div>
+        </div>
+
+      </div>
+      
+      
+      
+      
+      
+      
       <!-- Seeker Messages List -->
       <div id="seekerMessagesList"></div>
 
