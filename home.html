@@ -1486,7 +1486,7 @@
 
 /* Map area (90% height) */
 .map-container-hero {
-  flex: 0 0 90%;
+  flex: 0 0 100%;
   position: relative;
   width: 100%;
 }
@@ -2012,6 +2012,8 @@
   
   <div class="matched-header-overlay">
     <img id="matchPic" src="" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+      <div id="matchName" style="font-weight: 900; font-size: 20px; text-shadow: 0 1px 3px rgba(255,255,255,0.9);"></div>
+
     
     <div id="seekerStatusPill" class="center-status-pill" style="background: var(--success); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 800; box-shadow: 0 4px 6px rgba(0,0,0,0.1); white-space: nowrap;">HERO CONNECTED</div>
     
@@ -2021,7 +2023,6 @@
   <div class="matched-drawer">
     
     <div style="text-align: center; margin-bottom: 12px;">
-      <div id="matchName" style="font-weight: 900; font-size: 20px; text-shadow: 0 1px 3px rgba(255,255,255,0.9);"></div>
       <div id="matchTowDestWrapper" style="display: none; margin-top: 5px;">
         <div style="font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase;">Destination</div>
         <div id="matchTowDestination" style="color: var(--accent); font-weight: 800; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
