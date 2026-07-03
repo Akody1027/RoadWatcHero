@@ -1704,6 +1704,8 @@
   background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 30%, rgba(255,255,255,1) 45%, rgba(255,255,255,1) 100%);
   pointer-events: none;
   box-sizing: border-box;
+  padding-bottom: calc(50px + env(safe-area-inset-bottom));
+  
 }
 
 .matched-drawer > * {
@@ -2105,8 +2107,33 @@
           <div id="seekerAdBanner" class="ad-scroller-container" style="border-radius: 0; border-left: none; border-right: none; margin-bottom: 0 !important; box-shadow: none; pointer-events: auto;">
             <div id="seekerAdTrack" class="ad-track"></div>
           </div>
+    
         </div>
 
+  
+  
+  <div class="footer" style="position: absolute;">
+    <div class="footer-icons" style="justify-content: flex-start; gap: 20px; padding: 5px 15px;">
+      <a id="dynamicCallBtn" href="#" style="display: flex; align-items: center;">
+        <img src="phone1.png" class="icon-btn" style="width: 32px; height: 32px;">
+      </a>
+      <button id="matchedChatBtn" style="background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center;">
+        <img src="chaticon.png" class="icon-btn" style="width: 32px; height: 32px;">
+      </button>
+      
+      <div style="flex: 1;"></div>
+      
+      <button id="matchedArcadeBtn" onclick="window.openModal('arcadeModal')" style="background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center;">
+        <img src="controlicon.png" class="icon-btn" style="width: 32px; height: 32px;">
+      </button>
+      <button id="matchedCancelBtn" onclick="window.openModal('cancelConfirmModal')" style="background: var(--accent); border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-left: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <img src="cancelicon.png" style="width: 20px; height: 20px; filter: brightness(0) invert(1);">
+      </button>
+    </div>
+  </div>
+  
+  
+  
       </div>
       
       
@@ -2151,23 +2178,7 @@
 
       
       
-      <div class="action-btn-row">
-        <a id="dynamicCallBtn" href="#" class="submit-btn" style="background: white; border: 2px solid var(--accent); margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-          <img src="phone1.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px rgba(238,97,28,0.4));">
-        </a>
-        <button id="matchedChatBtn" class="submit-btn" style="margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; background-color: white; border: 2px solid var(--accent); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-          <img src="chaticon.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px rgba(238,97,28,0.4));">
-        </button>
 
-       <button id="matchedArcadeBtn" onclick="window.openModal('arcadeModal')" class="submit-btn" style="margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; background-color: white; border: 2px solid var(--accent); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-          <img src="controlicon.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px rgba(238,97,28,0.4));">
-        </button>
-
-        <button id="matchedCancelBtn" onclick="window.openModal('cancelConfirmModal')" class="submit-btn" style="margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; background-color: white; border: 2px solid var(--danger); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
-          <img src="cancelicon.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px rgba(238,97,28,0.4));">
-        </button>
- 
-      </div>
       
       
       
