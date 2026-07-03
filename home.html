@@ -7221,6 +7221,8 @@
                 latestMessageText = message.text || "Sent an image";
               }
             }
+            
+            
           });
         });
 
@@ -9025,28 +9027,40 @@
 
             if (myActiveSOS.id) {
               Object.keys(chatCache).forEach((chatId) => {
+                
+         
+                
                 if (
                   chatId.startsWith(myActiveSOS.id + "_") ||
                   chatId === myActiveSOS.id
                 ) {
-                  hasMessages = true;
-                  const heroId = chatId.split("_")[1];
                   const msgs = Object.values(chatCache[chatId]);
-                  const lastMsg = msgs[msgs.length - 1];
-                  const heroProfile = profilesCache[heroId] || { name: "Hero" };
-                  const date = new Date(lastMsg.timestamp || Date.now());
-                  const timeString = date.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  });
-                  msgList.innerHTML += `<div class="msg-thread-card" onclick="window.openChat('${chatId}')"><div class="msg-thread-info"><b style="color:var(--accent);">${
-                    heroProfile.name
-                  }</b><div style="font-size:13px; margin-top:4px; font-weight:600;">Re: ${
-                    myActiveSOS.issue
-                  }</div><div style="font-size:13px; color:var(--text); margin-top:2px; font-style:italic;">"${
-                    lastMsg.text || "Image"
-                  }"</div><div class="msg-thread-time">${timeString}</div></div><img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="event.stopPropagation(); window.confirmDeleteChatPrompt('${chatId}')"></div>`;
+                  
+                  // SAFETY CHECK: Ensure the chat room actually has messages before rendering
+                  if (msgs.length > 0) {
+                    hasMessages = true;
+                    const heroId = chatId.split("_")[1];
+                    const lastMsg = msgs[msgs.length - 1];
+                    const heroProfile = profilesCache[heroId] || { name: "Hero" };
+                    const date = new Date(lastMsg.timestamp || Date.now());
+                    const timeString = date.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                    msgList.innerHTML += `<div class="msg-thread-card" onclick="window.openChat('${chatId}')"><div class="msg-thread-info"><b style="color:var(--accent);">${
+                      heroProfile.name
+                    }</b><div style="font-size:13px; margin-top:4px; font-weight:600;">Re: ${
+                      myActiveSOS.issue
+                    }</div><div style="font-size:13px; color:var(--text); margin-top:2px; font-style:italic;">"${
+                      lastMsg.text || "Image"
+                    }"</div><div class="msg-thread-time">${timeString}</div></div><img src="https://cdn-icons-png.flaticon.com/512/3405/3405244.png" class="trash-icon" onclick="event.stopPropagation(); window.confirmDeleteChatPrompt('${chatId}')"></div>`;
+                  }
                 }
+                
+                
+                
+                
+                
               });
             }
 
