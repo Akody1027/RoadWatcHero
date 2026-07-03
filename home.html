@@ -8996,13 +8996,26 @@
           const userPos = { lat: sos.lat, lng: sos.lng };
           const bounds = new google.maps.LatLngBounds();
           bounds.extend(userPos);
-
-          // 1. Mark the Seeker (Blue Dot)
+          
+          
+          // 1. Mark the Seeker (Orange Dot)
           const userMarker = new google.maps.Marker({
             position: userPos,
             map: broadcastMiniMap,
-            icon: seekerOwnIcon,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: "#ee611c", // Your brand orange
+              fillOpacity: 1,
+              strokeColor: "#ffffff", // Crisp white border
+              strokeWeight: 2.5,
+              scale: 8, // Size of the dot
+            },
           });
+          
+
+  
+          
+          
 
           broadcastMarkers.push(userMarker);
 
