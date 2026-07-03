@@ -1735,6 +1735,26 @@
       
       
       
+      
+ /* Ensure the button row stays perfectly aligned with 3 items */
+#matchedState .action-btn-row {
+  display: flex; 
+  gap: 8px; 
+  width: 100%;
+}
+
+#matchedState .action-btn-row > * {
+  flex: 1;
+}     
+      
+      
+      
+      
+      
+      
+      
+      
+      
     </style>
   </head>
 
@@ -2074,14 +2094,23 @@
         <div id="matchTowDestination" style="color: var(--accent); font-weight: 800; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
       </div>
 
-      <div style="display: flex; gap: 10px;">
-        <a id="dynamicCallBtn" href="#" class="submit-btn" style="flex: 1; background: white; border: 2px solid var(--accent); margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+      
+      
+      <div class="action-btn-row">
+        <a id="dynamicCallBtn" href="#" class="submit-btn" style="background: white; border: 2px solid var(--accent); margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; text-decoration: none; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
           <img src="phone1.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px rgba(238,97,28,0.4));">
         </a>
-        <button id="matchedChatBtn" class="submit-btn" style="flex: 1; margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; background-color: white; border: 2px solid var(--accent); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+        <button id="matchedChatBtn" class="submit-btn" style="margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; background-color: white; border: 2px solid var(--accent); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
           <img src="chaticon.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px rgba(238,97,28,0.4));">
         </button>
+        <button id="matchedCancelBtn" class="submit-btn" style="margin-top: 0; padding: 12px; display: flex; align-items: center; justify-content: center; background-color: white; border: 2px solid var(--danger); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);">
+          <img src="cancelicon.png" style="width: 24px; height: 24px; filter: drop-shadow(0px 0px 2px rgba(238,97,28,0.4));">
+        </button>
       </div>
+      
+      
+      
+      
       
     </div>
 
