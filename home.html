@@ -8949,6 +8949,13 @@
         tCard.style.display = "block";
 
         // --- BROADCAST RADAR LOGIC ---
+        
+        
+        
+        
+        
+        
+        
         window.updateBroadcastMap = (sos) => {
           const container = document.getElementById("broadcastMapContainer");
           container.style.display = "block";
@@ -8957,7 +8964,8 @@
             broadcastMiniMap = new google.maps.Map(
               document.getElementById("broadcastMap"),
               {
-                zoom: 13,
+                zoom: 11,
+                maxZoom: 12, // Prevents the map from ever zooming in too close
                 disableDefaultUI: true,
                 styles: [
                   {
@@ -9019,12 +9027,24 @@
 
           document.getElementById("nearbyHeroCount").innerText = count;
 
-          // Auto-zoom map to show user and heroes
-          if (count > 0) broadcastMiniMap.fitBounds(bounds);
-          else broadcastMiniMap.setCenter(userPos);
+          // Auto-zoom map to show user and heroes with padding for your UI overlays
+          if (count > 0) {
+            broadcastMiniMap.fitBounds(bounds, { top: 130, bottom: 280, left: 40, right: 40 });
+          } else {
+            broadcastMiniMap.setCenter(userPos);
+            broadcastMiniMap.setZoom(11);
+          }
 
           google.maps.event.trigger(broadcastMiniMap, "resize");
         };
+      
+        
+        
+        
+        
+        
+        
+        
 
         window.toggleBroadcastMapExpansion = () => {
           const container = document.getElementById("broadcastMapContainer");
