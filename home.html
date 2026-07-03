@@ -1749,14 +1749,14 @@
       
       
       
-      /* --- FULL-SCREEN SEARCHING STATE --- */
+ /* --- FULL-SCREEN SEARCHING STATE --- */
 #searchingState.status-card {
   position: fixed !important;
   inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
   max-width: none !important;
-  z-index: 9998 !important;
+  z-index: 1990 !important; /* Lowered so the global footer (z-index 2000) stays visible */
   background: white !important;
   display: flex !important;
   flex-direction: column !important;
@@ -1827,18 +1827,48 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 30%, rgba(255,255,255,1) 45%, rgba(255,255,255,1) 100%);
+  background: white; /* Solid base so ads don't overlap the fade */
   pointer-events: none;
   box-sizing: border-box;
-  padding-top: 40px;
-  padding-bottom: 60px; /* Clears the global fixed footer */
+  padding-bottom: calc(60px + env(safe-area-inset-bottom)); /* Pushes the ad banner above the global footer */
+}
+
+/* Restored Gradient Fade */
+.searching-drawer::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,1));
+  pointer-events: none;
 }
 
 .searching-drawer > * {
   pointer-events: auto;
 }
-      
-      
+
+/* Force Ad Banner Size */
+#searchingState #seekerAdBanner {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  min-height: 110px !important;
+  height: 110px !important;
+  background: white !important;
+  border: none !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  display: block !important;
+}
+
+#searchingState #seekerAdTrack {
+  margin: 0 !important;
+  padding: 0 !important; 
+}
       
       
     </style>
