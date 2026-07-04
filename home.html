@@ -2077,11 +2077,19 @@
         </div>
 
         <div class="searching-header-overlay">
-
-          <button onclick="window.openEditSosModal()" style="background: white; color: var(--accent); border: 2px solid var(--accent); padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
-            EDIT SOS
-          </button>
-
+          
+          
+          <div style="display: flex; gap: 8px; margin-top: 10px;">
+            <button onclick="window.openEditSosModal()" style="background: white; color: var(--accent); border: 2px solid var(--accent); padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+              EDIT SOS
+            </button>
+            <button onclick="window.scanForHeroes()" style="background: white; color: var(--accent); border: 2px solid var(--accent); padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px;">
+              <span>REFRESH MAP</span>
+              <div id="heroSpinner" style="width: 12px; height: 12px; border: 2px solid #f3f3f3; border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; display: none;"></div>
+            </button>
+          </div>
+          
+ 
           <div class="searching-center-hud">
             <div class="search-pulse" style="width: 60px; height: 60px; font-size: 24px; margin-bottom: 5px;">📡</div>
             <h3 id="searchingTitle" style="margin: 0; font-weight: 900; font-size: 14px; color: #ee611c; text-shadow: 0 1px 4px rgba(255,255,255,0.9);">Broadcasting SOS...</h3>
@@ -9780,12 +9788,35 @@
         }
       });
       
-
       
-      get(ref(db, "profiles")).then((snap) => {
-        profilesCache = snap.val() || {};
-        syncUI();
-      });
+      
+      
+      window.scanForHeroes = async () => {
+        const spinner = document.getElementById("heroSpinner");
+        if (spinner) spinner.style.display = "block";
+
+        try {
+          const snap = await get(ref(db, "profiles"));
+          profilesCache = snap.val() || {};
+          
+          if (typeof window.syncUI === 'function') {
+            window.syncUI();
+          }
+        } catch (error) {
+          console.error("Scan failed:", error);
+        } finally {
+          if (spinner) spinner.style.display = "none";
+        }
+      };
+
+      // Initial Load: Scan once when page opens
+      window.scanForHeroes();
+      
+      
+      
+      
+      
+
 
       let activeHeroListener = null;
       let trackedHeroId = null;
