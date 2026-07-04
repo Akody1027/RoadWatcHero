@@ -7756,6 +7756,15 @@
           const downloadURL = await getDownloadURL(fileRef);
           window.editDamageImgList.push(downloadURL);
           alert("New photo added!");
+          const downloadURL = await getDownloadURL(fileRef);
+          window.editDamageImgList.push(downloadURL);
+          
+          // Update the placeholder to show a green checkmark indicating successful upload
+          const placeholder = document.getElementById("editImgPlaceholder");
+          placeholder.style.borderColor = "var(--success)";
+          placeholder.innerHTML = `<span style="font-size: 40px;">✅</span>`;
+          alert("Photo uploaded successfully!");
+          
         } catch (err) {
           alert("Upload failed: " + err.message);
         } finally {
@@ -7774,7 +7783,9 @@
 
         update(ref(db, `sosRequests/${activeSosId}`), {
           tip: Number(newTip),
-          issue: newIssue
+          issue: newIssue,
+          damagePics: window.editDamageImgList.length > 0 ? window.editDamageImgList : (sosCache[activeSosId].damagePics || []),
+
         }).then(() => {
           window.closeModal('editSosModal');
           window.showDropBanner("SOS Updated!", "✅");
