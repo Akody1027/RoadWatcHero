@@ -4950,20 +4950,29 @@
     
     
     
-    
     <div id="editSosModal" class="modal">
       <div class="modal-content">
         <div class="modal-header-row">
           <h3>EDIT SOS</h3>
           <button class="close-x-btn" onclick="window.closeModal('editSosModal')">✕</button>
         </div>
-        <input type="number" id="editTip" placeholder="New Tip Amount ($)" />
-        <textarea id="editIssue" placeholder="Update issue description..." rows="3"></textarea>
-        <button class="submit-btn" style="background: var(--success);" onclick="window.submitEditSos()">SAVE UPDATES</button>
+        
+        <label style="font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 5px; display: block;">TIP AMOUNT ($)</label>
+        <input type="number" id="editTip" placeholder="Enter new tip amount" />
+        
+        <label style="font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 5px; display: block;">ISSUE DESCRIPTION</label>
+        <textarea id="editIssue" placeholder="Update your SOS details..." rows="3"></textarea>
+
+        <label style="font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 10px; display: block;">UPDATE PHOTOS</label>
+        <div id="editImgPlaceholder" onclick="document.getElementById('editImgInput').click()" style="width: 100%; height: 100px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px;">
+          <img src="camicon.png" style="width: 40px; height: 40px; opacity: 0.5;">
+        </div>
+        <input type="file" id="editImgInput" accept="image/*" multiple style="display: none" onchange="window.handleEditImageUpload(this)" />
+
+        <button class="submit-btn" style="background: var(--success); margin-top: 0;" onclick="window.submitEditSos()">SAVE UPDATES</button>
       </div>
     </div>
-    
-    
+
     
     
 
@@ -7730,6 +7739,34 @@
         window.openModal('editSosModal');
       };
 
+      
+      
+      
+      
+      window.editDamageImgList = [];
+
+      window.handleEditImageUpload = async (input) => {
+        const file = input.files[0];
+        if (!file) return;
+
+        document.getElementById("loadingOverlay").classList.remove("loader-hidden");
+        try {
+          const fileRef = storageRef(storage, `damage-reports/${myId}_${Date.now()}.jpg`);
+          await uploadBytes(fileRef, file);
+          const downloadURL = await getDownloadURL(fileRef);
+          window.editDamageImgList.push(downloadURL);
+          alert("New photo added!");
+        } catch (err) {
+          alert("Upload failed: " + err.message);
+        } finally {
+          document.getElementById("loadingOverlay").classList.add("loader-hidden");
+        }
+      };
+      
+      
+      
+      
+      
       window.submitEditSos = () => {
         const activeSosId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === "open");
         const newTip = document.getElementById('editTip').value;
