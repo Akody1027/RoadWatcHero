@@ -5603,7 +5603,14 @@
           text.innerText = "ONLINE";
           text.style.color = "var(--success)";
           
-          update(ref(db, `profiles/${myId}`), { isOnline: true, lastActive: Date.now() });
+          
+          let updates = { isOnline: true, lastActive: Date.now() };
+          if (userLocation) {
+            updates.lat = userLocation.lat;
+            updates.lng = userLocation.lng;
+          }
+          update(ref(db, `profiles/${myId}`), updates);
+          
           
           if (heroHeartbeatTimer) clearInterval(heroHeartbeatTimer);
           heroHeartbeatTimer = setInterval(() => {
@@ -9201,7 +9208,11 @@
           
           
            Object.entries(profilesCache).forEach(([heroId, hero]) => {
-            if (hero.lat && hero.lng && heroId !== myId) {
+             
+             
+             const isFresh = hero.isOnline && hero.lastActive && (Date.now() - hero.lastActive < 180000);
+            
+            if (hero.lat && hero.lng && heroId !== myId && isFresh) {
               
               
               const heroPos = { lat: hero.lat, lng: hero.lng };
