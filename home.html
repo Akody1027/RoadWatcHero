@@ -2357,6 +2357,13 @@
 
     <!-- HERO UI -->
     <div id="heroUI" class="view">
+      
+      <div id="heroOnlineToggleContainer" style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 100; background: rgba(255, 255, 255, 0.95); padding: 8px 16px; border-radius: 20px; box-shadow: var(--shadow); border: 2px solid #e2e8f0; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.3s;" onclick="window.toggleHeroOnlineState()">
+        <div id="onlineStatusDot" style="width: 12px; height: 12px; border-radius: 50%; background: #94a3b8; transition: 0.3s;"></div>
+        <span id="onlineStatusText" style="font-weight: 800; font-size: 13px; color: var(--muted); transition: 0.3s;">OFFLINE</span>
+      </div>
+      
+      
       <button class="center-btn" onclick="window.centerOnMe()">
         RE-CENTER
       </button>
@@ -5573,6 +5580,72 @@
 
       let lastPushedLocation = null;
       let locationThrottleTimer = null;
+      
+      
+      
+      
+      
+      let isHeroOnline = false;
+      let heroHeartbeatTimer = null;
+      let heroIdleTimer = null;
+
+      window.toggleHeroOnlineState = (forceState = null) => {
+        isHeroOnline = forceState !== null ? forceState : !isHeroOnline;
+        
+        const container = document.getElementById("heroOnlineToggleContainer");
+        const dot = document.getElementById("onlineStatusDot");
+        const text = document.getElementById("onlineStatusText");
+
+        if (isHeroOnline) {
+          container.style.borderColor = "var(--success)";
+          dot.style.background = "var(--success)";
+          dot.style.boxShadow = "0 0 8px rgba(34, 197, 94, 0.6)";
+          text.innerText = "ONLINE";
+          text.style.color = "var(--success)";
+          
+          update(ref(db, `profiles/${myId}`), { isOnline: true, lastActive: Date.now() });
+          
+          if (heroHeartbeatTimer) clearInterval(heroHeartbeatTimer);
+          heroHeartbeatTimer = setInterval(() => {
+            update(ref(db, `profiles/${myId}`), { lastActive: Date.now() });
+          }, 30000);  
+
+          resetHeroIdleTimer();
+        } else {
+          container.style.borderColor = "#e2e8f0"; 
+          dot.style.background = "#94a3b8";
+          dot.style.boxShadow = "none";  
+          text.innerText = "OFFLINE";
+          text.style.color = "var(--muted)";
+          
+          update(ref(db, `profiles/${myId}`), { isOnline: false });
+          if (heroHeartbeatTimer) clearInterval(heroHeartbeatTimer);
+          if (heroIdleTimer) clearTimeout(heroIdleTimer);
+        }
+      };
+
+      const resetHeroIdleTimer = () => {
+        if (!isHeroOnline) return;
+        if (heroIdleTimer) clearTimeout(heroIdleTimer);
+        heroIdleTimer = setTimeout(() => {
+          window.toggleHeroOnlineState(false);
+          window.showDropBanner("Set to Offline due to inactivity.", "💤");
+        }, 15 * 60 * 1000); // 15 minute timeout
+      };
+
+      // Instantly kill connection if the app is minimized or phone is locked
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden && isHeroOnline) {
+          window.toggleHeroOnlineState(false);
+        }
+      });
+
+      // Reset the 15-minute idle timer anytime the user interacts with the screen
+      document.addEventListener("touchstart", resetHeroIdleTimer, { passive: true });
+      document.addEventListener("click", resetHeroIdleTimer, { passive: true });
+      
+      
+      
 
       // --- PROFILE SERVICE TYPE SELECTION ---
 
