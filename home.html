@@ -13,7 +13,7 @@
     <!-- Stripe SDK -->
     <script src="https://js.stripe.com/v3/"></script>
     
-    
+     
 
     <style>
       :root { 
@@ -1914,7 +1914,20 @@
               }
       
       
-      
+      #detailsModal .veh-badge {
+                background: white;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                padding: 10px 4px;
+                font-size: 11px;
+                font-weight: 800;
+                color: var(--text);
+                text-align: center;
+                flex: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
       
       
       
@@ -2720,6 +2733,18 @@
 
             <div style="flex: 1; overflow-y: auto; padding: 20px 25px 40px 25px; background: whitesmoke; position: relative; z-index: 3;">
               
+              
+              
+              
+              
+              <div id="detVehicleRow" style="display: flex; justify-content: space-between; gap: 6px; margin-bottom: 15px;">
+                <div class="veh-badge" id="detVehYear">--</div>
+                <div class="veh-badge" id="detVehMake">--</div>
+                <div class="veh-badge" id="detVehModel">--</div>
+                <div class="veh-badge" id="detVehColor">--</div>
+                <div class="veh-badge" id="detVehPlate">--</div>
+              </div>
+
               <div id="detIssue" style="word-break: break-all; background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);"></div>
               
               <div id="detActionGrid" style="display: none; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px;">
@@ -2745,25 +2770,29 @@
                 </button>
               </div>
 
-              <div id="detETAGroup">
-                <div id="detDispatchStatus" style="display: none; background: #dcfce7; border: 1px solid #22c55e; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px;"></div>
-                <label style="font-size: 11px; font-weight: bold; color: var(--muted)">ETA TO ARRIVAL</label>
-                <select id="detETA">
-                  <option value="5-10 mins">5-10 mins</option>
-                  <option value="15-20 mins">15-20 mins</option>
-                  <option value="30-45 mins">30-45 mins</option>
-                  <option value="45-60 mins">45-60 mins</option>
-                  <option value="1h - 1.5h">1h - 1.5h</option>
-                  <option value="1.5h - 2h">1.5h - 2h</option>
-                  <option value="2h - 3h">2h - 3h</option>
-                  <option value="3 hours+">3 hours+</option>
-                </select>
+              <div id="detDispatchStatus" style="display: none; background: #dcfce7; border: 1px solid #22c55e; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px;"></div>
+              
+  
+              <div id="detActionRow" style="display: flex; gap: 15px; align-items: flex-end; margin-top: 20px;">
+                <div id="detETAGroup" style="flex: 1;">
+                  <label style="font-size: 11px; font-weight: bold; color: var(--muted); display: block; margin-bottom: 6px;">ETA TO ARRIVAL</label>
+                  <select id="detETA" style="width: 100%; margin: 0; padding: 16px 10px; border-radius: 12px; border: 1px solid #cbd5e1; background: white; font-weight: bold;">
+                    <option value="5-10 mins">5-10 mins</option>
+                    <option value="15-20 mins">15-20 mins</option>
+                    <option value="30-45 mins">30-45 mins</option>
+                    <option value="45-60 mins">45-60 mins</option>
+                    <option value="1h - 1.5h">1h - 1.5h</option>
+                    <option value="1.5h - 2h">1.5h - 2h</option>
+                    <option value="2h - 3h">2h - 3h</option>
+                    <option value="3 hours+">3 hours+</option>
+                  </select>
+                </div>
+                <button id="detAcceptBtn" class="submit-btn" style="flex: 1.5; margin: 0; padding: 16px; box-shadow: 0 10px 20px rgba(238,97,28,0.2);">
+                  ACCEPT & HELP
+                </button>
               </div>
-
-              <button id="detAcceptBtn" class="submit-btn" style="margin-top: 20px; box-shadow: 0 10px 20px rgba(238,97,28,0.2);">
-                ACCEPT & HELP
-              </button>
-
+      
+      
               <div id="detBidSection" style="display: none; width: 100%; margin-top: 20px;">
                 <div id="sneakPeekBoard" style="display: none; background: #fffbeb; border: 1px solid #f59e0b; padding: 15px; border-radius: 15px; margin-bottom: 15px;">
                   <p style="font-size: 11px; font-weight: 900; color: #d97706; margin: 0 0 10px 0;">⭐ ACTIVE BIDS (PRO PREVIEW)</p>
@@ -7234,25 +7263,19 @@
         let vehicleHtml = "";
 
      
-        
-        if (r.vehMake) {
-          vehicleHtml = `
-            <div style="margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
-              <div style="font-size: 11px; font-weight: 900; color: var(--accent); text-transform: uppercase;">Vehicle</div>
-              <div style="font-weight: 800; font-size: 14px;">${r.vehYear} ${r.vehMake} ${r.vehModel} (${r.vehColor})</div>
-              <div style="font-size: 12px; font-weight: 700; color: var(--muted);">Plate: ${r.vehPlate}</div>
-            </div>`;
-        }
-        
-        
-        
-        
+        const detImgContainer = document.getElementById("detImgContainer");
+        const detImgScroller = document.getElementById("detImgScroller");
 
-        detIssue.innerHTML = `
-          ${vehicleHtml}
-          <div style="font-size: 11px; font-weight: 900; color: var(--accent); text-transform: uppercase; margin-bottom: 4px;">Issue</div>
-          <div style="font-weight: 600; font-size: 14px; line-height: 1.4;">${r.issue}</div>
-        `;
+        // MAP VEHICLE DATA TO BADGES
+        document.getElementById("detVehYear").innerText = r.vehYear || "--";
+        document.getElementById("detVehMake").innerText = r.vehMake || "--";
+        document.getElementById("detVehModel").innerText = r.vehModel || "--";
+        document.getElementById("detVehColor").innerText = r.vehColor || "--";
+        document.getElementById("detVehPlate").innerText = r.vehPlate || "--";
+        
+        // MAP ISSUE TO BOX
+        document.getElementById("detIssue").innerText = r.issue || "No issue provided";
+ 
 
         detImgScroller.innerHTML = "";
         let imagesToDisplay = [];
