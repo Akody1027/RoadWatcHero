@@ -5576,8 +5576,12 @@
 
       // --- PROFILE SERVICE TYPE SELECTION ---
 
-      window.syncMapFilters = (checkbox, field) => {
-        // Optimistically update both the Profile UI and the Map UI
+     window.syncMapFilters = (checkbox, field) => {
+        // 1. Instantly update local memory so syncUI doesn't bounce the toggle back
+        if (!profilesCache[myId]) profilesCache[myId] = {};
+        profilesCache[myId][field] = checkbox.checked;
+
+        // 2. Optimistically update both the Profile UI and the Map UI
         if (document.getElementById(field))
           document.getElementById(field).checked = checkbox.checked;
         const mapToggleMap = {
@@ -5589,11 +5593,18 @@
         if (document.getElementById(mapId))
           document.getElementById(mapId).checked = checkbox.checked;
 
-        // Push directly to Firebase so it saves instantly
+        // 3. Push directly to Firebase so it saves globally
         update(ref(db, `profiles/${myId}`), {
           [field]: checkbox.checked,
         });
+
+        // 4. Force the map to re-render immediately to show the requested pins
+        if (typeof window.syncUI === 'function') window.syncUI();
       };
+      
+      
+      
+      
 
       let profileEditRole = "tow_truck"; // Default
       window.selectProfileRole = (role) => {
