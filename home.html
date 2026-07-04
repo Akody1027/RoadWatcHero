@@ -7257,15 +7257,20 @@
 
         const detImgContainer = document.getElementById("detImgContainer");
         const detImgScroller = document.getElementById("detImgScroller");
-
-        // CONSOLIDATED DETAILS SECTION
         const detIssue = document.getElementById("detIssue");
-        let vehicleHtml = "";
 
-     
-        const detImgContainer = document.getElementById("detImgContainer");
-        const detImgScroller = document.getElementById("detImgScroller");
+        // MAP VEHICLE DATA TO BADGES
+        document.getElementById("detVehYear").innerText = r.vehYear || "--";
+        document.getElementById("detVehMake").innerText = r.vehMake || "--";
+        document.getElementById("detVehModel").innerText = r.vehModel || "--"; 
+        document.getElementById("detVehColor").innerText = r.vehColor || "--";
+        document.getElementById("detVehPlate").innerText = r.vehPlate || "--";
+        
+        // MAP ISSUE TO BOX
+        document.getElementById("detIssue").innerText = r.issue || "No issue provided";
+        
 
+        
         // MAP VEHICLE DATA TO BADGES
         document.getElementById("detVehYear").innerText = r.vehYear || "--";
         document.getElementById("detVehMake").innerText = r.vehMake || "--";
