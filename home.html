@@ -2077,7 +2077,8 @@
         </div>
 
         <div class="searching-header-overlay">
-          <button onclick="window.increaseTipPrompt()" style="background: white; color: var(--accent); border: 2px solid var(--accent); padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+
+          <button onclick="window.openEditSosModal()" style="background: white; color: var(--accent); border: 2px solid var(--accent); padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
             EDIT SOS
           </button>
 
@@ -4950,7 +4951,17 @@
     
     
     
-    
+    <div id="editSosModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header-row">
+          <h3>EDIT SOS</h3>
+          <button class="close-x-btn" onclick="window.closeModal('editSosModal')">✕</button>
+        </div>
+        <input type="number" id="editTip" placeholder="New Tip Amount ($)" />
+        <textarea id="editIssue" placeholder="Update issue description..." rows="3"></textarea>
+        <button class="submit-btn" style="background: var(--success);" onclick="window.submitEditSos()">SAVE UPDATES</button>
+      </div>
+    </div>
     
     
     
@@ -7705,26 +7716,38 @@
         };
       };
 
-      window.increaseTipPrompt = () => {
-        const activeSosId = Object.keys(sosCache).find(
-          (k) => sosCache[k].ownerId === myId && sosCache[k].status === "open"
-        );
-        if (!activeSosId) return alert("No active SOS found to edit");
-
-        const currentTip = sosCache[activeSosId].tip || 0;
-        const addedAmount = prompt(
-          `Not getting help? Let's increase your tip to attract a Hero.\nYour current tip is $${currentTip}.\n\nEnter the ADDITIONAL amount to add (e.g. 5 or 10):`
-        );
-
-        if (addedAmount && !isNaN(addedAmount) && Number(addedAmount) > 0) {
-          const newTotal = Number(currentTip) + Number(addedAmount);
-          update(ref(db, `sosRequests/${activeSosId}`), { tip: newTotal }).then(
-            () => {
-              window.showDropBanner(`Tip updated to $${newTotal}!`, "💰");
-            }
-          );
-        }
+      
+      
+      
+      
+      window.openEditSosModal = () => {
+        const activeSosId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === "open");
+        if (!activeSosId) return alert("No active SOS to edit.");
+        
+        const sos = sosCache[activeSosId];
+        document.getElementById('editTip').value = sos.tip || 0;
+        document.getElementById('editIssue').value = sos.issue || "";
+        window.openModal('editSosModal');
       };
+
+      window.submitEditSos = () => {
+        const activeSosId = Object.keys(sosCache).find(k => sosCache[k].ownerId === myId && sosCache[k].status === "open");
+        const newTip = document.getElementById('editTip').value;
+        const newIssue = document.getElementById('editIssue').value;
+
+        update(ref(db, `sosRequests/${activeSosId}`), {
+          tip: Number(newTip),
+          issue: newIssue
+        }).then(() => {
+          window.closeModal('editSosModal');
+          window.showDropBanner("SOS Updated!", "✅");
+        });
+      };
+      
+      
+      
+
+
 
       window.enterHeroMode = () => {
         window.switchView("heroUI");
