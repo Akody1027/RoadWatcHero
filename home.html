@@ -7255,6 +7255,10 @@
             `chat-images/${activeChatId}_${Date.now()}.jpg`
           );
           await uploadBytes(fileRef, file);
+          
+          
+          
+          
           const downloadURL = await getDownloadURL(fileRef);
 
           let role = "Seeker";
@@ -7739,7 +7743,7 @@
         window.openModal('editSosModal');
       };
 
-      
+       
       
       
       
@@ -7753,9 +7757,7 @@
         try {
           const fileRef = storageRef(storage, `damage-reports/${myId}_${Date.now()}.jpg`);
           await uploadBytes(fileRef, file);
-          const downloadURL = await getDownloadURL(fileRef);
-          window.editDamageImgList.push(downloadURL);
-          alert("New photo added!");
+
           const downloadURL = await getDownloadURL(fileRef);
           window.editDamageImgList.push(downloadURL);
           
