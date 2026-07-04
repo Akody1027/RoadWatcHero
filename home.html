@@ -1879,6 +1879,45 @@
   padding: 0 !important; 
 }  
       
+      
+      
+      
+      
+              
+    
+              #detailsModal .modal-content {
+                padding: 0 !important;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                background: #0f172a; 
+              }
+              #detailsModal .modal-header-row {
+                margin: 0 !important;
+                position: relative !important;
+                top: 0 !important;
+                z-index: 100;
+                background: white !important;
+                border-radius: 8px 8px 0 0 !important;
+              }
+              #detailsModal .det-img-scroller {
+                height: 80px;
+                padding-bottom: 5px;
+                align-items: flex-end;
+              }
+              #detailsModal .det-img-scroller img {
+                width: 60px !important;
+                height: 60px !important;
+                border-radius: 8px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                border: 2px solid white !important;
+              }
+      
+      
+      
+      
+      
+      
 
       
     </style>
@@ -2644,432 +2683,128 @@
             </button>
           </div>
         </div>
+        
+        
+        
+        
+        
 
-        <div
-          id="tripDashboard"
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #f8fafc;
-            padding: 10px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            margin-bottom: 15px;
-            text-align: center;
-          "
-        >
-          <div style="flex: 1; border-right: 1px solid #cbd5e1">
-            <div style="font-size: 10px; font-weight: 800; color: var(--muted)">
-              DISTANCE
+
+            <div id="detImgContainer" style="position: relative; width: 100%; height: 35vh; min-height: 250px; background: #0f172a; display: none; flex-shrink: 0;">
+              
+              <div id="tripDashboard" style="position: absolute; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0)); padding: 15px 15px 35px 15px; text-align: center; z-index: 2;">
+                <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.3);">
+                  <div style="font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.8);">TIP</div>
+                  <div id="detTipAmount" style="font-size: 15px; font-weight: 900; color: #22c55e;">$--</div>
+                </div>
+                <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.3);">
+                  <div style="font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.8);">DISTANCE</div>
+                  <div id="detDist" style="font-size: 15px; font-weight: 900; color: white;">-- mi</div>
+                </div>
+                <div style="flex: 1; border-right: 1px solid rgba(255,255,255,0.3);">
+                  <div style="font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.8);">LOADED</div>
+                  <div id="detLoadedMiles" style="font-size: 15px; font-weight: 900; color: white;">-- mi</div>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.8);">DESTINATION</div>
+                  <div id="detTowDestinationTop" style="font-size: 11px; font-weight: 800; color: white; overflow: hidden; text-overflow: ellipsis; padding: 0 5px; white-space: nowrap;">--</div>
+                </div>
+              </div>
+
+              <img id="detMainImage" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;" onclick="window.enlargeImage(this.src)" />
+              
+              <div id="detImgScroller" class="det-img-scroller" style="position: absolute; bottom: 20px; left: 0; width: 100%; padding: 0 20px; gap: 10px; z-index: 2; margin-bottom: 0;"></div>
+
+              <div style="position: absolute; bottom: -1px; left: 0; width: 100%; height: 60px; background: linear-gradient(to bottom, rgba(245,245,245,0), whitesmoke); z-index: 1; pointer-events: none;"></div>
             </div>
-            <div
-              id="detDist"
-              style="font-size: 14px; font-weight: 900; color: var(--accent)"
-            >
-              -- mi
-            </div>
-          </div>
-          <div style="flex: 1; border-right: 1px solid #cbd5e1">
-            <div style="font-size: 10px; font-weight: 800; color: var(--muted)">
-              LOADED MILES
-            </div>
-            <div
-              id="detLoadedMiles"
-              style="font-size: 14px; font-weight: 900; color: var(--accent)"
-            >
-              -- mi
-            </div>
-          </div>
-          <div style="flex: 1">
-            <div style="font-size: 10px; font-weight: 800; color: var(--muted)">
-              DESTINATION
-            </div>
-            <div
-              id="detTowDestinationTop"
-              style="
-                font-size: 11px;
-                font-weight: 800;
-                color: var(--accent);
-                overflow: hidden;
-                text-overflow: ellipsis;
-                padding: 0 5px;
-              "
-            >
-              --
+
+            <div style="flex: 1; overflow-y: auto; padding: 20px 25px 40px 25px; background: whitesmoke; position: relative; z-index: 3;">
+              
+              <div id="detIssue" style="word-break: break-all; background: white; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);"></div>
+              
+              <div id="detActionGrid" style="display: none; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px;">
+                <div style="display: flex; gap: 8px; justify-content: space-between; width: 100%;">
+                  <a id="detPhoneBtn" href="#" class="cmd-btn" style="flex: 1; padding: 12px 0; border-radius: 12px; margin: 0; min-height: 50px;">
+                    <img src="phone1.png" alt="Call" style="height: 24px; width: auto; filter: drop-shadow(0px 0px 2px #ee611c);" />
+                  </a>
+                  <button id="detChatBtn" class="cmd-btn" style="flex: 1; padding: 12px 0; border-radius: 12px; margin: 0; min-height: 50px;">
+                    <img src="Chaticon.png" alt="Chat" style="height: 24px; width: auto; filter: drop-shadow(0px 0px 2px #ee611c);" />
+                  </button>
+                  <a id="detNavBtn" href="#" target="_blank" class="cmd-btn" style="flex: 1; padding: 12px 0; border-radius: 12px; margin: 0; min-height: 50px;">
+                    <img src="navigate.png" alt="Navigate" style="height: 24px; width: auto; filter: drop-shadow(0px 0px 2px #ee611c);" />
+                  </a>
+                  <button id="detDispatchBtn" class="cmd-btn disabled" onclick="window.openDispatchMenu()" style="flex: 1; padding: 12px 0; border-radius: 12px; margin: 0; min-height: 50px;">
+                    <img src="dispatchicon.png" alt="Dispatch" style="height: 26px; width: auto; filter: drop-shadow(0px 0px 2px #ee611c);" />
+                  </button>
+                  <button id="detCancelBtn" class="cmd-btn" onclick="window.heroCancelJob()" style="flex: 1; padding: 12px 0; border-radius: 12px; margin: 0; border-color: var(--danger); min-height: 50px;">
+                    <img src="cancelicon.png" alt="Cancel" style="height: 24px; width: auto; filter: drop-shadow(0px 0px 2px red);" />
+                  </button>
+                </div>
+                <button id="detStatusBtn" class="submit-btn pulse-ready" style="margin-top: 10px; width: 100%; font-size: 16px; padding: 18px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                  I'M HERE
+                </button>
+              </div>
+
+              <div id="detETAGroup">
+                <div id="detDispatchStatus" style="display: none; background: #dcfce7; border: 1px solid #22c55e; border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 20px;"></div>
+                <label style="font-size: 11px; font-weight: bold; color: var(--muted)">ETA TO ARRIVAL</label>
+                <select id="detETA">
+                  <option value="5-10 mins">5-10 mins</option>
+                  <option value="15-20 mins">15-20 mins</option>
+                  <option value="30-45 mins">30-45 mins</option>
+                  <option value="45-60 mins">45-60 mins</option>
+                  <option value="1h - 1.5h">1h - 1.5h</option>
+                  <option value="1.5h - 2h">1.5h - 2h</option>
+                  <option value="2h - 3h">2h - 3h</option>
+                  <option value="3 hours+">3 hours+</option>
+                </select>
+              </div>
+
+              <button id="detAcceptBtn" class="submit-btn" style="margin-top: 20px; box-shadow: 0 10px 20px rgba(238,97,28,0.2);">
+                ACCEPT & HELP
+              </button>
+
+              <div id="detBidSection" style="display: none; width: 100%; margin-top: 20px;">
+                <div id="sneakPeekBoard" style="display: none; background: #fffbeb; border: 1px solid #f59e0b; padding: 15px; border-radius: 15px; margin-bottom: 15px;">
+                  <p style="font-size: 11px; font-weight: 900; color: #d97706; margin: 0 0 10px 0;">⭐ ACTIVE BIDS (PRO PREVIEW)</p>
+                  <div id="sneakPeekList" style="font-size: 13px; font-weight: 600; color: var(--text); max-height: 80px; overflow-y: auto;"></div>
+                </div>
+                <div id="proUpsellBoard" style="display: none; background: white; border: 1px dashed #cbd5e1; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: center;">
+                  <p style="font-size: 18px; margin: 0 0 5px 0">🔒</p>
+                  <p style="font-size: 12px; font-weight: 700; color: var(--muted); margin: 0;">Competing bids hidden.</p>
+                  <a href="pro-hero.html" style="font-size: 11px; color: var(--accent); font-weight: 800; text-decoration: none;">Upgrade to Pro to unlock →</a>
+                </div>
+                <label style="font-size: 11px; font-weight: bold; color: var(--muted); display: block; margin-bottom: 8px;">YOUR TOTAL BID ($)</label>
+                <input type="number" id="detBidAmount" style="font-size: 20px; font-weight: 800; color: var(--accent); margin-bottom: 15px;" placeholder="0.00" />
+                <label style="font-size: 11px; font-weight: bold; color: var(--muted); display: block; margin-bottom: 8px;">ETA TO ARRIVAL</label>
+                <select id="detBidETA" style="margin-bottom: 15px;">
+                  <option value="5-10 mins">5-10 mins</option>
+                  <option value="15-20 mins">15-20 mins</option>
+                  <option value="30-45 mins">30-45 mins</option>
+                  <option value="45-60 mins">45-60 mins</option>
+                  <option value="1h - 1.5h">1h - 1.5h</option>
+                  <option value="1.5h - 2h">1.5h - 2h</option>
+                  <option value="2h - 3h">2h - 3h</option>
+                  <option value="3 hours+">3 hours+</option>
+                </select>
+                <button id="detSubmitBidBtn" class="submit-btn" style="background: var(--accent);">SEND BID</button>
+                <button id="detWithdrawBidBtn" class="submit-btn" style="background: #ef4444; margin-top: 10px; display: none;">WITHDRAW BID</button>
+              </div>
+
+              <span id="detInProgressText" style="display: none; color: var(--success); font-weight: bold; text-align: center; margin-top: 20px; padding-bottom: 20px;">JOB IN PROGRESS...</span>
             </div>
           </div>
         </div>
+        
 
-        <div
-          id="detIssue"
-          style="
-            word-break: break-all;
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            margin-bottom: 15px;
-          "
-        ></div>
-        <div id="detImgContainer" style="display: none">
-          <p
-            style="
-              font-size: 11px;
-              font-weight: bold;
-              color: var(--muted);
-              margin-bottom: 4px;
-            "
-          >
-            PHOTOS
-          </p>
-
-          <img
-            id="detMainImage"
-            src=""
-            style="
-              width: 100%;
-              height: 250px;
-              object-fit: cover;
-              border-radius: 12px;
-              margin-bottom: 10px;
-              border: 1px solid #e2e8f0;
-              display: none;
-            "
-            onclick="window.enlargeImage(this.src)"
-          />
-          <div
-            id="detImgScroller"
-            class="det-img-scroller"
-            style="gap: 10px; padding-bottom: 5px"
-          ></div>
-        </div>
-
-        <div
-          id="detActionGrid"
-          style="
-            display: none;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-          "
-        >
-          <div
-            style="
-              display: flex;
-              gap: 8px;
-              justify-content: space-between;
-              width: 100%;
-            "
-          >
-            <a
-              id="detPhoneBtn"
-              href="#"
-              class="cmd-btn"
-              style="
-                flex: 1;
-                padding: 12px 0;
-                border-radius: 12px;
-                margin: 0;
-                min-height: 50px;
-              "
-            >
-              <img
-                src="phone1.png"
-                alt="Call"
-                style="
-                  height: 24px;
-                  width: auto;
-                  filter: drop-shadow(0px 0px 2px #ee611c);
-                "
-              />
-            </a>
-            <button
-              id="detChatBtn"
-              class="cmd-btn"
-              style="
-                flex: 1;
-                padding: 12px 0;
-                border-radius: 12px;
-                margin: 0;
-                min-height: 50px;
-              "
-            >
-              <img
-                src="Chaticon.png"
-                alt="Chat"
-                style="
-                  height: 24px;
-                  width: auto;
-                  filter: drop-shadow(0px 0px 2px #ee611c);
-                "
-              />
-            </button>
-            <a
-              id="detNavBtn"
-              href="#"
-              target="_blank"
-              class="cmd-btn"
-              style="
-                flex: 1;
-                padding: 12px 0;
-                border-radius: 12px;
-                margin: 0;
-                min-height: 50px;
-              "
-            >
-              <img
-                src="navigate.png"
-                alt="Navigate"
-                style="
-                  height: 24px;
-                  width: auto;
-                  filter: drop-shadow(0px 0px 2px #ee611c);
-                "
-              />
-            </a>
-            <button
-              id="detDispatchBtn"
-              class="cmd-btn disabled"
-              onclick="window.openDispatchMenu()"
-              style="
-                flex: 1;
-                padding: 12px 0;
-                border-radius: 12px;
-                margin: 0;
-                min-height: 50px;
-              "
-            >
-              <img
-                src="dispatchicon.png"
-                alt="Dispatch"
-                style="
-                  height: 26px;
-                  width: auto;
-                  filter: drop-shadow(0px 0px 2px #ee611c);
-                "
-              />
-            </button>
-            <button
-              id="detCancelBtn"
-              class="cmd-btn"
-              onclick="window.heroCancelJob()"
-              style="
-                flex: 1;
-                padding: 12px 0;
-                border-radius: 12px;
-                margin: 0;
-                border-color: var(--danger);
-                min-height: 50px;
-              "
-            >
-              <img
-                src="cancelicon.png"
-                alt="Cancel"
-                style="
-                  height: 24px;
-                  width: auto;
-                  filter: drop-shadow(0px 0px 2px red);
-                "
-              />
-            </button>
-          </div>
-
-          <button
-            id="detStatusBtn"
-            class="submit-btn pulse-ready"
-            style="
-              margin-top: 10%;
-              width: 100%;
-              font-size: 16px;
-              padding: 18px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 10px;
-            "
-          >
-            I'M HERE
-          </button>
-        </div>
-
-        <div id="detETAGroup">
-          <div
-            id="detDispatchStatus"
-            style="
-              display: none;
-              background: #dcfce7;
-              border: 1px solid #22c55e;
-              border-radius: 12px;
-              padding: 15px;
-              text-align: center;
-              margin-bottom: 20px;
-            "
-          ></div>
-
-          <label style="font-size: 11px; font-weight: bold; color: var(--muted)"
-            >ETA TO ARRIVAL</label
-          >
-          <select id="detETA">
-            <option value="5-10 mins">5-10 mins</option>
-            <option value="15-20 mins">15-20 mins</option>
-            <option value="30-45 mins">30-45 mins</option>
-            <option value="45-60 mins">45-60 mins</option>
-            <option value="1h - 1.5h">1h - 1.5h</option>
-            <option value="1.5h - 2h">1.5h - 2h</option>
-            <option value="2h - 3h">2h - 3h</option>
-            <option value="3 hours+">3 hours+</option>
-          </select>
-        </div>
-
-        <button id="detAcceptBtn" class="submit-btn" style="margin-top: 20px">
-          ACCEPT & HELP
-        </button>
-
-        <div
-          id="detBidSection"
-          style="display: none; width: 100%; margin-top: 20px"
-        >
-          <div
-            id="sneakPeekBoard"
-            style="
-              display: none;
-              background: #fffbeb;
-              border: 1px solid #f59e0b;
-              padding: 15px;
-              border-radius: 15px;
-              margin-bottom: 15px;
-            "
-          >
-            <p
-              style="
-                font-size: 11px;
-                font-weight: 900;
-                color: #d97706;
-                margin: 0 0 10px 0;
-              "
-            >
-              ⭐ ACTIVE BIDS (PRO PREVIEW)
-            </p>
-            <div
-              id="sneakPeekList"
-              style="
-                font-size: 13px;
-                font-weight: 600;
-                color: var(--text);
-                max-height: 80px;
-                overflow-y: auto;
-              "
-            ></div>
-          </div>
-
-          <div
-            id="proUpsellBoard"
-            style="
-              display: none;
-              background: #f8fafc;
-              border: 1px dashed #cbd5e1;
-              padding: 15px;
-              border-radius: 15px;
-              margin-bottom: 15px;
-              text-align: center;
-            "
-          >
-            <p style="font-size: 18px; margin: 0 0 5px 0">🔒</p>
-            <p
-              style="
-                font-size: 12px;
-                font-weight: 700;
-                color: var(--muted);
-                margin: 0;
-              "
-            >
-              Competing bids hidden.
-            </p>
-            <a
-              href="pro-hero.html"
-              style="
-                font-size: 11px;
-                color: var(--accent);
-                font-weight: 800;
-                text-decoration: none;
-              "
-              >Upgrade to Pro to unlock →</a
-            >
-          </div>
-
-          <label
-            style="
-              font-size: 11px;
-              font-weight: bold;
-              color: var(--muted);
-              display: block;
-              margin-bottom: 8px;
-            "
-            >YOUR TOTAL BID ($)</label
-          >
-          <input
-            type="number"
-            id="detBidAmount"
-            style="
-              font-size: 20px;
-              font-weight: 800;
-              color: var(--accent);
-              margin-bottom: 15px;
-            "
-            placeholder="0.00"
-          />
-
-          <label
-            style="
-              font-size: 11px;
-              font-weight: bold;
-              color: var(--muted);
-              display: block;
-              margin-bottom: 8px;
-            "
-            >ETA TO ARRIVAL</label
-          >
-          <select id="detBidETA" style="margin-bottom: 15px">
-            <option value="5-10 mins">5-10 mins</option>
-            <option value="15-20 mins">15-20 mins</option>
-            <option value="30-45 mins">30-45 mins</option>
-            <option value="45-60 mins">45-60 mins</option>
-            <option value="1h - 1.5h">1h - 1.5h</option>
-            <option value="1.5h - 2h">1.5h - 2h</option>
-            <option value="2h - 3h">2h - 3h</option>
-            <option value="3 hours+">3 hours+</option>
-          </select>
-
-          <button
-            id="detSubmitBidBtn"
-            class="submit-btn"
-            style="background: var(--accent)"
-          >
-            SEND BID
-          </button>
-          <button
-            id="detWithdrawBidBtn"
-            class="submit-btn"
-            style="background: #ef4444; margin-top: 10px; display: none"
-          >
-            WITHDRAW BID
-          </button>
-        </div>
-
-        <span
-          id="detInProgressText"
-          style="
-            display: none;
-            color: var(--success);
-            font-weight: bold;
-            text-align: center;
-            margin-top: 20px;
-          "
-          >JOB IN PROGRESS...</span
-        >
-      </div>
-    </div>
+    
+    
+    
+    
+    
+    
+    
+    
 
     <div id="imageEnlargeModal" class="modal">
       <img id="enlargedImage" src="" alt="Enlarged Image" />
@@ -7553,11 +7288,11 @@
           // FIX: Inject the exact styled dashed-box from the Job Board
 
           detImgScroller.innerHTML = `
-              <div style="width: 100%; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 15px; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content:     center; flex-shrink: 0; box-sizing: border-box;">
-              <img src="camicon.png" style="width: 32px; height: 32px; margin-bottom: 5px; filter: grayscale(1) opacity(0.5);" alt="No Photos">
-    
-                <div style="font-size: 12px; font-weight: 700; color: #64748b;">No Photos Uploaded</div>
+               <div style="width: 100%; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); border: 1.5px dashed #cbd5e1; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+              <img src="camicon.png" style="width: 24px; height: 24px; margin-bottom: 5px; filter: grayscale(1) opacity(0.5);" alt="No Photos">
+                <div style="font-size: 11px; font-weight: 800; color: #64748b;">No Photos Provided</div>
               </div>
+             
             `;
         }
 
@@ -7582,6 +7317,10 @@
         }
 
         document.getElementById("detDist").innerText = dist + " mi";
+        
+        const detTipAmount = document.getElementById("detTipAmount");
+        if (detTipAmount) detTipAmount.innerText = r.tip && Number(r.tip) > 0 ? "$" + r.tip : "N/A";
+  
         document.getElementById("detLoadedMiles").innerText =
           loadedMiles !== "--" ? loadedMiles + " mi" : "--";
         document.getElementById("detTowDestinationTop").innerText =
