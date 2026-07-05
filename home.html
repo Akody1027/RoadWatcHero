@@ -1353,8 +1353,10 @@
         animation: spin 1s linear infinite;
         display: none;
       }
+      
+      
       .discovery-teaser {
-        position: absolute;
+        position: fixed;
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%) translateY(150%);
@@ -1364,9 +1366,11 @@
         border-radius: 16px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        z-index: 10;
+        z-index: 9999;
         overflow: hidden;
       }
+      
+
       .discovery-teaser.active {
         transform: translateX(-50%) translateY(0);
       }
@@ -1969,6 +1973,28 @@
     <div id="loadingOverlay">
       <div class="spinner"></div>
     </div>
+    
+    
+    
+    
+    <div id="discoveryTeaserCard" class="discovery-teaser">
+      <div style="height: 100px; width: 100%; background: #f1f5f9; position: relative;">
+        <img id="dtBanner" src="" style="width: 100%; height: 100%; object-fit: cover" />
+        <img id="dtAvatar" src="" style="width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; object-fit: cover; position: absolute; bottom: -30px; left: 20px; box-shadow: var(--shadow); background: white;" />
+      </div>
+      <div style="padding: 40px 20px 20px 20px">
+        <div id="dtName" style="font-size: 18px; font-weight: 900; color: var(--text); margin-bottom: 15px;">
+          Business Name
+        </div>
+        <button id="dtViewBtn" style="width: 100%; background: var(--text); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer;">
+          VIEW PROFILE
+        </button>
+      </div>
+    </div>
+    
+    
+    
+    
 
     <div
       id="installAppBanner"
@@ -5018,68 +5044,6 @@
         </button>
       </div>
 
-      <div id="discoveryTeaserCard" class="discovery-teaser">
-        <div
-          style="
-            height: 100px;
-            width: 100%;
-            background: #f1f5f9;
-            position: relative;
-          "
-        >
-          <img
-            id="dtBanner"
-            src=""
-            style="width: 100%; height: 100%; object-fit: cover"
-          />
-          <img
-            id="dtAvatar"
-            src=""
-            style="
-              width: 60px;
-              height: 60px;
-              border-radius: 50%;
-              border: 3px solid white;
-              object-fit: cover;
-              position: absolute;
-              bottom: -30px;
-              left: 20px;
-              box-shadow: var(--shadow);
-              background: white;
-            "
-          />
-        </div>
-
-        <div style="padding: 40px 20px 20px 20px">
-          <div
-            id="dtName"
-            style="
-              font-size: 18px;
-              font-weight: 900;
-              color: var(--text);
-              margin-bottom: 15px;
-            "
-          >
-            Business Name
-          </div>
-          <button
-            id="dtViewBtn"
-            style="
-              width: 100%;
-              background: var(--text);
-              color: white;
-              border: none;
-              padding: 12px;
-              border-radius: 8px;
-              font-weight: 800;
-              font-size: 13px;
-              cursor: pointer;
-            "
-          >
-            VIEW PROFILE
-          </button>
-        </div>
-      </div>
     </div>
 
     <script type="module">
@@ -5291,6 +5255,34 @@
       window.openJobBoard = () => {
         window.location.href = "jobboard.html";
       };
+      
+      
+      window.showGlobalHeroTeaser = (pid, pro) => {
+        let rawCover = pro.cover || pro.coverImage || pro.bannerImg || pro.coverUrl || pro.bannerUrl || pro.promoUrl;
+        if (!rawCover && pro.gallery && Array.isArray(pro.gallery) && pro.gallery.length > 0) rawCover = pro.gallery[0];
+        const rawAvatar = pro.logoUrl || pro.pic || pro.avatar || pro.profilePic;
+        
+        const bannerEl = document.getElementById("dtBanner");
+        bannerEl.src = rawCover && typeof rawCover === "string" && rawCover.length > 5 ? rawCover : "https://placehold.co/400x150/e2e8f0/94a3b8?text=RoadWatcHero";
+        bannerEl.onerror = function () { this.src = "https://placehold.co/400x150/e2e8f0/94a3b8?text=RoadWatcHero"; };
+        
+        const avatarEl = document.getElementById("dtAvatar");
+        avatarEl.src = rawAvatar && typeof rawAvatar === "string" && rawAvatar.length > 5 ? rawAvatar : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+        avatarEl.onerror = function () { this.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; };
+        
+        document.getElementById("dtName").innerText = pro.companyName || pro.name || "Pro Hero";
+        document.getElementById("dtViewBtn").onclick = () => {
+          window.parent.postMessage({ action: "VIEW_HERO_PROFILE", heroId: pid }, "*");
+        };
+        document.getElementById("discoveryTeaserCard").classList.add("active");
+      };
+      
+      
+      
+      
+      
+      
+      
 
       if (!localStorage.getItem("heroUserId"))
         localStorage.setItem(
@@ -6581,65 +6573,10 @@
                     anchor: new google.maps.Point(16, 16),
                   },
                 });
-
-                marker.addListener("click", () => {
-                  let rawCover =
-                    pro.cover ||
-                    pro.coverImage ||
-                    pro.bannerImg ||
-                    pro.coverUrl ||
-                    pro.bannerUrl ||
-                    pro.promoUrl;
-                  if (
-                    !rawCover &&
-                    pro.gallery &&
-                    Array.isArray(pro.gallery) &&
-                    pro.gallery.length > 0
-                  )
-                    rawCover = pro.gallery[0];
-
-                  const rawAvatar =
-                    pro.logoUrl || pro.pic || pro.avatar || pro.profilePic;
-
-                  const bannerEl = document.getElementById("dtBanner");
-                  bannerEl.src =
-                    rawCover &&
-                    typeof rawCover === "string" &&
-                    rawCover.length > 5
-                      ? rawCover
-                      : "https://placehold.co/400x150/e2e8f0/94a3b8?text=RoadWatcHero";
-                  bannerEl.onerror = function () {
-                    this.src =
-                      "https://placehold.co/400x150/e2e8f0/94a3b8?text=RoadWatcHero";
-                  };
-
-                  const avatarEl = document.getElementById("dtAvatar");
-                  avatarEl.src =
-                    rawAvatar &&
-                    typeof rawAvatar === "string" &&
-                    rawAvatar.length > 5
-                      ? rawAvatar
-                      : "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-                  avatarEl.onerror = function () {
-                    this.src =
-                      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-                  };
-
-                  document.getElementById("dtName").innerText =
-                    pro.companyName || pro.name || "Pro Hero";
-
-                  document.getElementById("dtViewBtn").onclick = () => {
-                    window.parent.postMessage(
-                      { action: "VIEW_HERO_PROFILE", heroId: pid },
-                      "*"
-                    );
-                  };
-
-                  document
-                    .getElementById("discoveryTeaserCard")
-                    .classList.add("active");
-                });
-
+                
+                marker.addListener("click", () => window.showGlobalHeroTeaser(pid, pro));
+                
+  
                 discoveryMarkers[pid] = marker;
               } else {
                 if (discoveryMarkers[pid].getMap() !== discoveryMap) {
@@ -8311,6 +8248,13 @@
 
         // 2. Add listeners INSIDE the function after map is created
         map.addListener("dragstart", () => {
+          
+          map.addListener("click", () => {
+          const card = document.getElementById("discoveryTeaserCard");
+          if (card) card.classList.remove("active");
+        });
+          
+ 
           isManualMapControl = true;
           if (manualMapTimeout) clearTimeout(manualMapTimeout);
         });
@@ -8394,6 +8338,9 @@
                     },
                   });
                   // Clicking a mechanic could open their shop info, currently does nothing but shows location
+                  
+                  marker.addListener("click", () => window.showGlobalHeroTeaser(pid, pro));
+                  
                   markers[markerId] = marker;
                 } else {
                   markers[markerId].setMap(map);
@@ -8937,6 +8884,17 @@
                 ],
               }
             );
+            
+            
+            
+            
+            broadcastMiniMap.addListener("click", () => {
+              const card = document.getElementById("discoveryTeaserCard");
+              if (card) card.classList.remove("active");
+            });
+            
+            
+            
           }
 
           // Clear old markers
@@ -9000,7 +8958,11 @@
                     anchor: new google.maps.Point(16, 16),
                   },
                 });
-
+                
+                
+                hm.addListener("click", () => window.showGlobalHeroTeaser(heroId, hero));
+                
+         
                 broadcastMarkers.push(hm);
                 bounds.extend(heroPos);
               }
