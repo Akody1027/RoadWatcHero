@@ -2153,33 +2153,41 @@
           </div>
           <div id="broadcastMap"></div>
         </div>
-
-        <div class="searching-header-overlay">
+  
+  
+  
+  
+  <div class="searching-header-overlay">
           
-          
-          <div style="display: flex; gap: 8px; margin-top: 10px;">
-            <button onclick="window.openEditSosModal()" style="background: white; color: var(--accent); border: 2px solid var(--accent); padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
-              EDIT SOS
-            </button>
-            <button onclick="window.scanForHeroes()" style="background: white; color: var(--accent); border: 2px solid var(--accent); padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px;">
-              <span>REFRESH MAP</span>
-              <div id="heroSpinner" style="width: 12px; height: 12px; border: 2px solid #f3f3f3; border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; display: none;"></div>
-            </button>
-          </div>
-          
+          <button onclick="window.openEditSosModal()" style="margin-top: 10px; background: white; color: var(--accent); border: 2px solid var(--accent); padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+            EDIT SOS
+          </button>
  
-          <div class="searching-center-hud">
-            <div class="search-pulse" style="width: 60px; height: 60px; font-size: 24px; margin-bottom: 5px;">📡</div>
-            <h3 id="searchingTitle" style="margin: 0; font-weight: 900; font-size: 14px; color: #ee611c; text-shadow: 0 1px 4px rgba(255,255,255,0.9);">Broadcasting SOS...</h3>
-            <p id="searchingSubtitle" style="margin: 2px 0 0 0; font-size: 11px; font-weight: 800; color: #ee611c; text-shadow: 0 1px 3px rgba(255,255,255,0.9);">
+          <div class="searching-center-hud" style="position: absolute; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; margin-top: 5px;">
+            <div class="search-pulse" style="width: 85px; height: 85px; font-size: 36px; margin-bottom: 8px;">📡</div>
+            <h3 id="searchingTitle" style="margin: 0; font-weight: 900; font-size: 18px; color: #ee611c; text-shadow: 0 1px 4px rgba(255,255,255,0.9); white-space: nowrap;">Broadcasting SOS...</h3>
+            <p id="searchingSubtitle" style="margin: 4px 0 0 0; font-size: 13px; font-weight: 800; color: #ee611c; text-shadow: 0 1px 3px rgba(255,255,255,0.9); white-space: nowrap;">
               Finding your Hero...
             </p>
           </div>
 
-          <button id="cancelSosBtn" onclick="window.openModal('cancelConfirmModal')" style="background: white; border: 2px solid var(--danger); font-weight: 900; font-size: 12px; color: var(--danger); padding: 10px 14px; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: none;">
-            CANCEL SOS
+          <button onclick="window.scanForHeroes()" style="margin-top: 10px; background: white; color: var(--accent); border: 2px solid var(--accent); padding: 10px 14px; border-radius: 12px; font-weight: 900; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 6px;">
+            <span>REFRESH MAP</span>
+            <div id="heroSpinner" style="width: 12px; height: 12px; border: 2px solid #f3f3f3; border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; display: none;"></div>
           </button>
+
+          <div style="display: none;">
+            <button id="cancelSosBtn"></button>
+          </div>
         </div>
+
+  
+  
+  
+  
+  
+  
+  
 
         <div class="searching-drawer">
           <div id="seekerBidFeed" style="display: none; padding: 0 20px 10px 20px; text-align: left; max-height: 250px; overflow-y: auto; pointer-events: auto;">
