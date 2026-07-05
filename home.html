@@ -5263,8 +5263,8 @@
         const rawAvatar = pro.logoUrl || pro.pic || pro.avatar || pro.profilePic;
         
         const bannerEl = document.getElementById("dtBanner");
-        bannerEl.src = rawCover && typeof rawCover === "string" && rawCover.length > 5 ? rawCover : "https://placehold.co/400x150/e2e8f0/94a3b8?text=RoadWatcHero";
-        bannerEl.onerror = function () { this.src = "https://placehold.co/400x150/e2e8f0/94a3b8?text=RoadWatcHero"; };
+        bannerEl.src = rawCover && typeof rawCover === "string" && rawCover.length > 5 ? rawCover : "holdimg1.png";
+        bannerEl.onerror = function () { this.src = "holdimg1.png"; };
         
         const avatarEl = document.getElementById("dtAvatar");
         avatarEl.src = rawAvatar && typeof rawAvatar === "string" && rawAvatar.length > 5 ? rawAvatar : "herousericon.jpg";
