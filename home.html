@@ -1107,23 +1107,34 @@
         from { opacity: 0; transform: translateX(25px) scale(0.97); }
         to { opacity: 1; transform: translateX(0) scale(1); }
       }
-      .big-choice-btn {
-        padding: 25px 20px;
-        border: 2px solid var(--accent);
-        border-radius: 10px;
-        background: #f8fafc;
+      
+      
+       
+      
+      
+       .big-choice-btn {
+        padding: 20px 10px;
+        border: 2px solid transparent;
+        border-radius: 12px;
+        background: white;
         font-weight: 800;
-        font-size: 20px;
+        font-size: 18px;
         color: var(--accent);
         cursor: pointer;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 15px;
+        justify-content: center;
+        gap: 12px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
       }
+
+      
+      
+  
       
       
       .big-choice-btn:hover{
@@ -2971,21 +2982,39 @@
             <!-- STEP 1: DASHBOARD -->
               <div class="wizard-step active" id="step1">
                 <h3 style="margin-top:0; margin-bottom: 60px; color:var(--accent); text-align:center;">What kind of hero?</h3>
-                <div style="display:flex; flex-direction:column; gap:15px; flex: 1;">
+                
+                
+                
+                
+                
+                
+                
+                   <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; flex: 1; align-content: start;">
                   <button class="big-choice-btn" id="btnRoadsideChoice" onclick="window.setServiceType(false)">
-                    ROADSIDE HERO
+                    <img src="roadsideicon.png" style="width: 150px; height: 150px; object-fit: contain;">
+                    <span>ROADSIDE HERO</span>
                   </button>
                   <button class="big-choice-btn" id="btnTowChoice" onclick="window.setServiceType(true)">
-                    TOWING HERO
+                    <img src="towicon.png" style="width: 150px; height: 150px; object-fit: contain;">
+                    <span>TOWING HERO</span>
                   </button>
-                  <button class="big-choice-btn" onclick="window.openJobBoard()" style="">
-                    MECHANIC HERO
+                  <button class="big-choice-btn" onclick="window.openJobBoard()">
+                    <img src="mechicon.png" style="width: 100px; height: 100px; object-fit: contain; margin-bottom: 50px;">
+                    <span>MECHANIC HERO</span>
                   </button>
-                  <button class="big-choice-btn" onclick="window.openDiscoveryMap()" style="">
-                    BROWSE HEROES
+                  <button class="big-choice-btn" onclick="window.openDiscoveryMap()">
+                    <img src="brzicon.png" style="width: 150px; height: 150px; object-fit: contain;">
+                    <span>BROWSE HEROES</span>
                   </button> 
-                </div>
+                 </div>
               </div>
+
+              
+               
+               
+              
+              
+              
 
               <!-- STEP 2: CONTACT INFO -->
               <div class="wizard-step" id="step2">
