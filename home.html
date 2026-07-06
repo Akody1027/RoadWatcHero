@@ -5069,12 +5069,20 @@
         limitToLast
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-      import { 
+      
+      
+      
+      
+      
+       import { 
         getFirestore, 
         doc, 
         getDoc, 
-        updateDoc 
+        updateDoc,
+        collection,
+        onSnapshot
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  
       
 
       // NEW: Import Firebase Authentication
@@ -6693,14 +6701,16 @@
 
         alert("Bid accepted! Connecting you to your Tow Hero now.");
       };
+      
+       
+      
 
       window.loadAdvertisements = () => {
-        // CHANGED: Now correctly pointing to 'businessPosts' instead of 'advertisingHub'
-        onValue(ref(db, "businessPosts"), (snap) => {
-          
-          
-          
         
+        
+        
+                onSnapshot(collection(firestoreDb, "businessPosts"), (snap) => {
+          
        // ALWAYS keep BOTH dummy ads permanently
           let ads = {
             dummy1: {
@@ -6718,12 +6728,14 @@
           };
 
           // Safely merge real ads from the database into the list
-          if (snap.exists() && snap.val()) {
-            const realAds = snap.val();
-            Object.entries(realAds).forEach(([key, val]) => {
-              if (val) ads[key] = val;
+          if (!snap.empty) {
+            snap.forEach((docSnap) => {
+              const val = docSnap.data();
+              if (val) ads[docSnap.id] = val;
             });
           }
+ 
+          
 
           let adHtml = "";
           window.totalAds = 0;
@@ -6733,7 +6745,8 @@
             const bizName = ad.businessName || ad.title || "Pro Hero";
             
             adHtml += `
-              <div class="ad-card" onclick="window.location.href='advertisinghub.html?userId=${ad.ownerId}'">
+            
+                <div class="ad-card" onclick="window.parent.postMessage({ action: 'VIEW_HERO_AD', userId: '${ad.ownerId}' }, '*');">
                 <img src="${imgSrc}" class="ad-img">
                 <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;"></div>
                 <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px 20px; z-index: 3;">
