@@ -1893,7 +1893,37 @@ function adjustViewport() {
       }                                                                   
                                                                           
                                                                           
-                                                                          
+                                                                    
+      
+       if (event.data && event.data.action === 'VIEW_HERO_AD') {
+        const adUserId = event.data.userId;
+        
+        // 1. Ensure the main Hub drawer is pulled open
+        const hubBoard = document.getElementById("heroHubBoard"); 
+        const sidebar = document.getElementById("heroHubSidebar");
+        if (!hubBoard.classList.contains("open")) {
+            hubBoard.classList.add("open");
+            sidebar.classList.add("open");
+            document.getElementById("hubOverlay").style.display = "block";
+            document.getElementById("hubToggleBtn").style.transform = "rotate(180deg)";
+        }
+        
+        // 2. Ensure the top 'Hero Direct' shade is closed to show the main ad board
+        const topBoard = document.getElementById("proTopBoard");
+        const topBar = document.getElementById("proTopBar");
+        topBoard.classList.remove("open");
+        topBar.classList.remove("open");
+        document.getElementById("hubIframe").classList.remove("shift-up");
+        
+        // 3. Inject the specific Hero ID into the main Hub iframe URL
+        const hubIframe = document.getElementById("hubIframe");
+        hubIframe.src = "hub.html?userId=" + adUserId;
+      }
+
+       
+      
+      
+      
                                                                           
                                                                           
                                                                           
