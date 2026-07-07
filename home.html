@@ -1065,7 +1065,7 @@
       }
       .wizard-step {
         display: none;
-        width: 100%;
+        width: 99%;
         height: 100%;
         animation: slideInNative 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
       }
@@ -3023,11 +3023,16 @@
                 <input type="tel" id="phoneNumberInput" class="input"  placeholder="Phone Number" oninput="window.checkWizardReady(2)" />
                 <input type="email" id="reqUserEmail"  class="input" placeholder="Email Address (Optional)" />
 
-                <div style="flex:1;"></div>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div style=""></div>
+                
+                
+                
+                <div style="display: flex; gap: 10px; margin-top: 50px; position: relative;">
                   <button class="submit-btn" onclick="window.goToSosStep(1)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn" id="step2Next" onclick="window.goToSosStep(3)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
                 </div>
+                
+                
               </div>
 
               <!-- STEP 3: VEHICLE DETAILS -->
@@ -3042,8 +3047,8 @@
                 <input type="text" id="vehPlate" placeholder="Plate #" oninput="window.checkWizardReady(3)" />
                 <textarea id="reqIssue" placeholder="Describe your issue in detail..." rows="3" oninput="window.checkWizardReady(3)"></textarea>
 
-                <div style="flex:1;"></div>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div style=""></div>
+                <div style="display: flex; gap: 10px; margin-top: 50px;">
                   <button class="submit-btn" onclick="window.goToSosStep(2)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white;  border: 1px solid #cbd5e1;">&lt;</button>
                   <!-- The NEXT button here dynamically routes based on Towing vs Roadside -->
                   <button class="submit-btn" id="step3Next" onclick="window.nextFromVehicle()" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
@@ -3096,8 +3101,8 @@
                 
                 
                 
-                <div style="flex:1;"></div>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div style=""></div>
+                <div style="display: flex; gap: 10px; margin-top: 50px;">
                   <button class="submit-btn" onclick="window.goToSosStep(3)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn pulse-ready" id="step4Next" onclick="window.goToSosStep(5)" style="flex: 1; margin-top: 0;" disabled>NEXT</button>
                 </div>
@@ -3116,8 +3121,8 @@
                 <div id="damagePreviewList" style="display: flex; gap: 10px; overflow-x: auto; margin-top: 15px; padding-bottom: 5px;"></div>
                 <input type="file" id="damageInput" accept="image/*" multiple style="display: none" onchange="window.handleImageUpload(this, 'damage')" />
 
-                <div style="flex:1;"></div>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div style=""></div>
+                <div style="display: flex; gap: 10px; margin-top: 50px;">
                   <!-- Dynamic Back Button -->
                   <button class="submit-btn" onclick="window.backFromPhotos()" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn pulse-ready" onclick="window.goToSosStep(6)" style="flex: 1; margin-top: 0;">NEXT</button>
@@ -3138,8 +3143,8 @@
                 
                 <input type="number" id="customTip" placeholder="Other Tip Amount ($)" style="margin-bottom: 15px;" />
 
-                <div style="flex:1;"></div>
-                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <div style=""></div>
+                <div style="display: flex; gap: 10px; margin-top: 50px;">
                   <button class="submit-btn" onclick="window.goToSosStep(5)" style="flex: 0 0 15%; margin-top: 0; background:  var(--accent); color: white; border: 1px solid #cbd5e1;">&lt;</button>
                   <button class="submit-btn pulse-ready" id="submitSosBtn" onclick="window.submitSOS()" style="flex: 1; margin-top: 0;">FIND HERO</button>
                 </div>
