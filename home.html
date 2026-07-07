@@ -2469,6 +2469,11 @@
       </div>
       
       
+      
+      <div id="heroMapSpinner" class="discovery-spinner" style="position: absolute; top: 22px; right: 125px; z-index: 10; background: rgba(255, 255, 255, 0.9); pointer-events: none; box-shadow: var(--shadow); display: block;"></div>
+      
+      
+      
       <button class="center-btn" onclick="window.centerOnMe()">
         RE-CENTER
       </button>
@@ -2577,6 +2582,9 @@
         !
       </div>
       <div id="map"></div>
+      
+
+      
       <div id="heroPanel">
         <div id="activeTask" class="task-card"></div>
       </div>
@@ -8300,19 +8308,33 @@
         });
 
         // 2. Add listeners INSIDE the function after map is created
+        
+
+        map.addListener("bounds_changed", () => {
+          const spinner = document.getElementById("heroMapSpinner");
+          if (spinner) spinner.style.display = "block";
+        });
+        
+        
         map.addListener("dragstart", () => {
           
-          map.addListener("click", () => {
+          map.addListener("click", () => { 
           const card = document.getElementById("discoveryTeaserCard");
           if (card) card.classList.remove("active");
-        });
+        }); 
           
  
           isManualMapControl = true;
           if (manualMapTimeout) clearTimeout(manualMapTimeout);
         });
 
-        map.addListener("idle", () => {
+        map.addListener("idle", () => { 
+          
+          
+         if (userLocation) {
+            const spinner = document.getElementById("heroMapSpinner");
+            if (spinner) spinner.style.display = "none";
+          }
           // Wait 4 seconds after move stops before allowing auto-snap
           manualMapTimeout = setTimeout(() => {
             isManualMapControl = false;
