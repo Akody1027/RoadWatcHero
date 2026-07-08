@@ -589,12 +589,10 @@
 
 
 
-    <a href="home.html?action=openProfile">
-             <img
-            src="usericon.png"
-            class="icon-btn"
-          /> 
+        <a href="#" onclick="window.handleUserIconClick(event)">
+      <img src="usericon.png" class="icon-btn" />
     </a>
+
 
 
 
@@ -698,8 +696,8 @@
     
     
     
-    
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
 
     
     
@@ -726,9 +724,36 @@
         const auth = getAuth(app);
     let isAuthenticated = false;
 
+    
+    
     onAuthStateChanged(auth, (user) => {
       isAuthenticated = !!user;
+      if (user && localStorage.getItem("heroUserId") !== user.uid) {
+        localStorage.setItem("heroUserId", user.uid);
+      }
     });
+
+    window.handleUserIconClick = async (e) => {
+      e.preventDefault();
+      const profile = profilesCache[localStorage.getItem("heroUserId")];
+      
+      if (profile && profile.name) {
+        window.location.href = "home.html?action=openProfile";
+      } else if (isAuthenticated) {
+        if (confirm("You are currently signed in as a Seeker. Would you like to log out?")) {
+          await signOut(auth);
+          localStorage.removeItem("heroUserId");
+          window.location.reload();
+        } else {
+          alert("Your session is active. Your jobs are securely saved to your account.");
+        }
+      } else {
+        window.togglePanel('authPanel', document.getElementById('btnPost'));
+      }
+    };
+
+    
+    
 
     window.attemptPostJob = (btnEl) => {
       if (isAuthenticated) {
