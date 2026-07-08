@@ -413,14 +413,47 @@
       <input type="text" id="searchBar" class="search-bar" placeholder="🔍 Search issues, makes, or keywords..." oninput="window.renderFeed()">
 
       <div class="toolbar">
-        <button class="tool-btn" id="btnPost" onclick="window.togglePanel('postPanel', this)">➕ Add Job</button>
+        
+        
+        
+                <button class="tool-btn" id="btnPost" onclick="window.attemptPostJob(this)">➕ Add Job</button>
+
         
         
         
         <button class="tool-btn" id="btnFilter" onclick="window.togglePanel('filterPanel', this)">🎛️ <span id="radiusLabelDisplay">10</span> mi</button>
         <button class="tool-btn" onclick="window.toggleLayout()">🔲 View</button>
+        
+        
+        
+        
+        
         <button class="tool-btn" id="btnMyJobs" onclick="window.toggleMyJobs(this)">👤 My Jobs</button>
       </div>
+      
+      
+      
+      
+      
+      <div id="authPanel" class="drop-panel">
+        <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">EMAIL ADDRESS</label>
+        <input type="email" id="authEmail" placeholder="you@email.com" />
+        
+        <label style="font-size: 11px; font-weight: bold; color: var(--muted); margin-bottom: 8px; display: block;">PASSWORD</label>
+        <input type="password" id="authPassword" placeholder="••••••••" />
+        
+        <div style="text-align: right; margin-bottom: 15px;">
+          <a href="#" onclick="window.resetAuthPassword()" style="font-size: 12px; font-weight: 700; color: var(--accent); text-decoration: none;">Forgot Password?</a>
+        </div>
+        
+        <button class="submit-btn" id="btnSignIn" onclick="window.processAuth(false)">SIGN IN</button>
+        <button class="submit-btn" id="btnSignUp" onclick="window.processAuth(true)" style="background: #e2e8f0; color: var(--text); margin-top: 10px;">CREATE NEW ACCOUNT</button>
+      </div>
+
+      
+      
+      
+      
 
       <div id="postPanel" class="drop-panel">
         
@@ -661,6 +694,16 @@
     
     import { getDatabase, ref, push, onValue, update, remove, get, increment } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
+    
+    
+    
+    
+    
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    
+    
+    
    
     import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
 
@@ -678,6 +721,79 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const storage = getStorage(app);
+    
+    
+        const auth = getAuth(app);
+    let isAuthenticated = false;
+
+    onAuthStateChanged(auth, (user) => {
+      isAuthenticated = !!user;
+    });
+
+    window.attemptPostJob = (btnEl) => {
+      if (isAuthenticated) {
+        window.togglePanel('postPanel', btnEl);
+      } else {
+        window.togglePanel('authPanel', btnEl);
+      }
+    };
+
+    window.processAuth = async (isSignUp) => {
+      const email = document.getElementById('authEmail').value.trim();
+      const pass = document.getElementById('authPassword').value;
+      if (!email || !pass) return alert("Please enter both email and password.");
+      
+      document.getElementById('loadingOverlay').classList.remove('loader-hidden');
+      try {
+        let userCred;
+        if (isSignUp) {
+          userCred = await createUserWithEmailAndPassword(auth, email, pass);
+        } else {
+          userCred = await signInWithEmailAndPassword(auth, email, pass);
+        }
+        
+        const newUid = userCred.user.uid;
+        const oldId = localStorage.getItem("heroUserId");
+        
+        // Data Handoff: Migrate existing guest data to permanent UID
+        if (oldId && oldId.startsWith("u_")) {
+          const updates = {};
+          Object.entries(jobsCache).forEach(([jobId, job]) => {
+            if (job.ownerId === oldId) {
+              updates[`mechanicRequests/${jobId}/ownerId`] = newUid;
+            }
+          });
+          if (Object.keys(updates).length > 0) {
+            await update(ref(db), updates);
+          }
+        }
+        
+        localStorage.setItem("heroUserId", newUid);
+        window.location.reload(); // Refresh cleanly overrides the global const myId
+      } catch (err) {
+        alert("Authentication Error: " + err.message);
+      } finally {
+        document.getElementById('loadingOverlay').classList.add('loader-hidden');
+      }
+    };
+
+    window.resetAuthPassword = async () => {
+      const email = document.getElementById('authEmail').value.trim();
+      if (!email) return alert("Please type your email address first, then click Forgot Password.");
+      
+      try {
+        await sendPasswordResetEmail(auth, email);
+        alert("Password reset email sent! Check your inbox.");
+      } catch (err) {
+        alert("Error: " + err.message);
+      }
+    };
+
+    
+    
+    
+    
+    
     
     const myId = localStorage.getItem("heroUserId") || "u_" + Math.random().toString(36).substr(2, 9);
     localStorage.setItem("heroUserId", myId);
