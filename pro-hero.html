@@ -1413,8 +1413,9 @@
                 payBtn.style.cursor = "not-allowed";
                 payBtn.innerText = "Welcome! Configuring your account...";
                 payBtn.disabled = true;
-                setTimeout(() => { window.location.href = "home.html"; }, 3000);
-                return;  
+                setTimeout(() => { window.top.location.href = "Appindex.html"; }, 3000);
+              
+              return;  
 
                                                                      
                                                                      
@@ -1487,7 +1488,7 @@
             payBtn.disabled = true;
 
             setTimeout(() => {
-              window.location.href = "Appindex.html";
+             window.top.location.href = "Appindex.html";
             }, 1500);                                          
                                                          
 
@@ -1514,7 +1515,7 @@
           event.returnValue = "";
         }
       });
-
+ 
 
 
 
