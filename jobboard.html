@@ -155,11 +155,11 @@
       border: 1px solid #e2e8f0; margin-bottom: 15px; display: none;
       animation: slideDown 0.3s cubic-bezier(0, 0, 0.2, 1);
     }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+     @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
     /* Form Elements */
-        input[type="number"], textarea, input[type="range"], input[type="text"], input[type="email"], input[type="password"] {
-          
+        input[type="number"], textarea, input[type="range"], input[type="text"], input[type="email"], input[type="password"] 
+{
       width: 100%; padding: 15px; border-radius: 5px; border: 1px solid #e2e8f0;
       margin-bottom: 12px; font-size: 15px; background: #f8fafc; font-family: inherit;
     }
@@ -813,10 +813,13 @@
         window.renderFeed();
       }
     };
-
-    onAuthStateChanged(auth, (user) => {
-      isAuthenticated = !!user;
-      if (user) {
+    
+    
+    
+     onAuthStateChanged(auth, (user) => {
+      isAuthenticated = user && user.email ? true : false;
+      
+      if (isAuthenticated) {
         myId = user.uid;
         currentUserEmail = user.email;
         localStorage.setItem("heroUserId", myId);
@@ -851,10 +854,17 @@
     };
 
     window.executeSignOut = async () => {
-      await signOut(auth);
-      localStorage.removeItem("heroUserId");
-      window.location.reload();
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error("Firebase Sign Out Error:", error);
+      } finally {
+        localStorage.removeItem("heroUserId");
+        window.location.reload();
+      }
     };
+
+    
 
     document.addEventListener('click', (e) => {
       const modal = document.getElementById('seekerModal');
