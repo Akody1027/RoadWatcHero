@@ -375,6 +375,49 @@
 }
     
     
+  
+    
+    
+        .seeker-modal {
+      position: fixed;
+      bottom: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 20px;
+      width: 90%;
+      max-width: 350px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      z-index: 8000;
+      transition: bottom 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      text-align: center;
+    }
+    .seeker-modal.active {
+      bottom: 80px;
+    }
+    .btn-signout {
+      width: 100%;
+      padding: 12px;
+      background: #fee2e2;
+      color: #ef4444;
+      border: 2px solid #ef4444;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: 0.2s;
+    }
+    .btn-signout:active { transform: scale(0.97); }
+
+  
+    
+    
+    
+    
     
     
     
@@ -577,6 +620,21 @@
   </div>
 
 
+      
+      
+      
+      
+    <div id="seekerModal" class="seeker-modal">
+    <div style="font-size: 11px; font-weight: 900; color: var(--muted); margin-bottom: 5px;">SIGNED IN AS</div>
+    <div id="seekerEmailDisplay" style="font-size: 15px; font-weight: 700; color: var(--text); word-break: break-all;"></div>
+    <button class="btn-signout" onclick="window.executeSignOut()">SIGN OUT</button>
+  </div>
+    
+      
+      
+      
+      
+      
 
          
   <div class="ftr">
@@ -718,39 +776,92 @@
     
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const storage = getStorage(app);
-    
-    
-        const auth = getAuth(app);
+    const storage = getStorage(app);    
+    const auth = getAuth(app);
     let isAuthenticated = false;
 
     
     
+      const initAppLogic = () => {
+      const safetyTimer = setTimeout(() => {
+      const overlay = document.getElementById('loadingOverlay');
+        if(overlay && !overlay.classList.contains('loader-hidden')) {
+            overlay.classList.add('loader-hidden');
+            window.renderFeed();
+        }
+      }, 4000);
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (p) => {
+            clearTimeout(safetyTimer);
+            userLocation = { lat: p.coords.latitude, lng: p.coords.longitude };
+            document.getElementById('loadingOverlay').classList.add('loader-hidden');
+            window.renderFeed();
+          },
+          (err) => {
+            clearTimeout(safetyTimer);
+            document.getElementById('loadingOverlay').classList.add('loader-hidden');
+            window.renderFeed();
+          },
+          { enableHighAccuracy: true, timeout: 3000 } 
+        );
+      } else {
+        clearTimeout(safetyTimer);
+        document.getElementById('loadingOverlay').classList.add('loader-hidden');
+        window.renderFeed();
+      }
+    };
+
     onAuthStateChanged(auth, (user) => {
       isAuthenticated = !!user;
-      if (user && localStorage.getItem("heroUserId") !== user.uid) {
-        localStorage.setItem("heroUserId", user.uid);
+      if (user) {
+        myId = user.uid;
+        currentUserEmail = user.email;
+        localStorage.setItem("heroUserId", myId);
+      } else {
+        myId = localStorage.getItem("heroUserId");
+        if (!myId || !myId.startsWith("u_")) {
+          myId = "u_" + Math.random().toString(36).substr(2, 9);
+          localStorage.setItem("heroUserId", myId);
+        }
       }
+      initAppLogic();
     });
 
-    window.handleUserIconClick = async (e) => {
+    window.handleUserIconClick = (e) => {
       e.preventDefault();
-      const profile = profilesCache[localStorage.getItem("heroUserId")];
+      e.stopPropagation();
+      const profile = profilesCache[myId];
       
       if (profile && profile.name) {
         window.location.href = "home.html?action=openProfile";
       } else if (isAuthenticated) {
-        if (confirm("You are currently signed in as a Seeker. Would you like to log out?")) {
-          await signOut(auth);
-          localStorage.removeItem("heroUserId");
-          window.location.reload();
+        const modal = document.getElementById('seekerModal');
+        if (modal.classList.contains('active')) {
+          modal.classList.remove('active');
         } else {
-          alert("Your session is active. Your jobs are securely saved to your account.");
+          document.getElementById('seekerEmailDisplay').innerText = currentUserEmail;
+          modal.classList.add('active');
         }
       } else {
         window.togglePanel('authPanel', document.getElementById('btnPost'));
       }
     };
+
+    window.executeSignOut = async () => {
+      await signOut(auth);
+      localStorage.removeItem("heroUserId");
+      window.location.reload();
+    };
+
+    document.addEventListener('click', (e) => {
+      const modal = document.getElementById('seekerModal');
+      if (modal && modal.classList.contains('active') && !modal.contains(e.target)) {
+        modal.classList.remove('active');
+      }
+    });
+
 
     
     
@@ -816,13 +927,8 @@
 
     
     
-    
-    
-    
-    
-    const myId = localStorage.getItem("heroUserId") || "u_" + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem("heroUserId", myId);
-    
+    let myId = null;
+    let currentUserEmail = "";    
     let jobsCache = {};
     let profilesCache = {};
     let userLocation = null;
@@ -836,40 +942,17 @@
 
     
 
-    // 1. Init: Location & Failsafe & Owner Sweep
-    window.onload = () => {
-      const safetyTimer = setTimeout(() => {
-        const overlay = document.getElementById('loadingOverlay');
-        if(overlay && !overlay.classList.contains('loader-hidden')) {
-            console.warn("Location timed out. Loading feed.");
-            overlay.classList.add('loader-hidden');
-            window.renderFeed();
-        }
-      }, 4000);
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (p) => {
-            clearTimeout(safetyTimer);
-            userLocation = { lat: p.coords.latitude, lng: p.coords.longitude };
-            document.getElementById('loadingOverlay').classList.add('loader-hidden');
-            window.renderFeed();
-          },
-          (err) => {
-            clearTimeout(safetyTimer);
-            document.getElementById('loadingOverlay').classList.add('loader-hidden');
-            window.renderFeed();
-          },
-          { enableHighAccuracy: true, timeout: 3000 } 
-        );
-      } else {
-        clearTimeout(safetyTimer);
-        document.getElementById('loadingOverlay').classList.add('loader-hidden');
-        window.renderFeed();
-      }
-    };
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+ 
     
     
     
