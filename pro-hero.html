@@ -1,7 +1,3 @@
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,26 +8,20 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <script src="https://js.stripe.com/v3/"></script>
-    
-    
-    
+
     <script>
       window.googleMapsReady = false;
       window.initGooglePlaces = () => {
         window.googleMapsReady = true;
       };
     </script>
- 
-    
-    
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=places&callback=initGooglePlaces" async defer></script>
-    
-    
-    
-    
-    
-    
-    
+
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDQw84A7XeEN1qNdUNzPoWDF_26XmeVezQ&libraries=places&callback=initGooglePlaces"
+      async
+      defer
+    ></script>
+
     <style>
       :root {
         --bg: #f8fafc;
@@ -61,7 +51,7 @@
         background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
       }
 
-       .container {
+      .container {
         max-width: 500px;
         margin: 0 auto;
         padding: 30px 20px 100px 20px;
@@ -338,9 +328,7 @@
         line-height: 1.4;
         font-weight: 600;
       }
-      
-      
-      
+
       /* Fix Google Places Dropdown visibility over modals */
       .pac-container {
         z-index: 10000 !important;
@@ -349,25 +337,17 @@
         font-family: inherit;
         margin-top: 5px;
       }
-      
-      
-      
-      
-      
     </style>
-    
-    
-<script>
+
+    <script>
       // Instantly start the ribbon as the page begins parsing
-      window.parent.postMessage({ action: 'START_GLOBAL_LOADING' }, '*');
-      
+      window.parent.postMessage({ action: "START_GLOBAL_LOADING" }, "*");
+
       document.addEventListener("DOMContentLoaded", () => {
         // Stop the ribbon once the page layout is ready
-        window.parent.postMessage({ action: 'STOP_GLOBAL_LOADING' }, '*');
+        window.parent.postMessage({ action: "STOP_GLOBAL_LOADING" }, "*");
       });
     </script>
-    
-    
   </head>
   <body>
     <div class="container">
@@ -421,7 +401,7 @@
       </div>
 
       <div class="checkout-box">
-        <h3>PRO HERO <br>Sign Up / Sign In</h3>
+        <h3>PRO HERO <br />Sign Up / Sign In</h3>
 
         <input
           type="email"
@@ -507,8 +487,8 @@
           style="
             font-size: 11px;
             text-align: center;
-            color: var(--muted); 
-            margin-top: 15px; 
+            color: var(--muted);
+            margin-top: 15px;
             line-height: 1.4;
           "
         >
@@ -516,20 +496,36 @@
           complete your subscription setup.
         </p>
       </div>
-      
-      
-        <div 
-           onclick="window.parent.postMessage({ action: 'START_GLOBAL_LOADING' }, '*'); window.top.location.href='Appindex.html';"
-        style="position: fixed; bottom: 0; left: 0; width: 100%; background: var(--accent); height: auto; 
-               display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 1000; box-shadow: 0 -4px 15px rgba(0,0,0,0.1);"
+
+      <div
+        onclick="window.parent.postMessage({ action: 'START_GLOBAL_LOADING' }, '*'); window.top.location.href='Appindex.html';"
+        style="
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          background: var(--accent);
+          height: auto;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          cursor: pointer;
+          z-index: 1000;
+          box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+        "
       >
-        <img src="thishomeicon.png" alt="Home" style="width: auto; height: 45px; padding-top:5px; padding-bottom:5px;" />
+        <img
+          src="thishomeicon.png"
+          alt="Home"
+          style="
+            width: auto;
+            height: 45px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+          "
+        />
       </div>
-      
-      
-   
-      
- 
+
       <div id="setupModalOverlay">
         <div class="modal-card" id="modalCard">
           <div class="modal-header">Complete Your Pro Setup</div>
@@ -537,9 +533,7 @@
           <input type="email" id="modalEmail" class="readonly-email" readonly />
 
           <div class="role-toggle">
-                                  
-                                  
-               <button
+            <button
               type="button"
               class="role-btn active"
               id="btnTowSetup"
@@ -573,7 +567,22 @@
             </button>
           </div>
 
-          <select id="otherCategorySetup" style="display: none; width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 15px; font-size: 15px; background: #f8fafc; font-family: inherit; color: var(--text); outline: none;">
+          <select
+            id="otherCategorySetup"
+            style="
+              display: none;
+              width: 100%;
+              padding: 15px;
+              border-radius: 14px;
+              border: 1px solid #e2e8f0;
+              margin-bottom: 15px;
+              font-size: 15px;
+              background: #f8fafc;
+              font-family: inherit;
+              color: var(--text);
+              outline: none;
+            "
+          >
             <option value="" disabled selected>Select your specialty...</option>
             <option value="Locksmith">Locksmith</option>
             <option value="Glass">Auto Glass</option>
@@ -589,9 +598,8 @@
             <option value="Oil">Oil Change</option>
             <option value="Transmission">Transmission</option>
             <option value="Miscellaneous">Miscellaneous</option>
-          </select>                   
-                                  
-                                         
+          </select>
+
           <input
             type="text"
             id="companyName"
@@ -724,9 +732,7 @@
           >SERVICE PROVIDED</label
         >
         <div class="role-toggle" style="margin-top: 5px">
-                                                        
-                                                        
-            <button
+          <button
             type="button"
             class="role-btn"
             id="btnTowEdit"
@@ -760,26 +766,39 @@
           </button>
         </div>
 
-        <select id="otherCategoryEdit" style="display: none; width: 100%; padding: 15px; border-radius: 14px; border: 1px solid #e2e8f0; margin-bottom: 15px; font-size: 15px; background: #f8fafc; font-family: inherit; color: var(--text); outline: none;">
-            <option value="" disabled selected>Select your specialty...</option>
-            <option value="Locksmith">Locksmith</option>
-            <option value="Glass">Auto Glass</option>
-            <option value="Detailing">Detailing</option>
-            <option value="Tires">Tires</option>
-            <option value="Tint">Window Tint</option>
-            <option value="Battery">Battery Service</option>
-            <option value="Wraps">Vinyl Wraps</option>
-            <option value="Bodywork">Bodywork</option>
-            <option value="Audio">Audio</option>
-            <option value="Upholstery">Upholstery</option>
-            <option value="Alignment">Alignment</option>
-            <option value="Oil">Oil Change</option>
-            <option value="Transmission">Transmission</option>
-            <option value="Miscellaneous">Miscellaneous</option>
-        </select>                                            
-                                                        
-                                                        
-                                             
+        <select
+          id="otherCategoryEdit"
+          style="
+            display: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+            font-size: 15px;
+            background: #f8fafc;
+            font-family: inherit;
+            color: var(--text);
+            outline: none;
+          "
+        >
+          <option value="" disabled selected>Select your specialty...</option>
+          <option value="Locksmith">Locksmith</option>
+          <option value="Glass">Auto Glass</option>
+          <option value="Detailing">Detailing</option>
+          <option value="Tires">Tires</option>
+          <option value="Tint">Window Tint</option>
+          <option value="Battery">Battery Service</option>
+          <option value="Wraps">Vinyl Wraps</option>
+          <option value="Bodywork">Bodywork</option>
+          <option value="Audio">Audio</option>
+          <option value="Upholstery">Upholstery</option>
+          <option value="Alignment">Alignment</option>
+          <option value="Oil">Oil Change</option>
+          <option value="Transmission">Transmission</option>
+          <option value="Miscellaneous">Miscellaneous</option>
+        </select>
+
         <label
           style="
             font-size: 12px;
@@ -856,8 +875,6 @@
         update,
         set,
         onValue,
-
-        
       } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
       // 2. Initialize your specific Firebase project
@@ -872,11 +889,6 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getDatabase(app);
-                                                           
-                                                           
-                                                           
-                                                           
-
 
       // Settings Change State Manager
       window.initialProSettings = {};
@@ -886,59 +898,65 @@
         const currentAddress = document.getElementById("editAddress").value;
 
         let currentRole = editRole;
-        if (editRole === 'other') {
-            currentRole = document.getElementById("otherCategoryEdit").value || "other";
+        if (editRole === "other") {
+          currentRole =
+            document.getElementById("otherCategoryEdit").value || "other";
         }
 
         const btn = document.getElementById("saveSettingsBtn");
-        const hasChanged = currentCompany !== window.initialProSettings.companyName ||
-                           currentPhone !== window.initialProSettings.businessPhone ||
-                           currentAddress !== window.initialProSettings.businessAddress ||
-                           currentRole !== window.initialProSettings.heroType;
+        const hasChanged =
+          currentCompany !== window.initialProSettings.companyName ||
+          currentPhone !== window.initialProSettings.businessPhone ||
+          currentAddress !== window.initialProSettings.businessAddress ||
+          currentRole !== window.initialProSettings.heroType;
 
         if (hasChanged) {
-            btn.disabled = false;
-            btn.style.background = "var(--accent)";
-            btn.style.cursor = "pointer";
+          btn.disabled = false;
+          btn.style.background = "var(--accent)";
+          btn.style.cursor = "pointer";
         } else {
-            btn.disabled = true;
-            btn.style.background = "#cbd5e1";
-            btn.style.cursor = "not-allowed";
+          btn.disabled = true;
+          btn.style.background = "#cbd5e1";
+          btn.style.cursor = "not-allowed";
         }
       };
 
       // Attach event listeners to all edit inputs
       document.addEventListener("DOMContentLoaded", () => {
-          document.getElementById("editCompany").addEventListener("input", window.checkSettingsChanged);
-          document.getElementById("editPhone").addEventListener("input", window.checkSettingsChanged);
-          document.getElementById("editAddress").addEventListener("input", window.checkSettingsChanged);
-          document.getElementById("otherCategoryEdit").addEventListener("change", window.checkSettingsChanged);
+        document
+          .getElementById("editCompany")
+          .addEventListener("input", window.checkSettingsChanged);
+        document
+          .getElementById("editPhone")
+          .addEventListener("input", window.checkSettingsChanged);
+        document
+          .getElementById("editAddress")
+          .addEventListener("input", window.checkSettingsChanged);
+        document
+          .getElementById("otherCategoryEdit")
+          .addEventListener("change", window.checkSettingsChanged);
       });
-
-
-
-
 
       let isPromoActive = false;
 
-      onValue(ref(db, 'settings/global/free_hero_registration'), (snapshot) => {
-          isPromoActive = snapshot.val() === true;
-          if (isPromoActive) {
-              document.getElementById("tierAdvertising").style.display = "none";
-              document.getElementById("tierFleet").style.display = "none";
-              document.querySelector(".submit-btn").innerText = "CONTINUE";
-              window.selectTier('price_1TSoiu02cjd265jFHYME6eJs', 'Pro Fleet', 29.99);
-          } else {
-              document.getElementById("tierAdvertising").style.display = "flex";
-              document.getElementById("tierFleet").style.display = "block";
-              document.querySelector(".submit-btn").innerText = "CONTINUE";
-          }
+      onValue(ref(db, "settings/global/free_hero_registration"), (snapshot) => {
+        isPromoActive = snapshot.val() === true;
+        if (isPromoActive) {
+          document.getElementById("tierAdvertising").style.display = "none";
+          document.getElementById("tierFleet").style.display = "none";
+          document.querySelector(".submit-btn").innerText = "CONTINUE";
+          window.selectTier(
+            "price_1TSoiu02cjd265jFHYME6eJs",
+            "Pro Fleet",
+            29.99
+          );
+        } else {
+          document.getElementById("tierAdvertising").style.display = "flex";
+          document.getElementById("tierFleet").style.display = "block";
+          document.querySelector(".submit-btn").innerText = "CONTINUE";
+        }
       });
-      
 
-
-
-      
       // 3. Attach the function to the window so the HTML button can click it
       // --- APP STATE & STRIPE SETUP ---
 
@@ -992,23 +1010,23 @@
         const card = document.getElementById("modalCard");
 
         overlay.style.display = "flex";
-        
-         document.getElementById("dynamicPriceDisplay").innerText = "$" + selectedTierPrice;
 
-        
-        
+        document.getElementById("dynamicPriceDisplay").innerText =
+          "$" + selectedTierPrice;
+
         if (isPromoActive) {
-            document.getElementById("stripe-container").style.display = "none";
-            document.getElementById("dynamicPriceDisplay").style.display = "none";
-            document.getElementById("finalPayBtn").innerText = "ACTIVATE FREE PRO ACCOUNT";
+          document.getElementById("stripe-container").style.display = "none";
+          document.getElementById("dynamicPriceDisplay").style.display = "none";
+          document.getElementById("finalPayBtn").innerText =
+            "ACTIVATE FREE PRO ACCOUNT";
         } else {
-            document.getElementById("stripe-container").style.display = "block";
-            document.getElementById("dynamicPriceDisplay").style.display = "inline";
-            document.getElementById("finalPayBtn").innerHTML = `ACTIVATE PRO ACCOUNT - <span id="dynamicPriceDisplay">$${selectedTierPrice}</span>/mo`;
+          document.getElementById("stripe-container").style.display = "block";
+          document.getElementById("dynamicPriceDisplay").style.display =
+            "inline";
+          document.getElementById(
+            "finalPayBtn"
+          ).innerHTML = `ACTIVATE PRO ACCOUNT - <span id="dynamicPriceDisplay">$${selectedTierPrice}</span>/mo`;
         }
-
-        
-        
 
         // Mount Stripe Elements ONLY after the modal is visible
         cardElement.mount("#card-element");
@@ -1021,7 +1039,6 @@
 
       // --- 3. TRIGGER BACKGROUND AUTH OR RESUME SETUP ---
 
-      
       window.goToPayment = () => {
         const email = document.getElementById("proEmail").value;
         const pass = document.getElementById("proPassword").value;
@@ -1031,7 +1048,7 @@
           return;
         }
 
-        window.parent.postMessage({ action: 'START_GLOBAL_LOADING' }, '*');
+        window.parent.postMessage({ action: "START_GLOBAL_LOADING" }, "*");
 
         const btn = document.querySelector(".submit-btn");
         const originalText = btn.innerText;
@@ -1041,7 +1058,7 @@
         // Attempt to Create the User
         createUserWithEmailAndPassword(auth, email, pass)
           .then((userCredential) => {
-            window.parent.postMessage({ action: 'STOP_GLOBAL_LOADING' }, '*');
+            window.parent.postMessage({ action: "STOP_GLOBAL_LOADING" }, "*");
             // NEW USER: Success! Account created. Show Stripe Setup Modal.
             triggerSetupModal(userCredential.user);
             btn.innerText = originalText;
@@ -1059,7 +1076,10 @@
                   const userRef = ref(db, "users/" + user.uid);
                   const snapshot = await get(userRef);
 
-                  window.parent.postMessage({ action: 'STOP_GLOBAL_LOADING' }, '*');
+                  window.parent.postMessage(
+                    { action: "STOP_GLOBAL_LOADING" },
+                    "*"
+                  );
 
                   if (snapshot.exists() && snapshot.val().isPro === true) {
                     // THEY ARE A PRO! Open the Settings Modal
@@ -1074,7 +1094,10 @@
                   btn.disabled = false;
                 })
                 .catch((signInError) => {
-                  window.parent.postMessage({ action: 'STOP_GLOBAL_LOADING' }, '*');
+                  window.parent.postMessage(
+                    { action: "STOP_GLOBAL_LOADING" },
+                    "*"
+                  );
                   alert(
                     "This email is already registered, but the password entered is incorrect."
                   );
@@ -1082,7 +1105,7 @@
                   btn.disabled = false;
                 });
             } else {
-              window.parent.postMessage({ action: 'STOP_GLOBAL_LOADING' }, '*');
+              window.parent.postMessage({ action: "STOP_GLOBAL_LOADING" }, "*");
               let friendlyError = error.message;
               if (error.code === "auth/weak-password")
                 friendlyError = "Password should be at least 6 characters.";
@@ -1092,104 +1115,87 @@
             }
           });
       };
-      
 
       // --- SETTINGS MODAL CONTROLS ---
 
-        window.openSettingsModal = (user, data) => {
+      window.openSettingsModal = (user, data) => {
         window.currentStripeCustomerId = data.stripeCustomerId;
-                                                                           
-                                                                           
-                                                                           
-            const billingBtn = document.getElementById("billingBtn");
-        
+
+        const billingBtn = document.getElementById("billingBtn");
+
         if (isPromoActive) {
-            billingBtn.style.display = "none";
+          billingBtn.style.display = "none";
         } else {
-            billingBtn.style.display = "block";
-            if (!data.stripeCustomerId) {
-                billingBtn.innerText = "⚠️ Verify Payment Method to Keep Pro Access";
-                billingBtn.style.color = "var(--warning)";
-                billingBtn.onclick = () => {
-                    window.closeSettingsModal();
-                    window.selectRole(data.heroType || "tow_truck", "setup");
-                    triggerSetupModal(auth.currentUser);
-                };
-            } else {
-                billingBtn.innerText = "💳 Manage Billing & Card";
-                billingBtn.style.color = "var(--text)";
-                billingBtn.onclick = () => window.openCustomerPortal();
-            }
-        }                                                               
-                                                                           
-                                                                           
-          
+          billingBtn.style.display = "block";
+          if (!data.stripeCustomerId) {
+            billingBtn.innerText =
+              "⚠️ Verify Payment Method to Keep Pro Access";
+            billingBtn.style.color = "var(--warning)";
+            billingBtn.onclick = () => {
+              window.closeSettingsModal();
+              window.selectRole(data.heroType || "tow_truck", "setup");
+              triggerSetupModal(auth.currentUser);
+            };
+          } else {
+            billingBtn.innerText = "💳 Manage Billing & Card";
+            billingBtn.style.color = "var(--text)";
+            billingBtn.onclick = () => window.openCustomerPortal();
+          }
+        }
 
-
-
-        
         // Pre-fill the inputs with their database data
         document.getElementById("editCompany").value = data.companyName || "";
         document.getElementById("editPhone").value = data.businessPhone || "";
         document.getElementById("editAddress").value =
           data.businessAddress || "";
         window.selectRole(data.heroType || "tow_truck", "edit");
-                                                              
-                                                              
-         // Pre-fill the inputs with their database data
+
+        // Pre-fill the inputs with their database data
         document.getElementById("editCompany").value = data.companyName || "";
         document.getElementById("editPhone").value = data.businessPhone || "";
-        document.getElementById("editAddress").value = data.businessAddress || "";
-        
+        document.getElementById("editAddress").value =
+          data.businessAddress || "";
+
         const existingRole = data.heroType || "tow_truck";
-        if (!['tow_truck', 'mechanic', 'both'].includes(existingRole)) {
-            window.selectRole("other", "edit");
-            document.getElementById("otherCategoryEdit").value = existingRole;
+        if (!["tow_truck", "mechanic", "both"].includes(existingRole)) {
+          window.selectRole("other", "edit");
+          document.getElementById("otherCategoryEdit").value = existingRole;
         } else {
-            window.selectRole(existingRole, "edit");
-        }                                                     
-                                                              
-                                                              
-   
-                                                  
-         window.initialProSettings = {
-            companyName: data.companyName || "",
-            businessPhone: data.businessPhone || "",
-            businessAddress: data.businessAddress || "",
-            heroType: data.heroType || "tow_truck"
+          window.selectRole(existingRole, "edit");
+        }
+
+        window.initialProSettings = {
+          companyName: data.companyName || "",
+          businessPhone: data.businessPhone || "",
+          businessAddress: data.businessAddress || "",
+          heroType: data.heroType || "tow_truck",
         };
-        window.checkSettingsChanged();                                         
-                                                  
-                                                  
-                                                  
-                                                  
-                                                  
-                                                  
-                                                  
-                                                  
+        window.checkSettingsChanged();
+
         const overlay = document.getElementById("settingsModalOverlay");
         const card = document.getElementById("settingsCard");
 
         overlay.style.display = "flex";
-                                      
-                                      
+
         if (window.googleMapsReady && !window.addressAutocompleteBound) {
-            const addressInput = document.getElementById("editAddress");
-            const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+          const addressInput = document.getElementById("editAddress");
+          const autocomplete = new google.maps.places.Autocomplete(
+            addressInput,
+            {
               types: ["address"],
-              fields: ["formatted_address"]
-            });
-            autocomplete.addListener("place_changed", () => {
-              const place = autocomplete.getPlace();
-              if (place.formatted_address) {
-                addressInput.value = place.formatted_address;
-                if (window.checkSettingsChanged) window.checkSettingsChanged();
-              }
-            });
-            window.addressAutocompleteBound = true;
-        }                              
-                                      
-                                      
+              fields: ["formatted_address"],
+            }
+          );
+          autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+            if (place.formatted_address) {
+              addressInput.value = place.formatted_address;
+              if (window.checkSettingsChanged) window.checkSettingsChanged();
+            }
+          });
+          window.addressAutocompleteBound = true;
+        }
+
         setTimeout(() => {
           overlay.style.opacity = "1";
           card.style.transform = "translateY(0)";
@@ -1215,18 +1221,18 @@
         const newCompany = document.getElementById("editCompany").value;
         const newPhone = document.getElementById("editPhone").value;
         const newAddress = document.getElementById("editAddress").value;
-                                                                
-                                                                
-                                                                
-       let finalRole = editRole;
-        if (editRole === 'other') {
-            const dropVal = document.getElementById("otherCategoryEdit").value;
-            if (!dropVal) {
-                btn.innerText = "SAVE CHANGES";
-                btn.disabled = false;
-                return alert("Please select a specialty category from the drop-down.");
-            }
-            finalRole = dropVal;
+
+        let finalRole = editRole;
+        if (editRole === "other") {
+          const dropVal = document.getElementById("otherCategoryEdit").value;
+          if (!dropVal) {
+            btn.innerText = "SAVE CHANGES";
+            btn.disabled = false;
+            return alert(
+              "Please select a specialty category from the drop-down."
+            );
+          }
+          finalRole = dropVal;
         }
 
         const uid = auth.currentUser.uid;
@@ -1238,28 +1244,23 @@
             businessPhone: newPhone,
             heroType: finalRole,
             businessAddress: newAddress,
-          });                                                    
+          });
 
-                          
-        // Show success
+          // Show success
           btn.style.background = "var(--success)";
           btn.innerText = "✔ SAVED!";
 
           window.initialProSettings = {
-              companyName: newCompany,
-              businessPhone: newPhone,
-              heroType: finalRole,
-              businessAddress: newAddress
+            companyName: newCompany,
+            businessPhone: newPhone,
+            heroType: finalRole,
+            businessAddress: newAddress,
           };
 
           setTimeout(() => {
             btn.innerText = "SAVE CHANGES";
             window.checkSettingsChanged();
-          }, 2000);                               
-                               
-                                          
-                                          
-                                          
+          }, 2000);
         } catch (error) {
           alert("Error saving: " + error.message);
           btn.innerText = "SAVE CHANGES";
@@ -1277,40 +1278,46 @@
       window.selectRole = (role, context) => {
         // Decide which modal we are updating
         const prefix = context === "setup" ? "Setup" : "Edit";
-                                                             
+
         // Save to the correct state variable
         if (context === "setup") setupRole = role;
         if (context === "edit") editRole = role;
 
         // Clear all active states in that specific modal
         document.getElementById(`btnTow${prefix}`).classList.remove("active");
-        document.getElementById(`btnMechanic${prefix}`).classList.remove("active");
+        document
+          .getElementById(`btnMechanic${prefix}`)
+          .classList.remove("active");
         document.getElementById(`btnBoth${prefix}`).classList.remove("active");
-        if (document.getElementById(`btnOther${prefix}`)) document.getElementById(`btnOther${prefix}`).classList.remove("active");
+        if (document.getElementById(`btnOther${prefix}`))
+          document
+            .getElementById(`btnOther${prefix}`)
+            .classList.remove("active");
 
         // Highlight the clicked button
-        if (role === "tow_truck") document.getElementById(`btnTow${prefix}`).classList.add("active");
-        if (role === "mechanic") document.getElementById(`btnMechanic${prefix}`).classList.add("active");
-        if (role === "both") document.getElementById(`btnBoth${prefix}`).classList.add("active");
-        if (role === "other") document.getElementById(`btnOther${prefix}`).classList.add("active");
+        if (role === "tow_truck")
+          document.getElementById(`btnTow${prefix}`).classList.add("active");
+        if (role === "mechanic")
+          document
+            .getElementById(`btnMechanic${prefix}`)
+            .classList.add("active");
+        if (role === "both")
+          document.getElementById(`btnBoth${prefix}`).classList.add("active");
+        if (role === "other")
+          document.getElementById(`btnOther${prefix}`).classList.add("active");
 
         // Toggle the hidden dropdown
         const dropDown = document.getElementById(`otherCategory${prefix}`);
         if (dropDown) {
-            dropDown.style.display = role === "other" ? "block" : "none";
+          dropDown.style.display = role === "other" ? "block" : "none";
         }
-                                                                        
-                                                                        
-       if (context === "edit" && window.checkSettingsChanged) {
-            // Slight delay ensures the DOM variable for dropDown updates before we check
-            setTimeout(window.checkSettingsChanged, 10); 
-        }                                                                 
-                                                                        
-                                                                        
-                                                                        
-      };                                                
-                                                                
-                                                               
+
+        if (context === "edit" && window.checkSettingsChanged) {
+          // Slight delay ensures the DOM variable for dropDown updates before we check
+          setTimeout(window.checkSettingsChanged, 10);
+        }
+      };
+
       // --- 5. FINAL PROCESSING (Live Stripe & Google Cloud Sync) ---
 
       // --- CUSTOMER BILLING PORTAL ---
@@ -1335,15 +1342,16 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               customerId: window.currentStripeCustomerId,
-              returnUrl: window.location.href, // Sends them back to your app
+              // Ensure they return to the main app wrapper, not the internal frame
+              returnUrl: window.top.location.href,
             }),
           });
 
           const result = await response.json();
 
           if (result.url) {
-            // Instantly teleport them to Stripe
-            window.location.href = result.url;
+            // Force the top-level PWA wrapper to navigate, bypassing the iframe block
+            window.top.location.href = result.url;
           } else {
             throw new Error(result.error);
           }
@@ -1366,14 +1374,15 @@
           alert("Please provide your company name and phone number.");
           return;
         }
-                                                                    
-                                                                    
-                                                                    
-           let finalRole = setupRole;
-        if (setupRole === 'other') {
-            const dropVal = document.getElementById("otherCategorySetup").value;
-            if (!dropVal) return alert("Please select a specialty category from the drop-down.");
-            finalRole = dropVal;
+
+        let finalRole = setupRole;
+        if (setupRole === "other") {
+          const dropVal = document.getElementById("otherCategorySetup").value;
+          if (!dropVal)
+            return alert(
+              "Please select a specialty category from the drop-down."
+            );
+          finalRole = dropVal;
         }
 
         const payBtn = document.getElementById("finalPayBtn");
@@ -1384,58 +1393,43 @@
         spinner.style.display = "block";
 
         if (isPromoActive) {
-            try { 
-                await update(ref(db, "users/" + auth.currentUser.uid), {
-                    email: document.getElementById("modalEmail").value,
-                    companyName: company,
-                    businessPhone: phone,
-                    heroType: finalRole,
-                    isPro: true,
-                    accountType: 'pro',
-                    stripePriceId: 'price_1TSoiu02cjd265jFHYME6eJs'
-                });                                                         
-                                                                    
-                                                                    
-                                                                    
+          try {
+            await update(ref(db, "users/" + auth.currentUser.uid), {
+              email: document.getElementById("modalEmail").value,
+              companyName: company,
+              businessPhone: phone,
+              heroType: finalRole,
+              isPro: true,
+              accountType: "pro",
+              stripePriceId: "price_1TSoiu02cjd265jFHYME6eJs",
+            });
 
-                
-                    await update(ref(db, "profiles/" + auth.currentUser.uid), {
-                    companyName: company,
-                    dispatchPhone: phone,
-                    isPro: true,
-                    createdAt: Date.now()
-                });
+            await update(ref(db, "profiles/" + auth.currentUser.uid), {
+              companyName: company,
+              dispatchPhone: phone,
+              isPro: true,
+              createdAt: Date.now(),
+            });
 
-              
-          isCheckingOut = false;
-                payBtn.style.display = "block";
-                payBtn.style.background = "#94a3b8";
-                payBtn.style.cursor = "not-allowed";
-                payBtn.innerText = "Welcome! Configuring your account...";
-                payBtn.disabled = true;
-                setTimeout(() => { window.top.location.href = "Appindex.html"; }, 3000);
-              
-              return;  
+            isCheckingOut = false;
+            payBtn.style.display = "block";
+            payBtn.style.background = "#94a3b8";
+            payBtn.style.cursor = "not-allowed";
+            payBtn.innerText = "Welcome! Configuring your account...";
+            payBtn.disabled = true;
+            setTimeout(() => {
+              window.top.location.href = "Appindex.html";
+            }, 3000);
 
-                                                                     
-                                                                     
-                                                                     
-                                                                     
-                                                                     
-                                                                     
-            } catch (err) {
-                spinner.style.display = "none";
-                payBtn.style.display = "block";
-                errorDisplay.textContent = "Setup error: " + err.message;
-                return;
-            }
+            return;
+          } catch (err) {
+            spinner.style.display = "none";
+            payBtn.style.display = "block";
+            errorDisplay.textContent = "Setup error: " + err.message;
+            return;
+          }
         }
-        
 
-
-
-
-        
         // 1. Securely request a Payment Token from Stripe
         const { paymentMethod, error } = await stripe.createPaymentMethod({
           type: "card",
@@ -1470,7 +1464,7 @@
               companyName: company,
               phone: phone,
               heroType: setupRole,
-              priceId: selectedPriceId,  // <--- PASTE YOUR Stripe price_... ID HERE!
+              priceId: selectedPriceId, // <--- PASTE YOUR Stripe price_... ID HERE!
             }),
           });
 
@@ -1479,22 +1473,16 @@
           if (result.success) {
             // Unset the safeguard
             isCheckingOut = false;
-                                                         
-                                                         
-                payBtn.style.display = "block";
+
+            payBtn.style.display = "block";
             payBtn.style.background = "#94a3b8";
             payBtn.style.cursor = "not-allowed";
             payBtn.innerText = "REDIRECTING...";
             payBtn.disabled = true;
 
             setTimeout(() => {
-             window.top.location.href = "Appindex.html";
-            }, 1500);                                          
-                                                         
-
-                                        
-                                                    
-                                                    
+              window.top.location.href = "Appindex.html";
+            }, 1500);
           } else {
             // If Stripe declines the card on the backend
             throw new Error(result.error);
@@ -1515,32 +1503,23 @@
           event.returnValue = "";
         }
       });
- 
 
-
-
-
-
-
-let scrollStopTimer;
+      let scrollStopTimer;
       window.addEventListener("scroll", () => {
         // Clear the timer while they are actively moving the page
         clearTimeout(scrollStopTimer);
-        
+
         // Wait 150 milliseconds after movement stops to confirm the scroll is finished
         scrollStopTimer = setTimeout(() => {
           // 1. Flash the ribbon ON
-          window.parent.postMessage({ action: 'START_GLOBAL_LOADING' }, '*');
-          
+          window.parent.postMessage({ action: "START_GLOBAL_LOADING" }, "*");
+
           // 2. Turn it OFF a split second later (500 milliseconds)
           setTimeout(() => {
-            window.parent.postMessage({ action: 'STOP_GLOBAL_LOADING' }, '*');
-          }, 500); 
-          
+            window.parent.postMessage({ action: "STOP_GLOBAL_LOADING" }, "*");
+          }, 500);
         }, 150);
       });
-
-      
     </script>
   </body>
 </html>
