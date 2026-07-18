@@ -1861,7 +1861,28 @@ function adjustViewport() {
         closeAllPanels();
         document.getElementById("globalLoginModal").style.display = "flex";
       }
-                                                                          
+                                      
+      
+      
+      
+      if (event.data && event.data.action === 'CHECK_PRO_TOGGLE') {
+        if (!currentUserId) {
+          closeAllPanels();
+          document.getElementById("globalLoginModal").style.display = "flex";
+        } else if (!isUserPro) {
+          const appFrame = document.getElementById("appFrame");
+          if (appFrame && appFrame.contentWindow) {
+            appFrame.contentWindow.postMessage({ action: "REQUIRE_UPGRADE" }, "*");
+          }
+        } else {
+          const appFrame = document.getElementById("appFrame");
+          if (appFrame && appFrame.contentWindow) {
+            appFrame.contentWindow.postMessage({ action: "PRO_STATUS_VERIFIED" }, "*");
+          }
+        }
+      }
+      
+
             
        // Listen for the Discovery Map routing command
       if (event.data && event.data.action === 'VIEW_HERO_PROFILE') {
@@ -2289,6 +2310,17 @@ function adjustViewport() {
           
           
           isUserPro = data.isPro === true;
+          
+          
+          
+          const appFrame = document.getElementById("appFrame");
+          if (appFrame && appFrame.contentWindow) {
+            appFrame.contentWindow.postMessage({ action: "AUTH_STATE_UPDATE", isPro: isUserPro, isLoggedIn: true }, "*");
+          }
+          
+          
+          
+          
 
           if (!isUserPro) {
             document.getElementById("dashboardFormsContainer").style.display = "none";
@@ -2581,6 +2613,15 @@ function adjustViewport() {
 
       } else {
         currentUserId = null;
+        
+        
+        
+        const appFrame = document.getElementById("appFrame");
+        if (appFrame && appFrame.contentWindow) {
+          appFrame.contentWindow.postMessage({ action: "AUTH_STATE_UPDATE", isPro: false, isLoggedIn: false }, "*");
+        }
+        
+        
 
         document.getElementById("dashboardFormsContainer").style.display =
           "none";
@@ -3690,7 +3731,7 @@ function adjustViewport() {
         }
     };
       
-  
+   
     
        
   </script>
