@@ -15,7 +15,7 @@
     <style>
       :root {
         --card: #ffffff;
-        --muted: black;
+        --muted: black; 
         --text: #0f172a;
 
         --accent: #ee611c;
@@ -7413,6 +7413,54 @@
           }
         }
       };
+      
+      
+ 
+      
+      window.openProLogin = (checkbox) => {
+        if (checkbox.checked) {
+          checkbox.checked = false; 
+          window.parent.postMessage({ action: 'CHECK_PRO_TOGGLE' }, '*');
+        } else {
+          document.getElementById("proInlineVault").style.display = "none";
+          document.getElementById("proDashboardSection").style.display = "none";
+        }
+      };
+
+      window.addEventListener("message", (event) => {
+        if (!event.data) return;
+        
+        const proToggle = document.querySelector("input[onclick*='openProLogin']") || document.querySelector("input[onchange*='openProLogin']");
+
+        if (event.data.action === 'REQUIRE_UPGRADE') {
+          if (proToggle) proToggle.checked = false;
+          document.getElementById("proInlineVault").style.display = "none";
+          window.location.href = "pro-hero.html";
+        }
+        
+        if (event.data.action === 'PRO_STATUS_VERIFIED') {
+          if (proToggle) proToggle.checked = true;
+          document.getElementById("proInlineVault").style.display = "block";
+          document.getElementById("proDashboardSection").style.display = "block";
+        }
+
+        if (event.data.action === 'AUTH_STATE_UPDATE') {
+          if (event.data.isPro) {
+            if (proToggle) proToggle.checked = true;
+            document.getElementById("proInlineVault").style.display = "block";
+            document.getElementById("proDashboardSection").style.display = "block";
+          } else {
+            if (proToggle) proToggle.checked = false;
+            document.getElementById("proInlineVault").style.display = "none";
+            document.getElementById("proDashboardSection").style.display = "none";
+          }
+        }
+      });
+      
+       
+      
+    
+      
 
       window.onload = () => {
         // --- FIX: FORCE THE GLASS OVERLAY TO LIFT ONCE APP LOADS ---
@@ -7473,7 +7521,7 @@
                   "*"
                 );
               }
-            }, randomDelay);
+            }, randomDelay); 
           }
         });
 
@@ -7760,27 +7808,12 @@
         }
       });
 
-      window.openProLogin = async (checkbox) => {
-        const vault = document.getElementById("proInlineVault");
-        const dashSec = document.getElementById("proDashboardSection");
 
-        if (checkbox.checked) {
-          const snap = await get(ref(db, `profiles/${myId}`));
-          if (snap.exists() && snap.val().isPro) {
-            vault.style.display = "block";
-            dashSec.style.display = "block";
-            window.fleetDrivers = snap.val().fleetDrivers || [];
-            window.renderFleetDrivers();
-          } else {
-            checkbox.checked = false;
-            window.parent.postMessage({ action: "OPEN_GLOBAL_LOGIN" }, "*");
-            window.closeModal("profileModal");
-          }
-        } else {
-          vault.style.display = "none";
-          dashSec.style.display = "none";
-        }
-      };
+      
+      
+      
+      
+      
 
       window.toggleFleetMode = (checkbox) => {
         document.getElementById("fleetManagerPanel").style.display =
@@ -11533,7 +11566,7 @@
             });
           }
         });
-      }
+      } 
 
       let scrollStopTimer;
       window.addEventListener("scroll", () => {
