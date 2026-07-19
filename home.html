@@ -6721,6 +6721,8 @@
         );
       let myId = localStorage.getItem("heroUserId");
       
+      
+      
       window.openProLogin = (checkbox) => {
         if (checkbox.checked) {
           checkbox.checked = false;
@@ -6734,10 +6736,10 @@
       window.addEventListener("message", (event) => {
         if (!event.data || !event.data.action) return;
 
-        if (event.data.action === "PRO_STATUS_VERIFIED") {
-          const proToggle = document.getElementById("isProToggle");
-          const tier = event.data.tier;
+        const proToggle = document.getElementById("isProToggle") || document.querySelector("input[onclick*='openProLogin']");
 
+        if (event.data.action === "PRO_STATUS_VERIFIED") {
+          const tier = event.data.tier;
           if (tier === "sos_pro" || tier === "hub_only") {
             if (proToggle) proToggle.checked = true;
             document.getElementById("proInlineVault").style.display = "block";
@@ -6746,9 +6748,27 @@
             window.parent.postMessage({ action: 'REQUIRE_UPGRADE' }, '*');
           }
         }
+
+        if (event.data.action === 'REQUIRE_UPGRADE') {
+          if (proToggle) proToggle.checked = false;
+          document.getElementById("proInlineVault").style.display = "none";
+          window.location.href = "pro-hero.html";
+        }
+
+        if (event.data.action === 'AUTH_STATE_UPDATE') {
+          if (event.data.isPro) {
+            if (proToggle) proToggle.checked = true;
+            document.getElementById("proInlineVault").style.display = "block";
+            document.getElementById("proDashboardSection").style.display = "block";
+          } else {
+            if (proToggle) proToggle.checked = false;
+            document.getElementById("proInlineVault").style.display = "none";
+            document.getElementById("proDashboardSection").style.display = "none";
+          }
+        }
       });
       
-      
+    
       
       
       
@@ -7448,52 +7468,7 @@
         }
       };
       
-      
- 
-      
-      window.openProLogin = (checkbox) => {
-        if (checkbox.checked) {
-          checkbox.checked = false; 
-          window.parent.postMessage({ action: 'CHECK_PRO_TOGGLE' }, '*');
-        } else {
-          document.getElementById("proInlineVault").style.display = "none";
-          document.getElementById("proDashboardSection").style.display = "none";
-        }
-      };
 
-      window.addEventListener("message", (event) => {
-        if (!event.data) return;
-        
-        const proToggle = document.querySelector("input[onclick*='openProLogin']") || document.querySelector("input[onchange*='openProLogin']");
-
-        if (event.data.action === 'REQUIRE_UPGRADE') {
-          if (proToggle) proToggle.checked = false;
-          document.getElementById("proInlineVault").style.display = "none";
-          window.location.href = "pro-hero.html";
-        }
-        
-        if (event.data.action === 'PRO_STATUS_VERIFIED') {
-          if (proToggle) proToggle.checked = true;
-          document.getElementById("proInlineVault").style.display = "block";
-          document.getElementById("proDashboardSection").style.display = "block";
-        }
-
-        if (event.data.action === 'AUTH_STATE_UPDATE') {
-          if (event.data.isPro) {
-            if (proToggle) proToggle.checked = true;
-            document.getElementById("proInlineVault").style.display = "block";
-            document.getElementById("proDashboardSection").style.display = "block";
-          } else {
-            if (proToggle) proToggle.checked = false;
-            document.getElementById("proInlineVault").style.display = "none";
-            document.getElementById("proDashboardSection").style.display = "none";
-          }
-        }
-      });
-      
-       
-      
-    
       
 
       window.onload = () => {
