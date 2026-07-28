@@ -13,7 +13,7 @@
       window.googleMapsReady = false;
       window.initGooglePlaces = () => {
         window.googleMapsReady = true;
-      };
+      }; 
     </script>
 
     <script
@@ -424,60 +424,33 @@
             margin-bottom: 20px;
           "
         >
-          <div
-            id="tierAdvertising"
-            onclick="window.selectTier('price_1TYyN202cjd265jFxua9HjQF', 'Advertising Hub', 9.99)"
-            style="
-              flex: 1;
-              border: 2px solid var(--accent);
-              border-radius: 12px;
-              padding: 15px;
-              text-align: center;
-              cursor: pointer;
-              background: rgba(238, 97, 28, 0.05);
-            "
-          >
-            <div style="font-weight: 900; color: var(--text); font-size: 15px">
-              Hero Advertising
-            </div>
+          <div id="tierFleet" style="margin-top: 10px; margin-bottom: 20px">
             <div
               style="
-                font-size: 20px;
-                font-weight: 900;
-                color: var(--accent);
-                margin: 5px 0;
+                border: 2px solid var(--accent);
+                border-radius: 12px;
+                padding: 15px;
+                text-align: center;
+                background: rgba(238, 97, 28, 0.05);
               "
             >
-              $9.99<span style="font-size: 11px; color: var(--muted)">/mo</span>
-            </div>
-          </div>
-          <div
-            id="tierFleet"
-            onclick="window.selectTier('price_1TSoiu02cjd265jFHYME6eJs', 'Pro Fleet', 29.99)"
-            style="
-              flex: 1;
-              border: 2px solid #e2e8f0;
-              border-radius: 12px;
-              padding: 15px;
-              text-align: center;
-              cursor: pointer;
-              background: white;
-            "
-          >
-            <div style="font-weight: 900; color: var(--text); font-size: 15px">
-              Pro Responder
-            </div>
-            <div
-              style="
-                font-size: 20px;
-                font-weight: 900;
-                color: var(--accent);
-                margin: 5px 0;
-              "
-            >
-              $29.99<span style="font-size: 11px; color: var(--muted)"
-                >/mo</span
+              <div
+                style="font-weight: 900; color: var(--text); font-size: 15px"
               >
+                Pro Hero
+              </div>
+              <div
+                style="
+                  font-size: 20px;
+                  font-weight: 900;
+                  color: var(--accent);
+                  margin: 5px 0;
+                "
+              >
+                $29.99<span style="font-size: 11px; color: var(--muted)"
+                  >/mo</span
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -639,14 +612,9 @@
             "
           ></div>
 
-          <button
-            class="submit-btn"
-            id="finalPayBtn"
-            onclick="window.processFinalSetup()"
-          >
-            ACTIVATE PRO ACCOUNT -
-            <span id="dynamicPriceDisplay">$9.99</span>/mo
-          </button>
+         <button class="submit-btn" id="finalPayBtn" onclick="window.processFinalSetup()">
+           ACTIVATE PRO ACCOUNT - <span id="dynamicPriceDisplay">$29.99</span>/mo
+         </button>
 
           <div class="spinner" id="modalSpinner"></div>
 
@@ -939,23 +907,19 @@
 
       let isPromoActive = false;
 
-      onValue(ref(db, "settings/global/free_hero_registration"), (snapshot) => {
-        isPromoActive = snapshot.val() === true;
-        if (isPromoActive) {
-          document.getElementById("tierAdvertising").style.display = "none";
-          document.getElementById("tierFleet").style.display = "none";
-          document.querySelector(".submit-btn").innerText = "CONTINUE";
-          window.selectTier(
-            "price_1TSoiu02cjd265jFHYME6eJs",
-            "Pro Fleet",
-            29.99
-          );
-        } else {
-          document.getElementById("tierAdvertising").style.display = "flex";
-          document.getElementById("tierFleet").style.display = "block";
-          document.querySelector(".submit-btn").innerText = "CONTINUE";
-        }
+      
+      
+      
+     onValue(ref(db, "settings/global/free_hero_registration"), (snapshot) => {
+      isPromoActive = snapshot.val() === true;
+      if (isPromoActive) {
+       document.getElementById("tierFleet").style.display = "none";
+      } else {
+        document.getElementById("tierFleet").style.display = "block";
+      }
       });
+      
+
 
       // 3. Attach the function to the window so the HTML button can click it
       // --- APP STATE & STRIPE SETUP ---
@@ -963,23 +927,10 @@
       let setupRole = "tow_truck";
       let editRole = "tow_truck";
       let isCheckingOut = false;
-      let selectedPriceId = "price_1TYyN202cjd265jFxua9HjQF";
-      let selectedTierPrice = 9.99;
+      
+      let selectedPriceId = "price_1TSoiu02cjd265jFHYME6eJs"; // $29.99 Stripe Price ID
+      let selectedTierPrice = 29.99;
 
-      window.selectTier = (priceId, name, price) => {
-        selectedPriceId = priceId;
-        selectedTierPrice = price;
-
-        document.getElementById("tierAdvertising").style.borderColor =
-          price === 9.99 ? "var(--accent)" : "#e2e8f0";
-        document.getElementById("tierAdvertising").style.background =
-          price === 9.99 ? "rgba(238, 97, 28, 0.05)" : "white";
-
-        document.getElementById("tierFleet").style.borderColor =
-          price === 29.99 ? "var(--accent)" : "#e2e8f0";
-        document.getElementById("tierFleet").style.background =
-          price === 29.99 ? "rgba(238, 97, 28, 0.05)" : "white";
-      };
 
       // Initialize Stripe
       // IMPORTANT: Swap this pk_live key to your pk_test_ key before testing!
